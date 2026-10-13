@@ -251,6 +251,14 @@
 <body>
 <nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
 <h1 id="changelog">Changelog</h1>
+<h2 id="0380---2026-10-13">0.38.0 - 2026-10-13</h2>
+<ul>
+<li>Bring the source tree to a clean <code>ruff check</code> and <code>ruff format --check</code> under the pinned Ruff 0.16.0 and the existing <code>pyproject.toml</code> rules. Reformat 91 files and apply import sorting, <code>collections.abc</code> imports, and unquoted annotations.</li>
+<li>Import <code>Iterable</code> in <code>classify.py</code> and <code>discovery_diff.py</code>, where it was referenced only in annotations without being imported. Postponed annotation evaluation prevented a runtime failure, but type checkers and annotation introspection reported an undefined name.</li>
+<li>Make <code>CredentialMode</code> a <code>StrEnum</code>. Members still equal their string values and are compared by identity throughout; only <code>str()</code> of a member now returns its value.</li>
+<li>Declare <code>preflight_snmp_backend</code> an explicit re-export of <code>lldp_runner.snmp</code>. Keep nine constant-name <code>getattr</code>/<code>setattr</code> calls, with documented <code>noqa</code> reasons, where attribute syntax would introduce Ty errors for lazily imported cryptography submodules and dynamic exception attributes.</li>
+<li>Keep dependency versions, collection, topology, output, diff, watch, credential, retry, and schema behavior unchanged.</li>
+</ul>
 <h2 id="0370---2026-09-07">0.37.0 - 2026-09-07</h2>
 <ul>
 <li>Change the built-in <code>snmp.backend</code> default from <code>gufo</code> to <code>pysnmp</code> after repeated production runs demonstrated complete collection, stable topology, correct SNMPv3 and IPv6 behavior, and lower elapsed time. Update generated configuration, CLI help, operator examples, installation guidance, and architecture documentation while retaining Gufo as an explicitly selectable backend.</li>
