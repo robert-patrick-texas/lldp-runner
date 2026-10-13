@@ -1,0 +1,490 @@
+#!/usr/bin/env bash
+
+# Build one uncompressed review bundle from two completed LLDP-Runner runs.
+#
+# With no arguments, the script selects the two newest finalized output runs by
+# the timezone-aware "completed" value in each output directory's run.json.
+# With two arguments, their order is retained: the first run is diff data set A
+# and the second run is data set B.
+#
+# The resulting tar archive contains:
+#
+#   outputs/<run-id-A>/...
+#   outputs/<run-id-B>/...
+#   runs/<run-id-A>/...
+#   runs/<run-id-B>/...
+#   ./diff-<run-id-A>-<run-id-B>.changes.json
+#
+# Optional environment variables:
+#
+#   LLDP_RUNNER_BUNDLE_ROOT
+#       Parent of the source outputs and runs directories. The default is the
+#       project directory above this scripts directory.
+#
+#   LLDP_RUNNER_OUTPUTS_DIR
+#       Explicit source outputs directory. This overrides
+#       <bundle-root>/outputs.
+#
+#   LLDP_RUNNER_RUNS_DIR
+#       Explicit source runtime-state directory. The default is
+#       <bundle-root>/runs.
+#
+#   LLDP_RUNNER_BUNDLE_ARCHIVE_DIR
+#       Directory in which to create the final tar file. The default is the
+#       operator's current working directory.
+#
+#   LLDP_RUNNER_DIFF_BIN
+#       lrun-diff executable. The default is scripts/lrun-diff beside this file,
+#       with PATH lookup as a fallback.
+#
+#   PYTHON_BIN, TAR_BIN, TMPDIR
+#       Optional command or temporary-directory overrides.
+
+set -euo pipefail
+IFS=$'\n\t'
+umask 077
+
+program_name="${0##*/}"
+archive_tmp=""
+tmpdir=""
+
+usage()
+{
+    printf 'Usage: %s [RUNID_A RUNID_B]\n' "$program_name" >&2
+}
+
+die()
+{
+    printf 'Error: %s\n' "$*" >&2
+    exit 1
+}
+
+cleanup()
+{
+    if [[ -n "$archive_tmp" && -e "$archive_tmp" ]]; then
+        rm -f -- "$archive_tmp"
+    fi
+    if [[ -n "$tmpdir" && -d "$tmpdir" ]]; then
+        rm -rf -- "$tmpdir"
+    fi
+}
+
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+resolve_executable()
+{
+    local candidate="$1"
+    local resolved
+
+    if [[ "$candidate" == */* ]]; then
+        [[ -x "$candidate" ]] || return 1
+        readlink -f -- "$candidate"
+        return
+    fi
+
+    resolved="$(command -v -- "$candidate" || true)"
+    [[ -n "$resolved" && -x "$resolved" ]] || return 1
+    readlink -f -- "$resolved"
+}
+
+canonical_directory()
+{
+    local path="$1"
+    [[ -d "$path" ]] || return 1
+    (cd -- "$path" && pwd -P)
+}
+
+validate_run_id()
+{
+    local run_id="$1"
+    local label="$2"
+
+    if [[ ! "$run_id" =~ ^[A-Za-z0-9._-]+$ || "$run_id" == "." || "$run_id" == ".." ]]; then
+        die "${label} must be one non-empty path component using only letters, digits, '.', '_', and '-': ${run_id}"
+    fi
+}
+
+require_accessible_tree()
+{
+    local path="$1"
+    local label="$2"
+    local problem
+
+    [[ -d "$path" ]] || die "required directory is missing: ${label} (${path})"
+    [[ ! -L "$path" ]] || die "required directory must not be a symbolic link: ${label} (${path})"
+    [[ -r "$path" && -x "$path" ]] || die "required directory is not readable and searchable: ${label} (${path})"
+
+    if ! problem="$(
+        find "$path" \
+            \( \
+                \( -type d \( ! -readable -o ! -executable \) \) \
+                -o \
+                \( -type f ! -readable \) \
+            \) \
+            -print -quit 2>&1
+    )"; then
+        die "unable to inspect ${label}: ${problem}"
+    fi
+
+    if [[ -n "$problem" ]]; then
+        die "inaccessible content below ${label}: ${problem}"
+    fi
+}
+
+if (( $# != 0 && $# != 2 )); then
+    usage
+    die "provide no run IDs or exactly two run IDs."
+fi
+
+script_reference="${BASH_SOURCE[0]}"
+if [[ "$script_reference" != */* ]]; then
+    script_reference="$(command -v -- "$script_reference" || true)"
+fi
+[[ -n "$script_reference" ]] || die "unable to determine script location."
+
+script_path="$(readlink -f -- "$script_reference")"
+[[ -f "$script_path" ]] || die "unable to resolve script location."
+script_dir="$(dirname -- "$script_path")"
+project_dir="$(canonical_directory "${script_dir}/..")" || die "unable to resolve project directory."
+
+bundle_root="${LLDP_RUNNER_BUNDLE_ROOT:-$project_dir}"
+bundle_root="$(canonical_directory "$bundle_root")" || die "bundle root is missing or inaccessible: ${bundle_root}"
+
+outputs_candidate="${LLDP_RUNNER_OUTPUTS_DIR:-${bundle_root}/outputs}"
+outputs_dir="$(canonical_directory "$outputs_candidate")" || die "outputs directory is missing or inaccessible: ${outputs_candidate}"
+
+runs_candidate="${LLDP_RUNNER_RUNS_DIR:-${bundle_root}/runs}"
+runs_dir="$(canonical_directory "$runs_candidate")" || die "runs directory is missing or inaccessible: ${runs_candidate}"
+
+archive_candidate="${LLDP_RUNNER_BUNDLE_ARCHIVE_DIR:-$PWD}"
+archive_dir="$(canonical_directory "$archive_candidate")" || die "archive directory is missing or inaccessible: ${archive_candidate}"
+[[ -w "$archive_dir" && -x "$archive_dir" ]] || die "archive directory is not writable and searchable: ${archive_dir}"
+
+python_bin="$(resolve_executable "${PYTHON_BIN:-python3}")" || die "Python 3 was not found; set PYTHON_BIN to a Python 3 executable."
+tar_bin="$(resolve_executable "${TAR_BIN:-tar}")" || die "tar was not found; set TAR_BIN to a GNU tar executable."
+
+if [[ -n "${LLDP_RUNNER_DIFF_BIN:-}" ]]; then
+    diff_candidate="$LLDP_RUNNER_DIFF_BIN"
+elif [[ -x "${script_dir}/lrun-diff" ]]; then
+    diff_candidate="${script_dir}/lrun-diff"
+else
+    diff_candidate="lrun-diff"
+fi
+diff_bin="$(resolve_executable "$diff_candidate")" || die "lrun-diff was not found or is not executable: ${diff_candidate}"
+
+tmp_base="${TMPDIR:-/tmp}"
+tmp_base="$(canonical_directory "$tmp_base")" || die "temporary directory root is missing or inaccessible: ${tmp_base}"
+[[ -w "$tmp_base" && -x "$tmp_base" ]] || die "temporary directory root is not writable and searchable: ${tmp_base}"
+tmpdir="$(mktemp -d "${tmp_base}/lldp-runner-bundle.XXXXXX")"
+
+if (( $# == 2 )); then
+    run_id_a="$1"
+    run_id_b="$2"
+else
+    selection_file="${tmpdir}/selected-runids"
+    if ! "$python_bin" - "$outputs_dir" >"$selection_file" <<'PY'
+from __future__ import annotations
+
+import json
+import re
+import sys
+from datetime import datetime
+from pathlib import Path
+
+SAFE_RUN_ID = re.compile(r"^[A-Za-z0-9._-]+$")
+output_root = Path(sys.argv[1])
+ranked: list[tuple[float, str]] = []
+
+for entry in output_root.iterdir():
+    if entry.is_symlink() or not entry.is_dir():
+        continue
+    if entry.name in {".", ".."} or SAFE_RUN_ID.fullmatch(entry.name) is None:
+        continue
+
+    discovery_file = entry / "discovery.json"
+    run_file = entry / "run.json"
+    if not discovery_file.is_file() or not run_file.is_file():
+        continue
+
+    try:
+        run_data = json.loads(run_file.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        continue
+
+    status = str(run_data.get("status") or "").strip().upper()
+    if status and status != "COMPLETED":
+        continue
+
+    declared_run_id = str(run_data.get("run_id") or entry.name)
+    if declared_run_id != entry.name:
+        continue
+
+    completed = run_data.get("completed")
+    if not isinstance(completed, str) or not completed.strip():
+        continue
+
+    timestamp_text = completed.strip()
+    if timestamp_text.endswith("Z"):
+        timestamp_text = f"{timestamp_text[:-1]}+00:00"
+
+    try:
+        completed_at = datetime.fromisoformat(timestamp_text)
+    except ValueError:
+        continue
+    if completed_at.tzinfo is None:
+        continue
+
+    ranked.append((completed_at.timestamp(), entry.name))
+
+ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+if len(ranked) < 2:
+    print(
+        "fewer than two finalized output directories have readable discovery.json "
+        "and run.json files with timezone-aware completion timestamps",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+print(ranked[0][1])
+print(ranked[1][1])
+PY
+    then
+        die "unable to select the two most recent finalized runs from ${outputs_dir}."
+    fi
+
+    mapfile -t selected_run_ids <"$selection_file"
+    [[ ${#selected_run_ids[@]} -eq 2 ]] || die "automatic run selection did not return exactly two run IDs."
+    run_id_a="${selected_run_ids[0]}"
+    run_id_b="${selected_run_ids[1]}"
+fi
+
+validate_run_id "$run_id_a" "RUNID_A"
+validate_run_id "$run_id_b" "RUNID_B"
+[[ "$run_id_a" != "$run_id_b" ]] || die "RUNID_A and RUNID_B must identify different runs."
+
+output_a="${outputs_dir}/${run_id_a}"
+output_b="${outputs_dir}/${run_id_b}"
+run_a="${runs_dir}/${run_id_a}"
+run_b="${runs_dir}/${run_id_b}"
+
+require_accessible_tree "$output_a" "outputs/${run_id_a}"
+require_accessible_tree "$output_b" "outputs/${run_id_b}"
+require_accessible_tree "$run_a" "runs/${run_id_a}"
+require_accessible_tree "$run_b" "runs/${run_id_b}"
+
+for required_file in \
+    "${output_a}/discovery.json" \
+    "${output_a}/run.json" \
+    "${output_b}/discovery.json" \
+    "${output_b}/run.json" \
+    "${run_a}/discovery-state.sqlite" \
+    "${run_b}/discovery-state.sqlite"
+do
+    [[ -f "$required_file" && -r "$required_file" ]] || die "required finalized output file is missing or unreadable: ${required_file}"
+done
+
+diff_name="diff-${run_id_a}-${run_id_b}.changes.json"
+diff_path="${tmpdir}/${diff_name}"
+
+printf 'Comparing run A %s with run B %s...\n' "$run_id_a" "$run_id_b" >&2
+set +e
+"$diff_bin" \
+    --runid "$run_id_a" \
+    --runid "$run_id_b" \
+    --changes-only \
+    --json \
+    >"$diff_path"
+diff_status=$?
+set -e
+
+case "$diff_status" in
+    0|1)
+        ;;
+    *)
+        die "lrun-diff failed with exit status ${diff_status}; no prepared bundle was created."
+        ;;
+esac
+
+[[ -s "$diff_path" ]] || die "lrun-diff produced an empty JSON output file."
+
+if ! "$python_bin" - \
+    "$diff_path" \
+    "$run_id_a" \
+    "$run_id_b" \
+    "$diff_status" \
+    "${output_a}/discovery.json" \
+    "${output_b}/discovery.json" <<'PY'
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+expected_a = sys.argv[2]
+expected_b = sys.argv[3]
+expected_exit = int(sys.argv[4])
+expected_path_a = Path(sys.argv[5]).resolve()
+expected_path_b = Path(sys.argv[6]).resolve()
+
+try:
+    document = json.loads(path.read_text(encoding="utf-8"))
+except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+    print(f"diff output is not valid JSON: {exc}", file=sys.stderr)
+    raise SystemExit(1)
+
+sources = document.get("sources")
+if not isinstance(sources, dict):
+    print("diff JSON does not contain a sources object", file=sys.stderr)
+    raise SystemExit(1)
+
+source_a = sources.get("a") or {}
+source_b = sources.get("b") or {}
+actual_a = source_a.get("run_id")
+actual_b = source_b.get("run_id")
+if actual_a != expected_a or actual_b != expected_b:
+    print(
+        "diff JSON source mismatch: "
+        f"expected A={expected_a!r}, B={expected_b!r}; "
+        f"received A={actual_a!r}, B={actual_b!r}",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+actual_path_a = Path(str(source_a.get("path") or "")).resolve()
+actual_path_b = Path(str(source_b.get("path") or "")).resolve()
+if actual_path_a != expected_path_a or actual_path_b != expected_path_b:
+    print(
+        "diff JSON path mismatch: "
+        f"expected A={str(expected_path_a)!r}, B={str(expected_path_b)!r}; "
+        f"received A={str(actual_path_a)!r}, B={str(actual_path_b)!r}",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+result = document.get("result")
+reported_exit = (result or {}).get("exit_code") if isinstance(result, dict) else None
+if reported_exit != expected_exit:
+    print(
+        f"diff JSON exit-code mismatch: process={expected_exit}, JSON={reported_exit!r}",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+PY
+then
+    die "lrun-diff output validation failed; no prepared bundle was created."
+fi
+
+archive_name="lldp-runner-bundle-${run_id_a}-${run_id_b}.tar"
+archive_path="${archive_dir}/${archive_name}"
+[[ ! -e "$archive_path" ]] || die "archive already exists: ${archive_path}"
+archive_tmp="$(mktemp "${archive_dir}/.${archive_name}.tmp.XXXXXX")"
+
+stage_root="${tmpdir}/stage"
+mkdir -p -- "${stage_root}/outputs" "${stage_root}/runs"
+cp -a -- "$output_a" "${stage_root}/outputs/${run_id_a}"
+cp -a -- "$output_b" "${stage_root}/outputs/${run_id_b}"
+
+stage_runtime_tree()
+{
+    local source_dir="$1"
+    local destination_dir="$2"
+    local item
+    local base
+
+    mkdir -p -- "$destination_dir"
+    while IFS= read -r -d '' item; do
+        base="${item##*/}"
+        case "$base" in
+            discovery-state.sqlite|discovery-state.sqlite-wal|discovery-state.sqlite-shm)
+                continue
+                ;;
+        esac
+        cp -a -- "$item" "${destination_dir}/${base}"
+    done < <(find "$source_dir" -mindepth 1 -maxdepth 1 -print0)
+
+    "$python_bin" - \
+        "${source_dir}/discovery-state.sqlite" \
+        "${destination_dir}/discovery-state.sqlite" <<'PYBACKUP'
+from __future__ import annotations
+
+import sqlite3
+import sys
+from pathlib import Path
+
+source = Path(sys.argv[1]).resolve()
+destination = Path(sys.argv[2]).resolve()
+uri = source.as_uri() + "?mode=ro"
+
+try:
+    with sqlite3.connect(uri, uri=True, timeout=30.0) as source_db:
+        with sqlite3.connect(destination, timeout=30.0) as destination_db:
+            source_db.backup(destination_db)
+            destination_db.execute("PRAGMA journal_mode=DELETE")
+            destination_db.commit()
+            before = destination_db.execute("PRAGMA integrity_check").fetchone()
+            if before is None or before[0] != "ok":
+                raise RuntimeError(f"SQLite backup integrity check failed: {before!r}")
+            # Completed-run databases commonly contain free pages and a large
+            # replaced graph projection. Compact the review copy without touching
+            # the operator's authoritative run database.
+            destination_db.execute("VACUUM")
+            after = destination_db.execute("PRAGMA integrity_check").fetchone()
+            if after is None or after[0] != "ok":
+                raise RuntimeError(f"compacted SQLite integrity check failed: {after!r}")
+except (OSError, sqlite3.Error, RuntimeError) as exc:
+    print(f"unable to create coherent SQLite review copy: {exc}", file=sys.stderr)
+    raise SystemExit(1)
+PYBACKUP
+}
+
+stage_runtime_tree "$run_a" "${stage_root}/runs/${run_id_a}"
+stage_runtime_tree "$run_b" "${stage_root}/runs/${run_id_b}"
+
+"$tar_bin" \
+    --create \
+    --file "$archive_tmp" \
+    --directory "$stage_root" \
+    -- \
+    "outputs/${run_id_a}" \
+    "outputs/${run_id_b}" \
+    "runs/${run_id_a}" \
+    "runs/${run_id_b}"
+
+"$tar_bin" \
+    --append \
+    --file "$archive_tmp" \
+    --directory "$tmpdir" \
+    -- "./${diff_name}"
+
+archive_listing="${tmpdir}/archive.list"
+"$tar_bin" --list --file "$archive_tmp" >"$archive_listing"
+if grep -Eq 'discovery-state\.sqlite-(wal|shm)$' "$archive_listing"; then
+    die "archive verification failed; SQLite WAL/SHM sidecars were included."
+fi
+
+for expected_entry in \
+    "outputs/${run_id_a}/" \
+    "outputs/${run_id_b}/" \
+    "runs/${run_id_a}/" \
+    "runs/${run_id_b}/" \
+    "./${diff_name}"
+do
+    grep -Fqx -- "$expected_entry" "$archive_listing" || die "archive verification failed; missing entry: ${expected_entry}"
+done
+
+mv -n -- "$archive_tmp" "$archive_path"
+if [[ -e "$archive_tmp" ]]; then
+    die "archive destination appeared while the bundle was being built: ${archive_path}"
+fi
+archive_tmp=""
+
+printf 'Prepared bundle: %s\n' "$archive_path"
+printf 'Run A:          %s\n' "$run_id_a"
+printf 'Run B:          %s\n' "$run_id_b"
+printf 'Diff member:    ./%s\n' "$diff_name"
+printf 'Source outputs: %s\n' "$outputs_dir"
+printf 'Source runs:    %s\n' "$runs_dir"

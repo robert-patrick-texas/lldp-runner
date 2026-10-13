@@ -1,0 +1,22 @@
+# Example organization-specific tagging rules.
+# All matching rules accumulate tags; conditions within one rule use AND semantics.
+
+[[tagging.rules]]
+label = "all-cisco-voice"
+category = "managed_endpoint"
+field_patterns = { remote_description = ['(?i)Cisco.*Phone', '(?i)General Dynamics.*vIPer'] }
+tags = ["service:voice"]
+
+[[tagging.rules]]
+label = "tenant-a-voice"
+category = "managed_endpoint"
+networks = ["198.18.64.0/20"]
+name_patterns = ['(?i)^SEP', '(?i)^VIPER-']
+tags = ["tenant:a", "service:voice"]
+
+[[tagging.rules]]
+label = "tenant-b-voice"
+category = "managed_endpoint"
+networks = ["198.18.80.0/20"]
+name_patterns = ['(?i)^SEP', '(?i)^VIPER-']
+tags = ["tenant:b", "service:voice"]

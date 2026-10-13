@@ -1,0 +1,410 @@
+# LLDP-Runner configuration generated from the package's built-in defaults.
+#
+# Runtime precedence (lowest to highest):
+#   defaults.py -> config/@include/conf.d -> LLDP_RUNNER_* env -> --set
+#   -> dedicated CLI options
+#
+# On this host, workers = "auto" currently resolves to 36 workers.
+#
+# If --config is omitted, LLDP-Runner searches:
+#   ~/lldp-runner-config.toml
+#   ~/lldp-runner/config.toml
+#   /opt/lldp-runner/config.toml
+#   /etc/lldp-runner/config.toml
+# and otherwise runs from built-in defaults.
+#
+# Default SNMP credentials may be supplied without credential tables:
+#   SNMPCOMM                        (SNMPv2c)
+#   SNMPUSER + SNMPAUTH + SNMPPRIV (SNMPv3 authPriv; all three required)
+# Dedicated --community/--snmp.* CLI credentials use the same lowest-priority
+# runtime profile.
+# Prefer environment-variable names on the CLI rather than literal secrets to
+# avoid shell history/process exposure.
+
+# Persistent state/output and temporary runtime storage.
+# Using 'auto' keeps small/simple deployments portable while allowing sites to
+# pin paths.
+[paths]
+# When set to auto: first existing ~/lldp-runner, /opt/lldp-runner,
+# /var/lib/lldp-runner; otherwise cwd.
+# An existing but unwritable persistent candidate is an error and is never
+# silently bypassed.
+persistent_root = "auto"
+# When set to auto: try /dev/shm/lldp-runner, /tmp/lldp-runner,
+# /var/tmp/lldp-runner, then <persistent_root>/tmp.
+scratch_root = "auto"
+runs_dirname = "runs"
+# Finalized runs are published below <persistent_root>/outputs/<runid>/.
+output_dirname = "outputs"
+# Remove the completed run's per-run scratch directory and matching current
+# symlink only after durable files and terminal scoreboards are archived. The
+# live <scratch_root>/scoreboard/ directory remains. Set false to retain per-run
+# drafts and an additional completed-scoreboard copy for diagnostics.
+clean_scratch_when_completed = true
+# Run directory identifier format: supported strftime directives plus optional
+# {counter}; the default preserves the historical timezone suffix.
+# {counter} is stateless, zero-padded 00..99, and fails on exhaustion; %f is
+# available when a higher-precision timestamp is preferable.
+run_id_format = "%Y%m%d-%H%M%S-%Z"
+
+# Project-wide wall-clock policy for logs, summaries, persisted timestamps, and
+# run-ID strftime expansion.
+[time]
+# Default eastern preserves historical behavior. Also accepts utc, local, or an
+# IANA timezone such as America/Denver.
+timezone = "eastern"
+
+# Discovery guardrails and worker/cohort behavior.
+# The built-in boundary is intentionally unlimited; production sites should
+# normally narrow it.
+[discovery]
+# CIDRs that LLDP-Runner may recursively query. The built-in default allows all
+# IPv4 and IPv6 addresses.
+boundaries = ["0.0.0.0/0", "::/0"]
+seeds = []
+seed_files = []
+# Eligible files below each directory are read recursively;
+# /opt/lldp-runner/seeds.d is a common site path.
+seed_dirs = []
+# Seed scheduling after consolidation/de-duplication: input (default), sorted
+# (lexical), or random.
+# Random ordering is especially useful with max_devices='auto' for topology
+# sampling without recursive polling.
+seed_order = "input"
+# Seed DNS policy. "resolve" performs normal resolver work for every seed.
+# "skip-addressed" can reuse a preferred name plus prior queried_as address
+# when the prior state is complete/successful (or the state is unavailable).
+# This does not disable DNS enrichment for learned managed neighbors.
+seed_dns_mode = "resolve"
+# Optional reproducibility key for seed_order='random'. Empty generates and
+# persists a fresh key per new run.
+shuffle_key = ""
+# pause leaves LIMIT_REACHED resumable; complete finalizes intentional
+# bounded/sampling runs as COMPLETED_LIMIT.
+limit_behavior = "pause"
+# Set to auto to resolve at runtime to (os.cpu_count() or 1) * 4.
+workers = "auto"
+# Cohort size assigned to one worker. Smaller cohorts reduce slow-device
+# straggler delay.
+batch_size = 9
+# Positive integer = finite recursive managed-device limit; 0 = unlimited
+# recursive discovery.
+# Set to 'auto' for seed-only discovery: all unique seeds are queried and their
+# neighbors are recorded/output, but discovered non-seed neighbors are never
+# scheduled for SNMP.
+# A finite limit smaller than the unique seed count fails before workers start
+# instead of silently querying only part of the seed inventory.
+max_devices = 10
+# Host guardrail; 0 disables this guardrail. Recursive mode counts every
+# identity, preserving historical behavior.
+# With max_devices='auto', explicit seeds are sampling points and only
+# discovered non-seed identities count toward max_hosts.
+# Concurrent batches can overshoot a threshold; use limit_behavior='complete'
+# when reaching it is intentional.
+max_hosts = 1000
+# Re-admit a FAILED recursively learned host only when later evidence supplies a
+# genuinely new in-boundary/query-allowed address. 0 disables; maximum is 3.
+late_address_recovery_attempts = 1
+address_preference = ["ipv4", "ipv6"]
+work_stealing = true
+dns_suffixes = []
+resolve_discovered_managed_names = true
+
+# SNMP transport/default credential preference. Explicit credential rules remain
+# authoritative.
+[snmp]
+# Select exactly one run-wide backend: pysnmp (default) or gufo. The choice is
+# persisted for resume; LLDP-Runner never falls back or mixes backends.
+# PySNMP SNMPv3 authPriv requires cryptography>=50.0. LLDP-Runner preflights
+# every reachable AES-128/AES-256/DES mapping before discovery and fails locally
+# if the installed provider cannot perform it; SNMPv2c and Gufo skip that probe.
+# Gufo: sha1/md5 + aes128/des. PySNMP also: sha256 + aes256 (Reeder/Cisco)
+# or aes256-blumenthal. The AES-256 methods are explicit and not interchangeable.
+backend = "pysnmp"
+port = 161
+# Preferred runtime default when both v2c and v3 credentials exist: '2c' or '3'.
+# SNMPv3 authPriv is the best-practice default; v2c becomes fallback when both
+# are available.
+version = "3"
+# Timeout for each individual SNMP request, not the complete device/table
+# collection.
+timeout_seconds = 3.0
+# GETBULK max-repetitions value; larger values reduce round trips but increase
+# response size and the amount of work an agent must complete per response.
+max_repetitions = 20
+# Each logical operation may retry once, and each collector family may consume
+# at most one normal adaptive retry. LLDP and LLDPv2 share one family; CDP has a
+# separate family. General retries use retry_total_cap. The protected neighbor
+# reserve cannot be consumed by earlier SYSTEM-MIB, ENTITY-MIB, or IF-MIB work.
+retry_per_operation = 1
+retry_per_collector = 1
+retry_total_cap = 3
+retry_neighbor_reserve = 2
+structural_table_retry = 1
+# A retry-eligible timeout or incomplete table gives the agent 50 percent more
+# time, halves GETBULK max-repetitions (rounding upward), and never drops below
+# retry_min_max_repetitions. GET-MANY request batches use the same work
+# reduction.
+retry_timeout_multiplier = 1.5
+retry_max_repetitions_multiplier = 0.5
+retry_min_max_repetitions = 1
+# Milliseconds of additional pacing for a target after slowdown is triggered.
+# The slower profile remains active for later queries to that target during the
+# same discovery session and resets to defaults for the next target.
+retry_inter_pdu_delay_ms = 100.0
+# After normal adaptive repair is exhausted, wait once per affected target and
+# retry each failed LLDP-family or CDP collector from its root exactly once.
+# Only timeout and structurally invalid snapshots are eligible; authentication,
+# access, unsupported-OID, and deterministic transport failures are not retried.
+neighbor_stability_retry = true
+neighbor_stability_retry_delay_seconds = 2.0
+# Maximum request rate for a healthy target. Adaptive pacing lowers the
+# effective rate for a target that has demonstrated difficulty responding
+# completely.
+per_device_rps = 5.0
+# Maximum concurrently active device operations inside each worker process.
+max_outstanding_devices_per_worker = 24
+inter_wave_delay_seconds = 0.15
+# Master switch for ENTITY-MIB chassis identity enrichment. false skips
+# ENTITY-MIB regardless of entity_mib_mode.
+collect_entity_mib = true
+# ENTITY-MIB query scope: full preserves the complete historical table walk;
+# auto selects high-value fields by device identity; brief requests only common
+# manufacturer/model/serial fields.
+# auto and brief discover the agent-assigned chassis/stack/module index before
+# targeted GETs; they never assume entPhysicalIndex=1.
+entity_mib_mode = "full"
+# When true, full discovery stores per-device SNMP object counts and collector
+# elapsed milliseconds in discovery.json.
+# Disabled by default to keep normal discovery output concise; get-neighbors
+# always
+# reports these lightweight metrics.
+report_metrics = false
+
+# Two ICMP wake-up probes precede the first SNMP attempt for each candidate
+# address.
+[icmp]
+enabled = true
+probes = 2
+timeout_seconds = 1.0
+inter_probe_delay_seconds = 0.15
+# auto tries raw ICMP first and can fall back to the system ping utility when
+# raw sockets are unavailable.
+backend = "auto"
+
+# Draft/final output cadence and fixed standard CSV convenience views.
+# discovery.json is always written and is the complete structured result.
+[output]
+draft_in_scratch = true
+snapshot_interval_seconds = 30.0
+scoreboard_interval_seconds = 3.0
+pretty_json_indent = 2
+# Record the resolved primary/include/conf.d config files in run.json. Set false
+# when output artifacts should not reveal deployment configuration pathnames.
+run_json_config_log = true
+# Default additional finalized output directories retained by `purge` beyond
+# the `latest` target. Zero keeps only latest unless --keep overrides it.
+purge_keep = 0
+# Baseline widths for Local and Remote Port in get-neighbors/show-neighbors.
+# Each column can expand dynamically when longer interface values fit without
+# reducing the Neighbor column below its readable minimum.
+neighbor_local_width = 18
+neighbor_remote_port_width = 18
+# Graph-aware display layout for show-neighbors. sectioned places ordinary
+# adjacency observations first, then indents shared-chassis logical members,
+# overlay observations, and unresolved multi-neighbor discrepancies. combined
+# uses one table with compact relationship labels and a one-line legend.
+relationship_view = "sectioned"
+# disabled preserves names; name_like permits hostname-like chassis IDs; any
+# accepts any nonblank chassis ID.
+chassis_id_name_fallback = "disabled"
+# Write fixed-schema hosts.csv. Set false to suppress this convenience view.
+write_hosts_csv = true
+# Write fixed-schema stack-members.csv when physical switch-stack members
+# are discovered. Enabled by default.
+write_stack_members_csv = true
+# Write fixed-schema reusable seeds.csv. Set false only when not needed.
+write_seeds_csv = true
+# Write fixed-schema unknown-devices.csv for unresolved/unknown identities.
+write_unknown_devices_csv = true
+# Write fixed-schema errors.csv. Errors remain present in discovery.json.
+write_errors_csv = true
+# When false (default), omit any enabled fixed-schema CSV that has zero
+# data rows instead of writing a header-only file.
+write_empty_csv = false
+# When true, terminal output logs one INFO message listing enabled CSVs
+# omitted because they contained no records.
+log_alert_on_empty_csv = false
+
+# Optional custom CSVs use named child tables. Each report selects one row
+# source
+# and an ordered field list. See docs/CUSTOM-CSV.md for the complete registry.
+#
+# [output.custom_csv.inventory]
+# enabled = true
+# filename = "inventory.csv"
+# source = "hosts"
+# columns = [
+#   { field = "hosts.preferred_name", header = "FQDN" },
+#   { field = "hosts.origin" },
+#   { field = "json.host.system.model" },
+#   { field = "json.host.system.serial_number", header = "serial" },
+# ]
+
+# Cross-run comparison semantics and human-readable report detail.
+# These options never change discovery collection or retry behavior.
+[diff]
+# Compare collector duration_ms values. Disabled by default because exact
+# timings remain in discovery.json but ordinary elapsed-time jitter is not a
+# semantic topology or coverage change.
+include_collection_timing = false
+# Render only source/result warnings, summaries, and collection incidents for
+# human output. Machine-readable JSON always retains full detail.
+summary_only = false
+# Show every derivative coverage-uncertain graph and compatibility row in human
+# output. Disabled collapses them beneath the originating incident; JSON always
+# retains every structured row.
+expand_collection_incidents = false
+
+# Semantic colors for interactive get-neighbors/show-neighbors output.
+# Colors never affect CSV/JSON and NO_COLOR still disables ANSI output.
+[terminal]
+# Terminal styling is automatic on interactive terminals. Set never to keep all
+# human-readable output at the terminal's default foreground/style.
+color = "auto"
+# Built-in watch dashboard palette for a dark or light terminal background.
+palette = "dark"
+# Headings and major detail-section titles.
+heading_color = "cyan"
+# Successful/complete state emphasis.
+success_color = "green"
+# Partial, warning, diagnostic, and non-complete state emphasis.
+warning_color = "yellow"
+# Failed get-neighbors state emphasis.
+error_color = "red"
+# Learned-neighbor labels and protocol emphasis in show-neighbors.
+learned_color = "cyan"
+# Observed_by labels and protocol emphasis in show-neighbors.
+observed_by_color = "magenta"
+# Neighbor protocol emphasis in get-neighbors tables.
+inspection_neighbor_color = "magenta"
+# Numeric ping/timing/SNMP metric emphasis in get-neighbors.
+metric_color = "green"
+
+# Incomplete RUNNING/PAUSED/INTERRUPTED/LIMIT_REACHED runs may be resumed by
+# default.
+[resume]
+default_resume = true
+lease_seconds = 300
+pause_indicator = "pause.request"
+
+[credentials]
+
+[credential_profiles]
+
+# Runtime SNMPCOMM or SNMPUSER/SNMPAUTH/SNMPPRIV credentials synthesize profile
+# 'runtime-default'.
+# Explicit [credentials.*] / [credential_profiles.*] suppress those
+# lowest-priority runtime credentials.
+[credential_rules]
+default_profile = "runtime-default"
+
+# Query policy is independent of classification. Address rules use most-specific
+# CIDR; name rules are first-match-wins.
+# Single-device inspection may target outside discovery.boundaries, but explicit
+# query-policy deny rules still apply.
+[query_policy]
+default_action = "allow"
+
+# Classification rule ordering: explicit address/name/evidence rules precede
+# built-in heuristic patterns.
+[classification]
+managed_manufacturers = ["Cisco", "Juniper", "Arista", "Aruba", "HPE"]
+managed_endpoint_patterns = [
+  "(?i)\\bCisco\\s+(IP\\s+)?Phone\\b",
+  "(?i)\\bSEP[0-9A-F]{12}\\b",
+  "(?i)\\bAIR-[A-Z0-9-]+\\b",
+  "(?i)\\b(Cisco|Juniper|Mist).*\\bAP\\b",
+  "(?i)\\bvIPer\\b",
+]
+unmanaged_patterns = [
+  "(?i)\\bprinter\\b",
+  "(?i)\\bTACLANE\\b",
+  "(?i)\\bworkstation\\b",
+]
+
+# Tagging is independent of classification; every matching rule contributes
+# de-duplicated tags.
+[tagging]
+
+# Select which neighbor protocols are collected. CDP is normally limited to
+# manufacturers expected to support it.
+[neighbors]
+enable_lldp = true
+enable_lldpv2 = true
+cdp_for_cisco = true
+cdp_manufacturers = ["Cisco"]
+
+# INFO is recommended for normal operation; DEBUG is useful for troubleshooting.
+[logging]
+level = "INFO"
+# Write log records to the console. Console and file logging are independent.
+console = true
+# Append log records to logging.filename. Enabled by default.
+file = true
+# Relative paths are rooted beneath runs/<run-id>/; absolute or ~-expanded
+# paths may be used for centralized logs such as /var/log/lldprunner.log.
+# Existing files are appended and append-open failures stop startup.
+filename = "activity.log"
+
+# Explicit credential example (uncomment and tailor for larger sites):
+# [credentials.site-v3]
+# version = "v3"
+# username_env = "LLDP_RUNNER_SITE_V3_USER"
+# auth_password_env = "LLDP_RUNNER_SITE_V3_AUTH_PASSWORD"
+# priv_password_env = "LLDP_RUNNER_SITE_V3_PRIV_PASSWORD"
+# Gufo supports sha1/md5 with aes128/des. PySNMP additionally supports
+# sha256 with aes256 (Reeder/Cisco) or aes256-blumenthal.
+# auth_protocol = "sha1"
+# priv_protocol = "aes128"
+#
+# [credential_profiles.site]
+# primary = "site-v3"
+# primary_attempts = 2
+#
+# Change credential_rules.default_profile above to 'site' when this explicit
+# profile should be the default.
+#
+# Example most-specific credential address rule:
+# [[credential_rules.address]]
+# networks = ["192.0.2.0/24"]
+# profile = "site"
+#
+# Example query exclusion:
+# [[query_policy.name_rules]]
+# patterns = ["(?i)^printer-", "(?i)\.unmanaged\.example$"]
+# action = "deny"
+#
+# Example explicit classification rule:
+# [[classification.name_rules]]
+# patterns = ["(?i)^managed-fw-"]
+# category = "managed_device"
+#
+# Example tagging rule for managed infrastructure:
+# [[tagging.rules]]
+# label = "infrastructure-role"
+# category = "managed_device"
+# name_patterns = ["(?i)^(core|dist)-"]
+# tags = ["role:infrastructure"]
+#
+# Example tagging rule for managed voice endpoints:
+# [[tagging.rules]]
+# label = "voice-endpoints"
+# category = "managed_endpoint"
+# name_patterns = ["(?i)^SEP[0-9A-F]{12}$"]
+# tags = ["service:voice"]
+#
+# @include directives remain supported in real config files and may use relative
+# or absolute paths.
+# Automatic sibling conf.d/**/*.toml fragments are loaded once in lexical
+# relative-path order.

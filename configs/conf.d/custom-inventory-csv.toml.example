@@ -1,0 +1,24 @@
+# Example reusable managed-device inventory report.
+#
+# The seeds row source emits one row for each managed device that LLDP-Runner
+# can treat as a reusable seed identity. Because every seed row has exactly one
+# host context, hosts.* fixed presentation fields may be selected while keeping
+# seed row cardinality. Copy/rename this file to an active *.toml name below
+# /opt/lldp-runner/conf.d, or reference it explicitly with @include.
+
+[output.custom_csv.inventory]
+enabled = true
+filename = "inventory.csv"
+source = "seeds"
+columns = [
+  { field = "hosts.preferred_name", header = "hostname" },
+  { field = "hosts.queried_as", header = "management_ip" },
+  { field = "hosts.ipv4", header = "ipv4" },
+  { field = "hosts.ipv6", header = "ipv6" },
+  { field = "hosts.serial_number", header = "serial_number" },
+  { field = "hosts.model", header = "model" },
+  { field = "hosts.version", header = "version" },
+  { field = "hosts.learned_neighbors", header = "learned_neighbors" },
+  { field = "hosts.observed_by_neighbors", header = "observed_by_neighbors" },
+  { field = "hosts.tags", header = "tags" },
+]

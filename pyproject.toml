@@ -1,0 +1,68 @@
+[project]
+name = "lldp-runner"
+version = "0.37.0"
+description = "Recursive SNMP CDP/LLDP network discovery for Network Operations"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { file = "LICENSE.md" }
+authors = [{ name = "Network Operations" }]
+# Dependency policy: declare supported minimums only. Do not add upper version
+# caps merely to freeze current releases; test newer compatible versions instead.
+dependencies = [
+  "cryptography>=50.0",
+  "gufo-snmp>=0.12.0",
+  "pysnmp>=7.1.29",
+]
+
+[project.scripts]
+lldp-runner = "lldp_runner.cli:main"
+get-neighbors = "lldp_runner.cli:get_neighbors_main"
+show-neighbors = "lldp_runner.cli:show_neighbors_main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4",
+  "ruff>=0.16.0",
+  "ty>=0.0.63",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.5"]
+build-backend = "uv_build"
+
+[tool.uv]
+package = true
+link-mode = "copy"
+# Keep published dependency declarations broad while making maintainer-managed
+# Linux release environments reproducible at the exact versions used for 0.37.0.
+constraint-dependencies = [
+  "cryptography==50.0.1",
+  "gufo-snmp==0.12.0",
+  "pysnmp==7.1.29",
+  "iniconfig==2.3.0",
+  "packaging==25.0",
+  "pluggy==1.6.0",
+  "pygments==2.20.0",
+  "pytest==9.0.2",
+  "ruff==0.16.0",
+  "ty==0.0.63",
+]
+build-constraint-dependencies = [
+  "uv-build==0.12.5",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "RUF"]
+ignore = ["E501"]
+
+
+[tool.ty.environment]
+python-version = "3.13"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

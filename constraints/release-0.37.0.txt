@@ -1,0 +1,15 @@
+# Exact package set selected for the LLDP-Runner 0.37.0 Linux release.
+# pyproject.toml applies these through tool.uv.constraint-dependencies and
+# tool.uv.build-constraint-dependencies while published package requirements
+# continue to declare supported minimum versions.
+cryptography==50.0.1
+gufo-snmp==0.12.0
+pysnmp==7.1.29
+iniconfig==2.3.0
+packaging==25.0
+pluggy==1.6.0
+pygments==2.20.0
+pytest==9.0.2
+ruff==0.16.0
+ty==0.0.63
+uv-build==0.12.5

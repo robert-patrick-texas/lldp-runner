@@ -1,0 +1,6 @@
+# Example explicit paths for a centrally managed multi-user installation.
+# Use dedicated directories owned by the trusted LLDP-Runner operator group.
+
+[paths]
+persistent_root = "/var/lib/lldp-runner"
+scratch_root = "/var/tmp/lldp-runner"

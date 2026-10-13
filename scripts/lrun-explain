@@ -1,0 +1,279 @@
+#!/usr/bin/env bash
+
+# ============================================================================
+# uv Python Application Launcher
+#
+# Intended location:
+#
+#   <project_directory>/scripts/<scriptname>.sh
+#
+# The launcher may be invoked from any working directory, including through
+# PATH. No project-specific filesystem path is embedded in this script.
+#
+# Expected project layout:
+#
+#   <project_directory>/
+#   ├── pyproject.toml
+#   └── scripts/
+#       ├── <scriptname>.sh
+#       └── .private              # Optional
+#
+# ============================================================================
+# OPERATOR CONFIGURATION
+# ============================================================================
+#
+# These settings are the portion normally edited when copying this launcher
+# into another project.
+#
+
+# Application/command passed to:
+#
+#     uv run <APP_NAME>
+#
+# This should normally match a command defined by the Python project's
+# [project.scripts] or equivalent configuration.
+APP_NAME="lldp-runner"
+
+# Arguments always supplied to the application.
+#
+# Use a Bash array so that arguments containing spaces or shell-sensitive
+# characters remain individual arguments without requiring eval.
+APP_ARGS=(
+  explain-target
+)
+
+
+# Prevent more than one instance launched through this project launcher from
+# running simultaneously.
+#
+#   false = allow multiple concurrent instances
+#   true  = allow only one instance at a time
+#
+# Single-instance mode uses a Linux advisory flock on this launcher file.
+# It does NOT create a PID file, lock file, or other persistent runtime state.
+SINGLE_INSTANCE=false
+
+# Optional shell files located alongside this launcher.
+#
+# Each existing file is sourced in the order listed. Missing files are ignored.
+# Additional project-local include files may be added to this array.
+INCLUDE_FILES=(
+    ".private"
+)
+
+# uv executable. Normally this should not need to be changed.
+UV_BIN="uv"
+
+# Optional arguments placed between "uv run" and APP_NAME.
+#
+# Examples:
+#
+#   UV_RUN_ARGS=(--frozen)
+#   UV_RUN_ARGS=(--locked)
+#
+# Leave empty for the equivalent of:
+#
+#   uv run <APP_NAME>
+UV_RUN_ARGS=()
+
+
+# ============================================================================
+# END OPERATOR CONFIGURATION
+# ============================================================================
+
+set -euo pipefail
+
+
+# ----------------------------------------------------------------------------
+# Print an error and terminate the launcher.
+# ----------------------------------------------------------------------------
+
+die()
+{
+    printf 'Error: %s\n' "$*" >&2
+    exit 1
+}
+
+
+# ----------------------------------------------------------------------------
+# Locate this launcher.
+#
+# BASH_SOURCE[0] normally contains the path used to execute this script.
+# When only a command name is present, such as when the scripts directory is
+# in PATH, command -v resolves that command to its filesystem location.
+#
+# readlink -f then:
+#
+#   - produces an absolute path,
+#   - resolves symbolic links,
+#   - removes "." and ".." path components.
+#
+# The result does not depend on the operator's current working directory.
+# ----------------------------------------------------------------------------
+
+script_reference="${BASH_SOURCE[0]}"
+
+if [[ "$script_reference" != */* ]]; then
+    script_reference="$(command -v -- "$script_reference" || true)"
+
+    if [[ -z "$script_reference" ]]; then
+        die "unable to determine launcher location."
+    fi
+fi
+
+script_path="$(readlink -f -- "$script_reference")"
+
+if [[ -z "$script_path" || ! -f "$script_path" ]]; then
+    die "unable to determine the absolute launcher path."
+fi
+
+script_dir="$(dirname -- "$script_path")"
+
+
+# ----------------------------------------------------------------------------
+# Load optional project-local configuration.
+#
+# Include files are always located relative to the launcher's actual scripts
+# directory, not relative to the operator's current working directory.
+#
+# For example:
+#
+#   <project_directory>/scripts/.private
+#
+# An include file can export application environment variables and may also
+# define PROJECT_DIR when an explicit project-directory override is required.
+# ----------------------------------------------------------------------------
+
+for include_name in "${INCLUDE_FILES[@]}"; do
+    include_file="${script_dir}/${include_name}"
+
+    if [[ -f "$include_file" ]]; then
+        # shellcheck source=/dev/null
+        source "$include_file"
+    fi
+done
+
+
+# ----------------------------------------------------------------------------
+# Validate launcher configuration.
+# ----------------------------------------------------------------------------
+
+if [[ -z "${APP_NAME:-}" ]]; then
+    die "APP_NAME is not configured."
+fi
+
+case "${SINGLE_INSTANCE:-}" in
+    true|false)
+        ;;
+    *)
+        die "SINGLE_INSTANCE must be either 'true' or 'false'."
+        ;;
+esac
+
+
+# ----------------------------------------------------------------------------
+# Determine the project directory.
+#
+# Precedence:
+#
+#   1. PROJECT_DIR, when defined and non-empty.
+#   2. Parent directory of this launcher's scripts directory.
+#
+# No project-specific path is stored in this launcher.
+# ----------------------------------------------------------------------------
+
+if [[ -n "${PROJECT_DIR:-}" ]]; then
+    project_directory="$PROJECT_DIR"
+else
+    project_directory="${script_dir}/.."
+fi
+
+if [[ ! -d "$project_directory" ]]; then
+    die "project directory does not exist: ${project_directory}"
+fi
+
+project_directory="$(cd -- "$project_directory" && pwd -P)"
+
+
+# ----------------------------------------------------------------------------
+# Verify that this appears to be the expected uv/Python project.
+# ----------------------------------------------------------------------------
+
+if [[ ! -f "${project_directory}/pyproject.toml" ]]; then
+    die "pyproject.toml was not found in project directory: ${project_directory}"
+fi
+
+if ! command -v -- "$UV_BIN" >/dev/null 2>&1; then
+    die "'${UV_BIN}' was not found in PATH."
+fi
+
+
+# ----------------------------------------------------------------------------
+# Optional single-instance enforcement.
+#
+# flock places an advisory kernel lock on this project's launcher file.
+#
+# No PID file, lock file, temporary directory, or persistent counter is
+# created. The existence of the launcher file itself does NOT indicate that
+# an application is running; the actual lock exists only in the kernel while
+# the owning process has the file descriptor open.
+#
+# Because every project contains its own copy of this launcher:
+#
+#   Project A/scripts/run-app.sh
+#
+# and:
+#
+#   Project B/scripts/run-app.sh
+#
+# are independent locks. An instance in Project A therefore does not prevent
+# the corresponding application in Project B from running.
+#
+# The open descriptor is intentionally retained when this shell is replaced
+# by uv below. The operating system releases the lock automatically when the
+# resulting process terminates.
+# ----------------------------------------------------------------------------
+
+if [[ "$SINGLE_INSTANCE" == true ]]; then
+    if ! command -v flock >/dev/null 2>&1; then
+        die "single-instance mode requires 'flock', but flock was not found."
+    fi
+
+    # Open this launcher without modifying it. Bash assigns an available file
+    # descriptor to instance_lock_fd.
+    exec {instance_lock_fd}<"$script_path"
+
+    # Attempt the lock without waiting. A second invocation therefore fails
+    # immediately rather than blocking until the first instance exits.
+    if ! flock --exclusive --nonblock "$instance_lock_fd"; then
+        printf \
+            "Error: unable to start '%s': another instance is already running.\n" \
+            "$APP_NAME" >&2
+        exit 1
+    fi
+fi
+
+
+# ----------------------------------------------------------------------------
+# Launch the application.
+#
+# uv is always started from the project root, regardless of the operator's
+# original working directory.
+#
+# Arguments supplied to this launcher are passed through unchanged.
+#
+# For example:
+#
+#   run-app.sh --verbose --target router01
+#
+# becomes:
+#
+#   uv run <APP_NAME> --verbose --target router01
+#
+# exec replaces this Bash process with uv so that exit status and process
+# signals propagate naturally.
+# ----------------------------------------------------------------------------
+
+cd -- "$project_directory"
+
+exec "$UV_BIN" run "${UV_RUN_ARGS[@]}" "$APP_NAME" "${APP_ARGS[@]}" "$@"

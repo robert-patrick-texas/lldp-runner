@@ -1,0 +1,28 @@
+# Optional terminal styling overrides for get-neighbors, show-neighbors, and
+# watch.
+# Include this fragment from the primary configuration when site-specific colors
+# improve readability. These defaults reproduce LLDP-Runner's standard palette.
+#
+# Supported values are: black, red, green, yellow, blue, magenta, cyan, white,
+# default, and none. "default" selects the terminal's default foreground color;
+# "none" leaves that semantic role uncolored while retaining applicable bolding.
+# Colors are emitted only to an interactive TTY. NO_COLOR disables all ANSI
+# styling, and CSV/JSON output never contains ANSI escape sequences.
+
+[terminal]
+# auto enables styling only when terminal capabilities allow it; never
+# disables it.
+color = "auto"
+# watch uses a dark-background-friendly palette by default; light selects darker
+# foregrounds intended for white or other light terminal backgrounds. The
+# built-in watch palette keeps BUSY worker blue distinct from the dashboard
+# heading/metric hue.
+palette = "dark"
+heading_color = "cyan"
+success_color = "green"
+warning_color = "yellow"
+error_color = "red"
+learned_color = "cyan"
+observed_by_color = "magenta"
+inspection_neighbor_color = "magenta"
+metric_color = "green"

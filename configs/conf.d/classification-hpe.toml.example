@@ -1,0 +1,13 @@
+# Example classification fragment. Copy/rename this file to an active *.toml
+# name below /opt/lldp-runner/conf.d, or reference it explicitly with @include.
+#
+# Every condition present in one evidence rule must match. Evidence rules are
+# evaluated in merged configuration order; first matching rule wins.
+
+[[classification.evidence_rules]]
+label = "hpe-cx6300-by-name-and-lldp"
+category = "managed_device"
+name_patterns = ['(?i)-6300(?:\.|$)', '(?i)-6200(?:\.|$)']
+# Optional CIDR corroboration can be added when desired:
+# networks = ["198.18.0.0/15", "198.19.0.0/16"]
+field_patterns = { remote_description = ['(?i)^HPE\s+ANW\s+JL', '(?i)^Aruba\s+JL'] }
