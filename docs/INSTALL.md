@@ -390,6 +390,13 @@ sudo tar -xzf "$ARCHIVE" -C /opt/lldp-runner --strip-components=1
 sudo chown -R "$DEVELOPER":netops /opt/lldp-runner
 sudo chmod -R u+rwX,g+rX,o+rX /opt/lldp-runner
 
+# The chmod above only adds permissions. An archive with group-writable
+# modes, such as GitHub's automatic "Source code" download, leaves the code
+# writable by every netops member. Depending on local site requirements,
+# consider removing group and other write access so only the maintainer can
+# change the installed code:
+# sudo chmod -R go-w /opt/lldp-runner
+
 # ---------------------------------------------------------------------------
 # 7. Prepare shared Python and synchronize the project as the maintainer.
 # ---------------------------------------------------------------------------
