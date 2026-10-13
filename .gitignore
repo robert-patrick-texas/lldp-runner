@@ -11,3 +11,6 @@ build/
 *.sqlite-shm
 *.sqlite-wal
 scripts/.private
+
+# Site lockfile: each installation runs `uv lock` against constraints/ (docs/INSTALL.md).
+uv.lock
