@@ -186,7 +186,7 @@ def _normalize_value(value: object) -> object:
     )
     if any(marker in class_name for marker in numeric_markers):
         try:
-            return int(value)  # type: ignore[arg-type]
+            return int(value)  # ty: ignore[invalid-argument-type]
         except (TypeError, ValueError, OverflowError):
             pass
     as_octets = getattr(value, "asOctets", None)
@@ -209,9 +209,9 @@ def _varbind_pairs(var_binds: object) -> list[tuple[str, object]]:
     result: list[tuple[str, object]] = []
     for index, var_bind in enumerate(var_binds):
         try:
-            if len(var_bind) != 2:  # type: ignore[arg-type]
+            if len(var_bind) != 2:  # ty: ignore[invalid-argument-type]
                 raise ValueError
-            oid, value = var_bind[0], var_bind[1]  # type: ignore[index]
+            oid, value = var_bind[0], var_bind[1]  # ty: ignore[not-subscriptable]
         except Exception as exc:
             raise SnmpMalformedResponseError(
                 f"SNMP response varbind {index} is not an OID/value pair"
@@ -735,7 +735,7 @@ class PySnmpClient:
         if status:
             status_text = self._safe_text(status) or status.__class__.__name__
             try:
-                index = int(error_index)
+                index = int(error_index)  # ty: ignore[invalid-argument-type]
             except (TypeError, ValueError, OverflowError):
                 index = 0
             detail = f"{status_text} at error_index={index}"

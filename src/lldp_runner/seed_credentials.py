@@ -13,7 +13,7 @@ import json
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal, cast
 
 from lldp_runner.config import AppConfig
 from lldp_runner.csv_input import read_csv_rows
@@ -108,6 +108,7 @@ def _json_rows(path: Path) -> list[tuple[int | None, dict[str, str]]]:
     for index, item in enumerate(payload, 1):
         if not isinstance(item, dict):
             raise ValueError(f"seed credential JSON {path}: item {index} must be an object")
+        item = cast(dict[str, Any], item)
         unknown = set(item) - _JSON_KEYS
         if unknown:
             raise ValueError(
@@ -300,7 +301,7 @@ def load_seed_credential_files(paths: list[Path], config: AppConfig) -> SeedCred
         result.records.append(
             SeedCredentialRecord(
                 seed=seed,
-                strategy=strategy,  # type: ignore[arg-type]
+                strategy=strategy,  # ty: ignore[invalid-argument-type]
                 credential_label=row["credential_label"] or None,
                 credential_profile=profile,
                 direct_credential=direct,

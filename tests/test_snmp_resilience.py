@@ -6,9 +6,11 @@ import asyncio
 import logging
 from collections import deque
 from types import TracebackType
+from typing import cast
 
 import pytest
 
+from lldp_runner.models import SnmpRetryEvent
 from lldp_runner.snmp.resilience import (
     AdaptiveSnmpClient,
     AdaptiveSnmpState,
@@ -67,12 +69,12 @@ class _ScriptedClient:
         self.get_many_requests.append(list(oids))
         value = self._next("get_many")
         assert isinstance(value, dict)
-        return value
+        return cast(dict[str, object], value)
 
     async def walk(self, oid: str) -> list[tuple[str, object]]:
         value = self._next("walk")
         assert isinstance(value, list)
-        return value
+        return cast(list[tuple[str, object]], value)
 
     def engine_id_hex(self) -> str | None:
         return "800000090300001122334455"
@@ -527,7 +529,7 @@ def test_neighbor_retry_reserve_survives_shared_pool_exhaustion() -> None:
         retry_neighbor_reserve=2,
     )
 
-    def consume(collector: str) -> object | None:
+    def consume(collector: str) -> SnmpRetryEvent | None:
         return state.consume_retry(
             operation_key=f"transport:{collector}",
             retry_kind="transport",
@@ -574,7 +576,7 @@ def test_neighbor_retry_reserve_survives_shared_pool_exhaustion() -> None:
 def test_stability_retry_is_separate_and_bounded_per_protocol() -> None:
     state = _state("198.18.0.81")
 
-    def consume(collector: str, attempt: int) -> object | None:
+    def consume(collector: str, attempt: int) -> SnmpRetryEvent | None:
         return state.consume_stability_retry(
             collector=collector,
             logical_operation=collector.upper(),

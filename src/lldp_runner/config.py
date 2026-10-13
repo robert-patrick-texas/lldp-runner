@@ -13,7 +13,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field, fields
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from lldp_runner.csv_fields import FIXED_FIELDS_BY_SOURCE, validate_field_reference
 from lldp_runner.defaults import (
@@ -108,6 +108,7 @@ class DiscoveryConfig:
     seed_dns_mode: str = DEFAULTS["discovery"]["seed_dns_mode"]
     shuffle_key: str | int = DEFAULTS["discovery"]["shuffle_key"]
     limit_behavior: str = DEFAULTS["discovery"]["limit_behavior"]
+    # "auto" until _resolve_runtime_values() replaces it with an integer.
     workers: int | str = DEFAULTS["discovery"]["workers"]
     batch_size: int = DEFAULTS["discovery"]["batch_size"]
     max_devices: int | str = DEFAULTS["discovery"]["max_devices"]
@@ -1121,7 +1122,7 @@ def _build_app(
         for index, column in enumerate(columns_raw, start=1):
             if not isinstance(column, dict):
                 raise ConfigError(f"output.custom_csv.{name}.columns[{index}] must be a table")
-            columns.append(_build_dataclass(CustomCsvColumnConfig, column))
+            columns.append(_build_dataclass(CustomCsvColumnConfig, cast(dict[str, Any], column)))
         custom_csv[name] = _build_dataclass(
             CustomCsvConfig,
             {"name": name, "columns": columns, **item_data},
@@ -1663,7 +1664,7 @@ def validate_config(
         except ValueError as exc:
             errors.append(f"invalid discovery boundary {cidr!r}: {exc}")
 
-    if config.discovery.workers < 1:
+    if cast(int, config.discovery.workers) < 1:
         errors.append("discovery.workers must be >= 1")
     if config.discovery.batch_size < 1:
         errors.append("discovery.batch_size must be >= 1")

@@ -36,7 +36,7 @@ async def _two_walk_collector(client: CountingSnmpClient) -> list[tuple[str, obj
 
 def test_counting_client_counts_returned_varbinds_not_requested_oids() -> None:
     async def exercise() -> int:
-        client = CountingSnmpClient(_FakeClient())  # type: ignore[arg-type]
+        client = CountingSnmpClient(_FakeClient())  # ty: ignore[invalid-argument-type]
         await client.get("scalar")
         await client.get_many(["a", "b", "c"])
         await client.walk("one")

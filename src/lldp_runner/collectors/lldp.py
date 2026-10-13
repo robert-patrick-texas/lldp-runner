@@ -87,7 +87,7 @@ def _integer(value: object | None) -> int | None:
                 return int(value.decode("ascii").strip())
             except (UnicodeDecodeError, ValueError):
                 return int.from_bytes(value, byteorder="big", signed=False)
-        return int(value)  # type: ignore[arg-type]
+        return int(value)  # ty: ignore[invalid-argument-type]
     except (TypeError, ValueError, OverflowError):
         return None
 
@@ -120,7 +120,7 @@ def _capabilities(value: object | None) -> list[str]:
         raw = value
     else:
         try:
-            number = int(value)  # type: ignore[arg-type]
+            number = int(value)  # ty: ignore[invalid-argument-type]
             raw = bytes([number & 0xFF])
         except (TypeError, ValueError):
             return []
@@ -286,7 +286,7 @@ def _coverage(
     else:
         resolution_status = "unresolved"
     return CollectionCoverage(
-        status=status,  # type: ignore[arg-type]
+        status=status,  # ty: ignore[invalid-argument-type]
         attempts=max(1, int(attempts)),
         object_count=max(0, int(object_count)),
         row_count=row_count,

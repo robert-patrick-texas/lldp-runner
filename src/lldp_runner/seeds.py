@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import ipaddress
 import os
+from collections.abc import Mapping
 from pathlib import Path
 
 from lldp_runner.csv_input import read_csv_rows
@@ -60,7 +61,7 @@ def _split_seed_address_cell(value: str) -> list[str]:
     return [part.strip() for part in value.split(";") if part.strip()]
 
 
-def _seed_from_csv_row(row: dict[str, str | None], source: Path) -> SeedInput | None:
+def _seed_from_csv_row(row: Mapping[str, str | None], source: Path) -> SeedInput | None:
     """Build one SeedInput from a row using the current seeds.csv schema."""
 
     raw_seed = str(row.get("preferred_name") or "").strip()

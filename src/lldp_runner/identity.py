@@ -5,7 +5,7 @@ from __future__ import annotations
 import ipaddress
 import re
 import socket
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -184,7 +184,7 @@ def typed_port_id_mac(details: Mapping[str, object] | None) -> str | None:
         subtype_name = str(details.get(f"{prefix}port_id_subtype") or "")
         subtype_id = details.get(f"{prefix}port_id_subtype_id")
         try:
-            numeric_subtype = int(subtype_id) if subtype_id is not None else None
+            numeric_subtype = int(subtype_id) if subtype_id is not None else None  # ty: ignore[invalid-argument-type]
         except (TypeError, ValueError):
             numeric_subtype = None
         normalized_subtype = subtype_name.strip().casefold().replace("-", "_")
@@ -412,7 +412,7 @@ def _trace_getaddrinfo(
     *,
     trace: SnmpTrace | None,
     source: str,
-) -> list[tuple[int, int, int, str, tuple[object, ...]]]:
+) -> Sequence[tuple[int, int, int, str, tuple[object, ...]]]:
     """Run one forward resolver call while preserving the OS resolver result."""
 
     number = None

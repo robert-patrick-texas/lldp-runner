@@ -219,7 +219,9 @@ def test_unrelated_ipv6_constructor_error_does_not_fallback(
 
     with pytest.raises(SnmpSessionAddressError) as raised:
         asyncio.run(exercise())
-    assert raised.value.original_exception.errno == 13
+    original = raised.value.original_exception
+    assert isinstance(original, OSError)
+    assert original.errno == 13
     assert [call["addr"] for call in behavior.calls] == [address]
 
 

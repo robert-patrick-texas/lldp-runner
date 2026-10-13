@@ -206,7 +206,7 @@ def _number(value: object | None) -> int | None:
     """
 
     try:
-        return int(value) if value is not None else None
+        return int(value) if value is not None else None  # ty: ignore[invalid-argument-type]
     except (TypeError, ValueError):
         return None
 

@@ -199,7 +199,7 @@ def _local_numeric_index(obs: NeighborObservation) -> int | None:
     if isinstance(value, bool):
         return None
     try:
-        return int(value)
+        return int(value)  # ty: ignore[invalid-argument-type]
     except (TypeError, ValueError):
         return None
 

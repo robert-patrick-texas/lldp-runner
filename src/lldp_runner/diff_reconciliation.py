@@ -650,8 +650,10 @@ def _attachment_change(row: Mapping[str, Any]) -> dict[str, Any] | None:
 
     if str(row.get("status")) != "moved":
         return None
-    a = row.get("a") if isinstance(row.get("a"), Mapping) else {}
-    b = row.get("b") if isinstance(row.get("b"), Mapping) else {}
+    raw_a = row.get("a")
+    raw_b = row.get("b")
+    a = raw_a if isinstance(raw_a, Mapping) else {}
+    b = raw_b if isinstance(raw_b, Mapping) else {}
     return {
         "kind": "local_interface_changed",
         "a_local_interface": a.get("local_interface"),

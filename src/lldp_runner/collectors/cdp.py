@@ -65,7 +65,7 @@ def _integer(value: object | None) -> int | None:
                 return int(value.decode("ascii").strip())
             except (UnicodeDecodeError, ValueError):
                 return int.from_bytes(value, byteorder="big", signed=False)
-        return int(value)  # type: ignore[arg-type]
+        return int(value)  # ty: ignore[invalid-argument-type]
     except (TypeError, ValueError, OverflowError):
         return None
 
@@ -92,7 +92,7 @@ def _capabilities(value: object | None) -> list[str]:
         number = int.from_bytes(raw, "big")
     else:
         try:
-            number = int(value)  # type: ignore[arg-type]
+            number = int(value)  # ty: ignore[invalid-argument-type]
         except (TypeError, ValueError):
             return []
     mapping = {

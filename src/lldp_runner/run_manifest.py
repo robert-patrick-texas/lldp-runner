@@ -360,7 +360,7 @@ def begin_run_manifest(
 ) -> int:
     """Create/update durable run provenance and append the current invocation."""
 
-    payload = _load_manifest(path)
+    payload: dict[str, Any] | None = _load_manifest(path)
     identity = {
         "username": invocation.username,
         "uid": invocation.uid,

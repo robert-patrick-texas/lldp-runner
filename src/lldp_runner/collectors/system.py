@@ -33,7 +33,7 @@ def _int(value: object | None) -> int | None:
     if value is None:
         return None
     try:
-        return int(value)
+        return int(value)  # ty: ignore[invalid-argument-type]
     except (TypeError, ValueError):
         return None
 

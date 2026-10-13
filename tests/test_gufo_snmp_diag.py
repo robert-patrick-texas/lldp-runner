@@ -54,35 +54,44 @@ class _Session:
 
     def __init__(self, **kwargs: object) -> None:
         type(self).calls.append(("construct", kwargs["addr"]))
-        if type(self).construct_error is not None:
-            raise type(self).construct_error
+        error = type(self).construct_error
+        if error is not None:
+            raise error
 
     async def __aenter__(self):
         type(self).calls.append(("open", None))
-        if type(self).open_error is not None:
-            raise type(self).open_error
+        error = type(self).open_error
+        if error is not None:
+            raise error
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
         type(self).calls.append(("close", None))
-        if type(self).close_error is not None:
-            raise type(self).close_error
+        error = type(self).close_error
+        if error is not None:
+            raise error
 
     async def get(self, oid: str) -> object:
         type(self).calls.append(("get", oid))
-        if type(self).request_error is not None:
-            raise type(self).request_error
+        error = type(self).request_error
+        if error is not None:
+            raise error
         return type(self).value
 
     def get_engine_id(self) -> bytes:
         return b"\x80\x00"
 
 
+def _optional_error(value: object) -> BaseException | None:
+    assert value is None or isinstance(value, BaseException)
+    return value
+
+
 def _reset_session(**values: object) -> None:
-    _Session.construct_error = values.get("construct_error")  # type: ignore[assignment]
-    _Session.open_error = values.get("open_error")  # type: ignore[assignment]
-    _Session.request_error = values.get("request_error")  # type: ignore[assignment]
-    _Session.close_error = values.get("close_error")  # type: ignore[assignment]
+    _Session.construct_error = _optional_error(values.get("construct_error"))
+    _Session.open_error = _optional_error(values.get("open_error"))
+    _Session.request_error = _optional_error(values.get("request_error"))
+    _Session.close_error = _optional_error(values.get("close_error"))
     _Session.value = values.get("value", b"system description")
     _Session.calls = []
 
@@ -226,7 +235,7 @@ def test_dns_family_filter_is_forwarded_and_literal_mismatch_rejected(monkeypatc
     module = _load_tool()
     calls: list[int] = []
 
-    def fake_getaddrinfo(host: str, port: int, **kwargs: object):
+    def fake_getaddrinfo(host: str, port: int, **kwargs: int):
         calls.append(int(kwargs["family"]))
         return [
             (

@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import NoReturn
 
 from lldp_runner import __version__
 from lldp_runner.cleanup import clean_run_history
@@ -79,7 +80,7 @@ class _LldpArgumentParser(argparse.ArgumentParser):
     dispatch. Other subcommands retain argparse's established diagnostics.
     """
 
-    def error(self, message: str) -> None:
+    def error(self, message: str) -> NoReturn:
         if "argument --tracefile" in message and "expected one argument" in message:
             message = "--tracefile requires a filename to be identified for output"
         if self.prog == "lldp-runner diff":

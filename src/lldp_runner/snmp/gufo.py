@@ -89,7 +89,7 @@ class GufoSnmpClient:
         self._session: SnmpSession | None = None
         self._gufo_version = _gufo_distribution_version()
 
-    def _security_kwargs(self) -> dict[str, object]:
+    def _security_kwargs(self) -> dict[str, Any]:
         """Build Gufo security arguments without emitting credential values."""
 
         version = str(self.credential.version).strip().casefold()
@@ -125,7 +125,7 @@ class GufoSnmpClient:
             )
         }
 
-    def _session_kwargs(self, *, transport_address: str) -> dict[str, object]:
+    def _session_kwargs(self, *, transport_address: str) -> dict[str, Any]:
         """Return the complete Gufo constructor mapping for one text form."""
 
         return {

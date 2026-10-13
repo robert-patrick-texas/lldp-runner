@@ -14,7 +14,7 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from lldp_runner.config import AppConfig, ConfigError, resolve_existing_persistent_root
 from lldp_runner.outputs import DISCOVERY_JSON_SCHEMA_VERSION
@@ -202,6 +202,7 @@ def load_discovery_document(
     for position, item in enumerate(raw_hosts):
         if not isinstance(item, dict):
             raise DiscoveryQueryError(f"discovery.json hosts[{position}] must be an object")
+        item = cast(dict[str, Any], item)
         host_id = item.get("id")
         if not isinstance(host_id, int) or isinstance(host_id, bool):
             raise DiscoveryQueryError(f"discovery.json hosts[{position}].id must be an integer")

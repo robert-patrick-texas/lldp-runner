@@ -189,7 +189,7 @@ def _graph_summary_table(summary: Mapping[str, Any]) -> list[str]:
         if not isinstance(values, Mapping):
             continue
         for status, count in sorted(values.items()):
-            rows.append((label, str(status), int(count)))
+            rows.append((label, str(status), int(count)))  # ty: ignore[invalid-argument-type]
     if not rows:
         return ["No graph summary is available."]
     category_width = max(len("Category"), *(len(row[0]) for row in rows))
@@ -226,7 +226,7 @@ def _change_event_summary_table(summary: Mapping[str, Any]) -> list[str]:
             }
             for status, count in sorted(by_type.items()):
                 rows.append(
-                    ("Unique change events", labels.get(str(status), str(status)), int(count))
+                    ("Unique change events", labels.get(str(status), str(status)), int(count))  # ty: ignore[invalid-argument-type]
                 )
     if isinstance(consistency, Mapping):
         rows.extend(
@@ -318,7 +318,7 @@ def _management_health_table(summary: Mapping[str, Any]) -> list[str]:
     ):
         causes = values.get(key)
         if isinstance(causes, Mapping) and causes:
-            rendered = ", ".join(f"{cause}={int(count)}" for cause, count in sorted(causes.items()))
+            rendered = ", ".join(f"{cause}={int(count)}" for cause, count in sorted(causes.items()))  # ty: ignore[invalid-argument-type]
             lines.append(f"{label}: {rendered}")
     return lines
 

@@ -94,13 +94,15 @@ class _Engine:
 
     def __init__(self) -> None:
         type(self).calls.append(("engine_construct", None))
-        if type(self).construct_error is not None:
-            raise type(self).construct_error
+        error = type(self).construct_error
+        if error is not None:
+            raise error
 
     def close_dispatcher(self) -> None:
         type(self).calls.append(("dispatcher_close", None))
-        if type(self).close_error is not None:
-            raise type(self).close_error
+        error = type(self).close_error
+        if error is not None:
+            raise error
 
 
 class _TransportBase:
@@ -757,7 +759,7 @@ def test_dns_family_filter_and_literal_mismatch(monkeypatch) -> None:
     module = _load_tool()
     calls: list[int] = []
 
-    def fake_getaddrinfo(host: str, port: int, **kwargs: object):
+    def fake_getaddrinfo(host: str, port: int, **kwargs: int):
         calls.append(int(kwargs["family"]))
         return [
             (

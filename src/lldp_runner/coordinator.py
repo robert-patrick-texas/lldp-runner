@@ -13,8 +13,9 @@ import signal
 import threading
 import time
 from dataclasses import dataclass
+from multiprocessing.process import BaseProcess
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from lldp_runner.classify import Classifier
 from lldp_runner.config import AppConfig
@@ -292,7 +293,7 @@ class Coordinator:
         self.result_queue: mp.Queue = self.ctx.Queue()  # type: ignore[type-arg]
         self.log_queue: mp.Queue = self.ctx.Queue()  # type: ignore[type-arg]
         self.work_queues: list[mp.Queue] = []  # type: ignore[type-arg]
-        self.workers: list[mp.Process] = []
+        self.workers: list[BaseProcess] = []
         self.worker_status: dict[int, dict[str, Any]] = {}
         self.batch_hosts: dict[str, list[int]] = {}
         # A host task can contain several credential attempts for one or more
@@ -417,7 +418,7 @@ class Coordinator:
         self.paths.scratch_dir.joinpath(self.config.resume.pause_indicator).unlink(missing_ok=True)
         if self.resume:
             reset = self.state.reset_active_claims()
-            self.state.normalize_cohorts(self.config.discovery.workers)
+            self.state.normalize_cohorts(cast(int, self.config.discovery.workers))
             self.state.ensure_missing_seed_ranks()
             first_rank = self.state.next_seed_rank()
             self._resolve_seed_inputs(
@@ -983,7 +984,7 @@ class Coordinator:
         """
 
         digest = hashlib.blake2b(identity.casefold().encode(), digest_size=8).digest()
-        return int.from_bytes(digest, "big") % self.config.discovery.workers
+        return int.from_bytes(digest, "big") % cast(int, self.config.discovery.workers)
 
     def _ordered_addresses(self, addresses: list[str]) -> list[str]:
         """De-duplicate and sort management addresses by configured family order.
@@ -1639,11 +1640,12 @@ class Coordinator:
     ) -> None:
         """Refresh durable run.json provenance when this CLI invocation records it."""
 
-        if getattr(self, "run_manifest_sequence", None) is None:
+        sequence = getattr(self, "run_manifest_sequence", None)
+        if sequence is None:
             return
         update_run_manifest(
             self.run_manifest_path,
-            sequence=self.run_manifest_sequence,
+            sequence=sequence,
             status=status,
             started=self.state.get_meta("started") or self.started_text,
             completed=self.state.get_meta("completed"),

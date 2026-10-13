@@ -17,7 +17,7 @@ import time
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from lldp_runner import APP_NAME, __version__
 from lldp_runner.config import AppConfig
@@ -1338,7 +1338,8 @@ def _render_watch_frame_core(
         stale=stale,
     )
 
-    plan = payload.get("execution_plan") if isinstance(payload.get("execution_plan"), dict) else {}
+    raw_plan = payload.get("execution_plan")
+    plan = raw_plan if isinstance(raw_plan, dict) else {}
     plan_lines: list[WatchLine] = []
     plan_text = _run_summary_text(payload, plan, content_width)
     if plan_text is not None:
@@ -1715,7 +1716,7 @@ def _watch_loop(
             now_mono = time.monotonic()
             if force or now_mono >= next_refresh:
                 try:
-                    source = load_current_scoreboard(config.paths.scratch_root)
+                    source = load_current_scoreboard(cast(Path, config.paths.scratch_root))
                 except WatchError as exc:
                     session.observe(
                         None,

@@ -783,7 +783,7 @@ def _set_collection_coverage(
     else:
         resolution_status = "unresolved"
     result.collection_coverage[section] = CollectionCoverage(
-        status=resolved_status,  # type: ignore[arg-type]
+        status=resolved_status,  # ty: ignore[invalid-argument-type]
         attempts=max(1, int(attempts)),
         object_count=(
             _coverage_objects(result, section)

@@ -471,9 +471,9 @@ def test_factory_never_falls_back_or_mixes_backends(
         return SelectedBackend
 
     gufo_module = types.ModuleType("lldp_runner.snmp.gufo")
-    gufo_module.GufoSnmpClient = backend_class("gufo")
+    gufo_module.GufoSnmpClient = backend_class("gufo")  # ty: ignore[unresolved-attribute]
     pysnmp_module = types.ModuleType("lldp_runner.snmp.pysnmp")
-    pysnmp_module.PySnmpClient = backend_class("pysnmp")
+    pysnmp_module.PySnmpClient = backend_class("pysnmp")  # ty: ignore[unresolved-attribute]
     monkeypatch.setitem(sys.modules, "lldp_runner.snmp.gufo", gufo_module)
     monkeypatch.setitem(sys.modules, "lldp_runner.snmp.pysnmp", pysnmp_module)
 

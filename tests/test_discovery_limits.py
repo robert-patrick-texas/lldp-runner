@@ -335,8 +335,8 @@ def test_dispatch_uses_balanced_seed_only_batch_size(config, tmp_path: Path) -> 
 
             self.messages.append(message)
 
-    coordinator.workers = [AliveProcess(), AliveProcess()]
-    coordinator.work_queues = [WorkQueue(), WorkQueue()]
+    coordinator.workers = [AliveProcess(), AliveProcess()]  # ty: ignore[invalid-assignment]
+    coordinator.work_queues = [WorkQueue(), WorkQueue()]  # ty: ignore[invalid-assignment]
     coordinator.worker_status = {
         0: {"status": "IDLE", "batch": "-", "size": 0},
         1: {"status": "IDLE", "batch": "-", "size": 0},
@@ -398,9 +398,9 @@ def test_start_workers_spawns_only_effective_seed_only_count(config, tmp_path: P
             return process
 
     fake_context = FakeContext()
-    coordinator.ctx = fake_context
-    coordinator.result_queue = object()
-    coordinator.log_queue = object()
+    coordinator.ctx = fake_context  # ty: ignore[invalid-assignment]
+    coordinator.result_queue = object()  # ty: ignore[invalid-assignment]
+    coordinator.log_queue = object()  # ty: ignore[invalid-assignment]
     coordinator.work_queues = []
     coordinator.workers = []
     coordinator.worker_status = {}

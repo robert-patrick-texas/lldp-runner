@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from types import TracebackType
 from typing import TypeVar
 
-from lldp_runner.models import SnmpRetryEvent, SnmpSessionTelemetry
+from lldp_runner.models import RetryKind, RetryPool, SnmpRetryEvent, SnmpSessionTelemetry
 from lldp_runner.snmp.base import SnmpClient
 
 LOG = logging.getLogger(__name__)
@@ -295,7 +295,7 @@ class AdaptiveSnmpState:
             inter_pdu_delay_ms=self.inter_pdu_delay_ms,
         )
 
-    def _retry_limit(self, retry_kind: str) -> int:
+    def _retry_limit(self, retry_kind: RetryKind) -> int:
         """Return the operation-local allowance for one normal retry kind."""
 
         if retry_kind == "structural":
@@ -318,7 +318,7 @@ class AdaptiveSnmpState:
     def _is_neighbor_family(collector_family: str) -> bool:
         return collector_family in _NEIGHBOR_COLLECTOR_FAMILY_NAMES
 
-    def _normal_retry_pool(self, collector_family: str) -> str | None:
+    def _normal_retry_pool(self, collector_family: str) -> RetryPool | None:
         """Choose the protected neighbor reserve before the shared retry pool."""
 
         if (
@@ -331,7 +331,7 @@ class AdaptiveSnmpState:
         return None
 
     def _normal_retry_unavailable_reason(
-        self, operation_key: str, *, retry_kind: str, collector_family: str
+        self, operation_key: str, *, retry_kind: RetryKind, collector_family: str
     ) -> str | None:
         """Explain which normal retry boundary rejected an operation."""
 
@@ -352,7 +352,7 @@ class AdaptiveSnmpState:
         self,
         operation_key: str,
         *,
-        retry_kind: str,
+        retry_kind: RetryKind,
         collector: str = "unscoped",
     ) -> bool:
         """Return whether operation, collector, and pool limits allow repair."""
@@ -387,7 +387,7 @@ class AdaptiveSnmpState:
         self,
         *,
         operation_key: str,
-        retry_kind: str,
+        retry_kind: RetryKind,
         collector: str,
         logical_operation: str,
         table_name: str,
@@ -464,7 +464,7 @@ class AdaptiveSnmpState:
         self,
         *,
         operation_key: str,
-        retry_kind: str,
+        retry_kind: RetryKind,
         collector: str,
         logical_operation: str,
         table_name: str,
@@ -701,7 +701,7 @@ class AdaptiveSnmpClient:
         return self._normal_retry_suppression_depth > 0
 
     def _new_operation_key(
-        self, logical_operation: str, root_oid: str | None, retry_kind: str
+        self, logical_operation: str, root_oid: str | None, retry_kind: RetryKind
     ) -> str:
         """Return a unique invocation key with a stable operator-readable prefix."""
 
@@ -825,7 +825,7 @@ class AdaptiveSnmpClient:
         self,
         *,
         operation_key: str,
-        retry_kind: str,
+        retry_kind: RetryKind,
         logical_operation: str,
         root_oid: str | None,
         category: str,

@@ -8,6 +8,7 @@ import sqlite3
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from lldp_runner.config import AppConfig
 from lldp_runner.runid import (
@@ -69,10 +70,12 @@ def _existing_run_associated_names(config: AppConfig) -> set[str]:
         manually removed.
     """
 
+    # load_config() has already replaced any "auto" path sentinel with a Path.
+    persistent = cast(Path, config.paths.persistent_root)
     roots = (
-        config.paths.persistent_root / config.paths.runs_dirname,
-        config.paths.persistent_root / config.paths.output_dirname,
-        config.paths.scratch_root,
+        persistent / config.paths.runs_dirname,
+        persistent / config.paths.output_dirname,
+        cast(Path, config.paths.scratch_root),
     )
     names: set[str] = set()
     for root in roots:
@@ -152,8 +155,8 @@ def make_run_paths(config: AppConfig, run_id: str | None = None) -> RunPaths:
 
     is_new = run_id is None
     run_id = allocate_run_id(config) if run_id is None else _validate_runtime_run_id(run_id)
-    persistent = config.paths.persistent_root
-    scratch = config.paths.scratch_root
+    persistent = cast(Path, config.paths.persistent_root)
+    scratch = cast(Path, config.paths.scratch_root)
     run_dir = persistent / config.paths.runs_dirname / run_id
     output_root = persistent / config.paths.output_dirname
     activity_log: Path | None = None
@@ -485,7 +488,7 @@ def find_resumable_run(config: AppConfig) -> str | None:
         skipped so an older valid resumable run can still be selected.
     """
 
-    runs_root = config.paths.persistent_root / config.paths.runs_dirname
+    runs_root = cast(Path, config.paths.persistent_root) / config.paths.runs_dirname
     if not runs_root.exists():
         return None
     for directory in sorted(

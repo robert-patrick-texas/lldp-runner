@@ -203,7 +203,7 @@ def test_completed_limit_run_finalizes_persistent_output(
     config.discovery.limit_behavior = "complete"
     config.paths.clean_scratch_when_completed = clean_scratch
     coordinator = _coordinator(config, tmp_path)
-    coordinator.paths = SimpleNamespace(
+    coordinator.paths = SimpleNamespace(  # ty: ignore[invalid-assignment]
         run_id="sample-run",
         scratch_dir=tmp_path / "scratch",
         scoreboard_dir=tmp_path / "live-scoreboard",
@@ -235,22 +235,22 @@ def test_completed_limit_run_finalizes_persistent_output(
         def get(self, timeout: float):
             raise queue.Empty
 
-    coordinator.result_queue = EmptyQueue()
-    coordinator._register_signals = lambda: None
-    coordinator._restore_signals = lambda: None
-    coordinator._start_workers = lambda: None
-    coordinator._stop_workers = lambda: None
-    coordinator._check_pause_indicator = lambda: None
-    coordinator._check_worker_health = lambda: None
-    coordinator._dispatch = lambda: None
-    coordinator._all_workers_idle = lambda: True
+    coordinator.result_queue = EmptyQueue()  # ty: ignore[invalid-assignment]
+    monkeypatch.setattr(coordinator, "_register_signals", lambda: None)
+    monkeypatch.setattr(coordinator, "_restore_signals", lambda: None)
+    monkeypatch.setattr(coordinator, "_start_workers", lambda: None)
+    monkeypatch.setattr(coordinator, "_stop_workers", lambda: None)
+    monkeypatch.setattr(coordinator, "_check_pause_indicator", lambda: None)
+    monkeypatch.setattr(coordinator, "_check_worker_health", lambda: None)
+    monkeypatch.setattr(coordinator, "_dispatch", lambda: None)
+    monkeypatch.setattr(coordinator, "_all_workers_idle", lambda: True)
     completion_events: list[str] = []
 
     def close_coordinator() -> None:
         completion_events.append("closed")
         coordinator.state.close()
 
-    coordinator.close = close_coordinator
+    monkeypatch.setattr(coordinator, "close", close_coordinator)
 
     output_calls: list[tuple[str, bool]] = []
     finalized: list[tuple[Path, Path]] = []

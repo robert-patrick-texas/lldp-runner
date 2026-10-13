@@ -29,6 +29,8 @@ def test_toml_paths_are_normalized_to_path(config_file: Path) -> None:
 
 def test_runtime_path_operations_work_with_toml_paths(config_file: Path) -> None:
     config = load_config(config_file)
+    assert isinstance(config.paths.persistent_root, Path)
+    assert isinstance(config.paths.scratch_root, Path)
 
     assert find_resumable_run(config) is None
 
@@ -486,6 +488,7 @@ def test_logging_destination_defaults_and_runtime_paths(
     """Relative log names live in the run while absolute names remain centralized."""
 
     config = load_config(config_file)
+    assert isinstance(config.paths.persistent_root, Path)
     assert config.logging.console is False
     assert config.logging.file is True
     assert config.logging.filename == "activity.log"
@@ -619,6 +622,7 @@ def test_default_and_custom_run_id_formats_allocate_safely(config_file: Path, mo
     from lldp_runner.runtime import allocate_run_id
 
     config = load_config(config_file)
+    assert isinstance(config.paths.persistent_root, Path)
     fixed = datetime(2026, 1, 2, 21, 3, 17, 123456, tzinfo=ZoneInfo("America/New_York"))
     monkeypatch.setattr(runtime_module, "now", lambda: fixed)
 
@@ -647,6 +651,7 @@ def test_counter_namespace_is_timestamp_scoped_and_exhausts_at_99(
     from lldp_runner.runtime import allocate_run_id
 
     config = load_config(config_file)
+    assert isinstance(config.paths.persistent_root, Path)
     config.paths.run_id_format = "%y%m%d-{counter}"
     fixed = datetime(2026, 1, 2, 21, 3, 17, tzinfo=ZoneInfo("America/New_York"))
     monkeypatch.setattr(runtime_module, "now", lambda: fixed)
@@ -684,6 +689,7 @@ def test_two_digit_counter_names_sort_newest_first_for_resume(config_file: Path)
     import sqlite3
 
     config = load_config(config_file)
+    assert isinstance(config.paths.persistent_root, Path)
     runs_root = config.paths.persistent_root / config.paths.runs_dirname
     for run_id in ("run-09", "run-10"):
         run_dir = runs_root / run_id
@@ -703,6 +709,7 @@ def test_find_resumable_run_never_returns_runs_latest_alias(config_file: Path) -
     import sqlite3
 
     config = load_config(config_file)
+    assert isinstance(config.paths.persistent_root, Path)
     runs_root = config.paths.persistent_root / config.paths.runs_dirname
     run_dir = runs_root / "20260112-00"
     run_dir.mkdir(parents=True)

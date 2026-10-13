@@ -664,7 +664,7 @@ def test_lldp_management_walk_failure_is_not_silently_converted_to_empty_table()
 
     with pytest.raises(TimeoutError, match="management table timeout") as raised:
         asyncio.run(collect_lldp(FailingManagementWalker(rows), {}))
-    coverage = raised.value.lldp_subtable_coverage
+    coverage = raised.value.lldp_subtable_coverage  # ty: ignore[unresolved-attribute]
     assert coverage["remote_neighbor"].status == "complete"
     assert coverage["remote_neighbor"].row_count == 1
     assert coverage["remote_management_address"].status == "timeout"

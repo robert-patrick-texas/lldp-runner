@@ -1107,6 +1107,12 @@ def _projection_winner(hosts: Sequence[dict[str, Any]]) -> dict[str, Any]:
     return max(hosts, key=rank)
 
 
+def _list_value(value: object) -> list[Any]:
+    """Return ``value`` when it is a JSON array, otherwise an empty list."""
+
+    return value if isinstance(value, list) else []
+
+
 def _merge_unique_list(values: Iterable[Any]) -> list[Any]:
     """Return stable unique JSON-compatible values without assuming hashability."""
 
@@ -1129,9 +1135,7 @@ def _merge_projection_hosts(
     merged = copy.deepcopy(winner)
     for field in ("names", "tags", "icmp"):
         merged[field] = _merge_unique_list(
-            value
-            for member in members
-            for value in (member.get(field) if isinstance(member.get(field), list) else [])
+            value for member in members for value in _list_value(member.get(field))
         )
 
     merged_addresses: dict[str, list[str]] = {}
@@ -1154,7 +1158,7 @@ def _merge_projection_hosts(
         merged[section] = [
             copy.deepcopy(row)
             for member in members
-            for row in (member.get(section) if isinstance(member.get(section), list) else [])
+            for row in _list_value(member.get(section))
             if isinstance(row, Mapping)
         ]
 
@@ -1220,9 +1224,7 @@ def _merge_projection_coverage(
         sources: list[tuple[str, str]] = []
         for name in sorted(set(names)):
             candidates = [
-                (status_getter(row, name), row)
-                for row in rows
-                if status_getter(row, name) is not None
+                (status, row) for row in rows if (status := status_getter(row, name)) is not None
             ]
             if not candidates:
                 continue
@@ -1252,9 +1254,10 @@ def _merge_projection_coverage(
         status = "complete" if "complete" in concrete else concrete[0] if concrete else "unknown"
         statuses.append((table, status))
         complete_counts = [
-            row.row_count_for(table)
+            count
             for row in rows
-            if row.status_for(table) == "complete" and row.row_count_for(table) is not None
+            if row.status_for(table) == "complete"
+            and (count := row.row_count_for(table)) is not None
         ]
         if complete_counts:
             # Duplicate projections are alternative successful observations of
@@ -1809,7 +1812,7 @@ def _stable_value(value: Any) -> Any:
     return value
 
 
-def _member_key(member: Mapping[str, Any], position: int) -> str:
+def _member_key(member: Mapping[Any, Any], position: int) -> str:
     """Choose the most durable available stack-member key."""
 
     serial = _norm_text(member.get("serial_number"))
@@ -2113,7 +2116,7 @@ def _member_uptime(host: Mapping[str, Any]) -> dict[str, int]:
         if isinstance(value, bool) or value is None:
             continue
         try:
-            result[_member_key(member, index)] = int(value)
+            result[_member_key(member, index)] = int(value)  # ty: ignore[invalid-argument-type]
         except (TypeError, ValueError):
             continue
     return result
@@ -3770,9 +3773,10 @@ def _collection_coverage(
             host_ref = error.get("host_ref")
             if not isinstance(host_ref, int) or isinstance(host_ref, bool):
                 continue
-            record = mutable.get(host_ref)
-            if record is None:
+            found = mutable.get(host_ref)
+            if found is None:
                 continue
+            record = found
             operation = str(error.get("operation") or "").casefold()
             category = str(error.get("category") or "unknown").casefold()
             if operation in {"lldp", "lldpv2", "cdp"}:

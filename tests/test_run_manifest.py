@@ -188,7 +188,7 @@ def test_completed_run_publishes_run_json_with_discovery_times(
         def get(self, timeout: float):
             raise queue.Empty
 
-    coordinator.result_queue = EmptyQueue()
+    coordinator.result_queue = EmptyQueue()  # ty: ignore[invalid-assignment]
     monkeypatch.setattr(coordinator, "_register_signals", lambda: None)
     monkeypatch.setattr(coordinator, "_restore_signals", lambda: None)
     monkeypatch.setattr(coordinator, "_start_workers", lambda: None)

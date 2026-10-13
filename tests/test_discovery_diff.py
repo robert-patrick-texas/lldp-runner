@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -61,7 +62,7 @@ def _host(
     uptime: int = 1000,
     learned: list[dict[str, object]] | None = None,
     observed_by: list[dict[str, object]] | None = None,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     """Build a compact canonical host record with durable identity evidence."""
 
     addresses = [address] if address else []
@@ -379,6 +380,7 @@ def test_host_diff_treats_vdc_neighbor_edges_as_same_across_run_local_ids(tmp_pa
     )
 
     outcome = host_diff(config, source_a, source_b, criteria, changes_only=False)
+    assert outcome.data is not None
 
     assert outcome.status == "no_differences"
     assert outcome.exit_code == 0
@@ -478,6 +480,7 @@ def test_macro_diff_pairs_shared_serial_vdcs_without_false_topology_churn(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     # The three representative VDC chassis IDs intentionally differ between
     # runs, so host-field comparison can report those diagnostic changes.  The
@@ -600,6 +603,7 @@ def test_macro_diff_normalizes_volatile_fields_and_detects_reboot_and_neighbor_c
         [DiffSourceSpec("file", str(new)), DiffSourceSpec("file", str(old))],
     )
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
     assert outcome.exit_code == 1
     first = outcome.data["hosts"][0]
     paths = {item["path"] for item in first["host_differences"]}
@@ -759,6 +763,7 @@ def test_changes_only_hides_same_rows_without_changing_summary(tmp_path: Path) -
         [DiffSourceSpec("file", str(a)), DiffSourceSpec("file", str(b))],
     )
     outcome = macro_diff(config, source_a, source_b, changes_only=True)
+    assert outcome.data is not None
     assert [item["a"]["preferred_name"] for item in outcome.data["hosts"]] == ["changed"]
     assert outcome.data["summary"]["hosts"]["same"] == 1
     assert outcome.data["summary"]["hosts"]["changed"] == 1
@@ -818,6 +823,7 @@ def test_host_diff_id_selects_a_but_pairs_b_by_cross_run_identity(tmp_path: Path
         host_id=5, name=None, key_expressions=[], ipv4_values=[], ipv6_values=[]
     )
     outcome = host_diff(config, source_a, source_b, criteria, changes_only=False)
+    assert outcome.data is not None
     assert outcome.data["host"]["b"]["id"] == 99
     assert outcome.data["host"]["match"]["tier"] == "physical"
 
@@ -1051,6 +1057,7 @@ def test_macro_diff_marks_missing_cdp_evidence_uncertain_after_collector_failure
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     nexus = next(item for item in outcome.data["hosts"] if item["a"]["preferred_name"] == "nexus")
     assert nexus["status"] == "uncertain"
@@ -1087,6 +1094,7 @@ def test_macro_diff_marks_neighbors_uncertain_when_one_host_collection_failed(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     access = next(item for item in outcome.data["hosts"] if item["a"]["preferred_name"] == "access")
     neighbor = access["learned_neighbors"][0]
@@ -1383,6 +1391,7 @@ def test_macro_diff_counts_protocol_change_separately(tmp_path: Path) -> None:
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     summary = outcome.data["summary"]["learned_neighbors"]
     assert summary["protocol_changed"] == 1
@@ -1751,6 +1760,7 @@ def test_macro_diff_reconciles_duplicate_complete_managed_projections(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     projection = outcome.data["summary"]["compatibility_projection"]
     assert projection["a"] == {
@@ -2081,6 +2091,7 @@ def test_host_pairing_confidence_is_categorical_and_explainable(tmp_path: Path) 
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     confidence = {item["a"]["id"]: item["match"]["confidence"] for item in outcome.data["hosts"]}
     assert confidence == {1: "verified", 2: "medium", 3: "low"}
@@ -2093,7 +2104,7 @@ def test_host_pairing_confidence_is_categorical_and_explainable(tmp_path: Path) 
 
 
 def _set_collection_coverage(
-    host: dict[str, object],
+    host: dict[str, Any],
     **tables: tuple[str, str],
 ) -> None:
     """Attach compact schema-8 table coverage to a host fixture."""
@@ -2111,7 +2122,7 @@ def _set_collection_coverage(
 
 
 def _set_schema8_lldp_coverage(
-    host: dict[str, object],
+    host: dict[str, Any],
     *,
     aggregate: str = "complete",
     remote_neighbor: str = "complete",
@@ -2183,6 +2194,7 @@ def test_macro_diff_propagates_failed_observer_protocol_to_one_sided_entity(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     assert outcome.data["summary"]["hosts"]["a_only"] == 0
     assert outcome.data["summary"]["hosts"]["coverage_uncertain"] == 1
@@ -2229,6 +2241,7 @@ def test_macro_diff_recursively_propagates_original_coverage_incident(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     assert outcome.data["summary"]["hosts"]["coverage_uncertain"] == 2
     by_name = {item["preferred_name"]: item for item in outcome.data["presence_uncertain"]}
@@ -2264,6 +2277,7 @@ def test_macro_diff_keeps_genuine_absence_confirmed_with_complete_coverage(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     assert outcome.data["summary"]["hosts"]["a_only"] == 1
     assert outcome.data["summary"]["hosts"]["coverage_uncertain"] == 0
@@ -2304,6 +2318,7 @@ def test_collection_summary_excludes_no_query_and_out_of_scope_from_failures(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
     coverage = outcome.data["summary"]["collection_coverage"]["a"]
 
     assert coverage["actively_queried_count"] == 1
@@ -2361,6 +2376,7 @@ def test_macro_diff_does_not_fold_conflicting_duplicate_projection_identity(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     projection = outcome.data["summary"]["compatibility_projection"]
     assert projection["a"]["absorbed_host_count"] == 0
@@ -2501,6 +2517,7 @@ def test_management_only_lldp_partial_does_not_obscure_neighbor_presence(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     learned = outcome.data["summary"]["learned_neighbors"]
     assert learned["a_only"] == 1
@@ -2608,6 +2625,7 @@ def test_missing_lldp_derived_chassis_attribute_retains_observer_provenance(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     endpoint = next(
         item for item in outcome.data["hosts"] if item["a"]["preferred_name"] == "endpoint"
@@ -2770,6 +2788,7 @@ def test_macro_diff_summarizes_management_health_persistence_and_recovery(
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     health = outcome.data["management_address_health"]
     assert health["a_incomplete_count"] == 1
@@ -2825,6 +2844,7 @@ def test_macro_diff_reports_topology_health_gap_without_claiming_diff_dependency
     )
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
+    assert outcome.data is not None
 
     incidents = outcome.data["collection_incidents"]
     assert len(incidents) == 2

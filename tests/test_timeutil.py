@@ -24,7 +24,9 @@ def test_timezone_aliases_and_iana_names_are_supported(tmp_path) -> None:
     config = load_config(config_path, credential_mode=CredentialMode.OPTIONAL, resolve_paths=False)
     assert config.time.timezone == "utc"
     assert configured_timezone_name() == "UTC"
-    assert now().utcoffset().total_seconds() == 0
+    offset = now().utcoffset()
+    assert offset is not None
+    assert offset.total_seconds() == 0
 
     config_path.write_text('[time]\ntimezone = "America/Denver"\n', encoding="utf-8")
     load_config(config_path, credential_mode=CredentialMode.OPTIONAL, resolve_paths=False)

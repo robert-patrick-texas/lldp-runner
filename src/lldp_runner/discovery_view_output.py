@@ -14,7 +14,7 @@ import json
 import shutil
 import sys
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import Any, cast
 
 from lldp_runner.config import AppConfig
 from lldp_runner.discovery_query import DiscoveryDocument
@@ -728,8 +728,9 @@ def _append_mapping_details(
                 if not isinstance(member, Mapping):
                     continue
                 lines.append(paint(f"  Stack member {index}", styles.bold, color))
-                for member_key in sorted(member):
-                    _detail_field(lines, f"{member_key}:", member[member_key], indent="    ")
+                fields = cast(Mapping[str, Any], member)
+                for member_key in sorted(fields):
+                    _detail_field(lines, f"{member_key}:", fields[member_key], indent="    ")
             continue
         _detail_field(lines, f"{key}:", item)
 

@@ -1610,7 +1610,7 @@ def _atomic_csv(
 
     iterator = iter(rows)
     sentinel = object()
-    first = next(iterator, sentinel)
+    first: Any = next(iterator, sentinel)
     if first is sentinel and not write_empty:
         path.unlink(missing_ok=True)
         return False

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 import pytest
 
@@ -101,10 +102,11 @@ def test_watch_session_keeps_deltas_highlighted_until_next_snapshot() -> None:
     second = _payload(2)
     second["hosts_discovered"] = 137
     second["last_update"] = "2026-08-25T21:54:06.000-06:00"
-    workers = second["workers"]
+    workers = cast(dict[str, object], second["workers"])
     assert isinstance(workers, dict)
-    assert isinstance(workers["1"], dict)
-    workers["1"]["status"] = "IDLE"
+    worker = cast(dict[str, object], workers["1"])
+    assert isinstance(worker, dict)
+    worker["status"] = "IDLE"
 
     session = WatchSession()
     session.observe(

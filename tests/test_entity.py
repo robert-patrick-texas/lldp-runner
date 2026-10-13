@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Mapping, Sequence
 
 import pytest
 
@@ -36,8 +37,8 @@ class FakeEntityClient:
     def __init__(
         self,
         *,
-        walks: dict[str, list[tuple[str, object]]] | None = None,
-        values: dict[str, object] | None = None,
+        walks: Mapping[str, Sequence[tuple[str, object]]] | None = None,
+        values: Mapping[str, object] | None = None,
         fail_containment: bool = False,
     ) -> None:
         """Initialize fake walk/value responses for one test scenario.

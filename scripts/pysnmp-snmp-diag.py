@@ -398,7 +398,7 @@ def resolve_target(
         if answer_family not in (socket.AF_INET, socket.AF_INET6):
             continue
         address = str(sockaddr[0])
-        if answer_family == socket.AF_INET6 and len(sockaddr) >= 4:
+        if answer_family == socket.AF_INET6 and len(sockaddr) == 4:
             scope_id = int(sockaddr[3])
             if scope_id and "%" not in address:
                 try:
@@ -1128,7 +1128,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     for stream in (sys.stdout, sys.stderr):
         try:
-            stream.reconfigure(line_buffering=True)
+            stream.reconfigure(line_buffering=True)  # ty: ignore[unresolved-attribute]
         except (AttributeError, OSError):
             pass
     parser = build_parser()

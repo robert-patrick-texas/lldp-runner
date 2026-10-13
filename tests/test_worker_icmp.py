@@ -5,7 +5,7 @@ import contextlib
 import logging
 from contextlib import AbstractAsyncContextManager
 from types import SimpleNamespace
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 
 from lldp_runner import worker
 from lldp_runner.collectors.cdp import CdpSnapshotIncompleteError
@@ -19,6 +19,7 @@ from lldp_runner.models import (
     PingProbe,
     SystemDetails,
     TargetAttempt,
+    WorkerError,
 )
 from lldp_runner.worker import _basic_wavefront
 
@@ -245,7 +246,7 @@ def test_lldp_subtable_coverage_survives_structural_restart(config) -> None:
         calls += 1
         if calls == 1:
             error = LldpSnapshotIncompleteError("mandatory Port ID missing")
-            error.lldp_subtable_coverage = {
+            error.lldp_subtable_coverage = {  # ty: ignore[unresolved-attribute]
                 "local_port": CollectionCoverage(
                     status="complete", attempts=1, object_count=2, row_count=1
                 ),
@@ -302,7 +303,7 @@ def test_lldp_subtable_coverage_survives_structural_restart(config) -> None:
                 display_name="LLDP",
                 unresolved_identifier="lldpLocalPort",
             ),
-            adaptive_client=adaptive,
+            adaptive_client=adaptive,  # ty: ignore[invalid-argument-type]
         )
     )
 
@@ -365,7 +366,7 @@ def test_lldp_aggregate_coverage_is_partial_when_local_map_failed(config) -> Non
         credential_label=None,
         system=SystemDetails(sys_name="switch1"),
     )
-    errors: list[object] = []
+    errors: list[WorkerError] = []
     observations: list[object] = []
 
     worker._record_neighbor_outcome(
@@ -374,7 +375,7 @@ def test_lldp_aggregate_coverage_is_partial_when_local_map_failed(config) -> Non
         credential=credential,
         basic=basic,
         audit_result=result,
-        errors=errors,  # type: ignore[arg-type]
+        errors=errors,
         observations=observations,
     )
 
@@ -435,7 +436,7 @@ def test_neighbor_protocol_retries_one_incomplete_snapshot(config, caplog) -> No
                 None,
                 object(),
                 collector,
-                adaptive_client=adaptive,
+                adaptive_client=adaptive,  # ty: ignore[invalid-argument-type]
             )
         )
 
@@ -473,7 +474,7 @@ def test_neighbor_protocol_persists_second_incomplete_snapshot(config) -> None:
             None,
             object(),
             collector,
-            adaptive_client=adaptive,
+            adaptive_client=adaptive,  # ty: ignore[invalid-argument-type]
         )
     )
 
@@ -512,7 +513,7 @@ def test_cdp_invalid_snapshot_retries_from_root_then_materializes(config) -> Non
             None,
             object(),
             collector,
-            adaptive_client=adaptive,
+            adaptive_client=adaptive,  # ty: ignore[invalid-argument-type]
         )
     )
 
@@ -544,7 +545,7 @@ def test_repeated_invalid_cdp_snapshot_records_structural_failure(config) -> Non
             None,
             object(),
             collector,
-            adaptive_client=adaptive,
+            adaptive_client=adaptive,  # ty: ignore[invalid-argument-type]
         )
     )
 
@@ -623,7 +624,7 @@ def test_interface_map_retries_one_structural_failure(config, monkeypatch) -> No
             "198.18.0.10",
             None,
             object(),
-            adaptive_client=adaptive,
+            adaptive_client=adaptive,  # ty: ignore[invalid-argument-type]
         )
     )
 
@@ -722,7 +723,7 @@ def test_adaptive_profile_resets_for_new_target_or_credential_route(config) -> N
     def route(
         address: str,
         *,
-        stage: str = "primary",
+        stage: Literal["primary", "fallback", "direct"] = "primary",
         label: str = "site-primary",
     ) -> worker._ResolvedCredentialAttempt:
         return worker._ResolvedCredentialAttempt(
@@ -870,7 +871,7 @@ def test_delayed_neighbor_stability_pass_shares_one_delay_and_is_bounded(
             object(),
             {},
             outcomes,
-            adaptive_client=adaptive,
+            adaptive_client=adaptive,  # ty: ignore[invalid-argument-type]
         )
     )
 
@@ -918,7 +919,7 @@ def test_delayed_neighbor_stability_pass_can_be_disabled(monkeypatch, config) ->
             object(),
             {},
             [outcome],
-            adaptive_client=SimpleNamespace(),
+            adaptive_client=SimpleNamespace(),  # ty: ignore[invalid-argument-type]
         )
     )
 

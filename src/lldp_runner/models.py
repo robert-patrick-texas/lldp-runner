@@ -233,6 +233,10 @@ class WorkerError:
         return asdict(self)
 
 
+RetryKind = Literal["transport", "structural", "stability"]
+RetryPool = Literal["shared", "neighbor_reserve", "stability", "none"]
+
+
 @dataclass(slots=True)
 class SnmpRetryEvent:
     """One bounded adaptive SNMP retry decision for a target/credential route.
@@ -255,7 +259,7 @@ class SnmpRetryEvent:
     credential_profile: str | None
     collection_phase: str
     category: str
-    retry_kind: Literal["transport", "structural", "stability"]
+    retry_kind: RetryKind
     retry_allowed: bool
     attempt: int
     per_operation_retry_count: int
@@ -269,7 +273,7 @@ class SnmpRetryEvent:
     per_device_rps_before: float
     per_device_rps_after: float
     partial_rows_discarded: bool
-    retry_pool: Literal["shared", "neighbor_reserve", "stability", "none"] = "shared"
+    retry_pool: RetryPool = "shared"
     collector_family: str | None = None
     per_collector_retry_count: int = 0
     delay_before_retry_seconds: float = 0.0
