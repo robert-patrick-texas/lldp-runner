@@ -149,6 +149,15 @@ both `member_presence` and `protocol_evidence`, with exact member-scoped events.
 Discovery scheduling, Gufo behavior, collector output, and retry budgets remain
 unchanged from 0.32.7.
 
+## 0.38.0 focused release tests
+
+0.38.0 is a static-analysis release. `ruff check .` and
+`ruff format --check .` must pass with the pinned Ruff version, and `ty check`
+must report no diagnostic that was absent from the 0.37.0 baseline. The
+complete deterministic suite must pass with no assertion relaxed; only version
+identity and the release-constraint manifest name changed in test
+expectations.
+
 ## 0.37.0 focused release tests
 
 Backend-selection tests require an omitted `snmp.backend` setting to resolve to

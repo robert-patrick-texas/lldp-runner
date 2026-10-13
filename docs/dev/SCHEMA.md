@@ -1,7 +1,7 @@
 # Schema Quick Reference
 
 This page lists the current machine-readable contracts shipped by
-LLDP-Runner 0.37.0. It is a quick index for developers, test authors, and
+LLDP-Runner 0.38.0. It is a quick index for developers, test authors, and
 external consumers. See
 [`STATE-AND-SCHEMAS.md`](STATE-AND-SCHEMAS.md) for durable-state, migration,
 and evidence-history details.

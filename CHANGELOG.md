@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.38.0 - 2026-10-13
+
+- Bring the source tree to a clean `ruff check` and `ruff format --check`
+  under the pinned Ruff 0.16.0 and the existing `pyproject.toml` rules.
+  Reformat 91 files and apply import sorting, `collections.abc` imports, and
+  unquoted annotations.
+- Import `Iterable` in `classify.py` and `discovery_diff.py`, where it was
+  referenced only in annotations without being imported. Postponed annotation
+  evaluation prevented a runtime failure, but type checkers and annotation
+  introspection reported an undefined name.
+- Make `CredentialMode` a `StrEnum`. Members still equal their string values
+  and are compared by identity throughout; only `str()` of a member now
+  returns its value.
+- Declare `preflight_snmp_backend` an explicit re-export of
+  `lldp_runner.snmp`. Keep nine constant-name `getattr`/`setattr` calls,
+  with documented `noqa` reasons, where attribute syntax would introduce Ty
+  errors for lazily imported cryptography submodules and dynamic exception
+  attributes.
+- Keep dependency versions, collection, topology, output, diff, watch,
+  credential, retry, and schema behavior unchanged.
+
 ## 0.37.0 - 2026-09-07
 
 - Change the built-in `snmp.backend` default from `gufo` to `pysnmp` after

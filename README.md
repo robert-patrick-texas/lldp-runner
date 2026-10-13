@@ -65,8 +65,8 @@ diff, watch, and schema behavior remain unchanged. The current JSON contract
 versions and implementation constants are listed in
 [`docs/dev/SCHEMA.md`](docs/dev/SCHEMA.md).
 
-The exact package set for 0.37.0 appears in both uv arrays in
-`pyproject.toml` and in `constraints/release-0.37.0.txt`; published package and
+The exact package set for 0.38.0 appears in both uv arrays in
+`pyproject.toml` and in `constraints/release-0.38.0.txt`; published package and
 development dependencies continue to declare broad supported minimums.
 
 Three executable SNMP diagnostics and one Gufo note file are shipped under
@@ -896,7 +896,7 @@ blank top row and blank left/right edge cells provide a visual border. The same
 one-line title structure is used in full, compact, heatmap, and summary views:
 
 ```text
-LLDP-Runner 0.37.0    Run ID = <runid>    STATE = <state>    updated <mm:ss> ago
+LLDP-Runner 0.38.0    Run ID = <runid>    STATE = <state>    updated <mm:ss> ago
 ```
 
 The renderer distributes spare title width approximately evenly among the four

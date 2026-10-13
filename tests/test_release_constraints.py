@@ -6,7 +6,7 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / "constraints" / "release-0.37.0.txt"
+MANIFEST = ROOT / "constraints" / "release-0.38.0.txt"
 
 
 def _manifest_entries() -> list[str]:
@@ -40,8 +40,9 @@ def test_release_version_and_constraint_filename_agree() -> None:
     """The versioned manifest must follow the application release number."""
 
     data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert data["project"]["version"] == "0.37.0"
+    assert data["project"]["version"] == "0.38.0"
     assert MANIFEST.is_file()
+    assert not (ROOT / "constraints" / "release-0.37.0.txt").exists()
     assert not (ROOT / "constraints" / "release-0.36.3.txt").exists()
     assert not (ROOT / "constraints" / "release-0.36.0.txt").exists()
     assert not (ROOT / "constraints" / "release-0.35.5.txt").exists()
