@@ -251,6 +251,14 @@
 <body>
 <nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
 <h1 id="changelog">Changelog</h1>
+<h2 id="0381---2026-10-13">0.38.1 - 2026-10-13</h2>
+<ul>
+<li>Bring <code>ty check</code> to zero diagnostics under the pinned Ty 0.0.63 (251 at 0.38.0), so <code>./scripts/check.sh</code> passes end to end. Correct annotations that disagreed with the code: <code>ArgumentParser.error</code> returns <code>NoReturn</code>, <code>Coordinator.workers</code> holds <code>BaseProcess</code> objects, and the Gufo session argument builders return <code>dict[str, Any]</code>.</li>
+<li>Add <code>RetryKind</code> and <code>RetryPool</code> type aliases in <code>models.py</code> and use them for retry parameters in the adaptive SNMP layer.</li>
+<li>Replace mypy-style <code># type: ignore[code]</code> comments, which Ty does not honor, with rule-specific <code># ty: ignore[rule]</code> comments, and mark the remaining deliberate dynamic conversions the same way.</li>
+<li>Check only the executable bit of the shipped SNMP diagnostics and their notes in <code>test_operator_scripts.py</code>. Git records nothing else, and the previous exact-mode check failed on checkouts made under the documented shared <code>umask 0002</code>.</li>
+<li>Keep dependency versions, collection, topology, output, diff, watch, credential, retry, and schema behavior unchanged.</li>
+</ul>
 <h2 id="0380---2026-10-13">0.38.0 - 2026-10-13</h2>
 <ul>
 <li>Bring the source tree to a clean <code>ruff check</code> and <code>ruff format --check</code> under the pinned Ruff 0.16.0 and the existing <code>pyproject.toml</code> rules. Reformat 91 files and apply import sorting, <code>collections.abc</code> imports, and unquoted annotations.</li>
