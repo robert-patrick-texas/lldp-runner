@@ -101,9 +101,7 @@ def start_log_listener(
                 encoding="utf-8",
             )
         except OSError as exc:
-            raise OSError(
-                f"unable to open activity log for append: {log_path}: {exc}"
-            ) from exc
+            raise OSError(f"unable to open activity log for append: {log_path}: {exc}") from exc
         file_handler.setLevel(level.upper())
         file_handler.setFormatter(formatter)
         handlers.append(file_handler)

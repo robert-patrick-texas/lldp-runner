@@ -7,10 +7,9 @@ when interface names are longer than the configured baseline widths.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from ipaddress import IPv6Address, ip_address
-from typing import Callable, Iterable
-
 
 PROTOCOL_WIDTH = 10
 MANAGEMENT_MIN_WIDTH = 18
@@ -153,11 +152,7 @@ def plan_neighbor_widths(
     local_width = configured_local + local_extra
     remote_width = configured_remote_port + remote_extra
     used_without_neighbor = (
-        local_width
-        + PROTOCOL_WIDTH
-        + remote_width
-        + management_width
-        + COLUMN_SEPARATORS
+        local_width + PROTOCOL_WIDTH + remote_width + management_width + COLUMN_SEPARATORS
     )
     remaining = terminal_budget - used_without_neighbor
     neighbor_width = max(NEIGHBOR_MIN_WIDTH, min(NEIGHBOR_MAX_WIDTH, remaining))

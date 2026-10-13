@@ -58,9 +58,7 @@ def test_host_address_filter_keeps_plausible_unicast_and_link_local(value: str) 
         ("::ffff:240.0.0.1", "IPv4-mapped reserved address"),
     ],
 )
-def test_host_address_filter_rejects_non_host_identity_values(
-    value: str, reason: str
-) -> None:
+def test_host_address_filter_rejects_non_host_identity_values(value: str, reason: str) -> None:
     """Syntactically valid sentinel/group addresses must not identify a host."""
 
     assert is_usable_host_address(value) is False
@@ -69,13 +67,13 @@ def test_host_address_filter_rejects_non_host_identity_values(
         normalize_host_address(value)
 
 
-
 @pytest.mark.parametrize("value", ["0.0.0.0", "255.255.255.255", "::", "ff02::1"])
 def test_literal_seed_rejects_non_host_ip_before_resolver_or_query(value: str) -> None:
     """An operator IP seed cannot schedule a non-host sentinel/group address."""
 
     with pytest.raises(ValueError, match="not a usable host address"):
         resolve_seed(value, [])
+
 
 def test_alias_tuples_drop_bogus_addresses_but_keep_link_local() -> None:
     """Identity aliases are the final defense against collector/input mistakes."""
@@ -97,10 +95,8 @@ def test_network_address_chassis_id_must_also_be_host_eligible() -> None:
     assert chassis_identity_value("0.0.0.0", "network_address", 5) is None
     assert chassis_identity_value("255.255.255.255", "network_address", 5) is None
     assert chassis_identity_value("::", "network_address", 5) is None
-    assert (
-        chassis_identity_value("169.254.100.10", "network_address", 5)
-        == "5:169.254.100.10"
-    )
+    assert chassis_identity_value("169.254.100.10", "network_address", 5) == "5:169.254.100.10"
+
 
 @pytest.mark.parametrize(
     "value",
@@ -125,9 +121,7 @@ def test_alias_tuples_exclude_placeholder_identity_names(value: str) -> None:
         ("PHONE001234560004", None),
     ],
 )
-def test_cisco_sep_mac_is_strict_host_component_identity(
-    value: str, expected: str | None
-) -> None:
+def test_cisco_sep_mac_is_strict_host_component_identity(value: str, expected: str | None) -> None:
     """Only an exact SEP plus twelve-hex host component yields MAC identity."""
 
     assert cisco_sep_mac(value) == expected
@@ -157,9 +151,7 @@ def test_alias_tuples_add_same_mac_for_sep_short_and_fqdn_forms() -> None:
         ("WAP0012.3456.A001", None),
     ],
 )
-def test_cisco_ap_mac_is_strict_hardware_identity(
-    value: str, expected: str | None
-) -> None:
+def test_cisco_ap_mac_is_strict_hardware_identity(value: str, expected: str | None) -> None:
     """Only strict Cisco AP MAC forms yield canonical hardware identity."""
 
     assert cisco_ap_mac(value) == expected
@@ -209,31 +201,40 @@ def test_canonical_mac_accepts_only_complete_unambiguous_forms(
 def test_typed_port_id_mac_requires_explicit_agreeing_mac_subtype() -> None:
     """Only one unambiguous typed LLDP/LLDPv2 Port ID is promotable."""
 
-    assert typed_port_id_mac(
-        {
-            "port_id": "10:98:19:4d:2f:97",
-            "port_id_subtype": "mac_address",
-            "port_id_subtype_id": 3,
-            "lldpv2.port_id": "1098.194d.2f97",
-            "lldpv2.port_id_subtype": "mac_address",
-            "lldpv2.port_id_subtype_id": 3,
-        }
-    ) == "10:98:19:4d:2f:97"
-    assert typed_port_id_mac(
-        {
-            "port_id": "10:98:19:4d:2f:97",
-            "port_id_subtype": "interface_name",
-            "port_id_subtype_id": 5,
-        }
-    ) is None
-    assert typed_port_id_mac(
-        {
-            "lldp.port_id": "10:98:19:4d:2f:97",
-            "lldp.port_id_subtype_id": 3,
-            "lldpv2.port_id": "08:92:04:f6:d6:f4",
-            "lldpv2.port_id_subtype_id": 3,
-        }
-    ) is None
+    assert (
+        typed_port_id_mac(
+            {
+                "port_id": "10:98:19:4d:2f:97",
+                "port_id_subtype": "mac_address",
+                "port_id_subtype_id": 3,
+                "lldpv2.port_id": "1098.194d.2f97",
+                "lldpv2.port_id_subtype": "mac_address",
+                "lldpv2.port_id_subtype_id": 3,
+            }
+        )
+        == "10:98:19:4d:2f:97"
+    )
+    assert (
+        typed_port_id_mac(
+            {
+                "port_id": "10:98:19:4d:2f:97",
+                "port_id_subtype": "interface_name",
+                "port_id_subtype_id": 5,
+            }
+        )
+        is None
+    )
+    assert (
+        typed_port_id_mac(
+            {
+                "lldp.port_id": "10:98:19:4d:2f:97",
+                "lldp.port_id_subtype_id": 3,
+                "lldpv2.port_id": "08:92:04:f6:d6:f4",
+                "lldpv2.port_id_subtype_id": 3,
+            }
+        )
+        is None
+    )
 
 
 def test_anonymous_endpoint_port_mac_does_not_override_stronger_identity() -> None:
@@ -270,9 +271,7 @@ def test_decorated_advertised_name_separates_base_and_serial_hint() -> None:
 
     from lldp_runner.identity import normalized_advertised_name
 
-    parsed = normalized_advertised_name(
-        "hq-vdc2-7nx1.net.example.com(SERIAL000001)"
-    )
+    parsed = normalized_advertised_name("hq-vdc2-7nx1.net.example.com(SERIAL000001)")
 
     assert parsed is not None
     assert parsed.raw_name == "hq-vdc2-7nx1.net.example.com(SERIAL000001)"

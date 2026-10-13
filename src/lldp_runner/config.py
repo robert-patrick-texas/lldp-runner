@@ -11,7 +11,7 @@ import tomllib
 from collections.abc import Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field, fields
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -36,7 +36,7 @@ class ConfigError(ValueError):
     """Invalid lldp-runner configuration."""
 
 
-class CredentialMode(str, Enum):
+class CredentialMode(StrEnum):
     """Control how configuration loading interacts with SNMP credentials.
 
     ``REQUIRED`` is for commands that may communicate with devices and therefore
@@ -54,13 +54,12 @@ class CredentialMode(str, Enum):
 @dataclass(slots=True)
 class PathsConfig:
     """Filesystem locations and run-ID naming settings for discovery state."""
+
     persistent_root: Path | str = DEFAULTS["paths"]["persistent_root"]
     scratch_root: Path | str = DEFAULTS["paths"]["scratch_root"]
     runs_dirname: str = DEFAULTS["paths"]["runs_dirname"]
     output_dirname: str = DEFAULTS["paths"]["output_dirname"]
-    clean_scratch_when_completed: bool = DEFAULTS["paths"][
-        "clean_scratch_when_completed"
-    ]
+    clean_scratch_when_completed: bool = DEFAULTS["paths"]["clean_scratch_when_completed"]
     run_id_format: str = DEFAULTS["paths"]["run_id_format"]
 
     def __post_init__(self) -> None:
@@ -100,6 +99,7 @@ class TimeConfig:
 @dataclass(slots=True)
 class DiscoveryConfig:
     """Coordinator scheduling, seed, scope, and recursion configuration."""
+
     boundaries: list[str] = field(default_factory=lambda: list(DEFAULTS["discovery"]["boundaries"]))
     seeds: list[str] = field(default_factory=lambda: list(DEFAULTS["discovery"]["seeds"]))
     seed_files: list[str] = field(default_factory=lambda: list(DEFAULTS["discovery"]["seed_files"]))
@@ -112,18 +112,23 @@ class DiscoveryConfig:
     batch_size: int = DEFAULTS["discovery"]["batch_size"]
     max_devices: int | str = DEFAULTS["discovery"]["max_devices"]
     max_hosts: int = DEFAULTS["discovery"]["max_hosts"]
-    late_address_recovery_attempts: int = DEFAULTS["discovery"][
-        "late_address_recovery_attempts"
-    ]
-    address_preference: list[str] = field(default_factory=lambda: list(DEFAULTS["discovery"]["address_preference"]))
+    late_address_recovery_attempts: int = DEFAULTS["discovery"]["late_address_recovery_attempts"]
+    address_preference: list[str] = field(
+        default_factory=lambda: list(DEFAULTS["discovery"]["address_preference"])
+    )
     work_stealing: bool = DEFAULTS["discovery"]["work_stealing"]
-    dns_suffixes: list[str] = field(default_factory=lambda: list(DEFAULTS["discovery"]["dns_suffixes"]))
-    resolve_discovered_managed_names: bool = DEFAULTS["discovery"]["resolve_discovered_managed_names"]
+    dns_suffixes: list[str] = field(
+        default_factory=lambda: list(DEFAULTS["discovery"]["dns_suffixes"])
+    )
+    resolve_discovered_managed_names: bool = DEFAULTS["discovery"][
+        "resolve_discovered_managed_names"
+    ]
 
 
 @dataclass(slots=True)
 class SnmpConfig:
     """SNMP transport limits and collector behavior used by network commands."""
+
     backend: str = DEFAULTS["snmp"]["backend"]
     port: int = DEFAULTS["snmp"]["port"]
     version: str = DEFAULTS["snmp"]["version"]
@@ -135,18 +140,10 @@ class SnmpConfig:
     retry_neighbor_reserve: int = DEFAULTS["snmp"]["retry_neighbor_reserve"]
     structural_table_retry: int = DEFAULTS["snmp"]["structural_table_retry"]
     retry_timeout_multiplier: float = DEFAULTS["snmp"]["retry_timeout_multiplier"]
-    retry_max_repetitions_multiplier: float = DEFAULTS["snmp"][
-        "retry_max_repetitions_multiplier"
-    ]
-    retry_min_max_repetitions: int = DEFAULTS["snmp"][
-        "retry_min_max_repetitions"
-    ]
-    retry_inter_pdu_delay_ms: float = DEFAULTS["snmp"][
-        "retry_inter_pdu_delay_ms"
-    ]
-    neighbor_stability_retry: bool = DEFAULTS["snmp"][
-        "neighbor_stability_retry"
-    ]
+    retry_max_repetitions_multiplier: float = DEFAULTS["snmp"]["retry_max_repetitions_multiplier"]
+    retry_min_max_repetitions: int = DEFAULTS["snmp"]["retry_min_max_repetitions"]
+    retry_inter_pdu_delay_ms: float = DEFAULTS["snmp"]["retry_inter_pdu_delay_ms"]
+    neighbor_stability_retry: bool = DEFAULTS["snmp"]["neighbor_stability_retry"]
     neighbor_stability_retry_delay_seconds: float = DEFAULTS["snmp"][
         "neighbor_stability_retry_delay_seconds"
     ]
@@ -158,9 +155,7 @@ class SnmpConfig:
     report_metrics: bool = DEFAULTS["snmp"]["report_metrics"]
     # Runtime-only binding. These fields are deliberately excluded from TOML
     # construction and are copied into spawned workers with the AppConfig object.
-    selected_backend: str | None = field(
-        default=None, init=False, repr=False, compare=False
-    )
+    selected_backend: str | None = field(default=None, init=False, repr=False, compare=False)
     selected_backend_version: str | None = field(
         default=None, init=False, repr=False, compare=False
     )
@@ -180,6 +175,7 @@ class SnmpConfig:
 @dataclass(slots=True)
 class IcmpConfig:
     """ICMP reachability-probe settings applied before or alongside SNMP."""
+
     enabled: bool = DEFAULTS["icmp"]["enabled"]
     probes: int = DEFAULTS["icmp"]["probes"]
     timeout_seconds: float = DEFAULTS["icmp"]["timeout_seconds"]
@@ -225,6 +221,7 @@ class CustomCsvConfig:
 @dataclass(slots=True)
 class OutputConfig:
     """Discovery output cadence plus fixed and custom CSV rendering settings."""
+
     draft_in_scratch: bool = DEFAULTS["output"]["draft_in_scratch"]
     snapshot_interval_seconds: float = DEFAULTS["output"]["snapshot_interval_seconds"]
     scoreboard_interval_seconds: float = DEFAULTS["output"]["scoreboard_interval_seconds"]
@@ -271,13 +268,9 @@ class OutputConfig:
 class DiffConfig:
     """Read-only cross-run comparison and terminal-detail policy."""
 
-    include_collection_timing: bool = DEFAULTS["diff"][
-        "include_collection_timing"
-    ]
+    include_collection_timing: bool = DEFAULTS["diff"]["include_collection_timing"]
     summary_only: bool = DEFAULTS["diff"]["summary_only"]
-    expand_collection_incidents: bool = DEFAULTS["diff"][
-        "expand_collection_incidents"
-    ]
+    expand_collection_incidents: bool = DEFAULTS["diff"]["expand_collection_incidents"]
 
 
 @dataclass(slots=True)
@@ -312,6 +305,7 @@ class TerminalConfig:
 @dataclass(slots=True)
 class ResumeConfig:
     """Pause/resume lease and indicator settings for persistent runs."""
+
     default_resume: bool = DEFAULTS["resume"]["default_resume"]
     lease_seconds: int = DEFAULTS["resume"]["lease_seconds"]
     pause_indicator: str = DEFAULTS["resume"]["pause_indicator"]
@@ -320,6 +314,7 @@ class ResumeConfig:
 @dataclass(slots=True)
 class CredentialConfig:
     """One named SNMPv2c or SNMPv3 credential definition and secret sources."""
+
     name: str
     version: str
     community_env: str | None = None
@@ -356,6 +351,7 @@ class CredentialConfig:
 @dataclass(slots=True)
 class CredentialProfile:
     """Ordered primary/fallback credential attempts for one policy profile."""
+
     name: str
     primary: str
     fallback: str | None = None
@@ -385,6 +381,7 @@ def _pattern_values(value: str | list[str]) -> list[str]:
 @dataclass(slots=True)
 class AddressCredentialRule:
     """Map one or more management-address networks to a credential profile."""
+
     profile: str
     network: str | None = None
     networks: list[str] = field(default_factory=list)
@@ -398,6 +395,7 @@ class AddressCredentialRule:
 @dataclass(slots=True)
 class NameCredentialRule:
     """Map one or more hostname regex patterns to a credential profile."""
+
     profile: str
     pattern: str | None = None
     patterns: list[str] = field(default_factory=list)
@@ -411,6 +409,7 @@ class NameCredentialRule:
 @dataclass(slots=True)
 class CredentialRules:
     """Default and ordered address/name rules for credential-profile selection."""
+
     default_profile: str = DEFAULTS["credential_rules"]["default_profile"]
     address: list[AddressCredentialRule] = field(default_factory=list)
     name: list[NameCredentialRule] = field(default_factory=list)
@@ -419,6 +418,7 @@ class CredentialRules:
 @dataclass(slots=True)
 class QueryAddressRule:
     """Permit or deny network queries for one or more address networks."""
+
     action: str
     network: str | None = None
     networks: list[str] = field(default_factory=list)
@@ -432,6 +432,7 @@ class QueryAddressRule:
 @dataclass(slots=True)
 class QueryNameRule:
     """Permit or deny network queries for matching hostname patterns."""
+
     action: str
     pattern: str | None = None
     patterns: list[str] = field(default_factory=list)
@@ -445,6 +446,7 @@ class QueryNameRule:
 @dataclass(slots=True)
 class QueryPolicyConfig:
     """Default query action plus ordered address and hostname policy rules."""
+
     default_action: str = DEFAULTS["query_policy"]["default_action"]
     address_rules: list[QueryAddressRule] = field(default_factory=list)
     name_rules: list[QueryNameRule] = field(default_factory=list)
@@ -453,6 +455,7 @@ class QueryPolicyConfig:
 @dataclass(slots=True)
 class ClassificationAddressRule:
     """Assign a discovery category to one or more address networks."""
+
     category: str
     network: str | None = None
     networks: list[str] = field(default_factory=list)
@@ -466,6 +469,7 @@ class ClassificationAddressRule:
 @dataclass(slots=True)
 class ClassificationNameRule:
     """Assign a discovery category to matching hostname patterns."""
+
     category: str
     pattern: str | None = None
     patterns: list[str] = field(default_factory=list)
@@ -479,6 +483,7 @@ class ClassificationNameRule:
 @dataclass(slots=True)
 class ClassificationEvidenceRule:
     """Classify observed neighbor evidence using combined match criteria."""
+
     category: str
     label: str | None = None
     name_pattern: str | None = None
@@ -502,6 +507,7 @@ class ClassificationEvidenceRule:
 @dataclass(slots=True)
 class ClassificationConfig:
     """Ordered classification rules and manufacturer/pattern defaults."""
+
     address_rules: list[ClassificationAddressRule] = field(default_factory=list)
     name_rules: list[ClassificationNameRule] = field(default_factory=list)
     evidence_rules: list[ClassificationEvidenceRule] = field(default_factory=list)
@@ -519,6 +525,7 @@ class ClassificationConfig:
 @dataclass(slots=True)
 class TagRule:
     """Attach operator tags when configured identity/evidence criteria match."""
+
     tags: list[str]
     label: str | None = None
     category: str | None = None
@@ -543,12 +550,14 @@ class TagRule:
 @dataclass(slots=True)
 class TaggingConfig:
     """Ordered tag rules applied to discovered host records."""
+
     rules: list[TagRule] = field(default_factory=list)
 
 
 @dataclass(slots=True)
 class NeighborConfig:
     """Protocol enablement and CDP manufacturer-selection settings."""
+
     enable_lldp: bool = DEFAULTS["neighbors"]["enable_lldp"]
     enable_lldpv2: bool = DEFAULTS["neighbors"]["enable_lldpv2"]
     cdp_for_cisco: bool = DEFAULTS["neighbors"]["cdp_for_cisco"]
@@ -576,6 +585,7 @@ class LoggingConfig:
 @dataclass(slots=True)
 class AppConfig:
     """Complete typed LLDP-Runner configuration consumed by command/runtime code."""
+
     paths: PathsConfig
     time: TimeConfig
     discovery: DiscoveryConfig
@@ -716,7 +726,7 @@ def _include_target(line: str, *, source: Path, line_number: int) -> str | None:
         raise ConfigError(f"{source}:{line_number}: invalid @include directive: {exc}") from exc
     if len(tokens) != 2 or tokens[0] != "@include":
         raise ConfigError(
-            f"{source}:{line_number}: expected @include filename or @include \"filename\""
+            f'{source}:{line_number}: expected @include filename or @include "filename"'
         )
     return tokens[1]
 
@@ -818,11 +828,7 @@ def _conf_d_files(primary_config: Path) -> list[Path]:
     if not conf_dir.is_dir():
         raise ConfigError(f"configuration fragment path is not a directory: {conf_dir}")
 
-    files = [
-        item
-        for item in conf_dir.rglob("*")
-        if item.is_file() and item.name.endswith(".toml")
-    ]
+    files = [item for item in conf_dir.rglob("*") if item.is_file() and item.name.endswith(".toml")]
     return sorted(files, key=lambda item: item.relative_to(conf_dir).as_posix())
 
 
@@ -864,9 +870,7 @@ def _load_toml_with_includes(path: Path) -> tuple[dict[str, Any], tuple[Path, ..
         merged = _merge_config_data(merged, included)
 
     for fragment in _conf_d_files(resolved):
-        included = _load_config_fragment(
-            fragment, loaded=loaded, stack=root_stack, sources=sources
-        )
+        included = _load_config_fragment(fragment, loaded=loaded, stack=root_stack, sources=sources)
         merged = _merge_config_data(merged, included)
 
     loaded.add(resolved)
@@ -938,9 +942,7 @@ def _set_dotted_value(data: dict[str, Any], dotted: str, value: Any) -> None:
         elif isinstance(existing, dict):
             cursor = existing
         else:
-            raise ConfigError(
-                f"cannot set {dotted!r}: {part!r} is already a non-table value"
-            )
+            raise ConfigError(f"cannot set {dotted!r}: {part!r} is already a non-table value")
     cursor[parts[-1]] = value
 
 
@@ -955,22 +957,18 @@ def parse_set_overrides(expressions: list[str] | None) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for expression in expressions or []:
         if "=" not in expression:
-            raise ConfigError(
-                f"invalid --set {expression!r}; expected section.option = TOML_VALUE"
-            )
+            raise ConfigError(f"invalid --set {expression!r}; expected section.option = TOML_VALUE")
         dotted, raw_value = expression.split("=", 1)
         dotted = dotted.strip()
         raw_value = raw_value.strip()
         if not dotted or not raw_value:
-            raise ConfigError(
-                f"invalid --set {expression!r}; expected section.option = TOML_VALUE"
-            )
+            raise ConfigError(f"invalid --set {expression!r}; expected section.option = TOML_VALUE")
         try:
             value = tomllib.loads(f"value = {raw_value}\n")["value"]
         except tomllib.TOMLDecodeError as exc:
             raise ConfigError(
                 f"invalid TOML value in --set {expression!r}: {exc}; "
-                "quote string values such as \"auto\" or \"DEBUG\""
+                'quote string values such as "auto" or "DEBUG"'
             ) from exc
         _set_dotted_value(result, dotted, value)
     return result
@@ -1099,8 +1097,7 @@ def _build_app(
     unknown_sections = set(raw) - known_sections
     if unknown_sections:
         raise ConfigError(
-            "Unknown top-level configuration sections: "
-            + ", ".join(sorted(unknown_sections))
+            "Unknown top-level configuration sections: " + ", ".join(sorted(unknown_sections))
         )
 
     paths = _build_dataclass(PathsConfig, _section(raw, "paths"))
@@ -1119,23 +1116,17 @@ def _build_app(
         item_data = dict(item)
         columns_raw = item_data.pop("columns", None)
         if not isinstance(columns_raw, list):
-            raise ConfigError(
-                f"output.custom_csv.{name}.columns must be an array of inline tables"
-            )
+            raise ConfigError(f"output.custom_csv.{name}.columns must be an array of inline tables")
         columns: list[CustomCsvColumnConfig] = []
         for index, column in enumerate(columns_raw, start=1):
             if not isinstance(column, dict):
-                raise ConfigError(
-                    f"output.custom_csv.{name}.columns[{index}] must be a table"
-                )
+                raise ConfigError(f"output.custom_csv.{name}.columns[{index}] must be a table")
             columns.append(_build_dataclass(CustomCsvColumnConfig, column))
         custom_csv[name] = _build_dataclass(
             CustomCsvConfig,
             {"name": name, "columns": columns, **item_data},
         )
-    output = _build_dataclass(
-        OutputConfig, {**output_raw, "custom_csv": custom_csv}
-    )
+    output = _build_dataclass(OutputConfig, {**output_raw, "custom_csv": custom_csv})
     diff = _build_dataclass(DiffConfig, _section(raw, "diff"))
     terminal = _build_dataclass(TerminalConfig, _section(raw, "terminal"))
     resume = _build_dataclass(ResumeConfig, _section(raw, "resume"))
@@ -1150,22 +1141,16 @@ def _build_app(
         for name, item in credential_data.items():
             if not isinstance(item, dict):
                 raise ConfigError(f"[credentials.{name}] must be a table")
-            credentials[name] = _build_dataclass(
-                CredentialConfig, {"name": name, **item}
-            )
+            credentials[name] = _build_dataclass(CredentialConfig, {"name": name, **item})
 
         profile_data = _section(raw, "credential_profiles")
         for name, item in profile_data.items():
             if not isinstance(item, dict):
                 raise ConfigError(f"[credential_profiles.{name}] must be a table")
-            profiles[name] = _build_dataclass(
-                CredentialProfile, {"name": name, **item}
-            )
+            profiles[name] = _build_dataclass(CredentialProfile, {"name": name, **item})
 
         cr = _section(raw, "credential_rules")
-        _reject_unknown_keys(
-            cr, {"default_profile", "address", "name"}, "CredentialRules"
-        )
+        _reject_unknown_keys(cr, {"default_profile", "address", "name"}, "CredentialRules")
         cred_rules = CredentialRules(
             default_profile=str(
                 cr.get(
@@ -1173,14 +1158,8 @@ def _build_app(
                     DEFAULTS["credential_rules"]["default_profile"],
                 )
             ),
-            address=[
-                _build_dataclass(AddressCredentialRule, x)
-                for x in cr.get("address", [])
-            ],
-            name=[
-                _build_dataclass(NameCredentialRule, x)
-                for x in cr.get("name", [])
-            ],
+            address=[_build_dataclass(AddressCredentialRule, x) for x in cr.get("address", [])],
+            name=[_build_dataclass(NameCredentialRule, x) for x in cr.get("name", [])],
         )
 
     qp = _section(raw, "query_policy")
@@ -1211,12 +1190,22 @@ def _build_app(
         evidence_rules.append(_build_dataclass(ClassificationEvidenceRule, item))
 
     classification = ClassificationConfig(
-        address_rules=[_build_dataclass(ClassificationAddressRule, x) for x in cc.get("address_rules", [])],
+        address_rules=[
+            _build_dataclass(ClassificationAddressRule, x) for x in cc.get("address_rules", [])
+        ],
         name_rules=[_build_dataclass(ClassificationNameRule, x) for x in cc.get("name_rules", [])],
         evidence_rules=evidence_rules,
-        managed_manufacturers=list(cc.get("managed_manufacturers", DEFAULTS["classification"]["managed_manufacturers"])),
-        managed_endpoint_patterns=list(cc.get("managed_endpoint_patterns", DEFAULTS["classification"]["managed_endpoint_patterns"])),
-        unmanaged_patterns=list(cc.get("unmanaged_patterns", DEFAULTS["classification"]["unmanaged_patterns"])),
+        managed_manufacturers=list(
+            cc.get("managed_manufacturers", DEFAULTS["classification"]["managed_manufacturers"])
+        ),
+        managed_endpoint_patterns=list(
+            cc.get(
+                "managed_endpoint_patterns", DEFAULTS["classification"]["managed_endpoint_patterns"]
+            )
+        ),
+        unmanaged_patterns=list(
+            cc.get("unmanaged_patterns", DEFAULTS["classification"]["unmanaged_patterns"])
+        ),
     )
 
     tc = _section(raw, "tagging")
@@ -1313,9 +1302,7 @@ def _resolve_scratch_root(value: Path | str, *, persistent_root: Path) -> Path:
             # safe to try the next temporary filesystem candidate.
             continue
 
-    return _probe_writable_directory(
-        persistent_root / "tmp", create=True, label="scratch_root"
-    )
+    return _probe_writable_directory(persistent_root / "tmp", create=True, label="scratch_root")
 
 
 def resolve_existing_persistent_root(value: Path | str) -> Path:
@@ -1335,9 +1322,7 @@ def resolve_existing_persistent_root(value: Path | str) -> Path:
         candidate = Path(candidate_text).expanduser().resolve()
         if candidate.exists():
             if not candidate.is_dir():
-                raise ConfigError(
-                    f"persistent_root auto candidate is not a directory: {candidate}"
-                )
+                raise ConfigError(f"persistent_root auto candidate is not a directory: {candidate}")
             return candidate
 
     current = Path.cwd().resolve()
@@ -1503,16 +1488,13 @@ def _synthesize_runtime_credentials(
             if not value
         ]
         raise ConfigError(
-            "default SNMPv3 authPriv credentials are incomplete; missing "
-            + ", ".join(missing)
+            "default SNMPv3 authPriv credentials are incomplete; missing " + ", ".join(missing)
         )
 
     available: dict[str, str] = {}
     if community:
         name = "runtime-v2c"
-        config.credentials[name] = CredentialConfig(
-            name=name, version="v2c", community=community
-        )
+        config.credentials[name] = CredentialConfig(name=name, version="v2c", community=community)
         available["2c"] = name
     if all(v3_values):
         name = "runtime-v3"
@@ -1611,7 +1593,9 @@ def load_config(
             credential_mode=credential_mode,
         )
     except TypeError as exc:
-        raise ConfigError(f"configuration contains an invalid setting or value type: {exc}") from exc
+        raise ConfigError(
+            f"configuration contains an invalid setting or value type: {exc}"
+        ) from exc
     _resolve_runtime_values(app, resolve_paths=resolve_paths)
     if credential_mode is not CredentialMode.DISABLED:
         _synthesize_runtime_credentials(
@@ -1686,9 +1670,7 @@ def validate_config(
     if config.discovery.seed_order not in {"input", "sorted", "random"}:
         errors.append("discovery.seed_order must be input, sorted, or random")
     if config.discovery.seed_dns_mode not in {"resolve", "skip-addressed"}:
-        errors.append(
-            "discovery.seed_dns_mode must be resolve or skip-addressed"
-        )
+        errors.append("discovery.seed_dns_mode must be resolve or skip-addressed")
     if isinstance(config.discovery.shuffle_key, bool) or not isinstance(
         config.discovery.shuffle_key, (str, int)
     ):
@@ -1703,19 +1685,17 @@ def validate_config(
         errors.append("discovery.max_devices must be a non-negative integer or 'auto'")
     elif max_devices < 0:
         errors.append("discovery.max_devices must be >= 0 or 'auto'")
-    if isinstance(config.discovery.max_hosts, bool) or not isinstance(config.discovery.max_hosts, int):
+    if isinstance(config.discovery.max_hosts, bool) or not isinstance(
+        config.discovery.max_hosts, int
+    ):
         errors.append("discovery.max_hosts must be a non-negative integer")
     elif config.discovery.max_hosts < 0:
         errors.append("discovery.max_hosts must be >= 0")
     recovery_attempts = config.discovery.late_address_recovery_attempts
     if isinstance(recovery_attempts, bool) or not isinstance(recovery_attempts, int):
-        errors.append(
-            "discovery.late_address_recovery_attempts must be an integer from 0 to 3"
-        )
+        errors.append("discovery.late_address_recovery_attempts must be an integer from 0 to 3")
     elif not 0 <= recovery_attempts <= 3:
-        errors.append(
-            "discovery.late_address_recovery_attempts must be from 0 to 3"
-        )
+        errors.append("discovery.late_address_recovery_attempts must be from 0 to 3")
     for field_name in (
         "include_collection_timing",
         "summary_only",
@@ -1750,9 +1730,7 @@ def validate_config(
         and not isinstance(config.snmp.retry_total_cap, bool)
         and config.snmp.retry_per_operation > config.snmp.retry_total_cap
     ):
-        errors.append(
-            "snmp.retry_per_operation must be <= snmp.retry_total_cap"
-        )
+        errors.append("snmp.retry_per_operation must be <= snmp.retry_total_cap")
     if (
         isinstance(config.snmp.structural_table_retry, int)
         and isinstance(config.snmp.retry_total_cap, int)
@@ -1760,9 +1738,7 @@ def validate_config(
         and not isinstance(config.snmp.retry_total_cap, bool)
         and config.snmp.structural_table_retry > config.snmp.retry_total_cap
     ):
-        errors.append(
-            "snmp.structural_table_retry must be <= snmp.retry_total_cap"
-        )
+        errors.append("snmp.structural_table_retry must be <= snmp.retry_total_cap")
     if (
         isinstance(config.snmp.retry_per_collector, int)
         and isinstance(config.snmp.retry_total_cap, int)
@@ -1774,8 +1750,7 @@ def validate_config(
         > config.snmp.retry_total_cap + config.snmp.retry_neighbor_reserve
     ):
         errors.append(
-            "snmp.retry_per_collector must be <= "
-            "snmp.retry_total_cap + snmp.retry_neighbor_reserve"
+            "snmp.retry_per_collector must be <= snmp.retry_total_cap + snmp.retry_neighbor_reserve"
         )
     if (
         isinstance(config.snmp.retry_timeout_multiplier, bool)
@@ -1785,14 +1760,10 @@ def validate_config(
         errors.append("snmp.retry_timeout_multiplier must be a number > 1")
     if (
         isinstance(config.snmp.retry_max_repetitions_multiplier, bool)
-        or not isinstance(
-            config.snmp.retry_max_repetitions_multiplier, (int, float)
-        )
+        or not isinstance(config.snmp.retry_max_repetitions_multiplier, (int, float))
         or not 0 < config.snmp.retry_max_repetitions_multiplier < 1
     ):
-        errors.append(
-            "snmp.retry_max_repetitions_multiplier must be a number > 0 and < 1"
-        )
+        errors.append("snmp.retry_max_repetitions_multiplier must be a number > 0 and < 1")
     retry_floor_valid = (
         not isinstance(config.snmp.retry_min_max_repetitions, bool)
         and isinstance(config.snmp.retry_min_max_repetitions, int)
@@ -1801,9 +1772,7 @@ def validate_config(
     if not retry_floor_valid:
         errors.append("snmp.retry_min_max_repetitions must be an integer >= 1")
     elif config.snmp.retry_min_max_repetitions > config.snmp.max_repetitions:
-        errors.append(
-            "snmp.retry_min_max_repetitions must be <= snmp.max_repetitions"
-        )
+        errors.append("snmp.retry_min_max_repetitions must be <= snmp.max_repetitions")
     if (
         isinstance(config.snmp.retry_inter_pdu_delay_ms, bool)
         or not isinstance(config.snmp.retry_inter_pdu_delay_ms, (int, float))
@@ -1814,14 +1783,10 @@ def validate_config(
         errors.append("snmp.neighbor_stability_retry must be true or false")
     if (
         isinstance(config.snmp.neighbor_stability_retry_delay_seconds, bool)
-        or not isinstance(
-            config.snmp.neighbor_stability_retry_delay_seconds, (int, float)
-        )
+        or not isinstance(config.snmp.neighbor_stability_retry_delay_seconds, (int, float))
         or config.snmp.neighbor_stability_retry_delay_seconds < 0
     ):
-        errors.append(
-            "snmp.neighbor_stability_retry_delay_seconds must be a number >= 0"
-        )
+        errors.append("snmp.neighbor_stability_retry_delay_seconds must be a number >= 0")
     if config.snmp.per_device_rps <= 0:
         errors.append("snmp.per_device_rps must be > 0")
     if config.snmp.max_outstanding_devices_per_worker < 1:
@@ -1873,15 +1838,11 @@ def validate_config(
         or isinstance(config.output.neighbor_remote_port_width, bool)
         or not 11 <= config.output.neighbor_remote_port_width <= 40
     ):
-        errors.append(
-            "output.neighbor_remote_port_width must be an integer from 11 through 40"
-        )
+        errors.append("output.neighbor_remote_port_width must be an integer from 11 through 40")
     if config.output.relationship_view not in {"sectioned", "combined"}:
         errors.append("output.relationship_view must be sectioned or combined")
     if config.output.chassis_id_name_fallback not in {"disabled", "name_like", "any"}:
-        errors.append(
-            "output.chassis_id_name_fallback must be disabled, name_like, or any"
-        )
+        errors.append("output.chassis_id_name_fallback must be disabled, name_like, or any")
     if config.terminal.color not in {"auto", "never"}:
         errors.append("terminal.color must be auto or never")
     if config.terminal.palette not in {"dark", "light"}:
@@ -1952,11 +1913,9 @@ def validate_config(
         headers: set[str] = set()
         for index, column in enumerate(custom.columns, start=1):
             field_name = str(column.field).strip()
-            header = (column.header if column.header is not None else field_name.rsplit(".", 1)[-1])
+            header = column.header if column.header is not None else field_name.rsplit(".", 1)[-1]
             if not field_name:
-                errors.append(
-                    f"output.custom_csv.{name}.columns[{index}].field must not be empty"
-                )
+                errors.append(f"output.custom_csv.{name}.columns[{index}].field must not be empty")
                 continue
             if (
                 not isinstance(header, str)
@@ -1970,9 +1929,7 @@ def validate_config(
             else:
                 header_key = header.casefold()
                 if header_key in headers:
-                    errors.append(
-                        f"output.custom_csv.{name}: duplicate output header {header!r}"
-                    )
+                    errors.append(f"output.custom_csv.{name}: duplicate output header {header!r}")
                 headers.add(header_key)
             if column.transform is not None and not isinstance(column.transform, str):
                 errors.append(
@@ -2002,8 +1959,7 @@ def validate_config(
         else:
             if not expanded_log_path.is_absolute() and ".." in configured_log_path.parts:
                 errors.append(
-                    "logging.filename relative paths must remain inside the "
-                    "current run directory"
+                    "logging.filename relative paths must remain inside the current run directory"
                 )
 
     if credential_mode is not CredentialMode.DISABLED:
@@ -2109,16 +2065,12 @@ def validate_config(
             validate_networks(rule.network_values(), "credential address rule")
             if rule.profile not in config.credential_profiles:
                 errors.append(
-                    "credential address rule references unknown profile "
-                    f"{rule.profile!r}"
+                    f"credential address rule references unknown profile {rule.profile!r}"
                 )
         for rule in config.credential_rules.name:
             validate_regexes(rule.pattern_values(), "credential name rule")
             if rule.profile not in config.credential_profiles:
-                errors.append(
-                    "credential name rule references unknown profile "
-                    f"{rule.profile!r}"
-                )
+                errors.append(f"credential name rule references unknown profile {rule.profile!r}")
 
     valid_actions = {"allow", "deny"}
     if config.query_policy.default_action not in valid_actions:
@@ -2193,14 +2145,14 @@ def validate_config(
                 try:
                     re.compile(pattern)
                 except (re.error, TypeError) as exc:
-                    errors.append(
-                        f"{context} regex {field_name}={pattern!r}: {exc}"
-                    )
+                    errors.append(f"{context} regex {field_name}={pattern!r}: {exc}")
 
     for index, rule in enumerate(config.classification.evidence_rules, start=1):
         label = rule.label or f"#{index}"
         if rule.category not in categories:
-            errors.append(f"classification evidence rule {label} has invalid category {rule.category!r}")
+            errors.append(
+                f"classification evidence rule {label} has invalid category {rule.category!r}"
+            )
         name_patterns = rule.name_pattern_values()
         networks = rule.network_values()
         if not any((name_patterns, networks, rule.field_patterns, rule.detail_patterns)):
@@ -2232,7 +2184,9 @@ def validate_config(
             errors.append(f"tagging rule {label} has invalid category {rule.category!r}")
         name_patterns = rule.name_pattern_values()
         networks = rule.network_values()
-        if not any((rule.category, name_patterns, networks, rule.field_patterns, rule.detail_patterns)):
+        if not any(
+            (rule.category, name_patterns, networks, rule.field_patterns, rule.detail_patterns)
+        ):
             errors.append(f"tagging rule {label} must define at least one matching condition")
         if name_patterns:
             validate_regexes(name_patterns, f"tagging rule {label} name")
@@ -2272,9 +2226,7 @@ def defaults_with_set_overrides(set_expressions: list[str] | None = None) -> dic
 
     raw = _merge_default_overlay(DEFAULTS, parse_set_overrides(set_expressions))
     try:
-        app = _build_app(
-            raw, config_path=None, credential_mode=CredentialMode.OPTIONAL
-        )
+        app = _build_app(raw, config_path=None, credential_mode=CredentialMode.OPTIONAL)
         workers = app.discovery.workers
         if isinstance(workers, str) and workers.lower() == "auto":
             app.discovery.workers = (os.cpu_count() or 1) * 4

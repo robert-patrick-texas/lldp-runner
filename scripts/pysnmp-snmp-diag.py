@@ -51,10 +51,11 @@ import sys
 import time
 import traceback
 import warnings
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 DEFAULT_OID = "1.3.6.1.2.1.1.1.0"
 CRYPTOGRAPHY_MINIMUM = (50, 0)
@@ -160,9 +161,7 @@ class SecretRedactor:
             value = os.environ.get(name)
             if value:
                 by_value.setdefault(value, f"<redacted:{name}>")
-        replacements = tuple(
-            sorted(by_value.items(), key=lambda item: len(item[0]), reverse=True)
-        )
+        replacements = tuple(sorted(by_value.items(), key=lambda item: len(item[0]), reverse=True))
         return cls(replacements=replacements)
 
     def redact(self, value: str) -> str:
@@ -194,9 +193,7 @@ def nonnegative_float(value: str) -> float:
     except ValueError as exc:
         raise argparse.ArgumentTypeError("must be a number") from exc
     if parsed < 0 or parsed == float("inf") or parsed != parsed:
-        raise argparse.ArgumentTypeError(
-            "must be a finite value greater than or equal to zero"
-        )
+        raise argparse.ArgumentTypeError("must be a finite value greater than or equal to zero")
     return parsed
 
 
@@ -226,9 +223,7 @@ def numeric_oid(value: str) -> str:
         candidate = candidate[1:]
     parts = candidate.split(".")
     if len(parts) < 2 or any(not part.isdigit() for part in parts):
-        raise argparse.ArgumentTypeError(
-            "must be a numeric dotted OID such as 1.3.6.1.2.1.1.1.0"
-        )
+        raise argparse.ArgumentTypeError("must be a numeric dotted OID such as 1.3.6.1.2.1.1.1.0")
     return ".".join(str(int(part)) for part in parts)
 
 
@@ -281,10 +276,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         type=numeric_oid,
         metavar="OID",
-        help=(
-            "numeric OID to GET; may be repeated "
-            f"(default: sysDescr.0, {DEFAULT_OID})"
-        ),
+        help=(f"numeric OID to GET; may be repeated (default: sysDescr.0, {DEFAULT_OID})"),
     )
     parser.add_argument(
         "--port",
@@ -304,10 +296,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=positive_int,
         default=1,
         metavar="COUNT",
-        help=(
-            "create a fresh engine/transport and repeat each address COUNT times "
-            "(default: 1)"
-        ),
+        help=("create a fresh engine/transport and repeat each address COUNT times (default: 1)"),
     )
     parser.add_argument(
         "--delay",
@@ -332,8 +321,7 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("aes128", "aes256", "aes256-blumenthal", "des"),
         default="aes128",
         help=(
-            "SNMPv3 privacy protocol; aes256 is the common Reeder/Cisco "
-            "mapping (default: aes128)"
+            "SNMPv3 privacy protocol; aes256 is the common Reeder/Cisco mapping (default: aes128)"
         ),
     )
     parser.add_argument(
@@ -383,9 +371,7 @@ def resolve_target(
         if family not in (socket.AF_UNSPEC, literal_family):
             requested = "IPv4" if family == socket.AF_INET else "IPv6"
             actual = "IPv4" if literal.version == 4 else "IPv6"
-            raise ValueError(
-                f"target is an {actual} literal but {requested} was forced"
-            )
+            raise ValueError(f"target is an {actual} literal but {requested} was forced")
         return "numeric-literal", [
             ResolvedTarget(
                 address=candidate,
@@ -404,9 +390,7 @@ def resolve_target(
             proto=socket.IPPROTO_UDP,
         )
     except socket.gaierror as exc:
-        raise RuntimeError(
-            f"DNS/address resolution failed for {candidate!r}: {exc}"
-        ) from exc
+        raise RuntimeError(f"DNS/address resolution failed for {candidate!r}: {exc}") from exc
 
     resolved: list[ResolvedTarget] = []
     seen: set[tuple[int, str]] = set()
@@ -447,8 +431,7 @@ def resolve_target(
             socket.AF_UNSPEC: "IPv4 or IPv6",
         }.get(family, str(family))
         raise RuntimeError(
-            f"resolution returned no usable {family_text} UDP addresses for "
-            f"{candidate!r}"
+            f"resolution returned no usable {family_text} UDP addresses for {candidate!r}"
         )
     if first_address:
         resolved = resolved[:1]
@@ -484,7 +467,7 @@ def _install_temporary_pysnmp_cfb_warning_filter() -> None:
 
     try:
         cryptography_utils = importlib.import_module("cryptography.utils")
-        category = getattr(cryptography_utils, "CryptographyDeprecationWarning")
+        category = cryptography_utils.CryptographyDeprecationWarning
     except (ImportError, AttributeError):
         return
     message_pattern = rf"(?-i:^{re.escape(PYSNMP_AES_CFB_DEPRECATION_MESSAGE)}$)"
@@ -500,21 +483,17 @@ def _probe_privacy_cipher(protocol: str) -> None:
     """Execute one fixed-byte AES/DES primitive without operator secrets."""
 
     ciphers = importlib.import_module("cryptography.hazmat.primitives.ciphers")
-    cipher_type = getattr(ciphers, "Cipher")
+    cipher_type = ciphers.Cipher
     aes_key_length = PYSNMP_AES_KEY_LENGTHS.get(protocol)
     if aes_key_length is not None:
-        algorithms = getattr(ciphers, "algorithms")
-        decrepit_modes = importlib.import_module(
-            "cryptography.hazmat.decrepit.ciphers.modes"
-        )
+        algorithms = getattr(ciphers, "algorithms")  # noqa: B009 - ty: submodule is not imported explicitly
+        decrepit_modes = importlib.import_module("cryptography.hazmat.decrepit.ciphers.modes")
         algorithm = algorithms.AES(bytes(range(aes_key_length)))
-        mode = getattr(decrepit_modes, "CFB")(bytes(16))
+        mode = decrepit_modes.CFB(bytes(16))
         plaintext = bytes(16)
     elif protocol == "des":
-        modes = getattr(ciphers, "modes")
-        decrepit = importlib.import_module(
-            "cryptography.hazmat.decrepit.ciphers.algorithms"
-        )
+        modes = getattr(ciphers, "modes")  # noqa: B009 - ty: submodule is not imported explicitly
+        decrepit = importlib.import_module("cryptography.hazmat.decrepit.ciphers.algorithms")
         algorithm = decrepit.TripleDES(bytes(range(24)))
         mode = modes.CBC(bytes(8))
         plaintext = bytes(8)
@@ -533,8 +512,7 @@ def preflight_authpriv(priv_protocol: str) -> str:
     parsed = _numeric_version_prefix(version)
     if not parsed or parsed < CRYPTOGRAPHY_MINIMUM:
         raise PySnmpCryptoCapabilityError(
-            "PySNMP authPriv requires cryptography>=50.0 "
-            f"(installed: {version})"
+            f"PySNMP authPriv requires cryptography>=50.0 (installed: {version})"
         )
     try:
         _probe_privacy_cipher(priv_protocol)
@@ -580,8 +558,7 @@ def load_pysnmp() -> PySnmpApi:
     missing = [name for name in required if not hasattr(module, name)]
     if missing:
         raise RuntimeError(
-            "installed PySNMP module lacks required 7.1 asyncio API objects: "
-            + ", ".join(missing)
+            "installed PySNMP module lacks required 7.1 asyncio API objects: " + ", ".join(missing)
         )
     return PySnmpApi(
         module=module,
@@ -734,9 +711,7 @@ def exception_details(
         details.append(("cause", redactor.redact(str(exc.__cause__)) or "<empty>"))
     if exc.__context__ is not None and exc.__context__ is not exc.__cause__:
         details.append(("context_type", qualified_type(exc.__context__)))
-        details.append(
-            ("context", redactor.redact(str(exc.__context__)) or "<empty>")
-        )
+        details.append(("context", redactor.redact(str(exc.__context__)) or "<empty>"))
     return details
 
 
@@ -849,14 +824,11 @@ def print_header(
     if args.snmp_version == "2c":
         print("credentials: SNMPCOMM=<set>; value not displayed")
     else:
-        print(
-            "credentials: SNMPUSER/SNMPAUTH/SNMPPRIV=<set>; values not displayed"
-        )
+        print("credentials: SNMPUSER/SNMPAUTH/SNMPPRIV=<set>; values not displayed")
         print(f"snmpv3_auth_protocol: {args.auth_protocol}")
         print(f"snmpv3_priv_protocol: {args.priv_protocol}")
         print(
-            "snmpv3_authoritative_engine_id: not reported by this standalone "
-            "high-level diagnostic"
+            "snmpv3_authoritative_engine_id: not reported by this standalone high-level diagnostic"
         )
     print("application_retries: disabled (use --repeat for fresh-engine repetitions)")
     print()
@@ -880,9 +852,7 @@ async def create_transport_target(
     """Create an IPv4 or IPv6 PySNMP target with hidden retries disabled."""
 
     target_class = (
-        pysnmp.udp_target_class
-        if target.family == socket.AF_INET
-        else pysnmp.udp6_target_class
+        pysnmp.udp_target_class if target.family == socket.AF_INET else pysnmp.udp6_target_class
     )
     return await target_class.create(
         (target.address, args.port),
@@ -961,17 +931,14 @@ async def query_oid(
     )
     if not isinstance(result, tuple) or len(result) != 4:
         raise RuntimeError(
-            "PySNMP get_cmd returned an unexpected result shape: "
-            f"{limited_repr(result)}"
+            f"PySNMP get_cmd returned an unexpected result shape: {limited_repr(result)}"
         )
     error_indication, error_status, error_index, var_binds = result
     if error_indication:
         message = pretty_text(error_indication) or limited_repr(error_indication)
         raise PySnmpEngineResponseError(message)
     if error_status:
-        raise PySnmpPduResponseError(
-            pdu_error_message(error_status, error_index, var_binds)
-        )
+        raise PySnmpPduResponseError(pdu_error_message(error_status, error_index, var_binds))
     if not var_binds:
         raise RuntimeError("PySNMP GET response contained no variable bindings")
     try:
@@ -1047,10 +1014,7 @@ async def probe_once(
         print("  result: FAILURE", flush=True)
         print(flush=True)
         return False
-    print(
-        "  transport_target_construct: success "
-        f"({time.perf_counter() - phase_started:.6f}s)"
-    )
+    print(f"  transport_target_construct: success ({time.perf_counter() - phase_started:.6f}s)")
 
     attempt_success = True
     for oid in args.oid or [DEFAULT_OID]:
@@ -1115,8 +1079,7 @@ async def run_probes(
     totals = ProbeTotals()
     for target_index, target in enumerate(targets, start=1):
         print(
-            f"Destination {target_index}/{len(targets)}: {target.address} "
-            f"({target.family_name})",
+            f"Destination {target_index}/{len(targets)}: {target.address} ({target.family_name})",
             flush=True,
         )
         for attempt_number in range(1, args.repeat + 1):

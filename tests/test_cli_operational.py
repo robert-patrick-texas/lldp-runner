@@ -35,9 +35,7 @@ priv_password_env = "LLDP_RUNNER_TEST_MISSING_PRIV"
     return root, scratch
 
 
-def test_status_uses_include_aware_config_loader(
-    config_file: Path, tmp_path: Path, capsys
-) -> None:
+def test_status_uses_include_aware_config_loader(config_file: Path, tmp_path: Path, capsys) -> None:
     root, scratch = _included_operational_config(config_file, tmp_path)
     scoreboard = scratch / "scoreboard"
     scoreboard.mkdir(parents=True)
@@ -82,8 +80,7 @@ def test_run_summary_prints_runtime_immediately_after_status(tmp_path: Path, cap
     assert lines[0] == "Run: 20260102-135700-EDT"
     assert lines[1] == "Status: COMPLETED"
     assert lines[2] == (
-        "Runtime: 2026-08-24 13:57:00 EDT to 2026-08-24 13:58:30 EDT "
-        "(duration: 90s)"
+        "Runtime: 2026-08-24 13:57:00 EDT to 2026-08-24 13:58:30 EDT (duration: 90s)"
     )
 
 
@@ -124,14 +121,16 @@ def test_run_storage_preflight_failure_is_reported_on_stderr(
     # Coordinator imports ensure_run_directories, which resolves the helper from
     # the runtime module at call time. No DNS/SNMP work occurs before this failure.
     with pytest.raises(SystemExit) as exc:
-        main([
-            "--config",
-            str(config_file),
-            "run",
-            "--new-run",
-            "--seed",
-            "198.18.0.1",
-        ])
+        main(
+            [
+                "--config",
+                str(config_file),
+                "run",
+                "--new-run",
+                "--seed",
+                "198.18.0.1",
+            ]
+        )
 
     assert exc.value.code == 2
     captured = capsys.readouterr()
@@ -156,14 +155,16 @@ def test_run_activity_log_append_failure_is_reported_on_stderr(
     config_file.write_text(config_text, encoding="utf-8")
 
     with pytest.raises(SystemExit) as exc:
-        main([
-            "--config",
-            str(config_file),
-            "run",
-            "--new-run",
-            "--seed",
-            "198.18.0.1",
-        ])
+        main(
+            [
+                "--config",
+                str(config_file),
+                "run",
+                "--new-run",
+                "--seed",
+                "198.18.0.1",
+            ]
+        )
 
     assert exc.value.code == 2
     captured = capsys.readouterr()
@@ -326,7 +327,7 @@ def test_explain_target_is_read_only_and_does_not_require_secrets(
 
     config_path = tmp_path / "explain.toml"
     config_path.write_text(
-        '''[paths]
+        """[paths]
 persistent_root = "/proc/lldp-runner-unwritable"
 scratch_root = "/proc/lldp-runner-scratch-unwritable"
 
@@ -341,7 +342,7 @@ primary = "site-v3"
 
 [credential_rules]
 default_profile = "site"
-''',
+""",
         encoding="utf-8",
     )
 

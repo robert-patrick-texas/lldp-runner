@@ -115,8 +115,7 @@ def _load_pysnmp_api() -> _PySnmpApi:
     missing = [public for public in names.values() if not hasattr(module, public)]
     if missing:
         raise RuntimeError(
-            "installed PySNMP module lacks required 7.1 asyncio API objects: "
-            + ", ".join(missing)
+            "installed PySNMP module lacks required 7.1 asyncio API objects: " + ", ".join(missing)
         )
     return _PySnmpApi(**{field: getattr(module, public) for field, public in names.items()})
 
@@ -219,9 +218,7 @@ def _varbind_pairs(var_binds: object) -> list[tuple[str, object]]:
             ) from exc
         normalized_oid = _normalize_oid(oid)
         if not normalized_oid:
-            raise SnmpMalformedResponseError(
-                f"SNMP response varbind {index} has an empty OID"
-            )
+            raise SnmpMalformedResponseError(f"SNMP response varbind {index} has an empty OID")
         result.append((normalized_oid, _normalize_value(value)))
     return result
 
@@ -309,7 +306,7 @@ def _install_temporary_pysnmp_cfb_warning_filter() -> None:
 
     try:
         cryptography_utils = importlib.import_module("cryptography.utils")
-        category = getattr(cryptography_utils, "CryptographyDeprecationWarning")
+        category = cryptography_utils.CryptographyDeprecationWarning
     except (ImportError, AttributeError):
         # PySNMP authPriv preflight reports missing/invalid cryptography.  Do not
         # turn warning-filter setup into a separate failure path.
@@ -335,29 +332,25 @@ def _probe_cryptography_privacy_protocol(protocol: str) -> None:
     """
 
     ciphers = importlib.import_module("cryptography.hazmat.primitives.ciphers")
-    cipher_type = getattr(ciphers, "Cipher")
+    cipher_type = ciphers.Cipher
 
     aes_key_length = _PYSNMP_AES_KEY_LENGTHS.get(protocol)
     if aes_key_length is not None:
-        algorithms = getattr(ciphers, "algorithms")
-        decrepit_modes = importlib.import_module(
-            "cryptography.hazmat.decrepit.ciphers.modes"
-        )
+        algorithms = getattr(ciphers, "algorithms")  # noqa: B009 - ty: submodule is not imported explicitly
+        decrepit_modes = importlib.import_module("cryptography.hazmat.decrepit.ciphers.modes")
         algorithm = algorithms.AES(bytes(range(aes_key_length)))
-        mode = getattr(decrepit_modes, "CFB")(bytes(16))
+        mode = decrepit_modes.CFB(bytes(16))
         plaintext = bytes(16)
     elif protocol == "des":
-        modes = getattr(ciphers, "modes")
+        modes = getattr(ciphers, "modes")  # noqa: B009 - ty: submodule is not imported explicitly
         try:
-            decrepit = importlib.import_module(
-                "cryptography.hazmat.decrepit.ciphers.algorithms"
-            )
-            triple_des = getattr(decrepit, "TripleDES")
+            decrepit = importlib.import_module("cryptography.hazmat.decrepit.ciphers.algorithms")
+            triple_des = decrepit.TripleDES
         except (ImportError, AttributeError):
             # Keep a narrow compatibility path for cryptography releases that
             # still exported TripleDES from the original algorithms namespace.
-            algorithms = getattr(ciphers, "algorithms")
-            triple_des = getattr(algorithms, "TripleDES")
+            algorithms = getattr(ciphers, "algorithms")  # noqa: B009 - ty: submodule is not imported explicitly
+            triple_des = algorithms.TripleDES
         algorithm = triple_des(bytes(range(24)))
         mode = modes.CBC(bytes(8))
         plaintext = bytes(8)
@@ -367,9 +360,7 @@ def _probe_cryptography_privacy_protocol(protocol: str) -> None:
     encryptor = cipher_type(algorithm, mode).encryptor()
     ciphertext = encryptor.update(plaintext) + encryptor.finalize()
     if len(ciphertext) != len(plaintext):
-        raise RuntimeError(
-            f"cryptography returned an unexpected {protocol} ciphertext length"
-        )
+        raise RuntimeError(f"cryptography returned an unexpected {protocol} ciphertext length")
 
 
 def preflight_pysnmp_authpriv(protocols: Sequence[str]) -> None:
@@ -652,9 +643,7 @@ class PySnmpClient:
             self._register_response_observer()
             self._security_data = self._security()
             target_class = (
-                self._api.udp_target
-                if self.address_family == "ipv4"
-                else self._api.udp6_target
+                self._api.udp_target if self.address_family == "ipv4" else self._api.udp6_target
             )
             self._transport_target = await target_class.create(
                 (self.address, self.snmp_config.port),
@@ -729,17 +718,11 @@ class PySnmpClient:
     def _require_open(self) -> tuple[object, object, object]:
         """Return engine/security/target or fail before issuing a request."""
 
-        if (
-            self._engine is None
-            or self._security_data is None
-            or self._transport_target is None
-        ):
+        if self._engine is None or self._security_data is None or self._transport_target is None:
             raise RuntimeError("SNMP client is not open")
         return self._engine, self._security_data, self._transport_target
 
-    def _response_parts(
-        self, result: object, *, operation: str
-    ) -> list[tuple[str, object]]:
+    def _response_parts(self, result: object, *, operation: str) -> list[tuple[str, object]]:
         """Normalize one complete engine/PDU response tuple."""
 
         if not isinstance(result, tuple) or len(result) != 4:
@@ -817,9 +800,7 @@ class PySnmpClient:
         engine, security, target = self._require_open()
         if not oids:
             return {}
-        objects = [
-            self._api.object_type(self._api.object_identity(oid)) for oid in oids
-        ]
+        objects = [self._api.object_type(self._api.object_identity(oid)) for oid in oids]
         rows = await self._request(
             "GET-MANY",
             lambda: self._api.get_cmd(

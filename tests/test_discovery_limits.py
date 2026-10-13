@@ -482,6 +482,4 @@ def test_dispatch_serializes_duplicate_management_target_across_workers(config) 
     assert coordinator.batch_hosts == {"0-1": [1]}
     assert coordinator.batch_target_keys == {"0-1": frozenset({"198.18.20.10"})}
     assert coordinator.state.deferred == [2]
-    assert coordinator.target_waiting_hosts == {
-        2: frozenset({"198.18.20.10"})
-    }
+    assert coordinator.target_waiting_hosts == {2: frozenset({"198.18.20.10"})}

@@ -151,9 +151,7 @@ def test_reconciliation_folds_two_graph_halves_into_one_attachment_event() -> No
     assert row["change_scope"] == "observed_attachment"
     assert row["cross_view_consistency"] == "matched"
     assert row["graph_relationship_refs"] == ["rel-a", "rel-b"]
-    assert graph["relationship_groups"][0]["change_event_refs"] == [
-        event["event_key"]
-    ]
+    assert graph["relationship_groups"][0]["change_event_refs"] == [event["event_key"]]
 
 
 def test_reconciliation_links_protocol_transition_to_one_graph_event() -> None:
@@ -259,9 +257,7 @@ def test_reconciliation_matches_protocol_change_inside_member_set_change() -> No
                 "semantic_qualification": "confirmed",
                 "physical_topology_effect": "none",
                 "a": _neighbor(2, "Gi1/0/6", phone_port, ["lldp"]),
-                "b": _neighbor(
-                    20, "Gi1/0/6", phone_port, ["cdp", "lldp"]
-                ),
+                "b": _neighbor(20, "Gi1/0/6", phone_port, ["cdp", "lldp"]),
             },
             {
                 "status": "a_only",
@@ -406,9 +402,7 @@ def test_reconciliation_handles_multiple_changes_within_one_port_group() -> None
     assert consistency["matched_observation_count"] == 4
     assert consistency["graph_only_event_count"] == 0
     assert consistency["change_event_count"] == 4
-    assert sorted(
-        event["event_type"] for event in result["change_events"]
-    ) == [
+    assert sorted(event["event_type"] for event in result["change_events"]) == [
         "observed_in_a_only",
         "observed_in_b_only",
         "protocol_evidence_changed",
@@ -420,8 +414,7 @@ def test_reconciliation_handles_multiple_changes_within_one_port_group() -> None
         if event["event_type"] == "protocol_evidence_changed"
     ]
     assert all(
-        event["graph_change_dimensions"] == ["protocol_evidence"]
-        for event in protocol_events
+        event["graph_change_dimensions"] == ["protocol_evidence"] for event in protocol_events
     )
 
 

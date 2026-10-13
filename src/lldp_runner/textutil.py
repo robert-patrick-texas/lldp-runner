@@ -30,7 +30,9 @@ _TEXT_WHITESPACE_CONTROLS = {"\t", "\n", "\r"}
 # Textual MAC forms commonly advertised by LLDP agents.  When the chassis-ID
 # subtype explicitly says "macAddress", normalize these representations so the
 # same MAC address has a stable identity key.
-_MAC_COLON_OR_DASH = re.compile(r"(?i)^[0-9a-f]{2}(?P<sep>[:-])[0-9a-f]{2}(?:(?P=sep)[0-9a-f]{2}){4}$")
+_MAC_COLON_OR_DASH = re.compile(
+    r"(?i)^[0-9a-f]{2}(?P<sep>[:-])[0-9a-f]{2}(?:(?P=sep)[0-9a-f]{2}){4}$"
+)
 _MAC_DOTTED = re.compile(r"(?i)^[0-9a-f]{4}(?:\.[0-9a-f]{4}){2}$")
 
 

@@ -11,17 +11,17 @@ def test_includes_chain_and_merge_rule_order(config_file: Path, tmp_path: Path) 
     rules_dir = tmp_path / "rules"
     rules_dir.mkdir()
     (rules_dir / "second.toml").write_text(
-        '''
+        """
 [[classification.evidence_rules]]
 label = "specific-hpe"
 category = "managed_device"
 name_pattern = '(?i)-6300(?:\\.|$)'
 field_patterns = { remote_description = '(?i)^HPE\\s+ANW\\s+JL' }
-''',
+""",
         encoding="utf-8",
     )
     (rules_dir / "first.toml").write_text(
-        '''
+        """
 @include second.toml
 
 [logging]
@@ -31,7 +31,7 @@ level = "DEBUG"
 label = "general-spare"
 category = "unmanaged_device"
 name_pattern = '(?i)-spare-'
-''',
+""",
         encoding="utf-8",
     )
     original = config_file.read_text(encoding="utf-8")
@@ -50,16 +50,18 @@ name_pattern = '(?i)-spare-'
     assert config.logging.level == "INFO"
 
 
-def test_include_paths_are_relative_to_each_including_file(config_file: Path, tmp_path: Path) -> None:
+def test_include_paths_are_relative_to_each_including_file(
+    config_file: Path, tmp_path: Path
+) -> None:
     nested = tmp_path / "conf.d" / "nested"
     nested.mkdir(parents=True)
     (nested / "rule.toml").write_text(
-        '''
+        """
 [[classification.evidence_rules]]
 label = "nested-rule"
 category = "managed_endpoint"
 name_pattern = '(?i)^SEP[0-9A-F]{12}(?:\\.|$)'
-''',
+""",
         encoding="utf-8",
     )
     (tmp_path / "conf.d" / "entry.toml").write_text(
@@ -88,12 +90,12 @@ def test_include_cycle_is_rejected(tmp_path: Path) -> None:
 def test_evidence_rule_rejects_unsupported_field(config_file: Path) -> None:
     config_file.write_text(
         config_file.read_text(encoding="utf-8")
-        + '''
+        + """
 
 [[classification.evidence_rules]]
 category = "managed_device"
 field_patterns = { made_up_field = 'anything' }
-''',
+""",
         encoding="utf-8",
     )
 
@@ -111,21 +113,21 @@ def test_included_tagging_rules_are_concatenated_in_include_order(tmp_path: Path
     # Reuse the complete test fixture shape by writing the minimum valid config
     # directly; tag fragments only contribute tagging.rules arrays.
     first.write_text(
-        '''
+        """
 [[tagging.rules]]
 label = "voice"
 category = "managed_endpoint"
 tags = ["service:voice"]
-''',
+""",
         encoding="utf-8",
     )
     second.write_text(
-        '''
+        """
 [[tagging.rules]]
 label = "tenant-a"
 name_pattern = '(?i)^SEP'
 tags = ["tenant:a"]
-''',
+""",
         encoding="utf-8",
     )
     base.write_text(
@@ -133,8 +135,8 @@ tags = ["tenant:a"]
 @include "{second.name}"
 
 [paths]
-persistent_root = "{tmp_path / 'opt'}"
-scratch_root = "{tmp_path / 'shm'}"
+persistent_root = "{tmp_path / "opt"}"
+scratch_root = "{tmp_path / "shm"}"
 [discovery]
 boundaries = ["198.18.0.0/15"]
 [snmp]
@@ -172,30 +174,30 @@ def test_conf_d_is_loaded_recursively_in_lexical_relative_path_order(
     conf_d = config_file.parent / "conf.d"
     (conf_d / "10-subdir").mkdir(parents=True)
     (conf_d / "10-subdir" / "20-rule.toml").write_text(
-        '''
+        """
 [[classification.evidence_rules]]
 label = "subdir-first"
 category = "managed_device"
 name_pattern = '^subdir-'
-''',
+""",
         encoding="utf-8",
     )
     (conf_d / "a.toml").write_text(
-        '''
+        """
 [[classification.evidence_rules]]
 label = "a-second"
 category = "managed_device"
 name_pattern = '^a-'
-''',
+""",
         encoding="utf-8",
     )
     (conf_d / "z.toml").write_text(
-        '''
+        """
 [[classification.evidence_rules]]
 label = "z-third"
 category = "managed_device"
 name_pattern = '^z-'
-''',
+""",
         encoding="utf-8",
     )
 
@@ -214,12 +216,12 @@ def test_conf_d_only_auto_loads_files_ending_exactly_in_dot_toml(config_file: Pa
     conf_d = config_file.parent / "conf.d"
     conf_d.mkdir()
     (conf_d / "10-active.toml").write_text(
-        '''
+        """
 [[classification.evidence_rules]]
 label = "active"
 category = "managed_device"
 name_pattern = '^active-'
-''',
+""",
         encoding="utf-8",
     )
     # These files deliberately contain invalid TOML. If automatic discovery
@@ -239,22 +241,22 @@ def test_conf_d_fragment_includes_later_fragment_only_once(config_file: Path) ->
     conf_d = config_file.parent / "conf.d"
     conf_d.mkdir()
     (conf_d / "a.toml").write_text(
-        '''@include "z.toml"
+        """@include "z.toml"
 
 [[classification.evidence_rules]]
 label = "a-rule"
 category = "managed_device"
 name_pattern = '^a-'
-''',
+""",
         encoding="utf-8",
     )
     (conf_d / "z.toml").write_text(
-        '''
+        """
 [[classification.evidence_rules]]
 label = "z-rule"
 category = "managed_device"
 name_pattern = '^z-'
-''',
+""",
         encoding="utf-8",
     )
 
@@ -274,12 +276,12 @@ def test_primary_include_suppresses_duplicate_conf_d_load(config_file: Path) -> 
     conf_d = config_file.parent / "conf.d"
     conf_d.mkdir()
     (conf_d / "z.toml").write_text(
-        '''
+        """
 [[classification.evidence_rules]]
 label = "z-rule"
 category = "managed_device"
 name_pattern = '^z-'
-''',
+""",
         encoding="utf-8",
     )
     config_file.write_text(
@@ -298,11 +300,11 @@ def test_absolute_include_path_is_supported(config_file: Path, tmp_path: Path) -
     absolute_fragment = tmp_path / "outside" / "query.policy.toml"
     absolute_fragment.parent.mkdir()
     absolute_fragment.write_text(
-        '''
+        """
 [[query_policy.name_rules]]
 pattern = '(?i)\\.external\\.example$'
 action = 'deny'
-''',
+""",
         encoding="utf-8",
     )
     config_file.write_text(
@@ -350,7 +352,7 @@ def test_primary_boundaries_replace_fragment_boundaries(tmp_path: Path) -> None:
     )
     root = tmp_path / "config.toml"
     root.write_text(
-        '''[paths]\npersistent_root = "{root}"\nscratch_root = "{scratch}"\n\n[discovery]\nboundaries = ["198.51.100.0/24"]\n\n[credentials.v2]\nversion = "v2c"\ncommunity = "public"\n\n[credential_profiles.default]\nprimary = "v2"\n\n[credential_rules]\ndefault_profile = "default"\n'''.format(
+        """[paths]\npersistent_root = "{root}"\nscratch_root = "{scratch}"\n\n[discovery]\nboundaries = ["198.51.100.0/24"]\n\n[credentials.v2]\nversion = "v2c"\ncommunity = "public"\n\n[credential_profiles.default]\nprimary = "v2"\n\n[credential_rules]\ndefault_profile = "default"\n""".format(
             root=tmp_path / "root",
             scratch=tmp_path / "scratch",
         ),

@@ -13,7 +13,7 @@ import json
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 from lldp_runner.config import AppConfig
 from lldp_runner.csv_input import read_csv_rows

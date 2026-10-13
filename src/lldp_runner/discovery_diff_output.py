@@ -104,7 +104,7 @@ def _id_name_rows(matches: Sequence[Mapping[str, Any]]) -> list[str]:
     width = max([len(str(item.get("id", "-"))) for item in matches] + [2])
     lines = [f"{'ID':>{width}}  Preferred name", f"{'-' * width}  {'-' * 40}"]
     for item in matches:
-        lines.append(f"{str(item.get('id', '-')):>{width}}  {item.get('preferred_name') or 'unknown'}")
+        lines.append(f"{item.get('id', '-')!s:>{width}}  {item.get('preferred_name') or 'unknown'}")
     return lines
 
 
@@ -121,9 +121,7 @@ def _summary_table(summary: Mapping[str, Any]) -> list[str]:
         "B only",
         "Uncertain",
     )
-    rows: list[
-        tuple[str, int, int, int, int, int, int, int, int, int | str]
-    ] = []
+    rows: list[tuple[str, int, int, int, int, int, int, int, int, int | str]] = []
     hosts = summary.get("hosts", {})
     learned = summary.get("learned_neighbors", {})
     if isinstance(hosts, Mapping):
@@ -269,18 +267,14 @@ def _change_event_summary_table(summary: Mapping[str, Any]) -> list[str]:
             widths[index] = max(widths[index], len(str(value)))
     lines = [
         "  ".join(
-            str(value).ljust(widths[index])
-            if index < 2
-            else str(value).rjust(widths[index])
+            str(value).ljust(widths[index]) if index < 2 else str(value).rjust(widths[index])
             for index, value in enumerate(headers)
         ),
         "  ".join("-" * width for width in widths),
     ]
     lines.extend(
         "  ".join(
-            str(value).ljust(widths[index])
-            if index < 2
-            else str(value).rjust(widths[index])
+            str(value).ljust(widths[index]) if index < 2 else str(value).rjust(widths[index])
             for index, value in enumerate(row)
         )
         for row in rows
@@ -324,9 +318,7 @@ def _management_health_table(summary: Mapping[str, Any]) -> list[str]:
     ):
         causes = values.get(key)
         if isinstance(causes, Mapping) and causes:
-            rendered = ", ".join(
-                f"{cause}={int(count)}" for cause, count in sorted(causes.items())
-            )
+            rendered = ", ".join(f"{cause}={int(count)}" for cause, count in sorted(causes.items()))
             lines.append(f"{label}: {rendered}")
     return lines
 
@@ -349,9 +341,7 @@ def _coverage_summary_table(summary: Mapping[str, Any]) -> list[str]:
         "OUT_OF_SCOPE",
         "Obscured",
     )
-    rows: list[
-        tuple[str, int, int, int, int, int, int, int, int, int]
-    ] = []
+    rows: list[tuple[str, int, int, int, int, int, int, int, int, int]] = []
     for side in ("a", "b"):
         values = coverage.get(side)
         if not isinstance(values, Mapping):
@@ -378,18 +368,14 @@ def _coverage_summary_table(summary: Mapping[str, Any]) -> list[str]:
             widths[index] = max(widths[index], len(str(value)))
     lines = [
         "  ".join(
-            str(value).ljust(widths[index])
-            if index == 0
-            else str(value).rjust(widths[index])
+            str(value).ljust(widths[index]) if index == 0 else str(value).rjust(widths[index])
             for index, value in enumerate(headers)
         ),
         "  ".join("-" * width for width in widths),
     ]
     lines.extend(
         "  ".join(
-            str(value).ljust(widths[index])
-            if index == 0
-            else str(value).rjust(widths[index])
+            str(value).ljust(widths[index]) if index == 0 else str(value).rjust(widths[index])
             for index, value in enumerate(row)
         )
         for row in rows
@@ -430,18 +416,14 @@ def _host_dimension_table(summary: Mapping[str, Any]) -> list[str]:
             widths[index] = max(widths[index], len(str(value)))
     lines = [
         "  ".join(
-            str(value).ljust(widths[index])
-            if index == 0
-            else str(value).rjust(widths[index])
+            str(value).ljust(widths[index]) if index == 0 else str(value).rjust(widths[index])
             for index, value in enumerate(headers)
         ),
         "  ".join("-" * width for width in widths),
     ]
     lines.extend(
         "  ".join(
-            str(value).ljust(widths[index])
-            if index == 0
-            else str(value).rjust(widths[index])
+            str(value).ljust(widths[index]) if index == 0 else str(value).rjust(widths[index])
             for index, value in enumerate(row)
         )
         for row in rows
@@ -475,9 +457,7 @@ def _collection_incident_lines(data: Mapping[str, Any]) -> list[str]:
                 selected = observers.get("a") or observers.get("b")
             if isinstance(selected, Mapping):
                 observer = str(
-                    selected.get("preferred_name")
-                    or selected.get("display_name")
-                    or "unknown"
+                    selected.get("preferred_name") or selected.get("display_name") or "unknown"
                 )
         protocol = str(item.get("protocol") or "-")
         table = str(item.get("table") or "-")
@@ -489,9 +469,7 @@ def _collection_incident_lines(data: Mapping[str, Any]) -> list[str]:
         relationships = int(item.get("total_affected_relationship_count", 0))
         entities = int(item.get("total_affected_entity_count", 0))
         attributes = int(item.get("affected_attribute_count", 0))
-        affects = (
-            "yes" if item.get("reported_difference_depends_on_gap") else "no"
-        )
+        affects = "yes" if item.get("reported_difference_depends_on_gap") else "no"
         lines.append(
             f"{missing_side.upper():<4}  {_truncate(observer, 36):<36}  "
             f"{_truncate(protocol_table, 32):<32}  "
@@ -500,8 +478,7 @@ def _collection_incident_lines(data: Mapping[str, Any]) -> list[str]:
         )
     if len(incidents) > maximum:
         lines.append(
-            f"... {len(incidents) - maximum} additional incident(s) are retained "
-            "in JSON output."
+            f"... {len(incidents) - maximum} additional incident(s) are retained in JSON output."
         )
     return lines
 
@@ -551,16 +528,22 @@ def _graph_change_lines(
             status = _style_status(status_text[:36].ljust(36), config, color)
             a_values = item.get("a_entities") if isinstance(item.get("a_entities"), list) else []
             b_values = item.get("b_entities") if isinstance(item.get("b_entities"), list) else []
-            a_names = ", ".join(
-                str(value.get("display_name") or value.get("entity_key") or "unknown")
-                for value in a_values
-                if isinstance(value, Mapping)
-            ) or "-"
-            b_names = ", ".join(
-                str(value.get("display_name") or value.get("entity_key") or "unknown")
-                for value in b_values
-                if isinstance(value, Mapping)
-            ) or "-"
+            a_names = (
+                ", ".join(
+                    str(value.get("display_name") or value.get("entity_key") or "unknown")
+                    for value in a_values
+                    if isinstance(value, Mapping)
+                )
+                or "-"
+            )
+            b_names = (
+                ", ".join(
+                    str(value.get("display_name") or value.get("entity_key") or "unknown")
+                    for value in b_values
+                    if isinstance(value, Mapping)
+                )
+                or "-"
+            )
             lines.append(f"{status}  {_truncate(a_names, 38)} -> {_truncate(b_names, 38)}")
 
     groups = graph.get("relationship_groups")
@@ -625,12 +608,8 @@ def _host_table(data: Mapping[str, Any], config: AppConfig, *, color: bool) -> l
                     "b_id": b.get("id", "-"),
                     "b_name": b.get("preferred_name") or "unknown",
                     "host_delta": int(item.get("host_difference_count", 0)),
-                    "presentation_delta": int(
-                        item.get("presentation_difference_count", 0)
-                    ),
-                    "collection_delta": int(
-                        item.get("collection_difference_count", 0)
-                    ),
+                    "presentation_delta": int(item.get("presentation_difference_count", 0)),
+                    "collection_delta": int(item.get("collection_difference_count", 0)),
                     "neighbor_delta": int(item.get("learned_neighbor_difference_count", 0)),
                 }
             )
@@ -712,14 +691,14 @@ def _host_table(data: Mapping[str, Any], config: AppConfig, *, color: bool) -> l
             display_status = visible_status
         confidence = str(item["confidence"])[:9].ljust(9)
         lines.append(
-            f"{display_status} {confidence} {str(item['a_id']):>6}  "
+            f"{display_status} {confidence} {item['a_id']!s:>6}  "
             f"{_truncate(item['a_name'], name_width):<{name_width}}  "
-            f"{str(item['b_id']):>6}  "
+            f"{item['b_id']!s:>6}  "
             f"{_truncate(item['b_name'], name_width):<{name_width}}  "
-            f"{str(item['host_delta']):>6}  "
-            f"{str(item['presentation_delta']):>4}  "
-            f"{str(item['collection_delta']):>4}  "
-            f"{str(item['neighbor_delta']):>4}"
+            f"{item['host_delta']!s:>6}  "
+            f"{item['presentation_delta']!s:>4}  "
+            f"{item['collection_delta']!s:>4}  "
+            f"{item['neighbor_delta']!s:>4}"
         )
     return lines
 
@@ -753,8 +732,7 @@ def _neighbor_change_table(
         or bool(item.get("presentation_differences"))
         if expand_collection_incidents
         or not (
-            str(item.get("semantic_qualification") or "")
-            == "coverage_uncertain"
+            str(item.get("semantic_qualification") or "") == "coverage_uncertain"
             and bool(item.get("coverage_sources"))
         )
     ]
@@ -808,9 +786,7 @@ def _neighbor_change_table(
             removed = management_change.get("removed")
             added_text = ",".join(str(value) for value in added) if isinstance(added, list) else "-"
             removed_text = (
-                ",".join(str(value) for value in removed)
-                if isinstance(removed, list)
-                else "-"
+                ",".join(str(value) for value in removed) if isinstance(removed, list) else "-"
             )
             lines.append(
                 "           management addresses: "
@@ -831,9 +807,7 @@ def _neighbor_change_table(
                         continue
                     if isinstance(management_change, Mapping) and (
                         difference.get("path") == "observed_addresses"
-                        or str(difference.get("path") or "").endswith(
-                            ".remote_addresses"
-                        )
+                        or str(difference.get("path") or "").endswith(".remote_addresses")
                     ):
                         continue
                     lines.append(
@@ -874,9 +848,7 @@ def _neighbor_change_table(
                     continue
                 observer = source.get("missing_observer")
                 observer_name = (
-                    observer.get("preferred_name")
-                    if isinstance(observer, Mapping)
-                    else "unknown"
+                    observer.get("preferred_name") if isinstance(observer, Mapping) else "unknown"
                 )
                 lines.append(
                     "           coverage: "
@@ -931,9 +903,7 @@ def _field_table(differences: Sequence[Mapping[str, Any]]) -> list[str]:
                     selected = observer.get("a") or observer.get("b")
                 if isinstance(selected, Mapping):
                     observer_name = str(
-                        selected.get("preferred_name")
-                        or selected.get("display_name")
-                        or "unknown"
+                        selected.get("preferred_name") or selected.get("display_name") or "unknown"
                     )
             lines.append(
                 "  coverage: "
@@ -983,7 +953,7 @@ def _render_macro(
             lines.extend(management_lines)
     incident_lines = _collection_incident_lines(data)
     if incident_lines:
-        lines.extend([""] + incident_lines)
+        lines.extend(["", *incident_lines])
     if summary_only:
         return lines
     graph = data.get("topology_graph")
@@ -995,7 +965,7 @@ def _render_macro(
             expand_collection_incidents=expand_collection_incidents,
         )
         if graph_lines:
-            lines.extend([""] + graph_lines)
+            lines.extend(["", *graph_lines])
     lines.extend(["", "Compatibility host comparison"])
     lines.extend(_host_table(data, config, color=color))
 
@@ -1026,13 +996,7 @@ def _render_macro(
                     emitted_label = True
                 lines.append(title)
                 lines.extend(
-                    _field_table(
-                        [
-                            item
-                            for item in raw_differences
-                            if isinstance(item, Mapping)
-                        ]
-                    )
+                    _field_table([item for item in raw_differences if isinstance(item, Mapping)])
                 )
             neighbors = host.get("learned_neighbors")
             if not isinstance(neighbors, list) or not any(
@@ -1045,7 +1009,9 @@ def _render_macro(
                 for item in neighbors
             ):
                 continue
-            label = f"Learned neighbor changes: {a.get('preferred_name')} / {b.get('preferred_name')}"
+            label = (
+                f"Learned neighbor changes: {a.get('preferred_name')} / {b.get('preferred_name')}"
+            )
             lines.append("")
             rendered_neighbors = _neighbor_change_table(
                 label,
@@ -1088,11 +1054,7 @@ def _render_macro(
                     and item.get("semantic_qualification") == "coverage_uncertain"
                     and bool(item.get("coverage_sources"))
                 )
-        if (
-            collapsed_neighbors
-            or collapsed_graph_entities
-            or collapsed_graph_relationships
-        ):
+        if collapsed_neighbors or collapsed_graph_entities or collapsed_graph_relationships:
             lines.extend(
                 [
                     "",
@@ -1174,26 +1136,20 @@ def _render_host(
     presentation = host.get("presentation_differences")
     if isinstance(presentation, list) and presentation:
         lines.extend(["", "Host presentation/evidence changes"])
-        lines.extend(
-            _field_table(
-                [item for item in presentation if isinstance(item, Mapping)]
-            )
-        )
+        lines.extend(_field_table([item for item in presentation if isinstance(item, Mapping)]))
     collection = host.get("collection_differences")
     if isinstance(collection, list) and collection:
         lines.extend(["", "Host collection/provenance changes"])
-        lines.extend(
-            _field_table(
-                [item for item in collection if isinstance(item, Mapping)]
-            )
-        )
+        lines.extend(_field_table([item for item in collection if isinstance(item, Mapping)]))
     if (
         outcome.status == "no_differences"
         and not differences
         and not presentation
         and not collection
     ):
-        lines.append("No host detail, collection, presentation, or neighbor differences were found.")
+        lines.append(
+            "No host detail, collection, presentation, or neighbor differences were found."
+        )
 
     learned = host.get("learned_neighbors")
     if isinstance(learned, list):
@@ -1205,7 +1161,7 @@ def _render_host(
             expand_collection_incidents=expand_collection_incidents,
         )
         if rendered:
-            lines.extend([""] + rendered)
+            lines.extend(["", *rendered])
     observed = host.get("observed_by_neighbors")
     if isinstance(observed, list):
         rendered = _neighbor_change_table(
@@ -1216,7 +1172,7 @@ def _render_host(
             expand_collection_incidents=expand_collection_incidents,
         )
         if rendered:
-            lines.extend([""] + rendered)
+            lines.extend(["", *rendered])
     return lines
 
 

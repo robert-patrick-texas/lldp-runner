@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 
 from lldp_runner.models import NeighborObservation
 from lldp_runner.topology_graph import (
@@ -79,9 +78,7 @@ def _neighbor_with_namespace(
 def _build(hosts, advertisements, *, coverage_by_host=None):
     names = {int(host["id"]): [str(host["preferred_name"])] for host in hosts}
     addresses = {
-        int(host["id"]): [str(host["query_target"])]
-        for host in hosts
-        if host.get("query_target")
+        int(host["id"]): [str(host["query_target"])] for host in hosts if host.get("query_target")
     }
     return build_topology_graph(
         hosts=hosts,
@@ -105,13 +102,9 @@ def _table_coverage(
             "status": status,
             "attempts": 1,
             "row_count": 0,
-            "resolution_status": (
-                "resolved" if status == "complete" else "unresolved"
-            ),
+            "resolution_status": ("resolved" if status == "complete" else "unresolved"),
             "message": (
-                None
-                if status == "complete"
-                else f"{protocol} fixture collection {status}"
+                None if status == "complete" else f"{protocol} fixture collection {status}"
             ),
         }
         for protocol, status in {
@@ -129,9 +122,7 @@ def test_raw_advertisement_occurrences_are_order_independent_and_count_duplicate
     reverse = canonical_raw_advertisements(7, [first, second, first][::-1])
 
     assert forward == reverse
-    duplicates = [
-        item for item in forward if item["observation"]["remote_name"] == "edge-a"
-    ]
+    duplicates = [item for item in forward if item["observation"]["remote_name"] == "edge-a"]
     assert [item["duplicate_ordinal"] for item in duplicates] == [0, 1]
     assert len({item["occurrence_fingerprint"] for item in duplicates}) == 2
 
@@ -243,9 +234,7 @@ def test_multi_neighbor_interface_is_reported_without_directness_inference():
     assert group["unique_member_count"] == 3
     assert group["discrepancies"] == ["multiple_neighbors_on_interface"]
     interface = next(
-        item
-        for item in graph["interfaces"]
-        if item["interface_key"] == group["interface_key"]
+        item for item in graph["interfaces"] if item["interface_key"] == group["interface_key"]
     )
     assert interface["namespace"] == "resolved"
     assert interface["evidence_namespaces"] == ["ifIndex", "lldpLocalPort"]
@@ -256,16 +245,13 @@ def test_graph_diff_reports_duplicate_absorption_without_physical_topology_effec
         _host(1, "hq-vdc1-7nx1.example.com", "203.0.113.23", serial="SERIAL000001"),
         _host(2, "hq-vdc1-7nx1", "203.0.113.23", serial="SERIAL000001"),
     ]
-    hosts_b = [
-        _host(9, "hq-vdc1-7nx1.example.com", "203.0.113.23", serial="SERIAL000001")
-    ]
+    hosts_b = [_host(9, "hq-vdc1-7nx1.example.com", "203.0.113.23", serial="SERIAL000001")]
     result = compare_topology_graphs(_build(hosts_a, []), _build(hosts_b, []))
 
     logical = [
         item
         for item in result["entity_correspondence"]
-        if item["a_entities"]
-        and item["a_entities"][0]["entity_type"] == "logical_system"
+        if item["a_entities"] and item["a_entities"][0]["entity_type"] == "logical_system"
     ]
     assert len(logical) == 1
     assert logical[0]["status"] == "duplicate_projection_introduced"
@@ -273,9 +259,7 @@ def test_graph_diff_reports_duplicate_absorption_without_physical_topology_effec
 
 
 def test_graph_diff_retains_one_to_many_cluster_correspondence():
-    graph_a = _build(
-        [_host(1, "vdc", "192.0.2.10", serial="CHASSIS0")], []
-    )
+    graph_a = _build([_host(1, "vdc", "192.0.2.10", serial="CHASSIS0")], [])
     graph_b = _build(
         [
             _host(2, "vdc", "192.0.2.10", serial="CHASSIS1"),
@@ -299,16 +283,10 @@ def test_graph_diff_reports_current_many_projection_as_cluster_split():
         ],
         [],
     )
-    graph_b = _build(
-        [_host(1, "vdc", "192.0.2.10", serial="CHASSIS0")], []
-    )
+    graph_b = _build([_host(1, "vdc", "192.0.2.10", serial="CHASSIS0")], [])
 
     result = compare_topology_graphs(graph_a, graph_b)
-    split = [
-        item
-        for item in result["entity_correspondence"]
-        if item["status"] == "cluster_split"
-    ]
+    split = [item for item in result["entity_correspondence"] if item["status"] == "cluster_split"]
 
     assert len(split) == 1
     assert split[0]["cardinality"] == "2:1"
@@ -323,9 +301,7 @@ def test_graph_diff_separates_projection_changes_from_observed_relationships():
         ],
         [],
     )
-    graph_b = _build(
-        [_host(9, "device.example.com", "192.0.2.10", serial="SERIAL1")], []
-    )
+    graph_b = _build([_host(9, "device.example.com", "192.0.2.10", serial="SERIAL1")], [])
 
     result = compare_topology_graphs(graph_a, graph_b)
 
@@ -373,9 +349,7 @@ def test_local_chassis_label_is_displayed_without_becoming_global_identity():
     )
 
     graph = _build(hosts, canonical_raw_advertisements(1, [endpoint]))
-    observed = next(
-        item for item in graph["entities"] if item["entity_type"] == "observed_system"
-    )
+    observed = next(item for item in graph["entities"] if item["entity_type"] == "observed_system")
     relationship = graph["relationships"][0]
 
     assert observed["entity_key"] == "endpoint:mac:c4:5a:b1:f2:d4:3e"
@@ -444,13 +418,9 @@ def test_graph_warns_when_legacy_compatibility_host_spans_endpoint_macs():
     ]
     assert diagnostics[0]["authoritative_graph_impact"] == "none"
     decision = next(
-        item
-        for item in result.decisions
-        if item["component_key"] == "compatibility_host:900"
+        item for item in result.decisions if item["component_key"] == "compatibility_host:900"
     )
-    assert decision["decision_type"] == (
-        "compatibility_host_spans_distinct_endpoint_macs"
-    )
+    assert decision["decision_type"] == ("compatibility_host_spans_distinct_endpoint_macs")
 
 
 def test_graph_does_not_warn_for_named_multi_interface_port_macs():
@@ -682,9 +652,7 @@ def test_graph_diff_marks_failed_observer_table_as_coverage_uncertain():
 
     hosts_a = [_host(1, "source.example.com", "192.0.2.1", serial="SRC")]
     hosts_b = [_host(10, "source.example.com", "192.0.2.1", serial="SRC")]
-    observation = _neighbor(
-        "lldp", "Gi1/0/1", "endpoint.example.com", "eth0", address="192.0.2.2"
-    )
+    observation = _neighbor("lldp", "Gi1/0/1", "endpoint.example.com", "eth0", address="192.0.2.2")
     graph_a = _build(
         hosts_a,
         canonical_raw_advertisements(1, [observation]),
@@ -705,19 +673,17 @@ def test_graph_diff_marks_failed_observer_table_as_coverage_uncertain():
         item
         for item in result["entity_correspondence"]
         if item["status"] == "a_only"
-        and any(
-            entity["display_name"] == "endpoint.example.com"
-            for entity in item["a_entities"]
-        )
+        and any(entity["display_name"] == "endpoint.example.com" for entity in item["a_entities"])
     )
     assert relationship["semantic_qualification"] == "coverage_uncertain"
     assert relationship["presence_confidence"] == "coverage_uncertain"
     assert relationship["coverage_source"]["protocol"] == "lldp"
     assert relationship["coverage_source"]["status"] == "structurally_invalid"
     assert endpoint["semantic_qualification"] == "coverage_uncertain"
-    assert endpoint["coverage_source"]["incident_key"] == relationship[
-        "coverage_source"
-    ]["incident_key"]
+    assert (
+        endpoint["coverage_source"]["incident_key"]
+        == relationship["coverage_source"]["incident_key"]
+    )
     assert result["has_confirmed_observed_relationship_differences"] is False
     assert result["physical_topology_assessment"] == "not_inferred"
 
@@ -743,11 +709,7 @@ def test_graph_diff_keeps_genuine_absence_confirmed_with_complete_coverage():
     relationship = next(
         item for item in result["relationship_groups"] if item["status"] == "a_only"
     )
-    endpoint = next(
-        item
-        for item in result["entity_correspondence"]
-        if item["status"] == "a_only"
-    )
+    endpoint = next(item for item in result["entity_correspondence"] if item["status"] == "a_only")
 
     assert relationship["semantic_qualification"] == "confirmed"
     assert relationship["coverage_sources"] == []
@@ -787,9 +749,9 @@ def test_graph_diff_protocol_transition_is_confirmed_when_collectors_completed()
     assert relationship["member_presence_change"] is None
     assert relationship["member_protocol_changes"] == [
         {
-            "remote_component_key": relationship["a_groups"][0][
-                "members"
-            ][0]["remote_component_key"],
+            "remote_component_key": relationship["a_groups"][0]["members"][0][
+                "remote_component_key"
+            ],
             "remote_interface": "ethernet1",
             "a_protocols": ["lldp"],
             "b_protocols": ["cdp", "lldp"],
@@ -836,9 +798,7 @@ def test_graph_diff_preserves_protocol_dimension_inside_member_set_change():
 
     result = compare_topology_graphs(graph_a, graph_b)
     relationship = next(
-        item
-        for item in result["relationship_groups"]
-        if item["status"] == "member_set_changed"
+        item for item in result["relationship_groups"] if item["status"] == "member_set_changed"
     )
 
     assert relationship["change_dimensions"] == [
@@ -930,10 +890,7 @@ def test_graph_diff_propagates_originating_coverage_incident_recursively():
         item
         for item in result["entity_correspondence"]
         if item["status"] == "a_only"
-        and any(
-            entity["display_name"] == "access.example.com"
-            for entity in item["a_entities"]
-        )
+        and any(entity["display_name"] == "access.example.com" for entity in item["a_entities"])
     )
     downstream = next(
         item
@@ -944,22 +901,18 @@ def test_graph_diff_propagates_originating_coverage_incident_recursively():
         item
         for item in result["entity_correspondence"]
         if item["status"] == "a_only"
-        and any(
-            entity["display_name"] == "endpoint.example.com"
-            for entity in item["a_entities"]
-        )
+        and any(entity["display_name"] == "endpoint.example.com" for entity in item["a_entities"])
     )
 
     assert access_component["semantic_qualification"] == "coverage_uncertain"
     assert downstream["semantic_qualification"] == "coverage_uncertain"
     assert downstream["coverage_source"]["origin"] == "recursive"
-    assert access_component["component_key"] in downstream["coverage_source"][
-        "recursive_path"
-    ]
+    assert access_component["component_key"] in downstream["coverage_source"]["recursive_path"]
     assert endpoint["semantic_qualification"] == "coverage_uncertain"
-    assert endpoint["coverage_source"]["incident_key"] == access_component[
-        "coverage_source"
-    ]["incident_key"]
+    assert (
+        endpoint["coverage_source"]["incident_key"]
+        == access_component["coverage_source"]["incident_key"]
+    )
 
 
 def test_graph_diff_qualifies_failed_observer_relationship_and_entity_presence():
@@ -997,10 +950,7 @@ def test_graph_diff_qualifies_failed_observer_relationship_and_entity_presence()
         item
         for item in result["entity_correspondence"]
         if item["status"] == "a_only"
-        and any(
-            entity["display_name"] == "phone.example.com"
-            for entity in item["a_entities"]
-        )
+        and any(entity["display_name"] == "phone.example.com" for entity in item["a_entities"])
     )
     assert endpoint["semantic_qualification"] == "coverage_uncertain"
     assert result["has_confirmed_observed_relationship_differences"] is False
@@ -1099,17 +1049,11 @@ def test_graph_diff_recursively_propagates_originating_collection_incident():
 
     result = compare_topology_graphs(graph_a, graph_b, changes_only=True)
 
-    one_sided = [
-        item for item in result["relationship_groups"] if item["status"] == "a_only"
-    ]
+    one_sided = [item for item in result["relationship_groups"] if item["status"] == "a_only"]
     assert len(one_sided) == 2
-    assert {item["semantic_qualification"] for item in one_sided} == {
-        "coverage_uncertain"
-    }
+    assert {item["semantic_qualification"] for item in one_sided} == {"coverage_uncertain"}
     assert any(
-        source["origin"] == "recursive"
-        for item in one_sided
-        for source in item["coverage_sources"]
+        source["origin"] == "recursive" for item in one_sided for source in item["coverage_sources"]
     )
     uncertain_names = {
         entity["display_name"]
@@ -1204,14 +1148,9 @@ def test_graph_diff_qualifies_attribute_derived_components_with_provenance() -> 
         if item["status"] in {"changed", "a_only", "b_only"}
     ]
     assert affected
-    assert all(
-        item["semantic_qualification"] == "coverage_uncertain"
-        for item in affected
-    )
+    assert all(item["semantic_qualification"] == "coverage_uncertain" for item in affected)
     assert all(item["coverage_sources"] == [source] for item in affected)
-    assert result["summary"]["entity_qualifications"]["coverage_uncertain"] == len(
-        affected
-    )
+    assert result["summary"]["entity_qualifications"]["coverage_uncertain"] == len(affected)
 
 
 def test_graph_diff_uses_remote_neighbor_subtable_not_aggregate_lldp_health():

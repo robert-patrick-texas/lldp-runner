@@ -8,12 +8,12 @@ import pytest
 
 from lldp_runner.collectors.entity import (
     COL_CONTAINED_IN,
+    COL_DESCR,
     COL_FIRMWARE_REV,
     COL_HARDWARE_REV,
     COL_MANUFACTURER,
     COL_MODEL_NAME,
     COL_NAME,
-    COL_DESCR,
     COL_PARENT_REL_POS,
     COL_SERIAL_NUMBER,
     COL_SOFTWARE_REV,
@@ -428,7 +428,7 @@ def test_auto_mode_collects_aruba_cx_vsf_member_inventory() -> None:
         _oid(COL_PARENT_REL_POS, 520): 2,
         _oid(COL_NAME, 520): "Member 2",
     }
-    for index, serial in zip(member_indexes, ("CN-CX6300-01", "CN-CX6300-02")):
+    for index, serial in zip(member_indexes, ("CN-CX6300-01", "CN-CX6300-02"), strict=True):
         values.update(
             {
                 _oid(COL_MANUFACTURER, index): "Aruba",
@@ -524,7 +524,7 @@ def test_invalid_entity_mode_is_rejected_defensively() -> None:
     """Direct collector callers receive a useful error for unsupported modes."""
 
     client = FakeEntityClient()
-    with pytest.raises(ValueError, match="full.*auto.*brief"):
+    with pytest.raises(ValueError, match=r"full.*auto.*brief"):
         asyncio.run(enrich_system_from_entity_mib(client, SystemDetails(), "fast"))
 
 

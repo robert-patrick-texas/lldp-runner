@@ -129,7 +129,9 @@ def test_log_formatter_uses_configured_timezone_policy() -> None:
         configure_timezone("eastern")
 
 
-def test_activity_only_records_are_file_logged_but_not_written_to_stderr(tmp_path: Path, capsys) -> None:
+def test_activity_only_records_are_file_logged_but_not_written_to_stderr(
+    tmp_path: Path, capsys
+) -> None:
     """Seed-credential match warnings stay in activity.log even with console logging."""
 
     root = logging.getLogger()

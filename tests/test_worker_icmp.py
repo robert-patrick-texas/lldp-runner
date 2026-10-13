@@ -165,9 +165,7 @@ def test_process_single_device_system_only_skips_detail_collectors(monkeypatch, 
 
     async def fake_basic(config_arg, tasks, results, pause_event, *, collect_metrics=False):
         assert collect_metrics is True
-        results[1].collection_metrics["sys"] = CollectionMetric(
-            objects=6, duration_ms=12.4
-        )
+        results[1].collection_metrics["sys"] = CollectionMetric(objects=6, duration_ms=12.4)
         return [
             (
                 tasks[0],
@@ -190,9 +188,7 @@ def test_process_single_device_system_only_skips_detail_collectors(monkeypatch, 
     monkeypatch.setattr(worker, "_collect_detail", forbidden_detail)
 
     device, timings = asyncio.run(
-        worker.process_single_device(
-            config, task, _PauseEvent(), system_only=True
-        )
+        worker.process_single_device(config, task, _PauseEvent(), system_only=True)
     )
 
     assert device.status == "success"
@@ -405,9 +401,7 @@ def test_neighbor_protocol_timeout_is_not_retried_by_worker(config) -> None:
         raise TimeoutError("table timeout surfaced after adaptive budget")
 
     values, error, attempts = asyncio.run(
-        _collect_neighbor_protocol(
-            config, "198.18.0.10", "cdp", None, object(), collector
-        )
+        _collect_neighbor_protocol(config, "198.18.0.10", "cdp", None, object(), collector)
     )
 
     assert values == []
@@ -574,9 +568,7 @@ def test_neighbor_protocol_transport_failure_is_not_performance_retry(config) ->
         raise OSError("socket route failed")
 
     values, error, attempts = asyncio.run(
-        _collect_neighbor_protocol(
-            config, "198.18.0.10", "lldp", None, object(), collector
-        )
+        _collect_neighbor_protocol(config, "198.18.0.10", "lldp", None, object(), collector)
     )
 
     assert values == []
@@ -642,9 +634,7 @@ def test_interface_map_retries_one_structural_failure(config, monkeypatch) -> No
     assert adaptive.calls == [("INTERFACES", "incomplete_table")]
 
 
-def test_basic_route_reuses_adaptive_profile_across_outer_attempts(
-    config, monkeypatch
-) -> None:
+def test_basic_route_reuses_adaptive_profile_across_outer_attempts(config, monkeypatch) -> None:
     """Configured attempts on one route keep the target's degraded profile."""
 
     from lldp_runner import worker
@@ -694,9 +684,7 @@ def test_basic_route_reuses_adaptive_profile_across_outer_attempts(
     monkeypatch.setattr(
         worker,
         "create_snmp_client",
-        lambda _config, _address, _credential, *, adaptive_state: Context(
-            adaptive_state
-        ),
+        lambda _config, _address, _credential, *, adaptive_state: Context(adaptive_state),
     )
 
     async def fake_collect_basic_system(_client: object) -> SystemDetails:
@@ -704,9 +692,7 @@ def test_basic_route_reuses_adaptive_profile_across_outer_attempts(
 
     monkeypatch.setattr(worker, "collect_basic_system", fake_collect_basic_system)
     results = {1: DeviceResult(host_id=1, status="deferred")}
-    successful = asyncio.run(
-        _basic_wavefront(config, [task], results, _PauseEvent())
-    )
+    successful = asyncio.run(_basic_wavefront(config, [task], results, _PauseEvent()))
 
     assert len(states) == 2
     assert states[0] is states[1]
@@ -860,9 +846,7 @@ def test_delayed_neighbor_stability_pass_shares_one_delay_and_is_bounded(
                 unresolved_identifier="ifIndex",
             ),
             values=[],
-            exc=CdpSnapshotIncompleteError(
-                "cdp cache row 17.2 missing mandatory device_id"
-            ),
+            exc=CdpSnapshotIncompleteError("cdp cache row 17.2 missing mandatory device_id"),
             attempts=1,
         ),
         worker._NeighborProtocolOutcome(
@@ -905,9 +889,7 @@ def test_delayed_neighbor_stability_pass_shares_one_delay_and_is_bounded(
     ]
 
 
-def test_delayed_neighbor_stability_pass_can_be_disabled(
-    monkeypatch, config
-) -> None:
+def test_delayed_neighbor_stability_pass_can_be_disabled(monkeypatch, config) -> None:
     config.snmp.neighbor_stability_retry = False
     called = False
 

@@ -13,8 +13,8 @@ def config_file(tmp_path: Path) -> Path:
     path.write_text(
         f'''
 [paths]
-persistent_root = "{tmp_path / 'opt'}"
-scratch_root = "{tmp_path / 'shm'}"
+persistent_root = "{tmp_path / "opt"}"
+scratch_root = "{tmp_path / "shm"}"
 
 [discovery]
 boundaries = ["198.18.0.0/15", "198.51.100.0/24", "2001:db8::/32"]

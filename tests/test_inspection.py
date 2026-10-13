@@ -342,9 +342,7 @@ def test_system_only_passes_mode_to_worker_and_json(monkeypatch, config) -> None
         return sample, {"basic_phase": 40.0, "detail_phase": 0.0}
 
     monkeypatch.setattr(inspection, "process_single_device", fake_probe)
-    result = asyncio.run(
-        inspect_target(config, "switch1.net.example.com", system_only=True)
-    )
+    result = asyncio.run(inspect_target(config, "switch1.net.example.com", system_only=True))
 
     assert result.system_only is True
     payload = json.loads(render_json(config, result))
@@ -359,9 +357,7 @@ def test_system_only_human_views_omit_neighbor_sections(config) -> None:
     result.system_only = True
     assert result.device is not None
     result.device.neighbors = []
-    result.device.collection_metrics = {
-        "sys": CollectionMetric(objects=6, duration_ms=12.4)
-    }
+    result.device.collection_metrics = {"sys": CollectionMetric(objects=6, duration_ms=12.4)}
     result.probe_timings = {"basic_phase": 40.0, "detail_phase": 0.0}
 
     table = render_table(config, result, stream=_Stream(False))
@@ -451,9 +447,7 @@ def test_get_neighbors_table_uses_configured_and_dynamic_interface_widths(
     result = _sample_result()
     assert result.device is not None
     result.device.neighbors[0].remote_interface = "Port-Identifier-Longer-Than-Eighteen"
-    result.device.neighbors[0].remote_interface_raw = (
-        "Port-Identifier-Longer-Than-Eighteen"
-    )
+    result.device.neighbors[0].remote_interface_raw = "Port-Identifier-Longer-Than-Eighteen"
     config.output.neighbor_local_width = 24
     monkeypatch.setattr(
         inspection_output.shutil,
@@ -467,9 +461,7 @@ def test_get_neighbors_table_uses_configured_and_dynamic_interface_widths(
     assert "Port-Identifier-Longer-Than-Eighteen" in rendered
 
 
-def test_get_neighbors_table_displays_complete_ipv6_management_address(
-    config, monkeypatch
-) -> None:
+def test_get_neighbors_table_displays_complete_ipv6_management_address(config, monkeypatch) -> None:
     """The rightmost Mgmt cell preserves a long IPv6 address without ellipsis."""
 
     result = _sample_result()
@@ -529,9 +521,7 @@ def test_get_neighbors_timestamp_is_timezone_converted_and_right_aligned(
     assert table.splitlines()[0].endswith(expected)
     assert detail.splitlines()[0].endswith(expected)
     assert len(table.splitlines()[0]) == 100
-    assert csv_text.splitlines()[0].endswith(
-        "state=success,timestamp=2026-08-25 15:52:26"
-    )
+    assert csv_text.splitlines()[0].endswith("state=success,timestamp=2026-08-25 15:52:26")
 
 
 def test_get_neighbors_terminal_colors_are_configurable(config, monkeypatch) -> None:
@@ -577,7 +567,9 @@ def test_project_exposes_get_neighbors_console_script() -> None:
     import tomllib
     from pathlib import Path
 
-    project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text(encoding="utf-8"))
+    project = tomllib.loads(
+        (Path(__file__).parents[1] / "pyproject.toml").read_text(encoding="utf-8")
+    )
     assert project["project"]["scripts"]["get-neighbors"] == "lldp_runner.cli:get_neighbors_main"
 
 

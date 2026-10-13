@@ -82,9 +82,7 @@ class TargetAttempt:
     address: str
     credential_profile: str | None = None
     direct_credential: DirectCredential | None = None
-    credential_source: Literal["seed-direct", "seed-profile", "policy-profile"] = (
-        "policy-profile"
-    )
+    credential_source: Literal["seed-direct", "seed-profile", "policy-profile"] = "policy-profile"
     credential_label: str | None = None
 
 
@@ -203,13 +201,16 @@ class WorkerError:
     timestamp: str
     attempted_target: str | None = None
     address_family: Literal["ipv4", "ipv6"] | None = None
-    phase: Literal[
-        "resolve",
-        "session_construct",
-        "session_open",
-        "request",
-        "session_close",
-    ] | None = None
+    phase: (
+        Literal[
+            "resolve",
+            "session_construct",
+            "session_open",
+            "request",
+            "session_close",
+        ]
+        | None
+    ) = None
     exception_type: str | None = None
     exception_errno: int | None = None
     exception_strerror: str | None = None
@@ -268,15 +269,11 @@ class SnmpRetryEvent:
     per_device_rps_before: float
     per_device_rps_after: float
     partial_rows_discarded: bool
-    retry_pool: Literal[
-        "shared", "neighbor_reserve", "stability", "none"
-    ] = "shared"
+    retry_pool: Literal["shared", "neighbor_reserve", "stability", "none"] = "shared"
     collector_family: str | None = None
     per_collector_retry_count: int = 0
     delay_before_retry_seconds: float = 0.0
-    final_outcome: Literal[
-        "pending", "succeeded", "failed", "unavailable"
-    ] = "pending"
+    final_outcome: Literal["pending", "succeeded", "failed", "unavailable"] = "pending"
     outcome_type: str | None = None
 
 

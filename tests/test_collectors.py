@@ -35,7 +35,9 @@ def test_cdp_collection():
             (f"{CDP_CACHE_ENTRY}.9.101.1", bytes([0x09])),
         ]
     }
-    observations = asyncio.run(collect_cdp(FakeWalker(rows), {101: ("GigabitEthernet1/0/1", "Gi1/0/1")}))
+    observations = asyncio.run(
+        collect_cdp(FakeWalker(rows), {101: ("GigabitEthernet1/0/1", "Gi1/0/1")})
+    )
     assert len(observations) == 1
     obs = observations[0]
     assert obs.remote_name == "switch2.net.example.com"
@@ -97,9 +99,8 @@ def test_cdp_mid_table_mutation_rejects_entire_snapshot() -> None:
         ]
     }
 
-    with pytest.raises(CdpSnapshotIncompleteError, match="2006.2472"):
+    with pytest.raises(CdpSnapshotIncompleteError, match=r"2006\.2472"):
         asyncio.run(collect_cdp(FakeWalker(rows), {}))
-
 
 
 def test_cdp_non_host_entry_address_is_diagnostic_only():
@@ -233,7 +234,11 @@ def test_lldp_mac_port_id_uses_port_subtype_and_preserves_details():
 
 
 def test_lldpv2_collection_with_ifindex_and_management_address():
-    from lldp_runner.collectors.lldp import LLDPV2_REM_ENTRY, LLDPV2_REM_MAN_ADDR_ENTRY, collect_lldpv2
+    from lldp_runner.collectors.lldp import (
+        LLDPV2_REM_ENTRY,
+        LLDPV2_REM_MAN_ADDR_ENTRY,
+        collect_lldpv2,
+    )
 
     # Index shape: timeMark, localIfIndex, localDestMACAddress components, remIndex.
     remote_index = "123.101.6.0.17.34.51.68.85.1"
@@ -254,9 +259,7 @@ def test_lldpv2_collection_with_ifindex_and_management_address():
             ),
         ],
     }
-    observations = asyncio.run(
-        collect_lldpv2(FakeWalker(rows), {101: ("Ethernet1", "Eth1")})
-    )
+    observations = asyncio.run(collect_lldpv2(FakeWalker(rows), {101: ("Ethernet1", "Eth1")}))
     assert len(observations) == 1
     obs = observations[0]
     assert obs.local_interface == "Eth1"
@@ -410,12 +413,8 @@ def test_merge_nexus_vdc_cdp_lldp_same_link_uses_logical_name():
         "203.0.113.103",
     ]
     assert obs.details["protocols"] == ["cdp", "lldp"]
-    assert obs.details["cdp.remote_name"] == (
-        "hq-vdc2-7nx1.net.example.com(SERIAL000001)"
-    )
-    assert obs.details["cdp.device_id"] == (
-        "hq-vdc2-7nx1.net.example.com(SERIAL000001)"
-    )
+    assert obs.details["cdp.remote_name"] == ("hq-vdc2-7nx1.net.example.com(SERIAL000001)")
+    assert obs.details["cdp.device_id"] == ("hq-vdc2-7nx1.net.example.com(SERIAL000001)")
     assert obs.details["cdp.entry_addresses"] == ["203.0.113.103"]
     assert obs.details["lldp.chassis_id"] == "00:12:34:56:b0:01"
 
@@ -519,9 +518,7 @@ def test_lldpv2_preserves_destination_mac_index_details():
         ],
     }
 
-    observation = asyncio.run(
-        collect_lldpv2(FakeWalker(rows), {101: ("Ethernet1", "Eth1")})
-    )[0]
+    observation = asyncio.run(collect_lldpv2(FakeWalker(rows), {101: ("Ethernet1", "Eth1")}))[0]
 
     assert observation.details["time_mark"] == 123
     assert observation.details["local_dest_mac"] == "00:11:22:33:44:55"
@@ -597,42 +594,51 @@ def test_merge_short_fqdn_rule_requires_same_port_address_and_one_short_name():
         )
 
     # Same host-label representation, but different address.
-    assert len(
-        merge_neighbor_observations(
-            [
-                observation("cdp", "Gi1/0/8", "PHONE1", "Port 1", "198.18.1.10"),
-                observation(
-                    "lldp", "Gi1/0/8", "PHONE1.example.com", "PHONE1:P1", "198.18.1.11"
-                ),
-            ]
+    assert (
+        len(
+            merge_neighbor_observations(
+                [
+                    observation("cdp", "Gi1/0/8", "PHONE1", "Port 1", "198.18.1.10"),
+                    observation(
+                        "lldp", "Gi1/0/8", "PHONE1.example.com", "PHONE1:P1", "198.18.1.11"
+                    ),
+                ]
+            )
         )
-    ) == 2
+        == 2
+    )
 
     # Same address/name representation, but learned on different local ports.
-    assert len(
-        merge_neighbor_observations(
-            [
-                observation("cdp", "Gi1/0/8", "PHONE1", "Port 1", "198.18.1.10"),
-                observation(
-                    "lldp", "Gi1/0/9", "PHONE1.example.com", "PHONE1:P1", "198.18.1.10"
-                ),
-            ]
+    assert (
+        len(
+            merge_neighbor_observations(
+                [
+                    observation("cdp", "Gi1/0/8", "PHONE1", "Port 1", "198.18.1.10"),
+                    observation(
+                        "lldp", "Gi1/0/9", "PHONE1.example.com", "PHONE1:P1", "198.18.1.10"
+                    ),
+                ]
+            )
         )
-    ) == 2
+        == 2
+    )
 
     # Two FQDNs in different domains never match merely by left-most label.
-    assert len(
-        merge_neighbor_observations(
-            [
-                observation(
-                    "cdp", "Gi1/0/8", "PHONE1.site-a.example.com", "Port 1", "198.18.1.10"
-                ),
-                observation(
-                    "lldp", "Gi1/0/8", "PHONE1.site-b.example.net", "PHONE1:P1", "198.18.1.10"
-                ),
-            ]
+    assert (
+        len(
+            merge_neighbor_observations(
+                [
+                    observation(
+                        "cdp", "Gi1/0/8", "PHONE1.site-a.example.com", "Port 1", "198.18.1.10"
+                    ),
+                    observation(
+                        "lldp", "Gi1/0/8", "PHONE1.site-b.example.net", "PHONE1:P1", "198.18.1.10"
+                    ),
+                ]
+            )
         )
-    ) == 2
+        == 2
+    )
 
 
 def test_lldp_management_walk_failure_is_not_silently_converted_to_empty_table():
@@ -722,22 +728,28 @@ def test_merge_sep_phone_accepts_different_suffixes_only_for_same_sep_mac():
             remote_interface_raw=port,
         )
 
-    assert len(
-        merge_neighbor_observations(
-            [
-                obs("cdp", "SEP001234560004.voice-a.example.com", "Port 1"),
-                obs("lldp", "SEP001234560004.voice-b.example.net", "001234560004:P1"),
-            ]
+    assert (
+        len(
+            merge_neighbor_observations(
+                [
+                    obs("cdp", "SEP001234560004.voice-a.example.com", "Port 1"),
+                    obs("lldp", "SEP001234560004.voice-b.example.net", "001234560004:P1"),
+                ]
+            )
         )
-    ) == 1
-    assert len(
-        merge_neighbor_observations(
-            [
-                obs("cdp", "SEP001234560004.voice-a.example.com", "Port 1"),
-                obs("lldp", "SEP001234560003.voice-b.example.net", "001234560003:P1"),
-            ]
+        == 1
+    )
+    assert (
+        len(
+            merge_neighbor_observations(
+                [
+                    obs("cdp", "SEP001234560004.voice-a.example.com", "Port 1"),
+                    obs("lldp", "SEP001234560003.voice-b.example.net", "001234560003:P1"),
+                ]
+            )
         )
-    ) == 2
+        == 2
+    )
 
 
 def test_cdp_unresolved_local_interface_retains_ifindex_namespace() -> None:
@@ -1043,9 +1055,7 @@ def test_merge_neighbor_observations_resolves_lldp_port_from_guarded_cdp_edge():
         assert edge.details["lldp.local_interface"] == "lldpLocalPort:13"
         assert edge.details["cdp.local_interface"] == "Gi7"
         assert edge.details["local_interface_resolved"] is True
-        assert edge.details["local_interface_resolution_method"] == (
-            "cross_protocol_same_endpoint"
-        )
+        assert edge.details["local_interface_resolution_method"] == ("cross_protocol_same_endpoint")
         assert edge.details["local_interface_resolution_source"] == "cdp"
 
 
@@ -1124,12 +1134,7 @@ def test_neighbor_merge_is_byte_stable_across_input_order() -> None:
     ]
 
     rendered = {
-        repr(
-            [
-                asdict(item)
-                for item in merge_neighbor_observations(deepcopy(list(order)))
-            ]
-        )
+        repr([asdict(item) for item in merge_neighbor_observations(deepcopy(list(order)))])
         for order in permutations(values)
     }
 
@@ -1176,12 +1181,7 @@ def test_neighbor_merge_uses_full_record_tiebreak_for_duplicate_rows() -> None:
     ]
 
     rendered = {
-        repr(
-            [
-                asdict(item)
-                for item in merge_neighbor_observations(deepcopy(list(order)))
-            ]
-        )
+        repr([asdict(item) for item in merge_neighbor_observations(deepcopy(list(order)))])
         for order in permutations(rows)
     }
 

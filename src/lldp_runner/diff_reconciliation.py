@@ -72,11 +72,7 @@ def _int_values(value: object) -> set[int]:
 
     if not isinstance(value, list):
         return set()
-    return {
-        item
-        for item in value
-        if isinstance(item, int) and not isinstance(item, bool)
-    }
+    return {item for item in value if isinstance(item, int) and not isinstance(item, bool)}
 
 
 def _protocols(value: object) -> set[str]:
@@ -199,14 +195,8 @@ def _row_macs(row: Mapping[str, Any]) -> set[str]:
         ):
             text = _text(details.get(key))
             compact = text.replace(":", "").replace("-", "").replace(".", "")
-            if len(compact) == 12 and all(
-                char in "0123456789abcdef" for char in compact
-            ):
-                result.add(
-                    ":".join(
-                        compact[index : index + 2] for index in range(0, 12, 2)
-                    )
-                )
+            if len(compact) == 12 and all(char in "0123456789abcdef" for char in compact):
+                result.add(":".join(compact[index : index + 2] for index in range(0, 12, 2)))
     return result
 
 
@@ -282,9 +272,7 @@ def _graph_side_matches(
             for member in members if isinstance(members, list) else []:
                 if not isinstance(member, Mapping):
                     continue
-                remote_match, score = _remote_identity_matches(
-                    row, member, remote_refs
-                )
+                remote_match, score = _remote_identity_matches(row, member, remote_refs)
                 if not remote_match:
                     continue
                 member_protocols = _protocols(member.get("protocols"))
@@ -473,9 +461,7 @@ def _select_exact_paired_member_relationship(
             continue
         ref = str(relationship.get("relationship_component_key") or "")
         for b_match in b_matches:
-            b_ref = str(
-                b_match.relationship.get("relationship_component_key") or ""
-            )
+            b_ref = str(b_match.relationship.get("relationship_component_key") or "")
             if not ref or b_ref != ref:
                 continue
             member_key = _paired_member_supported(
@@ -523,9 +509,7 @@ def _best_relationships(
     """Return unique best-scoring graph records and match confidence."""
 
     filtered = [
-        item
-        for item in matches
-        if not expected or str(item.relationship.get("status")) in expected
+        item for item in matches if not expected or str(item.relationship.get("status")) in expected
     ]
     if not filtered:
         return [], "unmatched", []
@@ -558,12 +542,8 @@ def _select_relationships(
     """Select graph records backing one compatibility observation."""
 
     expected = _expected_graph_statuses(observation.status)
-    a_matches = _graph_side_matches(
-        observation, "a", relationships, a_members_by_id
-    )
-    b_matches = _graph_side_matches(
-        observation, "b", relationships, b_members_by_id
-    )
+    a_matches = _graph_side_matches(observation, "a", relationships, a_members_by_id)
+    b_matches = _graph_side_matches(observation, "b", relationships, b_members_by_id)
 
     if observation.status in {
         "protocol_changed",
@@ -585,14 +565,12 @@ def _select_relationships(
             remote_a = {
                 str(item.member.get("remote_component_key") or "")
                 for item in a_matches
-                if item.relationship is a_records[0]
-                and item.score == a_matches[0].score
+                if item.relationship is a_records[0] and item.score == a_matches[0].score
             }
             remote_b = {
                 str(item.member.get("remote_component_key") or "")
                 for item in b_matches
-                if item.relationship is b_records[0]
-                and item.score == b_matches[0].score
+                if item.relationship is b_records[0] and item.score == b_matches[0].score
             }
             if remote_a and remote_b and remote_a.isdisjoint(remote_b):
                 return [], "conflicting", []
@@ -610,12 +588,8 @@ def _select_relationships(
         return [], "unmatched", []
 
     if a_records and b_records:
-        a_keys = {
-            str(item.get("relationship_component_key") or "") for item in a_records
-        }
-        b_keys = {
-            str(item.get("relationship_component_key") or "") for item in b_records
-        }
+        a_keys = {str(item.get("relationship_component_key") or "") for item in a_records}
+        b_keys = {str(item.get("relationship_component_key") or "") for item in b_records}
         common = a_keys & b_keys
         if len(common) == 1:
             key = next(iter(common))
@@ -712,9 +686,7 @@ def _event_key(
 def _graph_qualification(records: Sequence[Mapping[str, Any]]) -> str:
     """Return the most conservative qualification represented by graph records."""
 
-    values = {
-        str(item.get("semantic_qualification") or "confirmed") for item in records
-    }
+    values = {str(item.get("semantic_qualification") or "confirmed") for item in records}
     if "coverage_uncertain" in values:
         return "coverage_uncertain"
     if "ambiguous" in values:
@@ -742,9 +714,7 @@ def _graph_change_dimensions(record: Mapping[str, Any]) -> set[str]:
     }.get(status, set())
 
 
-def _claimed_graph_dimensions(
-    observation_status: str, record: Mapping[str, Any]
-) -> set[str]:
+def _claimed_graph_dimensions(observation_status: str, record: Mapping[str, Any]) -> set[str]:
     """Return graph dimensions represented by one compatibility observation."""
 
     available = _graph_change_dimensions(record)
@@ -798,8 +768,7 @@ def _filter_graph_for_changes(graph: MutableMapping[str, Any]) -> None:
             if isinstance(item, Mapping)
             and (
                 str(item.get("status")) not in {"same", "same_ambiguous"}
-                or str(item.get("semantic_qualification") or "confirmed")
-                != "confirmed"
+                or str(item.get("semantic_qualification") or "confirmed") != "confirmed"
             )
         ]
     relationships = graph.get("relationship_groups")
@@ -810,8 +779,7 @@ def _filter_graph_for_changes(graph: MutableMapping[str, Any]) -> None:
             if isinstance(item, Mapping)
             and (
                 str(item.get("status")) not in {"same", "same_ambiguous"}
-                or str(item.get("semantic_qualification") or "confirmed")
-                != "confirmed"
+                or str(item.get("semantic_qualification") or "confirmed") != "confirmed"
             )
         ]
 
@@ -833,9 +801,11 @@ def reconcile_compatibility_and_graph(
     """
 
     raw_relationships = graph.get("relationship_groups")
-    relationships = [
-        item for item in raw_relationships if isinstance(item, MutableMapping)
-    ] if isinstance(raw_relationships, list) else []
+    relationships = (
+        [item for item in raw_relationships if isinstance(item, MutableMapping)]
+        if isinstance(raw_relationships, list)
+        else []
+    )
     observations = _compatibility_observations(comparisons)
     if graph.get("available") is not True:
         for observation in observations:
@@ -880,9 +850,7 @@ def reconcile_compatibility_and_graph(
             a_members_by_id,
             b_members_by_id,
         )
-        graph_refs = sorted(
-            str(item.get("relationship_component_key") or "") for item in records
-        )
+        graph_refs = sorted(str(item.get("relationship_component_key") or "") for item in records)
         graph_qualification = _graph_qualification(records)
         compatibility_qualification = str(
             observation.row.get("semantic_qualification") or "confirmed"
@@ -902,9 +870,7 @@ def reconcile_compatibility_and_graph(
             observation.row["attachment_change"] = attachment
 
         event_type = _event_type(observation.status)
-        key = _event_key(
-            event_type, graph_refs, graph_member_keys, observation
-        )
+        key = _event_key(event_type, graph_refs, graph_member_keys, observation)
         observation.row["graph_event_ref"] = key
         graph_dimensions = _event_graph_dimensions(records, observation.status)
         event = events.setdefault(
@@ -949,9 +915,7 @@ def reconcile_compatibility_and_graph(
         event["compatibility_observation_refs"] = sorted(
             set(event["compatibility_observation_refs"])
         )
-        event["directional_observation_count"] = len(
-            event["compatibility_observation_refs"]
-        )
+        event["directional_observation_count"] = len(event["compatibility_observation_refs"])
         if event["cross_view_consistency"] == "matched" and match_state != "matched":
             event["cross_view_consistency"] = match_state
             event["graph_backing"] = match_state
@@ -970,9 +934,7 @@ def reconcile_compatibility_and_graph(
                 event_refs.append(key)
                 event_refs.sort()
 
-    graph_only_dimensions: list[
-        tuple[MutableMapping[str, Any], str | None]
-    ] = []
+    graph_only_dimensions: list[tuple[MutableMapping[str, Any], str | None]] = []
     reportable_dimensions = {
         "member_presence",
         "protocol_evidence",
@@ -992,13 +954,16 @@ def reconcile_compatibility_and_graph(
     for record, dimension in graph_only_dimensions:
         ref = str(record.get("relationship_component_key") or "")
         event_type = _graph_only_event_type(record, dimension)
-        key = "change_event:" + stable_fingerprint(
-            {
-                "event_type": event_type,
-                "graph_relationship_refs": [ref],
-                "graph_change_dimension": dimension,
-            }
-        )[:24]
+        key = (
+            "change_event:"
+            + stable_fingerprint(
+                {
+                    "event_type": event_type,
+                    "graph_relationship_refs": [ref],
+                    "graph_change_dimension": dimension,
+                }
+            )[:24]
+        )
         qualification = str(record.get("semantic_qualification") or "confirmed")
         events[key] = {
             "event_key": key,
@@ -1015,9 +980,7 @@ def reconcile_compatibility_and_graph(
             "reported_difference_depends_on_collection_gap": (
                 qualification == "coverage_uncertain"
             ),
-            "physical_topology_effect": record.get(
-                "physical_topology_effect", "not_inferred"
-            ),
+            "physical_topology_effect": record.get("physical_topology_effect", "not_inferred"),
             "relationship_scope": "observed",
             "directness": "unresolved",
             "observer": None,
@@ -1035,8 +998,7 @@ def reconcile_compatibility_and_graph(
     consistency_status = (
         "consistent"
         if not any(
-            counts.get(name, 0)
-            for name in ("unmatched", "ambiguous", "conflicting", "graph_only")
+            counts.get(name, 0) for name in ("unmatched", "ambiguous", "conflicting", "graph_only")
         )
         and not unrepresented_one_sided_observation_count
         else "attention_required"
@@ -1047,9 +1009,7 @@ def reconcile_compatibility_and_graph(
             len(observations) + unrepresented_one_sided_observation_count
         ),
         "reconciled_compatibility_observation_count": len(observations),
-        "unrepresented_one_sided_observation_count": (
-            unrepresented_one_sided_observation_count
-        ),
+        "unrepresented_one_sided_observation_count": (unrepresented_one_sided_observation_count),
         "matched_observation_count": counts.get("matched", 0),
         "unmatched_observation_count": counts.get("unmatched", 0),
         "ambiguous_observation_count": counts.get("ambiguous", 0),
@@ -1057,8 +1017,7 @@ def reconcile_compatibility_and_graph(
         "graph_only_event_count": counts.get("graph_only", 0),
         "change_event_count": len(event_values),
         "all_reported_changes_graph_backed": not any(
-            counts.get(name, 0)
-            for name in ("unmatched", "ambiguous", "conflicting")
+            counts.get(name, 0) for name in ("unmatched", "ambiguous", "conflicting")
         )
         and not unrepresented_one_sided_observation_count,
     }

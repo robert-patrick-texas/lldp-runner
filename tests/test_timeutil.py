@@ -61,9 +61,7 @@ def test_iso_wall_clock_conversion_requires_timestamp_provenance() -> None:
     """Aware ISO values convert by instant; missing/naive/malformed values do not."""
 
     configure_timezone("America/Denver")
-    assert format_iso_wall_clock("2026-08-25T21:52:26+00:00") == (
-        "2026-08-25 15:52:26"
-    )
+    assert format_iso_wall_clock("2026-08-25T21:52:26+00:00") == ("2026-08-25 15:52:26")
     assert format_iso_wall_clock("2026-08-25T15:52:26") is None
     assert format_iso_wall_clock("not-a-time") is None
     assert format_iso_wall_clock(None) is None

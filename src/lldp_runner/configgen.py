@@ -15,7 +15,6 @@ from typing import Any
 
 from lldp_runner.defaults import DEFAULT_SNMP_BACKEND
 
-
 # Comments are keyed by dotted configuration path and deliberately describe the
 # operational consequence, not merely restate the option name. The same renderer
 # is used for ``generate-config`` and guides the shipped example configuration.
@@ -39,8 +38,7 @@ GENERATED_LINE_WIDTH = 80
 COMMENTS: dict[str, tuple[str, ...]] = {
     "paths": (
         "Persistent state/output and temporary runtime storage.",
-        "Using 'auto' keeps small/simple deployments portable while allowing "
-        "sites to pin paths.",
+        "Using 'auto' keeps small/simple deployments portable while allowing sites to pin paths.",
     ),
     "paths.persistent_root": (
         "When set to auto: first existing ~/lldp-runner, /opt/lldp-runner, "
@@ -57,8 +55,7 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "<persistent_root>/<runs_dirname>/<runid>/.",
     ),
     "paths.output_dirname": (
-        "Finalized operator output is stored below "
-        "<persistent_root>/<output_dirname>/<runid>/.",
+        "Finalized operator output is stored below <persistent_root>/<output_dirname>/<runid>/.",
         "The project default is the plural directory name 'outputs'.",
     ),
     "paths.clean_scratch_when_completed": (
@@ -114,12 +111,9 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "pause leaves LIMIT_REACHED resumable; complete finalizes intentional "
         "bounded/sampling runs as COMPLETED_LIMIT.",
     ),
-    "discovery.workers": (
-        "Set to auto to resolve at runtime to (os.cpu_count() or 1) * 4.",
-    ),
+    "discovery.workers": ("Set to auto to resolve at runtime to (os.cpu_count() or 1) * 4.",),
     "discovery.batch_size": (
-        "Cohort size assigned to one worker. Smaller cohorts reduce slow-device "
-        "straggler delay.",
+        "Cohort size assigned to one worker. Smaller cohorts reduce slow-device straggler delay.",
     ),
     "discovery.max_devices": (
         "Positive integer = finite recursive managed-device limit; 0 = "
@@ -148,8 +142,7 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "rules remain authoritative.",
     ),
     "snmp.backend": (
-        f"Select exactly one discovery backend: {DEFAULT_SNMP_BACKEND} "
-        "(default) or gufo.",
+        f"Select exactly one discovery backend: {DEFAULT_SNMP_BACKEND} (default) or gufo.",
         "The selected backend is fixed for the complete run and every resume; "
         "there is no automatic fallback or mixed-backend operation.",
         "PySNMP SNMPv3 authPriv requires cryptography>=50.0. Before discovery, "
@@ -158,14 +151,12 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "SNMPv2c and Gufo do not run this crypto probe.",
     ),
     "snmp.version": (
-        "Preferred runtime default when both v2c and v3 credentials exist: "
-        "'2c' or '3'.",
+        "Preferred runtime default when both v2c and v3 credentials exist: '2c' or '3'.",
         "SNMPv3 authPriv is the best-practice default; v2c becomes fallback "
         "when both are available.",
     ),
     "snmp.timeout_seconds": (
-        "Timeout for each individual SNMP request, not the complete "
-        "device/table collection.",
+        "Timeout for each individual SNMP request, not the complete device/table collection.",
     ),
     "snmp.max_repetitions": (
         "GETBULK max-repetitions value; larger values reduce round trips but "
@@ -197,9 +188,7 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "Multiply GETBULK max-repetitions and GET-MANY batch size after slowdown.",
         "A value of 0.5 halves agent work; odd counts round upward.",
     ),
-    "snmp.retry_min_max_repetitions": (
-        "Lower bound for adaptive GETBULK max-repetitions.",
-    ),
+    "snmp.retry_min_max_repetitions": ("Lower bound for adaptive GETBULK max-repetitions.",),
     "snmp.retry_inter_pdu_delay_ms": (
         "Additional per-PDU pacing applied to a target after adaptive slowdown.",
         "The degraded profile remains active for later tables on that target only.",
@@ -216,8 +205,7 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "Maximum request rate for one healthy target before adaptive slowdown.",
     ),
     "snmp.max_outstanding_devices_per_worker": (
-        "Maximum concurrently active device operations inside each worker "
-        "process.",
+        "Maximum concurrently active device operations inside each worker process.",
     ),
     "snmp.collect_entity_mib": (
         "Master switch for ENTITY-MIB chassis identity enrichment. false skips "
@@ -236,10 +224,7 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "Disabled by default to keep normal discovery output concise; "
         "get-neighbors always reports these lightweight metrics.",
     ),
-    "icmp": (
-        "Two ICMP wake-up probes precede the first SNMP attempt for each "
-        "candidate address.",
-    ),
+    "icmp": ("Two ICMP wake-up probes precede the first SNMP attempt for each candidate address.",),
     "icmp.backend": (
         "auto tries raw ICMP first and can fall back to the system ping utility "
         "when raw sockets are unavailable.",
@@ -330,33 +315,16 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "Built-in watch dashboard theme: dark (default) or light. The explicit ",
         "semantic color settings below continue to control neighbor renderers.",
     ),
-    "terminal.heading_color": (
-        "Headings and major detail-section titles.",
-    ),
-    "terminal.success_color": (
-        "Successful/complete state emphasis.",
-    ),
-    "terminal.warning_color": (
-        "Partial, warning, diagnostic, and non-complete state emphasis.",
-    ),
-    "terminal.error_color": (
-        "Failed get-neighbors state emphasis.",
-    ),
-    "terminal.learned_color": (
-        "Learned-neighbor labels and protocol emphasis in show-neighbors.",
-    ),
-    "terminal.observed_by_color": (
-        "Observed_by labels and protocol emphasis in show-neighbors.",
-    ),
-    "terminal.inspection_neighbor_color": (
-        "Neighbor protocol emphasis in get-neighbors tables.",
-    ),
-    "terminal.metric_color": (
-        "Numeric ping/timing/SNMP metric emphasis in get-neighbors.",
-    ),
+    "terminal.heading_color": ("Headings and major detail-section titles.",),
+    "terminal.success_color": ("Successful/complete state emphasis.",),
+    "terminal.warning_color": ("Partial, warning, diagnostic, and non-complete state emphasis.",),
+    "terminal.error_color": ("Failed get-neighbors state emphasis.",),
+    "terminal.learned_color": ("Learned-neighbor labels and protocol emphasis in show-neighbors.",),
+    "terminal.observed_by_color": ("Observed_by labels and protocol emphasis in show-neighbors.",),
+    "terminal.inspection_neighbor_color": ("Neighbor protocol emphasis in get-neighbors tables.",),
+    "terminal.metric_color": ("Numeric ping/timing/SNMP metric emphasis in get-neighbors.",),
     "resume": (
-        "Incomplete RUNNING/PAUSED/INTERRUPTED/LIMIT_REACHED runs may be "
-        "resumed by default.",
+        "Incomplete RUNNING/PAUSED/INTERRUPTED/LIMIT_REACHED runs may be resumed by default.",
     ),
     "credential_rules": (
         "Runtime SNMPCOMM or SNMPUSER/SNMPAUTH/SNMPPRIV credentials synthesize "
@@ -382,16 +350,11 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "Select which neighbor protocols are collected. CDP is normally limited "
         "to manufacturers expected to support it.",
     ),
-    "logging": (
-        "INFO is recommended for normal operation; DEBUG is useful for "
-        "troubleshooting.",
-    ),
+    "logging": ("INFO is recommended for normal operation; DEBUG is useful for troubleshooting.",),
     "logging.console": (
         "Write log records to the console. Console and file logging are independent.",
     ),
-    "logging.file": (
-        "Append log records to logging.filename. Enabled by default.",
-    ),
+    "logging.file": ("Append log records to logging.filename. Enabled by default.",),
     "logging.filename": (
         "Relative paths are rooted beneath runs/<run-id>/; absolute or ~-expanded ",
         "paths may be used for centralized logs such as /var/log/lldprunner.log. ",
@@ -410,9 +373,7 @@ def _literal(value: Any) -> str:
     if isinstance(value, (int, float)):
         return repr(value)
     if isinstance(value, Mapping):
-        return "{ " + ", ".join(
-            f"{key} = {_literal(item)}" for key, item in value.items()
-        ) + " }"
+        return "{ " + ", ".join(f"{key} = {_literal(item)}" for key, item in value.items()) + " }"
     if isinstance(value, list):
         return "[" + ", ".join(_literal(item) for item in value) + "]"
     raise TypeError(f"cannot render TOML value of type {type(value).__name__}")
@@ -471,9 +432,7 @@ def _emit_table(lines: list[str], path: tuple[str, ...], table: Mapping[str, Any
     for key, value in table.items():
         item_path = ".".join((*path, key))
         if isinstance(value, Mapping) or (
-            isinstance(value, list)
-            and value
-            and all(isinstance(item, Mapping) for item in value)
+            isinstance(value, list) and value and all(isinstance(item, Mapping) for item in value)
         ):
             deferred.append((key, value))
             continue
@@ -553,9 +512,7 @@ def render_generated_config(data: Mapping[str, Any]) -> str:
 
     for section, value in data.items():
         if not isinstance(value, Mapping):
-            raise TypeError(
-                f"top-level configuration value {section!r} must be a table"
-            )
+            raise TypeError(f"top-level configuration value {section!r} must be a table")
         _emit_table(lines, (section,), value)
 
     lines.extend(["", "# Explicit credential example (uncomment and tailor for larger sites):"])

@@ -35,19 +35,19 @@ from lldp_runner.models import (
 )
 from lldp_runner.outputs import OUTPUT_NAMES, finalize_to_persistent, write_outputs
 from lldp_runner.policy import PolicyEngine
-from lldp_runner.runtime import (
-    RunPaths,
-    canonical_operator_path,
-    clean_completed_scratch,
-    ensure_run_directories,
-    publish_latest_symlink,
-)
 from lldp_runner.run_manifest import (
     RUN_JSON_NAME,
     InvocationProvenance,
     begin_run_manifest,
     publish_run_manifest,
     update_run_manifest,
+)
+from lldp_runner.runtime import (
+    RunPaths,
+    canonical_operator_path,
+    clean_completed_scratch,
+    ensure_run_directories,
+    publish_latest_symlink,
 )
 from lldp_runner.scoreboard import ScoreboardSnapshot, archive_scoreboard, write_scoreboard
 from lldp_runner.seed_credentials import (
@@ -68,7 +68,7 @@ SEED_RESOLUTION_PROGRESS_SECONDS = 30.0
 def _operator_duration(seconds: float) -> str:
     """Return a compact operator-facing elapsed duration."""
 
-    total = max(0, int(round(seconds)))
+    total = max(0, round(seconds))
     minutes, remaining = divmod(total, 60)
     if minutes:
         return f"{minutes}m {remaining:02d}s"
@@ -515,8 +515,7 @@ class Coordinator:
             )
         else:
             LOG.info(
-                "Seed resolution started: resolving names, addresses, and "
-                "duplicate identities"
+                "Seed resolution started: resolving names, addresses, and duplicate identities"
             )
         LOG.info(
             "seed resolution started: raw=%d input_identities=%d dns_mode=%s",
@@ -742,7 +741,7 @@ class Coordinator:
 
             identity = str(row["preferred_name"]).casefold()
             digest = hashlib.blake2b(
-                f"{shuffle_key}\0{identity}".encode("utf-8"),
+                f"{shuffle_key}\0{identity}".encode(),
                 digest_size=16,
             ).digest()
             return digest, identity, int(row["id"])
@@ -887,9 +886,7 @@ class Coordinator:
             support focused tests/embedders that construct ``Coordinator`` manually.
         """
 
-        configured_workers = int(
-            getattr(self, "configured_workers", self.config.discovery.workers)
-        )
+        configured_workers = int(getattr(self, "configured_workers", self.config.discovery.workers))
         configured_batch = int(
             getattr(self, "configured_batch_size", self.config.discovery.batch_size)
         )
@@ -906,13 +903,9 @@ class Coordinator:
         payload: dict[str, Any] = {
             "mode": "seed_only" if self.seed_only else "recursive",
             "configured_workers": configured_workers,
-            "effective_workers": int(
-                getattr(self, "effective_workers", configured_workers)
-            ),
+            "effective_workers": int(getattr(self, "effective_workers", configured_workers)),
             "configured_batch_size": configured_batch,
-            "effective_batch_size": int(
-                getattr(self, "effective_batch_size", configured_batch)
-            ),
+            "effective_batch_size": int(getattr(self, "effective_batch_size", configured_batch)),
             "max_outstanding_devices_per_worker": int(
                 self.config.snmp.max_outstanding_devices_per_worker
             ),
@@ -1002,7 +995,9 @@ class Coordinator:
             Addresses ordered by ``discovery.address_preference`` then numerically.
         """
 
-        preference = {name: index for index, name in enumerate(self.config.discovery.address_preference)}
+        preference = {
+            name: index for index, name in enumerate(self.config.discovery.address_preference)
+        }
 
         def key(value: str) -> tuple[int, int]:
             """Return configured family priority plus numeric IP sort value."""
@@ -1148,9 +1143,7 @@ class Coordinator:
             names, _all_addresses, _ = self.state.aliases_for_host(host_id)
             attempted = self.state.attempted_addresses(host_id)
             permitted_new: list[str] = []
-            for address in self._ordered_addresses(
-                self.state.identity_addresses_for_host(host_id)
-            ):
+            for address in self._ordered_addresses(self.state.identity_addresses_for_host(host_id)):
                 if address in attempted:
                     continue
                 if not self.policy.in_boundary(address).allowed:
@@ -1173,10 +1166,7 @@ class Coordinator:
                     evidence_source,
                     max(
                         0,
-                        allowance
-                        - int(
-                            self.state.host_row(host_id)["late_recovery_used"] or 0
-                        ),
+                        allowance - int(self.state.host_row(host_id)["late_recovery_used"] or 0),
                     ),
                     extra={"activity_only": True},
                 )
@@ -1221,9 +1211,7 @@ class Coordinator:
             return
         self.state.set_host_ready(host_id, self._cohort(str(row["preferred_name"])))
 
-    def _classify_and_enrich_neighbor(
-        self, candidate: Candidate, remote_name: str | None
-    ) -> None:
+    def _classify_and_enrich_neighbor(self, candidate: Candidate, remote_name: str | None) -> None:
         """Classify a neighbor, resolve provisional managed names, then classify again.
 
         DNS enrichment can reveal an FQDN or management address covered by an
@@ -1240,11 +1228,11 @@ class Coordinator:
             and self.config.discovery.resolve_discovered_managed_names
         ):
             try:
-                resolved = resolve_discovered_name(
-                    remote_name, self.config.discovery.dns_suffixes
-                )
+                resolved = resolve_discovered_name(remote_name, self.config.discovery.dns_suffixes)
                 candidate.names = list(dict.fromkeys([*candidate.names, *resolved.names]))
-                candidate.addresses = list(dict.fromkeys([*candidate.addresses, *resolved.addresses]))
+                candidate.addresses = list(
+                    dict.fromkeys([*candidate.addresses, *resolved.addresses])
+                )
                 decision = self.classifier.classify_candidate(candidate)
                 candidate.category = decision.category
                 candidate.reason = decision.reasons
@@ -1392,9 +1380,7 @@ class Coordinator:
         inflight = self._inflight_target_keys()
         waiters = getattr(self, "target_waiting_hosts", {})
         released = [
-            host_id
-            for host_id, targets in waiters.items()
-            if not (set(targets) & inflight)
+            host_id for host_id, targets in waiters.items() if not (set(targets) & inflight)
         ]
         for host_id in released:
             waiters.pop(host_id, None)
@@ -1567,9 +1553,8 @@ class Coordinator:
         # In seed-only sampling, reaching N discovered non-seeds is the intended
         # threshold. Recursive mode preserves the historical > comparison so N
         # preloaded seed identities do not prevent those N seeds from being polled.
-        host_limit_hit = (
-            max_hosts > 0
-            and (host_population >= max_hosts if self.seed_only else host_population > max_hosts)
+        host_limit_hit = max_hosts > 0 and (
+            host_population >= max_hosts if self.seed_only else host_population > max_hosts
         )
         if host_limit_hit:
             LOG.warning(
@@ -1742,8 +1727,7 @@ class Coordinator:
             unique_seeds,
         )
         LOG.info(
-            "discovery scheduling started: mode=%s seeds=%d ready=%d workers=%d "
-            "batch_size=%d",
+            "discovery scheduling started: mode=%s seeds=%d ready=%d workers=%d batch_size=%d",
             "seed_only" if self.seed_only else "recursive",
             unique_seeds,
             self.state.ready_count(),
@@ -1754,7 +1738,9 @@ class Coordinator:
         self._start_workers()
         last_scoreboard = 0.0
         last_snapshot = 0.0
-        draft_dir = self.paths.scratch_dir if self.config.output.draft_in_scratch else self.paths.run_dir
+        draft_dir = (
+            self.paths.scratch_dir if self.config.output.draft_in_scratch else self.paths.run_dir
+        )
         final_staging = draft_dir
         final_status = "INTERRUPTED"
         output_directory: Path | None = None
@@ -1849,12 +1835,8 @@ class Coordinator:
                     status=final_status,
                     draft=False,
                 )
-                output_phase_metrics = dict(
-                    getattr(final_outputs, "phase_metrics", {})
-                )
-                run_manifest_output = self._publish_run_provenance(
-                    final_staging, draft=False
-                )
+                output_phase_metrics = dict(getattr(final_outputs, "phase_metrics", {}))
+                run_manifest_output = self._publish_run_provenance(final_staging, draft=False)
                 if run_manifest_output is not None:
                     final_outputs.append(run_manifest_output)
                 custom_output_names = [
@@ -1868,20 +1850,14 @@ class Coordinator:
                     output_names=[path.name for path in final_outputs],
                     known_output_names=[RUN_JSON_NAME, *OUTPUT_NAMES, *custom_output_names],
                 )
-                output_publication_duration = max(
-                    0.0, time.monotonic() - publication_started
-                )
+                output_publication_duration = max(0.0, time.monotonic() - publication_started)
                 # Resolve a retained legacy symlink such as ``output -> outputs``
                 # before presenting the path to operators or downstream scripts.
-                output_directory = canonical_operator_path(
-                    self.paths.output_run_dir
-                )
+                output_directory = canonical_operator_path(self.paths.output_run_dir)
             else:
                 self.state.set_meta("status", final_status)
                 invocation_ended = iso_now()
-                self._update_run_provenance(
-                    status=final_status, invocation_ended=invocation_ended
-                )
+                self._update_run_provenance(status=final_status, invocation_ended=invocation_ended)
                 write_outputs(
                     self.state,
                     self.config,
@@ -1909,12 +1885,8 @@ class Coordinator:
                 and discovery_finished_monotonic is not None
             ):
                 timing_boundary = time.monotonic()
-                discovery_duration = max(
-                    0.0, discovery_finished_monotonic - self.started_monotonic
-                )
-                finalization_duration = max(
-                    0.0, timing_boundary - discovery_finished_monotonic
-                )
+                discovery_duration = max(0.0, discovery_finished_monotonic - self.started_monotonic)
+                finalization_duration = max(0.0, timing_boundary - discovery_finished_monotonic)
                 phase_metrics = {
                     "discovery_duration": discovery_duration,
                     "graph_resolution_duration": output_phase_metrics.get(
@@ -1925,9 +1897,7 @@ class Coordinator:
                     ),
                     "output_publication_duration": output_publication_duration,
                     "finalization_duration": finalization_duration,
-                    "total_wall_clock_duration": max(
-                        0.0, timing_boundary - self.started_monotonic
-                    ),
+                    "total_wall_clock_duration": max(0.0, timing_boundary - self.started_monotonic),
                 }
                 invocation_ended = iso_now()
                 self._update_run_provenance(
@@ -1963,9 +1933,7 @@ class Coordinator:
             self.state.set_meta("status", "INTERRUPTED")
             self.state.checkpoint()
             try:
-                self._update_run_provenance(
-                    status="INTERRUPTED", invocation_ended=iso_now()
-                )
+                self._update_run_provenance(status="INTERRUPTED", invocation_ended=iso_now())
                 write_outputs(
                     self.state,
                     self.config,

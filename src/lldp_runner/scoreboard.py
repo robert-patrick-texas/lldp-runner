@@ -169,7 +169,7 @@ def write_scoreboard(
     for worker_id in sorted(worker_status):
         info = worker_status[worker_id]
         lines.append(
-            f"Worker {worker_id:02d}: {str(info.get('status', 'UNKNOWN')):<8} "
+            f"Worker {worker_id:02d}: {info.get('status', 'UNKNOWN')!s:<8} "
             f"batch={info.get('batch', '-')} size={info.get('size', 0)}"
         )
     lines.extend(["", f"Last update:         {human_now()}"])

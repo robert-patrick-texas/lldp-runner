@@ -11,10 +11,11 @@ from __future__ import annotations
 import json
 import os
 import pwd
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from lldp_runner import APP_NAME, __version__
 from lldp_runner.config import AppConfig
@@ -64,6 +65,7 @@ def _duration_seconds(started: str | None, completed: str | None) -> float | Non
     if started_at is None or completed_at is None:
         return None
     return round(max(0.0, (completed_at - started_at).total_seconds()), 3)
+
 
 _SECRET_OPTIONS = {
     "--snmp.community",
@@ -276,11 +278,7 @@ def build_invocation_provenance(
         if config.output.run_json_config_log
         else ()
     )
-    environment = {
-        name: str(env[name])
-        for name in sorted(_RECOGNIZED_ENVIRONMENT)
-        if name in env
-    }
+    environment = {name: str(env[name]) for name in sorted(_RECOGNIZED_ENVIRONMENT) if name in env}
     backend = selected_snmp_backend(config.snmp)
     return InvocationProvenance(
         username=username,
@@ -487,16 +485,10 @@ def update_run_manifest(
     if phase_metrics is not None:
         unknown = sorted(set(phase_metrics) - set(RUN_TIMING_FIELDS))
         if unknown:
-            raise ValueError(
-                "unsupported run timing field(s): " + ", ".join(unknown)
-            )
+            raise ValueError("unsupported run timing field(s): " + ", ".join(unknown))
         for field in RUN_TIMING_FIELDS:
             value = phase_metrics.get(field)
-            payload[field] = (
-                None
-                if value is None
-                else round(max(0.0, float(value)), 3)
-            )
+            payload[field] = None if value is None else round(max(0.0, float(value)), 3)
     invocations = payload.get("invocations")
     if not isinstance(invocations, list):
         raise OSError(f"invalid invocations array in {path}")

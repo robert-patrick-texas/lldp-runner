@@ -197,10 +197,7 @@ def purge_output_history(
     latest_run_id = _strict_latest_target(output_root) if output_root.exists() else None
     current_run_id = _current_target(scratch_root)
 
-    ranked = [
-        PurgeRun(path.name, path, *_retention_timestamp(path))
-        for path in directories
-    ]
+    ranked = [PurgeRun(path.name, path, *_retention_timestamp(path)) for path in directories]
     ranked.sort(key=lambda item: (item.timestamp, item.run_id), reverse=True)
 
     protected: set[str] = set()

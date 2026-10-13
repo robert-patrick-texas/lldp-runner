@@ -38,9 +38,7 @@ class SnmpCredentialCapabilities:
     priv_protocols: tuple[str, ...]
 
 
-_BACKEND_CREDENTIAL_CAPABILITIES: Final[
-    dict[str, SnmpCredentialCapabilities]
-] = {
+_BACKEND_CREDENTIAL_CAPABILITIES: Final[dict[str, SnmpCredentialCapabilities]] = {
     "gufo": SnmpCredentialCapabilities(
         auth_protocols=("sha1", "md5"),
         priv_protocols=("aes128", "des"),
@@ -66,9 +64,7 @@ def normalize_snmp_backend(value: object) -> str:
     name = str(value).strip().casefold()
     if name not in SUPPORTED_SNMP_BACKENDS:
         supported = ", ".join(SUPPORTED_SNMP_BACKENDS)
-        raise ValueError(
-            f"unsupported SNMP backend {value!r}; expected one of: {supported}"
-        )
+        raise ValueError(f"unsupported SNMP backend {value!r}; expected one of: {supported}")
     return name
 
 
@@ -160,9 +156,7 @@ def select_snmp_backend(config: SnmpConfig) -> SnmpBackendSelection:
             "SNMP backend selection is fixed for this run: "
             f"selected {selected!r}, later configuration requested {configured!r}"
         )
-    version = config.selected_backend_version or installed_snmp_backend_version(
-        selected
-    )
+    version = config.selected_backend_version or installed_snmp_backend_version(selected)
     config.selected_backend_version = version
     return SnmpBackendSelection(selected, version)
 

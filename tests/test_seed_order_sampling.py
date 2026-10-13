@@ -195,6 +195,7 @@ def test_completed_limit_run_finalizes_persistent_output(
 
     import queue
     import time
+
     import lldp_runner.coordinator as coordinator_module
 
     config.discovery.max_devices = "auto"
@@ -257,8 +258,7 @@ def test_completed_limit_run_finalizes_persistent_output(
         coordinator_module,
         "write_outputs",
         lambda state, cfg, directory, *, run_id, status, draft: (
-            output_calls.append((status, draft))
-            or [Path(directory) / "discovery.json"]
+            output_calls.append((status, draft)) or [Path(directory) / "discovery.json"]
         ),
     )
     from lldp_runner.scoreboard import ScoreboardSnapshot
@@ -280,9 +280,7 @@ def test_completed_limit_run_finalizes_persistent_output(
     monkeypatch.setattr(
         coordinator_module,
         "publish_latest_symlink",
-        lambda latest, target: completion_events.append(
-            f"run-latest:{latest.name}:{target.name}"
-        ),
+        lambda latest, target: completion_events.append(f"run-latest:{latest.name}:{target.name}"),
     )
     monkeypatch.setattr(
         coordinator_module,

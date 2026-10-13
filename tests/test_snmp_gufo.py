@@ -61,7 +61,7 @@ def _load_gufo(monkeypatch: pytest.MonkeyPatch, behavior: _Behavior):
             if error is not None:
                 raise error
 
-        async def __aenter__(self) -> "FakeSession":
+        async def __aenter__(self) -> FakeSession:
             if behavior.open_error is not None:
                 raise behavior.open_error
             return self
@@ -158,9 +158,7 @@ def test_ipv6_constructor_fallback_is_raw_then_bracketed(
     monkeypatch: pytest.MonkeyPatch,
     address: str,
 ) -> None:
-    behavior = _Behavior(
-        construct_errors={address: [OSError("invalid address")]}
-    )
+    behavior = _Behavior(construct_errors={address: [OSError("invalid address")]})
     module = _load_gufo(monkeypatch, behavior)
 
     async def exercise() -> bytes:
@@ -193,9 +191,7 @@ def test_ipv4_never_uses_bracket_fallback(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     address = "192.0.2.10"
-    behavior = _Behavior(
-        construct_errors={address: [OSError("invalid address")]}
-    )
+    behavior = _Behavior(construct_errors={address: [OSError("invalid address")]})
     module = _load_gufo(monkeypatch, behavior)
 
     async def exercise() -> None:
@@ -214,9 +210,7 @@ def test_unrelated_ipv6_constructor_error_does_not_fallback(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     address = "2001:db8::10"
-    behavior = _Behavior(
-        construct_errors={address: [OSError(13, "permission denied")]}
-    )
+    behavior = _Behavior(construct_errors={address: [OSError(13, "permission denied")]})
     module = _load_gufo(monkeypatch, behavior)
 
     async def exercise() -> None:
@@ -235,9 +229,7 @@ def test_double_constructor_failure_preserves_both_exceptions(
     address = "2001:db8::11"
     first = OSError("invalid address")
     second = RuntimeError("bracketed constructor failed")
-    behavior = _Behavior(
-        construct_errors={address: [first], f"[{address}]": [second]}
-    )
+    behavior = _Behavior(construct_errors={address: [first], f"[{address}]": [second]})
     module = _load_gufo(monkeypatch, behavior)
 
     async def exercise() -> None:
@@ -296,9 +288,7 @@ def test_v3_uses_same_ipv6_transport_boundary(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     address = "2001:db8::13"
-    behavior = _Behavior(
-        construct_errors={address: [OSError("invalid address")]}
-    )
+    behavior = _Behavior(construct_errors={address: [OSError("invalid address")]})
     module = _load_gufo(monkeypatch, behavior)
 
     async def exercise() -> str | None:
@@ -372,9 +362,7 @@ def test_bracket_compatibility_does_not_consume_adaptive_retry_budget(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     address = "2001:db8::14"
-    behavior = _Behavior(
-        construct_errors={address: [OSError("invalid address")]}
-    )
+    behavior = _Behavior(construct_errors={address: [OSError("invalid address")]})
     module = _load_gufo(monkeypatch, behavior)
     state = _adaptive_state(address)
     client = AdaptiveSnmpClient(

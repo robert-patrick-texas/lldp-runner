@@ -11,7 +11,6 @@ from pathlib import Path
 
 from lldp_runner import __version__
 from lldp_runner.cleanup import clean_run_history
-from lldp_runner.purge import purge_output_history
 from lldp_runner.config import (
     ConfigError,
     CredentialMode,
@@ -44,20 +43,27 @@ from lldp_runner.discovery_view_output import (
     render_ambiguous_matches,
     render_selected_host,
 )
+from lldp_runner.identity import resolve_seed_input
 from lldp_runner.inspection import inspect_target_sync
 from lldp_runner.inspection_output import render_inspection
-from lldp_runner.identity import resolve_seed_input
 from lldp_runner.models import SeedInput
+from lldp_runner.purge import purge_output_history
 from lldp_runner.run_manifest import build_invocation_provenance
 from lldp_runner.runtime import find_resumable_run, make_run_paths
 from lldp_runner.scoreboard import current_scoreboard_path
 from lldp_runner.seed_credentials import load_seed_credential_files
 from lldp_runner.seeds import (
     merge_seed_inputs as _merge_seed_inputs,
+)
+from lldp_runner.seeds import (
     parse_text_seed_line,
-    read_seed_directory as _read_seed_directory,
-    read_seed_file as _read_seed_file,
     seed_directories_from_environment,
+)
+from lldp_runner.seeds import (
+    read_seed_directory as _read_seed_directory,
+)
+from lldp_runner.seeds import (
+    read_seed_file as _read_seed_file,
 )
 from lldp_runner.snmp import preflight_snmp_backend
 from lldp_runner.snmp.base import SnmpBackendCapabilityError
@@ -149,7 +155,7 @@ def _collect_seeds(
     """Collect additive seeds from config, CLI, environment, directories, and stdin."""
 
     seeds: list[SeedInput] = []
-    discovery = getattr(config, "discovery")
+    discovery = getattr(config, "discovery")  # noqa: B009 - ty: config is typed as object
     seeds.extend(SeedInput(seed=value, source="config") for value in discovery.seeds)
     for path in discovery.seed_files:
         seeds.extend(_read_seed_file(Path(path)))
@@ -202,9 +208,27 @@ def _add_inspect_format_options(parser: argparse.ArgumentParser) -> None:
         default="table",
         help="inspection output format (default: table)",
     )
-    output.add_argument("--detail", dest="inspect_format", action="store_const", const="detail", help="scrolling semi-structured neighbor detail")
-    output.add_argument("--csv", dest="inspect_format", action="store_const", const="csv", help="compact parser-friendly neighbor CSV")
-    output.add_argument("--json", dest="inspect_format", action="store_const", const="json", help="rich discovery.json-aligned JSON")
+    output.add_argument(
+        "--detail",
+        dest="inspect_format",
+        action="store_const",
+        const="detail",
+        help="scrolling semi-structured neighbor detail",
+    )
+    output.add_argument(
+        "--csv",
+        dest="inspect_format",
+        action="store_const",
+        const="csv",
+        help="compact parser-friendly neighbor CSV",
+    )
+    output.add_argument(
+        "--json",
+        dest="inspect_format",
+        action="store_const",
+        const="json",
+        help="rich discovery.json-aligned JSON",
+    )
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -298,10 +322,7 @@ def _add_inspect_runtime_options(
         dest="snmp_backend",
         choices=("gufo", "pysnmp"),
         default=default,
-        help=(
-            "SNMP transport backend for this invocation "
-            f"(default: {DEFAULT_SNMP_BACKEND})"
-        ),
+        help=(f"SNMP transport backend for this invocation (default: {DEFAULT_SNMP_BACKEND})"),
     )
     parser.add_argument(
         "--snmp.version",
@@ -311,8 +332,15 @@ def _add_inspect_runtime_options(
         default=default,
         help="preferred runtime SNMP version when both v2c and v3 credentials exist",
     )
-    parser.add_argument("--snmp-timeout", type=float, default=default, help="override SNMP request timeout seconds")
-    parser.add_argument("--per-device-rps", type=float, default=default, help="override per-device SNMP request rate")
+    parser.add_argument(
+        "--snmp-timeout", type=float, default=default, help="override SNMP request timeout seconds"
+    )
+    parser.add_argument(
+        "--per-device-rps",
+        type=float,
+        default=default,
+        help="override per-device SNMP request rate",
+    )
     parser.add_argument("--log-level", default=default, help="override logging level")
 
 
@@ -720,10 +748,7 @@ def _parser() -> argparse.ArgumentParser:
         "--snmp-backend",
         dest="snmp_backend",
         choices=("gufo", "pysnmp"),
-        help=(
-            "SNMP transport backend for this invocation "
-            f"(default: {DEFAULT_SNMP_BACKEND})"
-        ),
+        help=(f"SNMP transport backend for this invocation (default: {DEFAULT_SNMP_BACKEND})"),
     )
     parser.add_argument(
         "--snmp.version",
@@ -803,10 +828,14 @@ def _parser() -> argparse.ArgumentParser:
             "never create discovery seeds"
         ),
     )
-    run.add_argument("--stdin", action="store_true", help="read additional seeds from standard input")
+    run.add_argument(
+        "--stdin", action="store_true", help="read additional seeds from standard input"
+    )
     run.add_argument("--new-run", action="store_true", help="always start a new run")
     run.add_argument("--no-resume", action="store_true", help="do not resume an incomplete run")
-    run.add_argument("--dry-run", action="store_true", help="resolve seeds and explain policy; send no ICMP/SNMP")
+    run.add_argument(
+        "--dry-run", action="store_true", help="resolve seeds and explain policy; send no ICMP/SNMP"
+    )
     run.add_argument("--workers", type=_worker_count, help="worker count or 'auto'")
     run.add_argument("--batch-size", type=int, help="override cohort batch size")
     run.add_argument(
@@ -875,7 +904,9 @@ def _parser() -> argparse.ArgumentParser:
     )
     run.add_argument("--log-level", help="override logging level")
 
-    inspect = sub.add_parser("get-neighbors", help="probe one device and print CDP/LLDP information")
+    inspect = sub.add_parser(
+        "get-neighbors", help="probe one device and print CDP/LLDP information"
+    )
     inspect.add_argument("target", metavar="SEED", help="hostname, IPv4 address, or IPv6 address")
     _add_inspect_runtime_options(inspect, suppress_defaults=True)
     _add_inspect_format_options(inspect)
@@ -908,7 +939,9 @@ def _parser() -> argparse.ArgumentParser:
         ),
     )
 
-    explain = sub.add_parser("explain-target", help="explain scope, no-query, and credential policy")
+    explain = sub.add_parser(
+        "explain-target", help="explain scope, no-query, and credential policy"
+    )
     explain.add_argument("target")
 
     status = sub.add_parser("status", help="show the current scratch-root scoreboard")
@@ -1042,9 +1075,7 @@ def _generate_config(args: argparse.Namespace, parser: argparse.ArgumentParser) 
         data["snmp"]["version"] = args.snmp_version
 
     destination = (
-        Path(args.filename).expanduser()
-        if args.filename
-        else _default_generated_config_path()
+        Path(args.filename).expanduser() if args.filename else _default_generated_config_path()
     )
     if destination.exists():
         parser.error(f"refusing to overwrite existing configuration file: {destination}")
@@ -1069,9 +1100,7 @@ def _execute_inspect(args: argparse.Namespace, parser: argparse.ArgumentParser) 
     try:
         config = _load_app(
             args,
-            credential_mode=(
-                CredentialMode.OPTIONAL if args.dry_run else CredentialMode.REQUIRED
-            ),
+            credential_mode=(CredentialMode.OPTIONAL if args.dry_run else CredentialMode.REQUIRED),
             resolve_paths=False,
         )
         # Inspection has no activity.log, so applicable logging is a simple stderr
@@ -1097,9 +1126,7 @@ def _execute_inspect(args: argparse.Namespace, parser: argparse.ArgumentParser) 
                 trace_streams.append(sys.stderr)
             if getattr(args, "tracefile", None) is not None:
                 if args.tracefile == "":
-                    raise ValueError(
-                        "--tracefile requires a filename to be identified for output"
-                    )
+                    raise ValueError("--tracefile requires a filename to be identified for output")
                 trace_path = Path(args.tracefile).expanduser()
                 try:
                     # Open before DNS/ICMP/SNMP work so an invalid trace
@@ -1118,9 +1145,7 @@ def _execute_inspect(args: argparse.Namespace, parser: argparse.ArgumentParser) 
                 system_only=args.system_only,
                 trace=trace,
             )
-            rendered = render_inspection(
-                config, result, args.inspect_format, stream=sys.stdout
-            )
+            rendered = render_inspection(config, result, args.inspect_format, stream=sys.stdout)
         finally:
             if trace is not None:
                 trace.finish()
@@ -1223,9 +1248,7 @@ def _execute_show(args: argparse.Namespace, parser: argparse.ArgumentParser) -> 
         matches[0],
         output_format=args.show_format,
         neighbor_mode=args.neighbors,
-        relationship_view=(
-            args.relationship_view or config.output.relationship_view
-        ),
+        relationship_view=(args.relationship_view or config.output.relationship_view),
         system_only=args.system_only,
         json_indent=config.output.pretty_json_indent,
         stream=sys.stdout,
@@ -1319,7 +1342,14 @@ def _execute_diff(args: argparse.Namespace) -> int:
             exit_code=4,
             mode="host" if _diff_selector_present(args) else "macro",
         )
-    except (ConfigError, DiscoveryDiffError, DiscoveryQueryError, OSError, UnicodeError, ValueError) as exc:
+    except (
+        ConfigError,
+        DiscoveryDiffError,
+        DiscoveryQueryError,
+        OSError,
+        UnicodeError,
+        ValueError,
+    ) as exc:
         outcome = DiffOutcome(
             status="error",
             message=f"Error - {exc}",
@@ -1351,9 +1381,7 @@ def _execute_diff(args: argparse.Namespace) -> int:
         outcome,
         json_output=json_output,
         json_indent=config.output.pretty_json_indent,
-        summary_only=bool(
-            getattr(args, "summary_only", config.diff.summary_only)
-        ),
+        summary_only=bool(getattr(args, "summary_only", config.diff.summary_only)),
         expand_collection_incidents=bool(
             getattr(
                 args,
@@ -1376,7 +1404,6 @@ def show_neighbors_main(argv: list[str] | None = None) -> None:
     status = _execute_show(args, parser)
     if status:
         raise SystemExit(status)
-
 
 
 def _print_discovery_outcome(outcome: DiscoveryOutcome) -> None:
@@ -1406,6 +1433,7 @@ def _print_discovery_outcome(outcome: DiscoveryOutcome) -> None:
     )
     if outcome.output_directory:
         print(f"Output: {outcome.output_directory}")
+
 
 def main(argv: list[str] | None = None) -> None:
     """Execute the LLDP-Runner command-line interface.
@@ -1462,8 +1490,7 @@ def main(argv: list[str] | None = None) -> None:
             args,
             credential_mode=credential_mode,
             resolve_paths=(
-                args.command
-                not in {"status", "watch", "clean", "purge", "explain-target"}
+                args.command not in {"status", "watch", "clean", "purge", "explain-target"}
             ),
         )
         if args.command in {"status", "watch", "clean", "purge"}:
@@ -1483,9 +1510,7 @@ def main(argv: list[str] | None = None) -> None:
         scratch_only = bool(args.scratch and not args.all)
         persistent_root = None
         try:
-            persistent_root = resolve_existing_persistent_root(
-                config.paths.persistent_root
-            )
+            persistent_root = resolve_existing_persistent_root(config.paths.persistent_root)
         except (ConfigError, OSError, ValueError) as exc:
             # Scratch-only cleanup must not become dependent on persistent
             # storage availability. When resolvable, however, its latest alias
@@ -1517,9 +1542,7 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.command == "purge":
         try:
-            persistent_root = resolve_existing_persistent_root(
-                config.paths.persistent_root
-            )
+            persistent_root = resolve_existing_persistent_root(config.paths.persistent_root)
             keep = config.output.purge_keep if args.keep is None else args.keep
             result = purge_output_history(
                 config,
@@ -1533,10 +1556,7 @@ def main(argv: list[str] | None = None) -> None:
             return
         verb = "would remove" if args.dry_run else "removed"
         for item in result.removed:
-            print(
-                f"Purge: {verb} {item.run_id} "
-                f"(timestamp={item.timestamp_source})"
-            )
+            print(f"Purge: {verb} {item.run_id} (timestamp={item.timestamp_source})")
         kept = ", ".join(item.run_id for item in result.preserved) or "none"
         prefix = "Purge dry-run" if args.dry_run else "Purge complete"
         print(

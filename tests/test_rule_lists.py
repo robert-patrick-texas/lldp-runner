@@ -52,12 +52,16 @@ def test_query_policy_address_and_name_rules_accept_lists(config):
         QueryAddressRule(action="deny", networks=["198.18.200.0/24", "198.18.201.0/24"])
     ]
     config.query_policy.name_rules = [
-        QueryNameRule(action="deny", patterns=[r"(?i)\.ops\.example\.com$", r"(?i)\.external\.example\.org$"])
+        QueryNameRule(
+            action="deny", patterns=[r"(?i)\.ops\.example\.com$", r"(?i)\.external\.example\.org$"]
+        )
     ]
     policy = PolicyEngine(config)
     assert not policy.query_policy(["x"], "198.18.201.10").allowed
     assert not policy.query_policy(["ops-access-3850.ops.example.com"], "198.18.10.10").allowed
-    assert not policy.query_policy(["branch-router-01.external.example.org"], "198.18.10.10").allowed
+    assert not policy.query_policy(
+        ["branch-router-01.external.example.org"], "198.18.10.10"
+    ).allowed
 
 
 def test_classification_address_and_name_rules_accept_lists(config):
@@ -83,7 +87,9 @@ def test_classification_address_and_name_rules_accept_lists(config):
         == "unmanaged_device"
     )
     assert (
-        classifier.classify_candidate(Candidate(names=["branch-access-sw1.branch.example.net"])).category
+        classifier.classify_candidate(
+            Candidate(names=["branch-access-sw1.branch.example.net"])
+        ).category
         == "unmanaged_device"
     )
 
@@ -127,9 +133,7 @@ def test_tag_rule_accepts_multiple_name_network_and_field_patterns(config):
             category="managed_endpoint",
             name_patterns=[r"(?i)^SEP", r"(?i)^VIPER-"],
             networks=["198.18.64.0/20", "198.18.80.0/20"],
-            field_patterns={
-                "remote_description": [r"(?i)Cisco.*Phone", r"(?i)General Dynamics"]
-            },
+            field_patterns={"remote_description": [r"(?i)Cisco.*Phone", r"(?i)General Dynamics"]},
             tags=["service:voice", "customer:shared"],
         )
     ]
@@ -146,16 +150,12 @@ def test_evidence_and_tag_detail_patterns_accept_lists(config):
     config.classification.evidence_rules = [
         ClassificationEvidenceRule(
             category="managed_device",
-            detail_patterns={
-                "lldp.remote_description": [r"(?i)^HPE\s+ANW", r"(?i)^Aruba\s+JL"]
-            },
+            detail_patterns={"lldp.remote_description": [r"(?i)^HPE\s+ANW", r"(?i)^Aruba\s+JL"]},
         )
     ]
     config.tagging.rules = [
         TagRule(
-            detail_patterns={
-                "lldp.remote_platform": [r"(?i)CX\s*6300", r"(?i)CX\s*6200"]
-            },
+            detail_patterns={"lldp.remote_platform": [r"(?i)CX\s*6300", r"(?i)CX\s*6200"]},
             tags=["platform:aruba-cx"],
         )
     ]

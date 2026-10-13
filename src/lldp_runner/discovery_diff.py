@@ -13,7 +13,7 @@ import ipaddress
 import json
 import re
 from collections import defaultdict
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import datetime
 from pathlib import Path
@@ -127,7 +127,7 @@ class FieldDifference:
     b: Any
     kind: str = "changed"
     provenance: str | None = None
-    coverage_sources: tuple["_CoverageSource", ...] = ()
+    coverage_sources: tuple[_CoverageSource, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,7 +144,7 @@ class NeighborDifference:
     semantic_qualification: str = "confirmed"
     presence_status: str = "same"
     presence_confidence: str = "confirmed"
-    coverage_sources: tuple["_CoverageSource", ...] = ()
+    coverage_sources: tuple[_CoverageSource, ...] = ()
     management_address_change: dict[str, Any] | None = None
 
 
@@ -171,7 +171,7 @@ class _CoverageSource:
     origin: str = "direct"
     recursive_path: tuple[tuple[int, str], ...] = ()
 
-    def as_recursive(self, host_id: int, host_name: str) -> "_CoverageSource":
+    def as_recursive(self, host_id: int, host_name: str) -> _CoverageSource:
         """Extend the original incident through one recursive discovery hop."""
 
         return replace(
@@ -337,9 +337,7 @@ class _HostCollectionCoverage:
         """Return the most specific local-interface coverage message."""
 
         name = protocol.casefold()
-        return dict(self.interface_messages).get(name) or self.message_for(
-            "interfaces"
-        )
+        return dict(self.interface_messages).get(name) or self.message_for("interfaces")
 
     def interface_source_for(self, protocol: str) -> str:
         """Return the table name authoritative for local-interface resolution."""
@@ -378,9 +376,7 @@ class _HostCollectionCoverage:
             and not self.failed_protocols
             and not self.unresolved_interface_protocols,
             "failed_protocols": sorted(self.failed_protocols),
-            "unresolved_interface_protocols": sorted(
-                self.unresolved_interface_protocols
-            ),
+            "unresolved_interface_protocols": sorted(self.unresolved_interface_protocols),
             "tables": dict(self.table_statuses),
             "table_row_counts": dict(self.table_row_counts),
             "table_messages": dict(self.table_messages),
@@ -396,9 +392,7 @@ class _HostCollectionCoverage:
                 protocol: {
                     "status": status,
                     "message": dict(self.interface_messages).get(protocol),
-                    "source": dict(self.interface_sources).get(
-                        protocol, "interfaces"
-                    ),
+                    "source": dict(self.interface_sources).get(protocol, "interfaces"),
                 }
                 for protocol, status in self.interface_statuses
             },
@@ -939,11 +933,7 @@ def _build_host_identity(host: dict[str, Any]) -> _HostIdentity:
 
     raw_groups = _physical_groups(host)
     groups = {key: frozenset(values) for key, values in raw_groups.items()}
-    physical = frozenset(
-        f"{kind}:{value}"
-        for kind, values in groups.items()
-        for value in values
-    )
+    physical = frozenset(f"{kind}:{value}" for kind, values in groups.items() for value in values)
     return _HostIdentity(
         host=host,
         host_id=int(host["id"]),
@@ -985,9 +975,7 @@ def _projection_logical_names(host: Mapping[str, Any]) -> frozenset[str]:
     )
 
 
-def _normalized_name_sets_compatible(
-    left: frozenset[str], right: frozenset[str]
-) -> bool:
+def _normalized_name_sets_compatible(left: frozenset[str], right: frozenset[str]) -> bool:
     """Return whether exact or guarded short/FQDN names can be one system."""
 
     if left & right:
@@ -1084,9 +1072,7 @@ def _projection_duplicate_components(
         # sparse identity row can bridge contradictory serials. Reject the whole
         # component rather than choosing either side arbitrarily.
         if any(
-            not _normalized_name_sets_compatible(
-                logical_names[left_id], logical_names[right_id]
-            )
+            not _normalized_name_sets_compatible(logical_names[left_id], logical_names[right_id])
             or _identity_conflict(identities[left_id], identities[right_id])
             for index, left_id in enumerate(ordered_members)
             for right_id in ordered_members[index + 1 :]
@@ -1100,9 +1086,7 @@ def _projection_duplicate_components(
                 for value in edge_addresses.get((left_id, right_id), set())
             }
         )
-        all_names = {
-            name for member_id in ordered_members for name in logical_names[member_id]
-        }
+        all_names = {name for member_id in ordered_members for name in logical_names[member_id]}
         logical_name = min(all_names, key=lambda value: ("." not in value, value))
         components.append((logical_name, ordered_members, addresses))
     return components
@@ -1147,9 +1131,7 @@ def _merge_projection_hosts(
         merged[field] = _merge_unique_list(
             value
             for member in members
-            for value in (
-                member.get(field) if isinstance(member.get(field), list) else []
-            )
+            for value in (member.get(field) if isinstance(member.get(field), list) else [])
         )
 
     merged_addresses: dict[str, list[str]] = {}
@@ -1172,9 +1154,7 @@ def _merge_projection_hosts(
         merged[section] = [
             copy.deepcopy(row)
             for member in members
-            for row in (
-                member.get(section) if isinstance(member.get(section), list) else []
-            )
+            for row in (member.get(section) if isinstance(member.get(section), list) else [])
             if isinstance(row, Mapping)
         ]
 
@@ -1201,10 +1181,7 @@ def _merge_projection_hosts(
                 continue
             current = winner_system.get(key)
             if (
-                current is None
-                or current == ""
-                or current == []
-                or current == {}
+                current is None or current == "" or current == [] or current == {}
             ) and value not in {None, ""}:
                 winner_system[key] = copy.deepcopy(value)
     merged["system"] = winner_system
@@ -1253,17 +1230,11 @@ def _merge_projection_coverage(
                 "complete"
                 if any(status == "complete" for status, _row in candidates)
                 else next(
-                    (
-                        status
-                        for status, _row in candidates
-                        if status != "not_attempted"
-                    ),
+                    (status for status, _row in candidates if status != "not_attempted"),
                     "not_attempted",
                 )
             )
-            selected_row = next(
-                row for status, row in candidates if status == selected_status
-            )
+            selected_row = next(row for status, row in candidates if status == selected_status)
             statuses.append((name, selected_status))
             message = message_getter(selected_row, name)
             if message:
@@ -1271,28 +1242,19 @@ def _merge_projection_coverage(
             sources.append((name, source_getter(selected_row, name)))
         return tuple(statuses), tuple(messages), tuple(sources)
 
-    table_names = sorted(
-        {name for row in rows for name, _status in row.table_statuses}
-    )
+    table_names = sorted({name for row in rows for name, _status in row.table_statuses})
     statuses: list[tuple[str, str]] = []
     row_counts: list[tuple[str, int]] = []
     messages: list[tuple[str, str]] = []
     for table in table_names:
         values = [row.status_for(table) for row in rows]
         concrete = [value for value in values if value is not None]
-        status = (
-            "complete"
-            if "complete" in concrete
-            else concrete[0]
-            if concrete
-            else "unknown"
-        )
+        status = "complete" if "complete" in concrete else concrete[0] if concrete else "unknown"
         statuses.append((table, status))
         complete_counts = [
             row.row_count_for(table)
             for row in rows
-            if row.status_for(table) == "complete"
-            and row.row_count_for(table) is not None
+            if row.status_for(table) == "complete" and row.row_count_for(table) is not None
         ]
         if complete_counts:
             # Duplicate projections are alternative successful observations of
@@ -1317,12 +1279,14 @@ def _merge_projection_coverage(
         (row.host_state for row in rows),
         key=lambda value: state_priority.get(value, 99),
     )
-    failed_protocols = frozenset.intersection(
-        *(row.failed_protocols for row in rows)
-    ) if rows else frozenset()
-    unresolved = frozenset.intersection(
-        *(row.unresolved_interface_protocols for row in rows)
-    ) if rows else frozenset()
+    failed_protocols = (
+        frozenset.intersection(*(row.failed_protocols for row in rows)) if rows else frozenset()
+    )
+    unresolved = (
+        frozenset.intersection(*(row.unresolved_interface_protocols for row in rows))
+        if rows
+        else frozenset()
+    )
     neighbor_statuses, neighbor_messages, neighbor_sources = merge_dimension(
         [name for row in rows for name, _status in row.neighbor_statuses],
         status_getter=lambda row, name: row.neighbor_status_for(name),
@@ -1336,11 +1300,7 @@ def _merge_projection_coverage(
         source_getter=lambda row, name: row.interface_source_for(name),
     )
     management_statuses, management_messages, management_sources = merge_dimension(
-        [
-            name
-            for row in rows
-            for name, _status in row.management_address_statuses
-        ],
+        [name for row in rows for name, _status in row.management_address_statuses],
         status_getter=lambda row, name: row.management_address_status_for(name),
         message_getter=lambda row, name: row.management_address_message_for(name),
         source_getter=lambda row, name: row.management_address_source_for(name),
@@ -1385,9 +1345,7 @@ def _canonicalize_compatibility_projection(
         if isinstance(host.get("id"), int) and not isinstance(host.get("id"), bool)
     }
     groups: list[dict[str, Any]] = []
-    members_by_id: dict[int, tuple[int, ...]] = {
-        host_id: (host_id,) for host_id in id_map
-    }
+    members_by_id: dict[int, tuple[int, ...]] = {host_id: (host_id,) for host_id in id_map}
     group_by_member: dict[int, tuple[int, ...]] = {}
     winner_by_group: dict[tuple[int, ...], dict[str, Any]] = {}
     hosts_by_id = {int(host["id"]): host for host in raw_hosts}
@@ -1960,9 +1918,7 @@ def _normalize_host_presentation(host: Mapping[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {
         "preferred_name": str(host.get("preferred_name") or ""),
         "names": _stable_value(names if isinstance(names, list) else []),
-        "addresses": _stable_value(
-            addresses if isinstance(addresses, Mapping) else {}
-        ),
+        "addresses": _stable_value(addresses if isinstance(addresses, Mapping) else {}),
     }
     reason = host.get("classification_reason")
     if reason not in (None, "", []):
@@ -1986,21 +1942,13 @@ def _without_collection_volatility(
 
     if isinstance(value, Mapping):
         return {
-            str(key): _without_collection_volatility(
-                item, include_timing=include_timing
-            )
+            str(key): _without_collection_volatility(item, include_timing=include_timing)
             for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
-            if str(key) not in _TIMESTAMP_KEYS
-            and (include_timing or str(key) != "duration_ms")
+            if str(key) not in _TIMESTAMP_KEYS and (include_timing or str(key) != "duration_ms")
         }
     if isinstance(value, list):
         return _stable_value(
-            [
-                _without_collection_volatility(
-                    item, include_timing=include_timing
-                )
-                for item in value
-            ]
+            [_without_collection_volatility(item, include_timing=include_timing) for item in value]
         )
     return value
 
@@ -2076,9 +2024,7 @@ def _normalize_host_collection(
                         if isinstance(event, Mapping)
                     ]
                 normalized_sessions.append(session)
-            normalized_snmp["adaptive_sessions"] = _stable_value(
-                normalized_sessions
-            )
+            normalized_snmp["adaptive_sessions"] = _stable_value(normalized_sessions)
         result["snmp"] = normalized_snmp
     return result
 
@@ -2198,9 +2144,7 @@ def compare_host_fields(
         b_value = right.get(path)
         if a_value != b_value:
             kind = "changed"
-            if path == "system.stack_members" or path.startswith(
-                "system.stack_members."
-            ):
+            if path == "system.stack_members" or path.startswith("system.stack_members."):
                 a_missing = a_value is None or a_value == {}
                 b_missing = b_value is None or b_value == {}
                 if a_missing and not a_coverage.authoritative_negative("entity"):
@@ -2253,14 +2197,18 @@ def compare_host_fields(
     return tuple(differences)
 
 
-def _neighbor_endpoint_key(neighbor: Mapping[str, Any], host_map: Mapping[int, int]) -> tuple[str, int] | None:
+def _neighbor_endpoint_key(
+    neighbor: Mapping[str, Any], host_map: Mapping[int, int]
+) -> tuple[str, int] | None:
     host_ref = neighbor.get("host_ref")
     if not isinstance(host_ref, int) or isinstance(host_ref, bool):
         return None
     mapped = host_map.get(host_ref)
     if mapped is None:
         return None
-    local = str(neighbor.get("local_interface") or neighbor.get("local_interface_raw") or "").casefold()
+    local = str(
+        neighbor.get("local_interface") or neighbor.get("local_interface_raw") or ""
+    ).casefold()
     return local, mapped
 
 
@@ -2307,9 +2255,7 @@ def _neighbor_local_tokens(neighbor: Mapping[str, Any]) -> set[str]:
     if local_value is not None and str(local_value).strip().isdigit():
         number = int(str(local_value).strip())
         typed = {
-            token
-            for token in result
-            if token in {f"ifindex:{number}", f"lldplocalport:{number}"}
+            token for token in result if token in {f"ifindex:{number}", f"lldplocalport:{number}"}
         }
         result.update(typed)
     return result
@@ -2354,11 +2300,7 @@ def _combine_neighbor_rows(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
     if len(rows) == 1:
         return rows[0]
     preferred = next(
-        (
-            row
-            for row in rows
-            if _neighbor_protocols(row) & {"lldp", "lldpv2"}
-        ),
+        (row for row in rows if _neighbor_protocols(row) & {"lldp", "lldpv2"}),
         rows[0],
     )
     result = dict(preferred)
@@ -2499,11 +2441,7 @@ def _weak_move_identity(neighbor: Mapping[str, Any]) -> bool:
     """
 
     tokens = _neighbor_strong_edge_tokens(neighbor)
-    macs = {
-        token.removeprefix("mac:")
-        for token in tokens
-        if token.startswith("mac:")
-    }
+    macs = {token.removeprefix("mac:") for token in tokens if token.startswith("mac:")}
     if not macs:
         return True
     return all(weak_mobility_mac(mac) for mac in macs)
@@ -2627,13 +2565,10 @@ def _cross_local_neighbor_candidate(
     index, b_item = right_for_remote[0]
     if _neighbor_local_tokens(a_item) & _neighbor_local_tokens(b_item):
         return None
-    strong_match = bool(
-        _neighbor_strong_edge_tokens(a_item) & _neighbor_strong_edge_tokens(b_item)
-    )
-    remote_port_match = (
-        _neighbor_remote_port_key(a_item) is not None
-        and _neighbor_remote_port_key(a_item) == _neighbor_remote_port_key(b_item)
-    )
+    strong_match = bool(_neighbor_strong_edge_tokens(a_item) & _neighbor_strong_edge_tokens(b_item))
+    remote_port_match = _neighbor_remote_port_key(a_item) is not None and _neighbor_remote_port_key(
+        a_item
+    ) == _neighbor_remote_port_key(b_item)
     return index if strong_match or remote_port_match else None
 
 
@@ -2671,7 +2606,9 @@ def _normalize_neighbor(neighbor: Mapping[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _neighbor_differences(a: Mapping[str, Any], b: Mapping[str, Any]) -> tuple[FieldDifference, ...]:
+def _neighbor_differences(
+    a: Mapping[str, Any], b: Mapping[str, Any]
+) -> tuple[FieldDifference, ...]:
     left = _flatten(_normalize_neighbor(a))
     right = _flatten(_normalize_neighbor(b))
     return tuple(
@@ -2882,7 +2819,12 @@ def _neighbor_management_addresses(neighbor: Mapping[str, Any]) -> tuple[str, ..
             continue
         if address not in normalized:
             normalized.append(address)
-    return tuple(sorted(normalized, key=lambda item: (ipaddress.ip_address(item).version, int(ipaddress.ip_address(item)))))
+    return tuple(
+        sorted(
+            normalized,
+            key=lambda item: (ipaddress.ip_address(item).version, int(ipaddress.ip_address(item))),
+        )
+    )
 
 
 def _addresses_by_family(values: Sequence[str]) -> dict[str, list[str]]:
@@ -2909,10 +2851,13 @@ def _management_address_change_payload(
 
     after = set(_neighbor_management_addresses(a))
     before = set(_neighbor_management_addresses(b))
-    address_key = lambda value: (
-        ipaddress.ip_address(value).version,
-        int(ipaddress.ip_address(value)),
-    )
+
+    def address_key(value: str) -> tuple[int, int]:
+        return (
+            ipaddress.ip_address(value).version,
+            int(ipaddress.ip_address(value)),
+        )
+
     added = tuple(sorted(after - before, key=address_key))
     removed = tuple(sorted(before - after, key=address_key))
     protocols = tuple(sorted(_neighbor_protocols(a) | _neighbor_protocols(b)))
@@ -2937,9 +2882,7 @@ def _management_address_change_payload(
             },
         }
     if not protocols:
-        authoritative = (
-            a_coverage.host_state == "complete" and b_coverage.host_state == "complete"
-        )
+        authoritative = a_coverage.host_state == "complete" and b_coverage.host_state == "complete"
     confidence = "confirmed" if authoritative else "coverage_uncertain"
     rationale = (
         "paired relationship is unchanged and both relevant management-address "
@@ -2994,9 +2937,7 @@ def _management_address_coverage_sources(
             status = coverage.management_address_status_for(protocol) or "unknown"
             source_kind = coverage.management_address_source_for(protocol)
             table = (
-                f"{protocol}.remote_management_address"
-                if source_kind == "subtable"
-                else protocol
+                f"{protocol}.remote_management_address" if source_kind == "subtable" else protocol
             )
             payload = {
                 "missing_side": missing_side,
@@ -3044,9 +2985,7 @@ def _missing_side_uncertainty(
     present_protocols = _neighbor_protocols(present)
     for protocol in sorted(missing.failed_protocols & present_protocols):
         reasons.append(f"{missing_side} {protocol} collection failed")
-    for protocol in sorted(
-        missing.unresolved_interface_protocols & present_protocols
-    ):
+    for protocol in sorted(missing.unresolved_interface_protocols & present_protocols):
         reasons.append(f"{missing_side} {protocol} local interface unresolved")
     return tuple(dict.fromkeys(reasons))
 
@@ -3306,9 +3245,7 @@ def compare_neighbors(
             candidate_rows = [right[index] for index in candidates]
             a_protocols = _neighbor_protocols(a_item)
             protocol_exact = [
-                idx
-                for idx in candidates
-                if _neighbor_protocols(right[idx]) == a_protocols
+                idx for idx in candidates if _neighbor_protocols(right[idx]) == a_protocols
             ]
             if len(protocol_exact) == 1:
                 selected_indices = [protocol_exact[0]]
@@ -3318,8 +3255,7 @@ def compare_neighbors(
             exact = [
                 idx
                 for idx in candidates
-                if a_remote is not None
-                and _neighbor_remote_port_key(right[idx]) == a_remote
+                if a_remote is not None and _neighbor_remote_port_key(right[idx]) == a_remote
             ]
             if not selected_indices and len(exact) == 1:
                 selected_indices = [exact[0]]
@@ -3339,9 +3275,7 @@ def compare_neighbors(
                 selected_indices = [selected]
                 matched_cross_local = True
         if not selected_indices:
-            reasons = _missing_side_uncertainty(
-                a_item, b_coverage, missing_side="B"
-            )
+            reasons = _missing_side_uncertainty(a_item, b_coverage, missing_side="B")
             coverage_sources = _missing_side_coverage_sources(
                 a_item,
                 b_coverage,
@@ -3352,15 +3286,9 @@ def compare_neighbors(
             invalid_observation = _invalid_identity_empty_neighbor(a_item)
             if invalid_observation:
                 reasons = tuple(
-                    dict.fromkeys(
-                        (*reasons, "CDP row lacks mandatory remote identity and port")
-                    )
+                    dict.fromkeys((*reasons, "CDP row lacks mandatory remote identity and port"))
                 )
-            status = (
-                "uncertain"
-                if coverage_sources or reasons or invalid_observation
-                else "a_only"
-            )
+            status = "uncertain" if coverage_sources or reasons or invalid_observation else "a_only"
             qualification, presence_status, presence_confidence = _neighbor_semantics(
                 status=status,
                 coverage_sources=coverage_sources,
@@ -3396,9 +3324,7 @@ def compare_neighbors(
         )
         if differences:
             presentation_differences = tuple(
-                item
-                for item in differences
-                if _local_interface_presentation_difference(item)
+                item for item in differences if _local_interface_presentation_difference(item)
             )
             # A matching typed local-port token proves the same attachment
             # point even if the merged row selected a different protocol's
@@ -3415,9 +3341,7 @@ def compare_neighbors(
                 )
         protocol_change = _protocol_transition(a_item, b_item)
         management_address_change = (
-            _management_address_change_payload(
-                a_item, b_item, a_coverage, b_coverage
-            )
+            _management_address_change_payload(a_item, b_item, a_coverage, b_coverage)
             if _management_address_only(differences)
             else None
         )
@@ -3476,9 +3400,7 @@ def compare_neighbors(
             management_address_change is not None
             and management_address_change.get("confidence") != "confirmed"
         ):
-            reasons.append(
-                "management-address collection coverage is incomplete"
-            )
+            reasons.append("management-address collection coverage is incomplete")
         reasons_tuple = tuple(dict.fromkeys(reasons))
         status = "same"
         if continuity_confirmed_despite_resolution:
@@ -3491,9 +3413,7 @@ def compare_neighbors(
         elif matched_cross_local and differences:
             if _weak_move_identity(a_item) or _weak_move_identity(b_item):
                 status = "uncertain"
-                reasons_tuple = (
-                    "remote identity is insufficient to confirm a physical port move",
-                )
+                reasons_tuple = ("remote identity is insufficient to confirm a physical port move",)
             else:
                 status = "moved"
         elif differences and protocol_change is not None and _protocol_evidence_only(differences):
@@ -3512,8 +3432,7 @@ def compare_neighbors(
             coverage_sources=coverage_sources,
             ambiguity=status == "uncertain" and not coverage_sources,
             continuity_confirmed=(
-                continuity_confirmed_despite_resolution
-                or management_address_change is not None
+                continuity_confirmed_despite_resolution or management_address_change is not None
             ),
         )
         results.append(
@@ -3535,9 +3454,7 @@ def compare_neighbors(
 
     for index, b_item in enumerate(right):
         if index not in right_used:
-            reasons = _missing_side_uncertainty(
-                b_item, a_coverage, missing_side="A"
-            )
+            reasons = _missing_side_uncertainty(b_item, a_coverage, missing_side="A")
             coverage_sources = _missing_side_coverage_sources(
                 b_item,
                 a_coverage,
@@ -3548,15 +3465,9 @@ def compare_neighbors(
             invalid_observation = _invalid_identity_empty_neighbor(b_item)
             if invalid_observation:
                 reasons = tuple(
-                    dict.fromkeys(
-                        (*reasons, "CDP row lacks mandatory remote identity and port")
-                    )
+                    dict.fromkeys((*reasons, "CDP row lacks mandatory remote identity and port"))
                 )
-            status = (
-                "uncertain"
-                if coverage_sources or reasons or invalid_observation
-                else "b_only"
-            )
+            status = "uncertain" if coverage_sources or reasons or invalid_observation else "b_only"
             qualification, presence_status, presence_confidence = _neighbor_semantics(
                 status=status,
                 coverage_sources=coverage_sources,
@@ -3682,15 +3593,14 @@ def _neighbor_json(value: NeighborDifference) -> dict[str, Any]:
             _field_diff_json(item) for item in value.presentation_differences
         ],
         "uncertainty_reasons": list(value.uncertainty_reasons),
-        "coverage_source": coverage_sources[0]
-        if len(coverage_sources) == 1
-        else None,
+        "coverage_source": coverage_sources[0] if len(coverage_sources) == 1 else None,
         "coverage_sources": coverage_sources,
         "protocol_change": protocol_change,
         "management_address_change": value.management_address_change,
         "physical_topology_effect": (
             "none"
-            if value.status in {
+            if value.status
+            in {
                 "same",
                 "protocol_changed",
                 "management_address_changed",
@@ -3754,9 +3664,7 @@ def _collection_coverage(
         mutable[host_id] = record
 
         snmp = host.get("snmp")
-        coverage = (
-            snmp.get("collection_coverage") if isinstance(snmp, Mapping) else None
-        )
+        coverage = snmp.get("collection_coverage") if isinstance(snmp, Mapping) else None
         if not isinstance(coverage, Mapping):
             continue
 
@@ -3765,9 +3673,7 @@ def _collection_coverage(
                 continue
             table = str(section).casefold()
             status = str(raw.get("status") or "unknown").casefold()
-            resolution = str(
-                raw.get("resolution_status") or "not_applicable"
-            ).casefold()
+            resolution = str(raw.get("resolution_status") or "not_applicable").casefold()
             record["tables"][table] = status
             row_count = raw.get("row_count")
             if isinstance(row_count, int) and not isinstance(row_count, bool):
@@ -3791,48 +3697,34 @@ def _collection_coverage(
             if remote is not None:
                 neighbor_status = str(remote.get("status") or "unknown").casefold()
                 neighbor_source = f"{table}.remote_neighbor"
-                neighbor_message = (
-                    str(remote.get("message")) if remote.get("message") else None
-                )
+                neighbor_message = str(remote.get("message")) if remote.get("message") else None
             else:
                 neighbor_status = status
                 neighbor_source = table
-                neighbor_message = (
-                    str(raw.get("message")) if raw.get("message") else None
-                )
+                neighbor_message = str(raw.get("message")) if raw.get("message") else None
             record["neighbor_statuses"][table] = neighbor_status
             record["neighbor_sources"][table] = neighbor_source
             if neighbor_message:
                 record["neighbor_messages"][table] = neighbor_message
             if neighbor_status not in {"complete", "not_attempted"}:
                 record["protocols"].add(table)
-                record["reasons"].append(
-                    f"{neighbor_source} collector {neighbor_status}"
-                )
+                record["reasons"].append(f"{neighbor_source} collector {neighbor_status}")
 
             if management is not None:
-                management_status = str(
-                    management.get("status") or "unknown"
-                ).casefold()
+                management_status = str(management.get("status") or "unknown").casefold()
                 record["management_statuses"][table] = management_status
                 record["management_sources"][table] = "subtable"
                 if management.get("message"):
-                    record["management_messages"][table] = str(
-                        management.get("message")
-                    )
+                    record["management_messages"][table] = str(management.get("message"))
             else:
                 record["management_statuses"][table] = status
-                record["management_sources"][table] = (
-                    "protocol_aggregate_legacy"
-                )
+                record["management_sources"][table] = "protocol_aggregate_legacy"
 
             interface_status = "complete"
             interface_source = neighbor_source
             interface_message: str | None = None
             if table == "lldp" and local_port is not None:
-                local_status = str(
-                    local_port.get("status") or "unknown"
-                ).casefold()
+                local_status = str(local_port.get("status") or "unknown").casefold()
                 local_resolution = str(
                     local_port.get("resolution_status") or "not_applicable"
                 ).casefold()
@@ -3840,23 +3732,17 @@ def _collection_coverage(
                     interface_status = local_status
                     interface_source = "lldp.local_port"
                     interface_message = (
-                        str(local_port.get("message"))
-                        if local_port.get("message")
-                        else None
+                        str(local_port.get("message")) if local_port.get("message") else None
                     )
                 elif local_resolution in {"partial", "unresolved"}:
                     interface_status = local_resolution
                     interface_source = "lldp.local_port"
                     interface_message = (
-                        str(local_port.get("message"))
-                        if local_port.get("message")
-                        else None
+                        str(local_port.get("message")) if local_port.get("message") else None
                     )
             if interface_status == "complete":
                 remote_resolution = (
-                    str(
-                        remote.get("resolution_status") or "not_applicable"
-                    ).casefold()
+                    str(remote.get("resolution_status") or "not_applicable").casefold()
                     if remote is not None
                     else resolution
                 )
@@ -3874,9 +3760,7 @@ def _collection_coverage(
                 record["interface_messages"][table] = interface_message
             if interface_status not in {"complete", "not_attempted"}:
                 record["interfaces"].add(table)
-                record["reasons"].append(
-                    f"{interface_source} local interface {interface_status}"
-                )
+                record["reasons"].append(f"{interface_source} local interface {interface_status}")
 
     errors = document.payload.get("errors")
     if isinstance(errors, list):
@@ -3898,9 +3782,7 @@ def _collection_coverage(
                 # subtable.  Legacy documents still fall back to the error.
                 if explicit is None or explicit not in {"complete", "not_attempted"}:
                     record["protocols"].add(operation)
-                    record["reasons"].append(
-                        f"{operation} collector {category}"
-                    )
+                    record["reasons"].append(f"{operation} collector {category}")
             elif operation in {
                 "lldp_interface_resolution",
                 "lldpv2_interface_resolution",
@@ -3910,13 +3792,9 @@ def _collection_coverage(
                 explicit = record["interface_statuses"].get(protocol)
                 if explicit is None or explicit not in {"complete", "not_attempted"}:
                     record["interfaces"].add(protocol)
-                    record["reasons"].append(
-                        f"{protocol} local interface resolution {category}"
-                    )
+                    record["reasons"].append(f"{protocol} local interface resolution {category}")
             elif operation == "interfaces":
-                record["reasons"].append(
-                    f"IF-MIB interface collector {category}"
-                )
+                record["reasons"].append(f"IF-MIB interface collector {category}")
             elif operation == "snmp_detail_session":
                 record["all"] = True
                 record["reasons"].append(f"detail session {category}")
@@ -3937,15 +3815,9 @@ def _collection_coverage(
             interface_statuses=tuple(sorted(values["interface_statuses"].items())),
             interface_messages=tuple(sorted(values["interface_messages"].items())),
             interface_sources=tuple(sorted(values["interface_sources"].items())),
-            management_address_statuses=tuple(
-                sorted(values["management_statuses"].items())
-            ),
-            management_address_messages=tuple(
-                sorted(values["management_messages"].items())
-            ),
-            management_address_sources=tuple(
-                sorted(values["management_sources"].items())
-            ),
+            management_address_statuses=tuple(sorted(values["management_statuses"].items())),
+            management_address_messages=tuple(sorted(values["management_messages"].items())),
+            management_address_sources=tuple(sorted(values["management_sources"].items())),
             reasons=tuple(dict.fromkeys(str(item) for item in values["reasons"])),
         )
         for host_id, values in mutable.items()
@@ -3975,9 +3847,7 @@ def _collection_coverage_summary(
     failed_protocol_counts: dict[str, int] = defaultdict(int)
     unresolved_interface_counts: dict[str, int] = defaultdict(int)
     host_state_counts: dict[str, int] = defaultdict(int)
-    table_status_counts: dict[str, dict[str, int]] = defaultdict(
-        lambda: defaultdict(int)
-    )
+    table_status_counts: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for item in coverage.values():
         host_state_counts[item.host_state] += 1
         queried = item.host_state not in {"no_query", "out_of_scope"}
@@ -4008,8 +3878,7 @@ def _collection_coverage_summary(
             table in {"lldp", "lldpv2"}
             and item.neighbor_status_for(table) in {"complete", "not_attempted"}
             and item.interface_status_for(table) in {"complete", "not_attempted"}
-            and item.management_address_status_for(table)
-            not in {"complete", "not_attempted"}
+            and item.management_address_status_for(table) not in {"complete", "not_attempted"}
             for table in incomplete_tables
         )
         if queried:
@@ -4042,14 +3911,10 @@ def _collection_coverage_summary(
         "complete_queried_count": aggregate_complete_queried,
         "partial_or_failed_queried_count": aggregate_partial_or_failed_queried,
         "aggregate_complete_queried_count": aggregate_complete_queried,
-        "aggregate_partial_or_failed_queried_count": (
-            aggregate_partial_or_failed_queried
-        ),
+        "aggregate_partial_or_failed_queried_count": (aggregate_partial_or_failed_queried),
         "topology_complete_queried_count": topology_complete_queried,
         "topology_affected_queried_count": topology_affected_queried,
-        "management_address_only_incomplete_count": (
-            management_address_only_incomplete
-        ),
+        "management_address_only_incomplete_count": (management_address_only_incomplete),
         "other_health_only_incomplete_count": other_health_only_incomplete,
         # ``affected_host_count`` remains the concise warning denominator.  It
         # now deliberately means topology-sensitive coverage, while aggregate
@@ -4060,9 +3925,7 @@ def _collection_coverage_summary(
         "obscured_downstream_count": obscured_downstream_count,
         "host_states": dict(sorted(host_state_counts.items())),
         "failed_protocols": dict(sorted(failed_protocol_counts.items())),
-        "unresolved_interfaces": dict(
-            sorted(unresolved_interface_counts.items())
-        ),
+        "unresolved_interfaces": dict(sorted(unresolved_interface_counts.items())),
         "table_statuses": {
             table: dict(sorted(statuses.items()))
             for table, statuses in sorted(table_status_counts.items())
@@ -4102,11 +3965,7 @@ def _management_address_health_issue(
     else:
         cause = status
     source = coverage.management_address_source_for(protocol)
-    table = (
-        f"{protocol}.remote_management_address"
-        if source == "subtable"
-        else protocol
-    )
+    table = f"{protocol}.remote_management_address" if source == "subtable" else protocol
     return {
         "protocol": protocol,
         "table": table,
@@ -4142,13 +4001,8 @@ def _management_address_health_comparison(
             if a_issue is not None and b_issue is not None:
                 persistent[str(a_issue["cause"])] += 1
                 classification = "persistent"
-                if (
-                    a_issue["status"] != b_issue["status"]
-                    or a_issue["cause"] != b_issue["cause"]
-                ):
-                    changed[
-                        f"{b_issue['cause']}->{a_issue['cause']}"
-                    ] += 1
+                if a_issue["status"] != b_issue["status"] or a_issue["cause"] != b_issue["cause"]:
+                    changed[f"{b_issue['cause']}->{a_issue['cause']}"] += 1
                     classification = "changed"
             elif a_issue is not None:
                 new_in_a[str(a_issue["cause"])] += 1
@@ -4264,11 +4118,15 @@ def _coverage_source(
         missing_side=missing_side,
         present_observer_id=present_id,
         present_observer_name=str(
-            present_observer.get("preferred_name") or present_observer.get("snmp_sysname") or "unknown"
+            present_observer.get("preferred_name")
+            or present_observer.get("snmp_sysname")
+            or "unknown"
         ),
         missing_observer_id=missing_id,
         missing_observer_name=str(
-            missing_observer.get("preferred_name") or missing_observer.get("snmp_sysname") or "unknown"
+            missing_observer.get("preferred_name")
+            or missing_observer.get("snmp_sysname")
+            or "unknown"
         ),
         protocol=protocol,
         table=table,
@@ -4433,9 +4291,7 @@ def _one_sided_presence_assessments(
             missing_observer = missing_hosts_by_id.get(missing_observer_id)
             if present_observer is None or missing_observer is None:
                 continue
-            opposite_coverage = missing_coverage.get(
-                missing_observer_id, _COMPLETE_COLLECTION
-            )
+            opposite_coverage = missing_coverage.get(missing_observer_id, _COMPLETE_COLLECTION)
             for protocol in sorted(_neighbor_protocols(row)):
                 source = _coverage_source(
                     present_observer=present_observer,
@@ -4600,10 +4456,7 @@ def _graph_entity_keys_by_host(graph: object) -> dict[int, tuple[str, ...]]:
         for host_id in refs if isinstance(refs, list) else []:
             if isinstance(host_id, int) and not isinstance(host_id, bool):
                 values[host_id].add(entity_key)
-    return {
-        host_id: tuple(sorted(entity_keys))
-        for host_id, entity_keys in values.items()
-    }
+    return {host_id: tuple(sorted(entity_keys)) for host_id, entity_keys in values.items()}
 
 
 def _topology_health_sources(
@@ -4648,9 +4501,7 @@ def _topology_health_sources(
             issues[(protocol, table, status)] = item.interface_message_for(protocol)
         interface_status = item.status_for("interfaces")
         if interface_status not in {None, "complete", "not_attempted"}:
-            issues[("interfaces", "interfaces", interface_status)] = item.message_for(
-                "interfaces"
-            )
+            issues[("interfaces", "interfaces", interface_status)] = item.message_for("interfaces")
         for (protocol, table, status), message in sorted(issues.items()):
             payload = {
                 "missing_side": side,
@@ -4673,8 +4524,7 @@ def _topology_health_sources(
             }
             sources.append(
                 {
-                    "incident_key": "coverage:"
-                    + stable_fingerprint(payload)[:24],
+                    "incident_key": "coverage:" + stable_fingerprint(payload)[:24],
                     "missing_side": side,
                     "observer": observer,
                     "protocol": protocol,
@@ -4690,9 +4540,7 @@ def _topology_health_sources(
     return sources
 
 
-def _relationship_impact_key(
-    comparison: Mapping[str, Any], neighbor: Mapping[str, Any]
-) -> str:
+def _relationship_impact_key(comparison: Mapping[str, Any], neighbor: Mapping[str, Any]) -> str:
     """Return a stable key for one derivative relationship comparison row."""
 
     def compact(row: Any) -> dict[str, Any] | None:
@@ -4781,9 +4629,7 @@ def _aggregate_collection_incidents(
 
     for comparison in comparisons:
         host_differences = comparison.get("host_differences")
-        for difference in (
-            host_differences if isinstance(host_differences, list) else []
-        ):
+        for difference in host_differences if isinstance(host_differences, list) else []:
             if not isinstance(difference, Mapping):
                 continue
             sources = difference.get("coverage_sources")
@@ -4821,9 +4667,7 @@ def _aggregate_collection_incidents(
                     record = _incident_record(records, source)
                     record["source_views"].add("compatibility_projection")
                     record["affected_relationships"].add(relationship_key)
-                    record["dependent_difference_refs"].add(
-                        f"compatibility:{relationship_key}"
-                    )
+                    record["dependent_difference_refs"].add(f"compatibility:{relationship_key}")
 
     graph_comparison = graph_comparison or {}
     for section, reference_field in (
@@ -4850,9 +4694,7 @@ def _aggregate_collection_incidents(
                 else:
                     record["affected_graph_relationships"].add(reference)
                 if is_difference:
-                    record["dependent_difference_refs"].add(
-                        f"topology_graph:{reference}"
-                    )
+                    record["dependent_difference_refs"].add(f"topology_graph:{reference}")
 
     result: list[dict[str, Any]] = []
     for key in sorted(records):
@@ -4891,18 +4733,14 @@ def _aggregate_collection_incidents(
                     entities,
                     key=lambda item: (
                         str(item.get("observed_side")),
-                        int(item.get("id"))
-                        if isinstance(item.get("id"), int)
-                        else -1,
+                        int(item.get("id")) if isinstance(item.get("id"), int) else -1,
                     ),
                 ),
                 "recursive_descendants": sorted(
                     descendants,
                     key=lambda item: (
                         str(item.get("observed_side")),
-                        int(item.get("id"))
-                        if isinstance(item.get("id"), int)
-                        else -1,
+                        int(item.get("id")) if isinstance(item.get("id"), int) else -1,
                     ),
                 ),
                 "recursive_paths": paths,
@@ -5000,14 +4838,11 @@ def _attribute_observation_coverage_sources(
             continue
         host_id = missing_host.get("id")
         host_name = str(
-            missing_host.get("preferred_name")
-            or present_host.get("preferred_name")
-            or "unknown"
+            missing_host.get("preferred_name") or present_host.get("preferred_name") or "unknown"
         )
         if isinstance(host_id, int) and not isinstance(host_id, bool):
             sources.extend(
-                source.as_recursive(host_id, host_name)
-                for source in assessment.coverage_sources
+                source.as_recursive(host_id, host_name) for source in assessment.coverage_sources
             )
         else:
             sources.extend(assessment.coverage_sources)
@@ -5097,9 +4932,7 @@ def _attribute_uncertainty_by_host(
                     continue
                 payload = copy.deepcopy(dict(source))
                 payload["attribute_path"] = str(difference.get("path") or "")
-                payload["attribute_provenance"] = str(
-                    difference.get("provenance") or "unknown"
-                )
+                payload["attribute_provenance"] = str(difference.get("provenance") or "unknown")
                 for side in ("a", "b"):
                     identity = comparison.get(side)
                     if not isinstance(identity, Mapping):
@@ -5113,7 +4946,6 @@ def _attribute_uncertainty_by_host(
     return by_side["a"], by_side["b"]
 
 
-
 def _match_confidence(pair: HostPair) -> MatchConfidence:
     """Return a conservative categorical confidence for one host association.
 
@@ -5125,10 +4957,7 @@ def _match_confidence(pair: HostPair) -> MatchConfidence:
     """
 
     evidence = set(pair.evidence)
-    if any(
-        token.startswith(("serial:", "engine:", "sep_mac:"))
-        for token in evidence
-    ):
+    if any(token.startswith(("serial:", "engine:", "sep_mac:")) for token in evidence):
         return "verified"
     if pair.tier in {"physical", "edge_context"}:
         return "high"
@@ -5237,11 +5066,7 @@ def _comparison_payload(
     return {
         "status": status,
         "host_status": (
-            "changed"
-            if definite_fields
-            else "uncertain"
-            if uncertain_fields
-            else "same"
+            "changed" if definite_fields else "uncertain" if uncertain_fields else "same"
         ),
         "a": _host_identity(pair.a),
         "b": _host_identity(pair.b),
@@ -5256,13 +5081,9 @@ def _comparison_payload(
         },
         "host_differences": [_field_diff_json(item) for item in fields],
         "presentation_status": "changed" if presentation_fields else "same",
-        "presentation_differences": [
-            _field_diff_json(item) for item in presentation_fields
-        ],
+        "presentation_differences": [_field_diff_json(item) for item in presentation_fields],
         "collection_status": "changed" if collection_fields else "same",
-        "collection_differences": [
-            _field_diff_json(item) for item in collection_fields
-        ],
+        "collection_differences": [_field_diff_json(item) for item in collection_fields],
         "learned_neighbors": [_neighbor_json(item) for item in learned],
         "observed_by_neighbors": [_neighbor_json(item) for item in observed],
         "host_difference_count": len(fields),
@@ -5406,8 +5227,8 @@ def macro_diff(
         )
         for pair in pairing.pairs
     ]
-    a_attribute_uncertainty, b_attribute_uncertainty = (
-        _attribute_uncertainty_by_host(all_comparisons)
+    a_attribute_uncertainty, b_attribute_uncertainty = _attribute_uncertainty_by_host(
+        all_comparisons
     )
 
     def expand_attribute_sources(
@@ -5458,9 +5279,7 @@ def macro_diff(
         a_members_by_id=a_projection.members_by_id,
         b_members_by_id=b_projection.members_by_id,
         changes_only=changes_only,
-        unrepresented_one_sided_observation_count=(
-            one_sided_learned_observation_count
-        ),
+        unrepresented_one_sided_observation_count=(one_sided_learned_observation_count),
     )
     health_sources = [
         *_topology_health_sources(
@@ -5495,9 +5314,7 @@ def macro_diff(
     )
 
     changed_hosts = sum(item["host_status"] == "changed" for item in all_comparisons)
-    uncertain_paired_hosts = sum(
-        item["host_status"] == "uncertain" for item in all_comparisons
-    )
+    uncertain_paired_hosts = sum(item["host_status"] == "uncertain" for item in all_comparisons)
     same_hosts = sum(item["host_status"] == "same" for item in all_comparisons)
     presentation_changed_hosts = sum(
         item["presentation_status"] == "changed" for item in all_comparisons
@@ -5560,9 +5377,7 @@ def macro_diff(
         for host in confirmed_b_only
         if isinstance(host.get("learned_neighbors"), list)
     )
-    learned_uncertain += sum(
-        int(item["learned_neighbor_count"]) for item in uncertain_presence
-    )
+    learned_uncertain += sum(int(item["learned_neighbor_count"]) for item in uncertain_presence)
 
     ambiguities = [
         {
@@ -5609,15 +5424,13 @@ def macro_diff(
         or learned_relationship_evidence_changed
     )
     incident_relationships = sum(
-        int(item["total_affected_relationship_count"])
-        for item in collection_incidents
+        int(item["total_affected_relationship_count"]) for item in collection_incidents
     )
     incident_entities = sum(
         int(item["affected_remote_entity_count"]) for item in collection_incidents
     )
     dependent_incidents = sum(
-        bool(item.get("reported_difference_depends_on_gap"))
-        for item in collection_incidents
+        bool(item.get("reported_difference_depends_on_gap")) for item in collection_incidents
     )
     health_only_incidents = len(collection_incidents) - dependent_incidents
     incident_observers: dict[str, set[tuple[object, object]]] = {
@@ -5629,9 +5442,7 @@ def macro_diff(
         observers = item.get("observer")
         selected = observers.get(side) if isinstance(observers, Mapping) else None
         if side in incident_observers and isinstance(selected, Mapping):
-            incident_observers[side].add(
-                (selected.get("id"), selected.get("preferred_name"))
-            )
+            incident_observers[side].add((selected.get("id"), selected.get("preferred_name")))
     if dependent_incidents:
         incident_warning = (
             (
@@ -5656,25 +5467,33 @@ def macro_diff(
         incident_warning = ()
     projection_warning = (
         (
-            "Compatibility projection reconciliation absorbed "
-            f"{a_projection.absorbed_host_count} A-side and "
-            f"{b_projection.absorbed_host_count} B-side duplicate fully "
-            "queried managed-host row(s); raw graph evidence is unchanged."
-        ),
-    ) if a_projection.absorbed_host_count or b_projection.absorbed_host_count else ()
+            (
+                "Compatibility projection reconciliation absorbed "
+                f"{a_projection.absorbed_host_count} A-side and "
+                f"{b_projection.absorbed_host_count} B-side duplicate fully "
+                "queried managed-host row(s); raw graph evidence is unchanged."
+            ),
+        )
+        if a_projection.absorbed_host_count or b_projection.absorbed_host_count
+        else ()
+    )
     consistency = reconciliation["cross_view_consistency"]
     consistency_warning = (
         (
-            "Compatibility and topology-graph change views require attention: "
-            f"unmatched={consistency['unmatched_observation_count']}, "
-            f"ambiguous={consistency['ambiguous_observation_count']}, "
-            f"conflicting={consistency['conflicting_observation_count']}, "
-            f"unrepresented-one-sided="
-            f"{consistency['unrepresented_one_sided_observation_count']}, and "
-            f"graph-only={consistency['graph_only_event_count']}; inspect "
-            "comparison.cross_view_consistency and comparison.change_events."
-        ),
-    ) if consistency["status"] == "attention_required" else ()
+            (
+                "Compatibility and topology-graph change views require attention: "
+                f"unmatched={consistency['unmatched_observation_count']}, "
+                f"ambiguous={consistency['ambiguous_observation_count']}, "
+                f"conflicting={consistency['conflicting_observation_count']}, "
+                f"unrepresented-one-sided="
+                f"{consistency['unrepresented_one_sided_observation_count']}, and "
+                f"graph-only={consistency['graph_only_event_count']}; inspect "
+                "comparison.cross_view_consistency and comparison.change_events."
+            ),
+        )
+        if consistency["status"] == "attention_required"
+        else ()
+    )
     warnings = (
         *scope_warnings(a_document, b_document, source_a, source_b),
         *incident_warning,
@@ -5692,8 +5511,7 @@ def macro_diff(
         if assessment.coverage_uncertain
     )
     coverage_uncertain_count = sum(
-        assessment.coverage_uncertain
-        for assessment in (*a_presence.values(), *b_presence.values())
+        assessment.coverage_uncertain for assessment in (*a_presence.values(), *b_presence.values())
     )
     invalid_source_evidence_count = sum(
         assessment.semantic_qualification == "ambiguous"
@@ -5734,12 +5552,8 @@ def macro_diff(
             },
             "host_pairing_confidence": pairing_confidence,
             "collection_coverage": {
-                "a": _collection_coverage_summary(
-                    a_coverage, obscured_downstream_count=a_obscured
-                ),
-                "b": _collection_coverage_summary(
-                    b_coverage, obscured_downstream_count=b_obscured
-                ),
+                "a": _collection_coverage_summary(a_coverage, obscured_downstream_count=a_obscured),
+                "b": _collection_coverage_summary(b_coverage, obscured_downstream_count=b_obscured),
             },
             "management_address_health": {
                 key: value
@@ -5748,31 +5562,24 @@ def macro_diff(
             },
             "collection_incidents": {
                 "incident_count": len(collection_incidents),
-                "reported_difference_dependent_incident_count": (
-                    dependent_incidents
-                ),
+                "reported_difference_dependent_incident_count": (dependent_incidents),
                 "health_only_incident_count": health_only_incidents,
                 "topology_gap_observer_count": {
-                    side: len(values)
-                    for side, values in incident_observers.items()
+                    side: len(values) for side, values in incident_observers.items()
                 },
                 "total_affected_relationship_count": incident_relationships,
                 "directly_affected_relationship_count": sum(
-                    int(item["affected_relationship_count"])
-                    for item in collection_incidents
+                    int(item["affected_relationship_count"]) for item in collection_incidents
                 ),
                 "recursive_relationship_count": sum(
-                    int(item["recursive_relationship_count"])
-                    for item in collection_incidents
+                    int(item["recursive_relationship_count"]) for item in collection_incidents
                 ),
                 "affected_remote_entity_count": incident_entities,
                 "recursive_descendant_count": sum(
-                    int(item["recursive_descendant_count"])
-                    for item in collection_incidents
+                    int(item["recursive_descendant_count"]) for item in collection_incidents
                 ),
                 "affected_attribute_count": sum(
-                    int(item.get("affected_attribute_count", 0))
-                    for item in collection_incidents
+                    int(item.get("affected_attribute_count", 0)) for item in collection_incidents
                 ),
             },
             "hosts": {
@@ -5809,9 +5616,7 @@ def macro_diff(
                 "moved": learned_moved,
                 "protocol_changed": learned_protocol_changed,
                 "management_address_changed": learned_management_address_changed,
-                "relationship_evidence_changed": (
-                    learned_relationship_evidence_changed
-                ),
+                "relationship_evidence_changed": (learned_relationship_evidence_changed),
                 "a_only": learned_a_only,
                 "b_only": learned_b_only,
                 "uncertain": learned_uncertain,
@@ -5828,12 +5633,10 @@ def macro_diff(
         "management_address_health": management_address_health,
         "hosts": comparisons,
         "a_only": [
-            _one_sided_host_payload(a_presence[int(host["id"])])
-            for host in confirmed_a_only
+            _one_sided_host_payload(a_presence[int(host["id"])]) for host in confirmed_a_only
         ],
         "b_only": [
-            _one_sided_host_payload(b_presence[int(host["id"])])
-            for host in confirmed_b_only
+            _one_sided_host_payload(b_presence[int(host["id"])]) for host in confirmed_b_only
         ],
         "presence_uncertain": uncertain_presence,
         "uncertain": ambiguities,
@@ -5985,9 +5788,7 @@ def host_diff(
         a_presence=a_presence,
         b_presence=b_presence,
     )
-    a_attribute_uncertainty, b_attribute_uncertainty = (
-        _attribute_uncertainty_by_host([comparison])
-    )
+    a_attribute_uncertainty, b_attribute_uncertainty = _attribute_uncertainty_by_host([comparison])
     if a_attribute_uncertainty or b_attribute_uncertainty:
         graph_comparison = compare_topology_graphs(
             a_document.payload.get("topology_graph"),
@@ -6001,9 +5802,7 @@ def host_diff(
             item for item in comparison["learned_neighbors"] if item["status"] != "same"
         ]
         comparison["observed_by_neighbors"] = [
-            item
-            for item in comparison["observed_by_neighbors"]
-            if item["status"] != "same"
+            item for item in comparison["observed_by_neighbors"] if item["status"] != "same"
         ]
     changed = comparison["status"] != "same"
     return DiffOutcome(

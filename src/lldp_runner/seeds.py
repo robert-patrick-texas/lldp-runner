@@ -186,11 +186,7 @@ def _skip_directory_seed_file(root: Path, path: Path) -> bool:
     if any(part.startswith(".") for part in relative.parts):
         return True
     name = path.name.casefold()
-    return (
-        name.startswith("readme")
-        or name.endswith(".disabled")
-        or name.endswith(".note")
-    )
+    return name.startswith("readme") or name.endswith(".disabled") or name.endswith(".note")
 
 
 def read_seed_directory(path: Path) -> list[SeedInput]:

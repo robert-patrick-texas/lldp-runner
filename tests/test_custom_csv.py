@@ -151,7 +151,7 @@ def test_custom_hosts_csv_supports_fixed_json_transforms_and_headers(tmp_path: P
 
     config = _config(
         tmp_path,
-        '''
+        """
 [output.custom_csv.inventory]
 filename = "inventory.csv"
 source = "hosts"
@@ -163,7 +163,7 @@ columns = [
   { field = "json.host.is_seed", transform = "origin", header = "source" },
   { field = "json.discovery.run_id" },
 ]
-''',
+""",
     )
 
     paths = write_custom_csv_outputs(_document(), config, tmp_path / "out")
@@ -249,7 +249,7 @@ def test_custom_row_sources_preserve_fixed_row_grain(tmp_path: Path) -> None:
 
     config = _config(
         tmp_path,
-        '''
+        """
 [output.custom_csv.members]
 filename = "members.csv"
 source = "stack-members"
@@ -282,7 +282,7 @@ columns = [
   { field = "errors.category" },
   { field = "json.error.final_state" },
 ]
-''',
+""",
     )
 
     out = tmp_path / "out"
@@ -292,9 +292,9 @@ columns = [
         "stack01.example.net,1,MEMBER01",
     ]
     assert "optional_walk_failed" in (out / "seed-export.csv").read_text(encoding="utf-8")
-    assert "stack01.example.net:Gi1/0/1=eth0[cdp,lldp]" in (
-        out / "unknown.csv"
-    ).read_text(encoding="utf-8")
+    assert "stack01.example.net:Gi1/0/1=eth0[cdp,lldp]" in (out / "unknown.csv").read_text(
+        encoding="utf-8"
+    )
     assert (out / "err.csv").read_text(encoding="utf-8").splitlines() == [
         "category,final_state",
         "optional_walk_failed,complete",
@@ -380,11 +380,7 @@ def test_unknown_device_custom_system_fields_require_json_paths(
     """Canonical JSON paths remain available after fixed selectors are removed."""
 
     document = _document()
-    unknown = next(
-        host
-        for host in document["hosts"]
-        if host["classification"] == "unknown_device"
-    )
+    unknown = next(host for host in document["hosts"] if host["classification"] == "unknown_device")
     unknown["system"] = {
         "manufacturer": "Example Devices",
         "model": "Endpoint-100",
@@ -415,7 +411,7 @@ def test_custom_csv_columns_replace_across_includes(tmp_path: Path) -> None:
 
     include = tmp_path / "base.toml"
     include.write_text(
-        '''
+        """
 [output.custom_csv.inventory]
 filename = "inventory.csv"
 source = "hosts"
@@ -423,19 +419,19 @@ columns = [
   { field = "hosts.preferred_name" },
   { field = "hosts.state" },
 ]
-'''.lstrip(),
+""".lstrip(),
         encoding="utf-8",
     )
     primary = tmp_path / "config.toml"
     primary.write_text(
-        '''
+        """
 @include "base.toml"
 
 [output.custom_csv.inventory]
 columns = [
   { field = "json.host.system.model" },
 ]
-'''.lstrip(),
+""".lstrip(),
         encoding="utf-8",
     )
 
@@ -455,7 +451,7 @@ def test_custom_csv_uses_global_empty_file_policy(tmp_path: Path) -> None:
 
     config = _config(
         tmp_path,
-        '''
+        """
 [output]
 write_empty_csv = false
 
@@ -463,7 +459,7 @@ write_empty_csv = false
 filename = "no-errors.csv"
 source = "errors"
 columns = [{ field = "errors.category" }]
-''',
+""",
     )
     document = _document()
     document["errors"] = []
@@ -528,7 +524,7 @@ def test_empty_alert_accumulator_can_combine_custom_with_fixed_reports(
 
     config = _config(
         tmp_path,
-        '''
+        """
 [output]
 log_alert_on_empty_csv = true
 write_empty_csv = false
@@ -537,7 +533,7 @@ write_empty_csv = false
 filename = "errors-short.csv"
 source = "errors"
 columns = [{ field = "errors.category" }]
-''',
+""",
     )
     state = StateStore(tmp_path / "state.sqlite")
     state.upsert_candidate(

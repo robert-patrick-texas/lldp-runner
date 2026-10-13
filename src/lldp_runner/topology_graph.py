@@ -19,8 +19,9 @@ import copy
 import json
 import re
 from collections import Counter, defaultdict
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 from lldp_runner.claims import stable_fingerprint
 from lldp_runner.collectors import merge_neighbor_observations
@@ -237,9 +238,7 @@ def observation_from_payload(payload: Mapping[str, Any]) -> NeighborObservation:
             else None
         ),
         remote_name=(
-            str(payload["remote_name"])
-            if payload.get("remote_name") not in {None, ""}
-            else None
+            str(payload["remote_name"]) if payload.get("remote_name") not in {None, ""} else None
         ),
         remote_interface=(
             str(payload["remote_interface"])
@@ -264,9 +263,7 @@ def observation_from_payload(payload: Mapping[str, Any]) -> NeighborObservation:
         ),
         capabilities=[str(value) for value in payload.get("capabilities", [])],
         chassis_id=(
-            str(payload["chassis_id"])
-            if payload.get("chassis_id") not in {None, ""}
-            else None
+            str(payload["chassis_id"]) if payload.get("chassis_id") not in {None, ""} else None
         ),
         chassis_id_subtype=(
             str(payload["chassis_id_subtype"])
@@ -436,9 +433,7 @@ def _cluster_hosts(records: Sequence[_HostEvidence]) -> list[list[_HostEvidence]
         if record.query_target is not None:
             continue
         candidates = {
-            root
-            for name in record.names
-            for root in queried_roots_by_name.get(name, set())
+            root for name in record.names for root in queried_roots_by_name.get(name, set())
         }
         if len(candidates) != 1:
             continue
@@ -469,13 +464,17 @@ def _logical_entity_key(
         return f"endpoint:mac:{next(iter(strict_macs))}"
     name_anchor = _logical_name_anchor(names)
     if len(serials) == 1 and name_anchor:
-        return "logical:serial-name:" + stable_fingerprint(
-            {"serial": next(iter(serials)), "name_anchor": name_anchor}
-        )[:24]
+        return (
+            "logical:serial-name:"
+            + stable_fingerprint({"serial": next(iter(serials)), "name_anchor": name_anchor})[:24]
+        )
     if name_anchor and len(query_targets) == 1:
-        return "logical:agent:" + stable_fingerprint(
-            {"name_anchor": name_anchor, "target": next(iter(query_targets))}
-        )[:24]
+        return (
+            "logical:agent:"
+            + stable_fingerprint({"name_anchor": name_anchor, "target": next(iter(query_targets))})[
+                :24
+            ]
+        )
     basis = {
         "names": sorted(names),
         "addresses": sorted(addresses),
@@ -488,9 +487,10 @@ def _logical_entity_key(
         return "logical:cluster:" + stable_fingerprint(basis)[:24]
     # A completely evidence-free compatibility row has no semantic cross-run
     # identity.  Keep it distinct and mark it run-local in the entity metadata.
-    return "logical:run-local:" + stable_fingerprint(
-        {"host_refs": sorted(int(value) for value in host_refs)}
-    )[:24]
+    return (
+        "logical:run-local:"
+        + stable_fingerprint({"host_refs": sorted(int(value) for value in host_refs)})[:24]
+    )
 
 
 def _display_name(names: set[str], records: Sequence[_HostEvidence]) -> str:
@@ -570,9 +570,7 @@ def _canonical_interface_namespace(observation: NeighborObservation) -> str:
     equal integers from unrelated MIB indexes never become equal interfaces.
     """
 
-    local = _one_line(
-        observation.local_interface or observation.local_interface_raw
-    )
+    local = _one_line(observation.local_interface or observation.local_interface_raw)
     details = observation.details if isinstance(observation.details, dict) else {}
     explicitly_unresolved = details.get("local_interface_resolved") is False
     typed_unresolved = ":" in local and local.split(":", 1)[0] in {
@@ -596,9 +594,7 @@ def _remote_identity_tokens(observation: NeighborObservation) -> dict[str, set[s
         if (normalized := _normalized_address(value)) is not None
     }
     strict_macs = {
-        mac
-        for value in [observation.remote_name]
-        if (mac := _strict_name_mac(value)) is not None
+        mac for value in [observation.remote_name] if (mac := _strict_name_mac(value)) is not None
     }
     if observation.chassis_id and (
         observation.chassis_id_subtype_id == 4
@@ -627,7 +623,6 @@ def _remote_identity_tokens(observation: NeighborObservation) -> dict[str, set[s
 
 def _observed_entity_key(tokens: Mapping[str, set[str]], occurrence_basis: Any) -> str:
     strict_macs = tokens.get("strict_macs", set())
-    names = tokens.get("names", set())
     if len(strict_macs) == 1:
         return f"endpoint:mac:{next(iter(strict_macs))}"
     # A name without an independently resolved entity is edge-scoped. Reusing
@@ -688,9 +683,7 @@ def _protocol_evidence_keys(
             if raw_local != protocol_local:
                 continue
         key = str(
-            record.get("_graph_advertisement_key")
-            or record.get("occurrence_fingerprint")
-            or ""
+            record.get("_graph_advertisement_key") or record.get("occurrence_fingerprint") or ""
         )
         if key:
             matches.append(key)
@@ -716,16 +709,13 @@ def _semantic_detail_value(value: Any) -> Any:
         return {
             str(key): _semantic_detail_value(item)
             for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
-            if str(key).rsplit(".", 1)[-1]
-            not in _VOLATILE_ADVERTISEMENT_DETAIL_FIELDS
+            if str(key).rsplit(".", 1)[-1] not in _VOLATILE_ADVERTISEMENT_DETAIL_FIELDS
         }
     if isinstance(value, list):
         normalized = [_semantic_detail_value(item) for item in value]
         return sorted(
             normalized,
-            key=lambda item: json.dumps(
-                item, sort_keys=True, separators=(",", ":"), default=str
-            ),
+            key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":"), default=str),
         )
     return value
 
@@ -772,9 +762,7 @@ def _source_route_key(record: Mapping[str, Any]) -> str:
     engine = _one_line(system.get("snmp_engine_id")).casefold()
     if engine:
         return stable_fingerprint({"snmp_engine_id": engine})
-    sys_name = _normalized_name(
-        system.get("sys_name") or context.get("snmp_sysname")
-    )
+    sys_name = _normalized_name(system.get("sys_name") or context.get("snmp_sysname"))
     if sys_name:
         return stable_fingerprint({"sys_name": sys_name})
     return stable_fingerprint({"query_target": context.get("query_target")})
@@ -895,9 +883,7 @@ def _compatibility_projection_diagnostics(
             continue
         diagnostics.append(
             {
-                "diagnostic_type": (
-                    "compatibility_host_spans_distinct_endpoint_macs"
-                ),
+                "diagnostic_type": ("compatibility_host_spans_distinct_endpoint_macs"),
                 "severity": "warning",
                 "compatibility_host_ref": host_ref,
                 "endpoint_mac_count": len(endpoint_macs),
@@ -995,15 +981,11 @@ def build_topology_graph(
                 "strict_macs": sorted(strict_macs),
                 "query_targets": sorted(query_targets),
             },
-            "classifications": sorted(
-                dict.fromkeys(item.classification for item in cluster)
-            ),
+            "classifications": sorted(dict.fromkeys(item.classification for item in cluster)),
             "states": sorted(dict.fromkeys(item.state for item in cluster)),
             "cluster_integrity": "conflicted" if conflicts else "consistent",
             "conflicts": conflicts,
-            "projection_status": (
-                "duplicate_projection" if len(host_refs) > 1 else "one_to_one"
-            ),
+            "projection_status": ("duplicate_projection" if len(host_refs) > 1 else "one_to_one"),
             "identity_key_scope": (
                 "run_local" if key.startswith("logical:run-local:") else "semantic"
             ),
@@ -1013,9 +995,7 @@ def build_topology_graph(
             host_to_entity[host_id] = key
         for serial in sorted(serials):
             physical = physical_entities.setdefault(serial, _physical_entity(serial))
-            physical["host_refs"] = sorted(
-                dict.fromkeys([*physical["host_refs"], *host_refs])
-            )
+            physical["host_refs"] = sorted(dict.fromkeys([*physical["host_refs"], *host_refs]))
             memberships.append(
                 {
                     "parent_entity_key": physical["entity_key"],
@@ -1051,9 +1031,7 @@ def build_topology_graph(
             }
         )
 
-    entities.update(
-        {entity["entity_key"]: entity for entity in physical_entities.values()}
-    )
+    entities.update({entity["entity_key"]: entity for entity in physical_entities.values()})
 
     name_index: defaultdict[str, set[str]] = defaultdict(set)
     address_index: defaultdict[str, set[str]] = defaultdict(set)
@@ -1077,9 +1055,7 @@ def build_topology_graph(
     by_source: defaultdict[int, list[dict[str, Any]]] = defaultdict(list)
     for position, record in enumerate(advertisements):
         record_key = (
-            str(record.get("occurrence_fingerprint") or "")
-            if isinstance(record, Mapping)
-            else ""
+            str(record.get("occurrence_fingerprint") or "") if isinstance(record, Mapping) else ""
         ) or stable_fingerprint({"position": position, "record": record})
         if not isinstance(record, Mapping):
             advertisement_exclusions.append(
@@ -1112,9 +1088,7 @@ def build_topology_graph(
 
     interfaces: dict[str, dict[str, Any]] = {}
     graph_advertisements: list[dict[str, Any]] = []
-    relationship_members: defaultdict[tuple[str, str], list[dict[str, Any]]] = (
-        defaultdict(list)
-    )
+    relationship_members: defaultdict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
 
     def resolve_remote(
         observation: NeighborObservation,
@@ -1136,9 +1110,7 @@ def build_topology_graph(
                 item for token in tokens["names"] for item in name_index.get(token, set())
             }
             address_candidates = {
-                item
-                for token in tokens["addresses"]
-                for item in address_index.get(token, set())
+                item for token in tokens["addresses"] for item in address_index.get(token, set())
             }
             if name_candidates and address_candidates:
                 intersection = name_candidates & address_candidates
@@ -1164,11 +1136,7 @@ def build_topology_graph(
                 if tokens["names"]
                 else _one_line(observation.remote_name)
                 or _local_chassis_label(observation)
-                or (
-                    sorted(tokens["strict_macs"])[0]
-                    if tokens["strict_macs"]
-                    else None
-                )
+                or (sorted(tokens["strict_macs"])[0] if tokens["strict_macs"] else None)
                 or observation.chassis_id
                 or "unknown"
             )
@@ -1254,8 +1222,7 @@ def build_topology_graph(
             content_key = _semantic_advertisement_content(raw_record)
             route_key = _source_route_key(raw_record)
             storage_key = str(
-                raw_record.get("occurrence_fingerprint")
-                or stable_fingerprint(raw_record)
+                raw_record.get("occurrence_fingerprint") or stable_fingerprint(raw_record)
             )
             prepared.append((content_key, route_key, storage_key, raw_record))
         prepared.sort(key=lambda item: (item[0], item[1], item[2]))
@@ -1264,14 +1231,17 @@ def build_topology_graph(
             ordinal_key = (source_entity, content_key, route_key)
             semantic_ordinal = occurrence_counts[ordinal_key]
             occurrence_counts[ordinal_key] += 1
-            advertisement_key = "advertisement:" + stable_fingerprint(
-                {
-                    "source_entity_key": source_entity,
-                    "source_route_key": route_key,
-                    "content_fingerprint": content_key,
-                    "duplicate_ordinal": semantic_ordinal,
-                }
-            )[:32]
+            advertisement_key = (
+                "advertisement:"
+                + stable_fingerprint(
+                    {
+                        "source_entity_key": source_entity,
+                        "source_route_key": route_key,
+                        "content_fingerprint": content_key,
+                        "duplicate_ordinal": semantic_ordinal,
+                    }
+                )[:32]
+            )
             raw_record["_graph_advertisement_key"] = advertisement_key
             raw_records.append(raw_record)
             raw_observation = observation_from_payload(raw_record["observation"])
@@ -1310,13 +1280,16 @@ def build_topology_graph(
                 merged.local_interface or merged.local_interface_raw or "unresolved"
             )
             namespace = _canonical_interface_namespace(merged)
-            interface_key = "interface:" + stable_fingerprint(
-                {
-                    "owner_entity_key": source_entity,
-                    "name": local_name.casefold(),
-                    "namespace": namespace.casefold(),
-                }
-            )[:24]
+            interface_key = (
+                "interface:"
+                + stable_fingerprint(
+                    {
+                        "owner_entity_key": source_entity,
+                        "name": local_name.casefold(),
+                        "namespace": namespace.casefold(),
+                    }
+                )[:24]
+            )
             interface = interfaces.setdefault(
                 interface_key,
                 {
@@ -1346,14 +1319,11 @@ def build_topology_graph(
                 )
                 if raw_local and raw_local not in interface["raw_identifiers"]:
                     interface["raw_identifiers"].append(raw_local)
-            interface["raw_identifiers"] = sorted(
-                interface["raw_identifiers"], key=str.casefold
-            )
+            interface["raw_identifiers"] = sorted(interface["raw_identifiers"], key=str.casefold)
             evidence_namespaces = {
                 _local_namespace(observation_from_payload(record["observation"]))
                 for record in raw_records
-                if str(record.get("_graph_advertisement_key") or "")
-                in evidence_key_set
+                if str(record.get("_graph_advertisement_key") or "") in evidence_key_set
                 and isinstance(record.get("observation"), Mapping)
             }
             interface["evidence_namespaces"] = sorted(
@@ -1418,7 +1388,6 @@ def build_topology_graph(
             }
             relationship_members[(source_entity, interface_key)].append(member)
 
-
     relationship_groups: list[dict[str, Any]] = []
     relationships: list[dict[str, Any]] = []
     physical_parent_by_child: defaultdict[str, set[str]] = defaultdict(set)
@@ -1434,7 +1403,7 @@ def build_topology_graph(
         for member in members:
             by_member_key[str(member["relationship_key"])].append(member)
         canonical_members: list[dict[str, Any]] = []
-        for member_key, duplicates in sorted(by_member_key.items()):
+        for _member_key, duplicates in sorted(by_member_key.items()):
             member = copy.deepcopy(duplicates[0])
             member["multiplicity"] = len(duplicates)
             member["evidence_advertisement_keys"] = sorted(
@@ -1453,9 +1422,7 @@ def build_topology_graph(
         common_physical: set[str] | None = None
         for remote in unique_remote:
             parents = physical_parent_by_child.get(remote, set())
-            common_physical = (
-                set(parents) if common_physical is None else common_physical & parents
-            )
+            common_physical = set(parents) if common_physical is None else common_physical & parents
         common_physical = common_physical or set()
         if interface["kind"] == "overlay":
             classification = "overlay_observations"
@@ -1472,8 +1439,7 @@ def build_topology_graph(
             "source_entity_key": source_entity,
             "interface_key": interface_key,
             "member_keys": [
-                [member["relationship_key"], member["multiplicity"]]
-                for member in canonical_members
+                [member["relationship_key"], member["multiplicity"]] for member in canonical_members
             ],
         }
         group_key = "group:" + stable_fingerprint(group_basis)[:24]
@@ -1489,9 +1455,7 @@ def build_topology_graph(
             "member_count": sum(int(member["multiplicity"]) for member in canonical_members),
             "unique_member_count": len(unique_remote),
             "member_entity_keys": unique_remote,
-            "relationship_keys": [
-                str(member["relationship_key"]) for member in canonical_members
-            ],
+            "relationship_keys": [str(member["relationship_key"]) for member in canonical_members],
             "shared_physical_chassis_key": (
                 next(iter(common_physical)) if len(common_physical) == 1 else None
             ),
@@ -1565,18 +1529,13 @@ def build_topology_graph(
         # internally ambiguous graph.
         preview = ", ".join(duplicate_advertisement_keys[:5])
         raise ValueError(
-            "Topology graph advertisement keys are not unique"
-            + (f": {preview}" if preview else "")
+            "Topology graph advertisement keys are not unique" + (f": {preview}" if preview else "")
         )
     unaccounted_advertisement_count = max(
         0,
-        input_advertisement_count
-        - materialized_advertisement_count
-        - excluded_advertisement_count,
+        input_advertisement_count - materialized_advertisement_count - excluded_advertisement_count,
     )
-    observation_completeness = (
-        "complete" if unaccounted_advertisement_count == 0 else "partial"
-    )
+    observation_completeness = "complete" if unaccounted_advertisement_count == 0 else "partial"
     compatibility_projection_diagnostics = _compatibility_projection_diagnostics(
         compatibility_projection_advertisements,
         entities,
@@ -1593,14 +1552,8 @@ def build_topology_graph(
                     if key not in {"interpretation"}
                 },
                 "evidence": [
-                    *[
-                        f"endpoint_mac:{value}"
-                        for value in diagnostic["endpoint_macs"]
-                    ],
-                    *[
-                        f"graph_entity:{value}"
-                        for value in diagnostic["graph_entity_keys"]
-                    ],
+                    *[f"endpoint_mac:{value}" for value in diagnostic["endpoint_macs"]],
+                    *[f"graph_entity:{value}" for value in diagnostic["graph_entity_keys"]],
                 ],
             }
         )
@@ -1671,16 +1624,11 @@ def build_topology_graph(
             ),
         ),
         "collection_coverage": {
-            entity_key: values
-            for entity_key, values in sorted(coverage_by_entity.items())
+            entity_key: values for entity_key, values in sorted(coverage_by_entity.items())
         },
     }
     fingerprint_basis = _stable_projection_value(
-        {
-            key: value
-            for key, value in document.items()
-            if key != "projection_fingerprint"
-        }
+        {key: value for key, value in document.items() if key != "projection_fingerprint"}
     )
     document["projection_fingerprint"] = stable_fingerprint(fingerprint_basis)
     summary = {
@@ -1706,22 +1654,17 @@ def build_topology_graph(
             for entity in document["entities"]
         ),
         "multi_neighbor_groups": sum(
-            group.get("unique_member_count", 0) > 1
-            for group in document["relationship_groups"]
+            group.get("unique_member_count", 0) > 1 for group in document["relationship_groups"]
         ),
         "shared_chassis_groups": sum(
             group.get("classification") == "shared_chassis_logical_members"
             for group in document["relationship_groups"]
         ),
         "unresolved_directness_groups": len(document["relationship_groups"]),
-        "compatibility_projection_diagnostics": len(
-            compatibility_projection_diagnostics
-        ),
+        "compatibility_projection_diagnostics": len(compatibility_projection_diagnostics),
     }
     document["summary"] = summary
-    document["compatibility_projection_diagnostics"] = (
-        compatibility_projection_diagnostics
-    )
+    document["compatibility_projection_diagnostics"] = compatibility_projection_diagnostics
     # The summary is derived and intentionally does not affect the projection
     # fingerprint; its values can always be regenerated from the graph arrays.
 

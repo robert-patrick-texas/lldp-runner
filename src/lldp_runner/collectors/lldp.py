@@ -5,7 +5,7 @@ from __future__ import annotations
 import ipaddress
 import time
 from collections import defaultdict
-from typing import Any, Protocol
+from typing import Protocol
 
 from lldp_runner.collectors.interfaces import display_interface_name
 from lldp_runner.identity import is_usable_host_address
@@ -199,8 +199,7 @@ def _validate_remote_row(
     if missing:
         rendered_index = ".".join(str(item) for item in index)
         raise LldpSnapshotIncompleteError(
-            f"{protocol} remote table row {rendered_index} missing mandatory "
-            + ", ".join(missing)
+            f"{protocol} remote table row {rendered_index} missing mandatory " + ", ".join(missing)
         )
 
 
@@ -397,7 +396,7 @@ def _covered_exception(
     """Attach partial subtable facts without changing ordinary exception types."""
 
     try:
-        setattr(exc, "lldp_subtable_coverage", dict(coverage))
+        setattr(exc, "lldp_subtable_coverage", dict(coverage))  # noqa: B010 - ty: dynamic attribute on exception
     except (AttributeError, TypeError):
         return LldpSubtableCollectionError(exc, dict(coverage))
     return exc
@@ -583,9 +582,7 @@ def _management_rows(
     return management, coverage
 
 
-async def collect_lldp(
-    client: Walker, interfaces: dict[int, tuple[str, str]]
-) -> LldpCollection:
+async def collect_lldp(client: Walker, interfaces: dict[int, tuple[str, str]]) -> LldpCollection:
     """Collect original LLDP with independent local/remote/management coverage."""
 
     del interfaces  # Original LLDP local ports use lldpLocPortTable, not IF-MIB.
@@ -614,9 +611,7 @@ async def collect_lldp(
         )
         _raise_covered(exc, subtable_coverage)
 
-    man_rows, man_walk_coverage, man_exc = await _walk_subtable(
-        client, LLDP_REM_MAN_ADDR_ENTRY
-    )
+    man_rows, man_walk_coverage, man_exc = await _walk_subtable(client, LLDP_REM_MAN_ADDR_ENTRY)
     if man_rows is None:
         subtable_coverage["remote_management_address"] = man_walk_coverage
         assert man_exc is not None
@@ -677,15 +672,11 @@ async def collect_lldp(
     return LldpCollection(result, subtable_coverage=subtable_coverage)
 
 
-async def collect_lldpv2(
-    client: Walker, interfaces: dict[int, tuple[str, str]]
-) -> LldpCollection:
+async def collect_lldpv2(client: Walker, interfaces: dict[int, tuple[str, str]]) -> LldpCollection:
     """Collect LLDPv2 with remote and management subtable coverage."""
 
     subtable_coverage: dict[str, CollectionCoverage] = {}
-    rows, remote_coverage, remote_exc = await _walk_subtable(
-        client, LLDPV2_REM_ENTRY
-    )
+    rows, remote_coverage, remote_exc = await _walk_subtable(client, LLDPV2_REM_ENTRY)
     subtable_coverage["remote_neighbor"] = remote_coverage
     if rows is None:
         subtable_coverage["remote_management_address"] = _not_attempted(
@@ -707,9 +698,7 @@ async def collect_lldpv2(
         )
         _raise_covered(exc, subtable_coverage)
 
-    man_rows, man_walk_coverage, man_exc = await _walk_subtable(
-        client, LLDPV2_REM_MAN_ADDR_ENTRY
-    )
+    man_rows, man_walk_coverage, man_exc = await _walk_subtable(client, LLDPV2_REM_MAN_ADDR_ENTRY)
     if man_rows is None:
         subtable_coverage["remote_management_address"] = man_walk_coverage
         assert man_exc is not None

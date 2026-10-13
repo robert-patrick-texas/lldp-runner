@@ -145,9 +145,7 @@ def _semantic_entity(entity: Mapping[str, Any]) -> dict[str, Any]:
         "identity": identity,
         "cluster_integrity": entity.get("cluster_integrity"),
         "conflicts": sorted(str(value) for value in entity.get("conflicts", [])),
-        "classifications": sorted(
-            str(value) for value in entity.get("classifications", [])
-        ),
+        "classifications": sorted(str(value) for value in entity.get("classifications", [])),
     }
 
 
@@ -156,9 +154,7 @@ def _host_ref_count(entity: Mapping[str, Any]) -> int:
     return len(values) if isinstance(values, list) else 0
 
 
-def _component_status(
-    left: Sequence[Mapping[str, Any]], right: Sequence[Mapping[str, Any]]
-) -> str:
+def _component_status(left: Sequence[Mapping[str, Any]], right: Sequence[Mapping[str, Any]]) -> str:
     if not left:
         return "b_only"
     if not right:
@@ -177,12 +173,8 @@ def _component_status(
         return "cluster_merge"
     if len(right) == 1:
         return "cluster_split"
-    left_semantics = sorted(
-        stable_fingerprint(_semantic_entity(entity)) for entity in left
-    )
-    right_semantics = sorted(
-        stable_fingerprint(_semantic_entity(entity)) for entity in right
-    )
+    left_semantics = sorted(stable_fingerprint(_semantic_entity(entity)) for entity in left)
+    right_semantics = sorted(stable_fingerprint(_semantic_entity(entity)) for entity in right)
     if left_semantics == right_semantics:
         # The evidence forms a many-to-many component, but its semantic multiset
         # is unchanged. Preserve the ambiguity without reporting topology churn.
@@ -208,8 +200,7 @@ def _correspondence_components(
     # sites. Build candidate pairs from exact typed evidence, then apply the same
     # conservative evidence gate to each candidate.
     b_indexes: dict[str, defaultdict[str, set[str]]] = {
-        name: defaultdict(set)
-        for name in ("key", "name", "address", "engine", "serial", "mac")
+        name: defaultdict(set) for name in ("key", "name", "address", "engine", "serial", "mac")
     }
     for b_key, b_entity in b_by_key.items():
         b_indexes["key"][b_key].add(b_key)
@@ -251,8 +242,7 @@ def _correspondence_components(
                 continue
             weak_name_only = all(value.startswith("name_only:") for value in evidence)
             if weak_name_only and (
-                (a_key in exact_keys and b_key != a_key)
-                or (b_key in exact_keys and a_key != b_key)
+                (a_key in exact_keys and b_key != a_key) or (b_key in exact_keys and a_key != b_key)
             ):
                 # Exact occurrence identity is allowed to absorb an additional
                 # projection only when independent target, address, chassis,
@@ -289,9 +279,7 @@ def _correspondence_components(
                     queue.append(neighbor)
         a_keys = sorted(key for side, key in nodes if side == "a")
         b_keys = sorted(key for side, key in nodes if side == "b")
-        component_key = "correspondence:" + stable_fingerprint(
-            {"a": a_keys, "b": b_keys}
-        )[:24]
+        component_key = "correspondence:" + stable_fingerprint({"a": a_keys, "b": b_keys})[:24]
         left = [a_by_key[key] for key in a_keys]
         right = [b_by_key[key] for key in b_keys]
         evidence = sorted(
@@ -311,11 +299,14 @@ def _correspondence_components(
             "b_entities": [_entity_view(item) for item in right],
             "evidence": evidence,
             "physical_topology_effect": (
-                "none" if status in {
+                "none"
+                if status
+                in {
                     "same",
                     "absorbed_duplicate",
                     "duplicate_projection_introduced",
-                } else "not_inferred"
+                }
+                else "not_inferred"
             ),
         }
         components.append(component)
@@ -343,18 +334,19 @@ def _member_signature(
         if tokens["macs"]:
             remote_component = "edge-mac:" + ",".join(sorted(tokens["macs"]))
         elif tokens["names"] and tokens["addresses"]:
-            remote_component = "edge-name-address:" + stable_fingerprint(
-                {
-                    "names": sorted(tokens["names"]),
-                    "addresses": sorted(tokens["addresses"]),
-                }
-            )[:24]
+            remote_component = (
+                "edge-name-address:"
+                + stable_fingerprint(
+                    {
+                        "names": sorted(tokens["names"]),
+                        "addresses": sorted(tokens["addresses"]),
+                    }
+                )[:24]
+            )
         elif tokens["names"]:
             remote_component = "edge-name:" + ",".join(sorted(tokens["names"]))
         elif tokens["addresses"]:
-            remote_component = "edge-address:" + ",".join(
-                sorted(tokens["addresses"])
-            )
+            remote_component = "edge-address:" + ",".join(sorted(tokens["addresses"]))
         else:
             display = str(entity.get("display_name") or member.get("remote_name") or "")
             remote_component = "edge-display:" + display.casefold()
@@ -401,9 +393,7 @@ def _local_port_evidence(
             number = mib_index.get("local_port_num")
             if not isinstance(number, int) or isinstance(number, bool):
                 continue
-            namespace = str(
-                advertisement.get("local_interface_namespace") or "lldpLocalPort"
-            )
+            namespace = str(advertisement.get("local_interface_namespace") or "lldpLocalPort")
             tokens.add(f"{namespace}:{number}")
             resolved = mib_index.get("local_interface_resolved")
             if isinstance(resolved, bool):
@@ -424,8 +414,7 @@ def _group_set(
 ) -> dict[tuple[str, str, str], list[dict[str, Any]]]:
     result: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
     interface_by_key = {
-        str(item.get("interface_key")): item
-        for item in _items(graph.get("interfaces"))
+        str(item.get("interface_key")): item for item in _items(graph.get("interfaces"))
     }
     relationship_by_key = {
         str(item.get("relationship_key")): item
@@ -457,11 +446,11 @@ def _group_set(
                 if str(value) in relationship_by_key
             ]
         else:
-            members = [
-                item
-                for item in group.get("members", [])
-                if isinstance(item, Mapping)
-            ] if isinstance(group.get("members"), list) else []
+            members = (
+                [item for item in group.get("members", []) if isinstance(item, Mapping)]
+                if isinstance(group.get("members"), list)
+                else []
+            )
         signatures = sorted(
             _member_signature(member, entity_map, entity_by_key) for member in members
         )
@@ -492,16 +481,11 @@ def _group_set(
                         else {}
                     ),
                     "remote_interface": member.get("remote_interface"),
-                    "protocols": sorted(
-                        str(value).casefold()
-                        for value in protocols
-                        if value
-                    )
+                    "protocols": sorted(str(value).casefold() for value in protocols if value)
                     if isinstance(protocols, list)
                     else [],
                     "evidence_advertisement_keys": sorted(
-                        str(value)
-                        for value in member.get("evidence_advertisement_keys", [])
+                        str(value) for value in member.get("evidence_advertisement_keys", [])
                     )
                     if isinstance(member.get("evidence_advertisement_keys"), list)
                     else [],
@@ -514,9 +498,7 @@ def _group_set(
                 tuple(item.get("protocols") or ()),
             )
         )
-        typed_local_ports, port_resolution = _local_port_evidence(
-            members, advertisement_by_key
-        )
+        typed_local_ports, port_resolution = _local_port_evidence(members, advertisement_by_key)
         result[key].append(
             {
                 "group_key": group.get("group_key"),
@@ -601,9 +583,7 @@ def _group_member_protocols(
     return result
 
 
-def _member_change_view(
-    member_key: tuple[str, str], protocols: set[str]
-) -> dict[str, Any]:
+def _member_change_view(member_key: tuple[str, str], protocols: set[str]) -> dict[str, Any]:
     """Return one compact, deterministic member-change record."""
 
     return {
@@ -641,12 +621,8 @@ def _relationship_change_details(
     if a_only_keys or b_only_keys:
         dimensions.append("member_presence")
         member_presence_change = {
-            "a_only": [
-                _member_change_view(key, a_members[key]) for key in a_only_keys
-            ],
-            "b_only": [
-                _member_change_view(key, b_members[key]) for key in b_only_keys
-            ],
+            "a_only": [_member_change_view(key, a_members[key]) for key in a_only_keys],
+            "b_only": [_member_change_view(key, b_members[key]) for key in b_only_keys],
         }
 
     member_protocol_changes = [
@@ -680,10 +656,7 @@ def _group_typed_ports(groups: Sequence[Mapping[str, Any]]) -> set[str]:
 
 
 def _group_resolution_states(groups: Sequence[Mapping[str, Any]]) -> set[str]:
-    return {
-        str(group.get("local_port_resolution") or "unknown")
-        for group in groups
-    }
+    return {str(group.get("local_port_resolution") or "unknown") for group in groups}
 
 
 def _weak_mobility_component(component: Mapping[str, Any]) -> bool:
@@ -700,10 +673,7 @@ def _weak_mobility_component(component: Mapping[str, Any]) -> bool:
     for side in ("a", "b"):
         for entity in _component_entities(component, side):
             tokens = _entity_tokens(entity)
-            if any(
-                tokens[key]
-                for key in ("names", "addresses", "engines", "serials", "targets")
-            ):
+            if any(tokens[key] for key in ("names", "addresses", "engines", "serials", "targets")):
                 return False
             macs.update(tokens["macs"])
     return bool(macs) and all(weak_mobility_mac(value) for value in macs)
@@ -795,9 +765,7 @@ def _relationship_record(
     else:
         a_members = {item for signature in a_signatures for item in signature[0]}
         b_members = {item for signature in b_signatures for item in signature[0]}
-        if {(item[0], item[1]) for item in a_members} == {
-            (item[0], item[1]) for item in b_members
-        }:
+        if {(item[0], item[1]) for item in a_members} == {(item[0], item[1]) for item in b_members}:
             status = "protocol_evidence_changed"
         else:
             status = "member_set_changed"
@@ -805,12 +773,8 @@ def _relationship_record(
     if weak_candidate_move:
         status = "candidate_move"
 
-    a_local = sorted(
-        {str(group.get("local_interface") or "unresolved") for group in left}
-    )
-    b_local = sorted(
-        {str(group.get("local_interface") or "unresolved") for group in right}
-    )
+    a_local = sorted({str(group.get("local_interface") or "unresolved") for group in left})
+    b_local = sorted({str(group.get("local_interface") or "unresolved") for group in right})
     port_resolution = None
     presentation_differences: list[dict[str, Any]] = []
     if cross_local:
@@ -839,9 +803,7 @@ def _relationship_record(
             },
         ]
     elif weak_candidate_move:
-        presentation_differences = [
-            {"path": "local_interface", "a": a_local, "b": b_local}
-        ]
+        presentation_differences = [{"path": "local_interface", "a": a_local, "b": b_local}]
 
     (
         change_dimensions,
@@ -888,9 +850,7 @@ def _relationship_record(
             {
                 "status": "candidate_move",
                 "identity_strength": "weak",
-                "reason": (
-                    "remote identity is insufficient to confirm a physical port move"
-                ),
+                "reason": ("remote identity is insufficient to confirm a physical port move"),
             }
             if weak_candidate_move
             else None
@@ -937,9 +897,7 @@ def _relationship_comparison(
             b_key
             for b_key in b_only_keys
             if a_key[0] == b_key[0]
-            and _cross_local_group_correspondence(
-                a_groups[a_key], b_groups[b_key]
-            )
+            and _cross_local_group_correspondence(a_groups[a_key], b_groups[b_key])
         ]
         a_candidates[a_key] = candidates
         for b_key in candidates:
@@ -957,11 +915,7 @@ def _relationship_comparison(
         used_a.add(a_key)
         used_b.add(b_key)
         typed_port = sorted(_group_typed_ports(a_groups[a_key]))[0]
-        interface_kind = (
-            a_key[2]
-            if a_key[2] != "unresolved"
-            else b_key[2]
-        )
+        interface_kind = a_key[2] if a_key[2] != "unresolved" else b_key[2]
         key = (a_key[0], typed_port.casefold(), interface_kind)
         comparisons.append(
             _relationship_record(
@@ -979,12 +933,8 @@ def _relationship_comparison(
     }
     remaining_a = [key for key in a_only_keys if key not in used_a]
     remaining_b = [key for key in b_only_keys if key not in used_b]
-    weak_a_candidates: dict[
-        tuple[str, str, str], list[tuple[str, str, str]]
-    ] = {}
-    weak_b_candidates: dict[
-        tuple[str, str, str], list[tuple[str, str, str]]
-    ] = defaultdict(list)
+    weak_a_candidates: dict[tuple[str, str, str], list[tuple[str, str, str]]] = {}
+    weak_b_candidates: dict[tuple[str, str, str], list[tuple[str, str, str]]] = defaultdict(list)
     for a_key in remaining_a:
         candidates = [
             b_key
@@ -1059,20 +1009,14 @@ def _component_host_refs(component: Mapping[str, Any], side: str) -> set[int]:
     return result
 
 
-def _component_entities(
-    component: Mapping[str, Any], side: str
-) -> list[Mapping[str, Any]]:
+def _component_entities(component: Mapping[str, Any], side: str) -> list[Mapping[str, Any]]:
     values = component.get(f"{side}_entities")
     return (
-        [item for item in values if isinstance(item, Mapping)]
-        if isinstance(values, list)
-        else []
+        [item for item in values if isinstance(item, Mapping)] if isinstance(values, list) else []
     )
 
 
-def _graph_coverage_rows(
-    graph: Mapping[str, Any], entity_key: str
-) -> list[Mapping[str, Any]]:
+def _graph_coverage_rows(graph: Mapping[str, Any], entity_key: str) -> list[Mapping[str, Any]]:
     coverage = graph.get("collection_coverage")
     if not isinstance(coverage, Mapping):
         return []
@@ -1145,9 +1089,7 @@ def _graph_incident_key(
     refs = missing_entity.get("host_refs")
     values = refs if isinstance(refs, list) else []
     host_refs = [
-        value
-        for value in values
-        if isinstance(value, int) and not isinstance(value, bool)
+        value for value in values if isinstance(value, int) and not isinstance(value, bool)
     ]
     if host_refs:
         payload = {
@@ -1186,9 +1128,7 @@ def _graph_coverage_sources(
     sources: list[dict[str, Any]] = []
     complete_path = False
     for protocol in sorted({str(value).casefold() for value in protocols if value}):
-        complete, failures = _graph_protocol_coverage(
-            missing_graph, missing_entities, protocol
-        )
+        complete, failures = _graph_protocol_coverage(missing_graph, missing_entities, protocol)
         if complete:
             complete_path = True
             continue
@@ -1247,9 +1187,7 @@ def _group_protocols(groups: Sequence[Mapping[str, Any]]) -> set[str]:
     return result
 
 
-def _remote_components(
-    relationship: Mapping[str, Any], side: str
-) -> set[str]:
+def _remote_components(relationship: Mapping[str, Any], side: str) -> set[str]:
     """Return remote correspondence component keys represented on one side."""
 
     result: set[str] = set()
@@ -1293,15 +1231,13 @@ def _relationship_coverage_sources(
                         "a",
                         "b",
                         b_graph,
-                        a_members.get(member_key, set())
-                        - b_members.get(member_key, set()),
+                        a_members.get(member_key, set()) - b_members.get(member_key, set()),
                     ),
                     (
                         "b",
                         "a",
                         a_graph,
-                        b_members.get(member_key, set())
-                        - a_members.get(member_key, set()),
+                        b_members.get(member_key, set()) - a_members.get(member_key, set()),
                     ),
                 )
             )
@@ -1327,10 +1263,7 @@ def _relationship_coverage_sources(
         # not turn the same physical observation into an uncertain absence.
         if not complete_path:
             sources.extend(found)
-    unique = {
-        stable_fingerprint(source): source
-        for source in sources
-    }
+    unique = {stable_fingerprint(source): source for source in sources}
     return [unique[key] for key in sorted(unique)]
 
 
@@ -1363,26 +1296,18 @@ def _qualify_entity_components(
         coverage_sources: list[dict[str, Any]] = []
         for host_ref in sorted(_component_host_refs(component, "a")):
             coverage_sources.extend(
-                copy.deepcopy(dict(source))
-                for source in a_attribute_uncertainty.get(host_ref, ())
+                copy.deepcopy(dict(source)) for source in a_attribute_uncertainty.get(host_ref, ())
             )
         for host_ref in sorted(_component_host_refs(component, "b")):
             coverage_sources.extend(
-                copy.deepcopy(dict(source))
-                for source in b_attribute_uncertainty.get(host_ref, ())
+                copy.deepcopy(dict(source)) for source in b_attribute_uncertainty.get(host_ref, ())
             )
         if coverage_sources:
-            unique = {
-                stable_fingerprint(source): source for source in coverage_sources
-            }
+            unique = {stable_fingerprint(source): source for source in coverage_sources}
             coverage_sources = [unique[key] for key in sorted(unique)]
-        if status == "a_only" and (
-            _component_host_refs(component, "a") & a_uncertain_host_refs
-        ):
+        if status == "a_only" and (_component_host_refs(component, "a") & a_uncertain_host_refs):
             qualification = "coverage_uncertain"
-        elif status == "b_only" and (
-            _component_host_refs(component, "b") & b_uncertain_host_refs
-        ):
+        elif status == "b_only" and (_component_host_refs(component, "b") & b_uncertain_host_refs):
             qualification = "coverage_uncertain"
         elif status in presentation_statuses:
             qualification = "presentation_only"
@@ -1404,13 +1329,11 @@ def _qualify_entity_components(
             if qualification == "ambiguous"
             else "confirmed"
         )
-        component["coverage_source"] = (
-            coverage_sources[0] if len(coverage_sources) == 1 else None
-        )
+        component["coverage_source"] = coverage_sources[0] if len(coverage_sources) == 1 else None
         component["coverage_sources"] = coverage_sources
         if qualification == "coverage_uncertain":
-            uncertain_components[str(component.get("component_key") or "")] = (
-                copy.deepcopy(coverage_sources)
+            uncertain_components[str(component.get("component_key") or "")] = copy.deepcopy(
+                coverage_sources
             )
     return uncertain_components
 
@@ -1456,8 +1379,7 @@ def _qualify_relationships(
     }
     ambiguous_statuses = {"same_ambiguous", "candidate_move"}
     component_by_key = {
-        str(component.get("component_key") or ""): component
-        for component in components
+        str(component.get("component_key") or ""): component for component in components
     }
 
     # The relationship graph is finite. Each successful pass adds at least one
@@ -1481,9 +1403,7 @@ def _qualify_relationships(
                 stable_fingerprint(source): source
                 for source in [*explicit_sources, *inherited_sources]
             }
-            coverage_sources = [
-                unique_sources[key] for key in sorted(unique_sources)
-            ]
+            coverage_sources = [unique_sources[key] for key in sorted(unique_sources)]
 
             qualification = "confirmed"
             if status == "same" and relationship.get("presentation_differences"):
@@ -1539,9 +1459,7 @@ def _qualify_relationships(
                     continue
                 current_sources = uncertain_components.get(component_key)
                 if current_sources is None:
-                    uncertain_components[component_key] = copy.deepcopy(
-                        coverage_sources
-                    )
+                    uncertain_components[component_key] = copy.deepcopy(coverage_sources)
                     component["semantic_qualification"] = "coverage_uncertain"
                     component["presence_status"] = component_status
                     component["presence_confidence"] = "coverage_uncertain"
@@ -1551,9 +1469,7 @@ def _qualify_relationships(
                     component["coverage_sources"] = copy.deepcopy(coverage_sources)
                     propagated = True
                 elif not current_sources and coverage_sources:
-                    uncertain_components[component_key] = copy.deepcopy(
-                        coverage_sources
-                    )
+                    uncertain_components[component_key] = copy.deepcopy(coverage_sources)
                     component["coverage_source"] = (
                         coverage_sources[0] if len(coverage_sources) == 1 else None
                     )
@@ -1570,12 +1486,8 @@ def compare_topology_graphs(
     changes_only: bool = False,
     a_uncertain_host_refs: set[int] | None = None,
     b_uncertain_host_refs: set[int] | None = None,
-    a_attribute_uncertainty: Mapping[
-        int, Sequence[Mapping[str, Any]]
-    ] | None = None,
-    b_attribute_uncertainty: Mapping[
-        int, Sequence[Mapping[str, Any]]
-    ] | None = None,
+    a_attribute_uncertainty: Mapping[int, Sequence[Mapping[str, Any]]] | None = None,
+    b_attribute_uncertainty: Mapping[int, Sequence[Mapping[str, Any]]] | None = None,
 ) -> dict[str, Any]:
     """Compare two schema-2 topology graphs without forcing one-to-one pairs."""
 
@@ -1617,9 +1529,7 @@ def compare_topology_graphs(
         }
 
     components, a_map, b_map = _correspondence_components(a_graph, b_graph)
-    relationships = _relationship_comparison(
-        a_graph, b_graph, a_map, b_map, components
-    )
+    relationships = _relationship_comparison(a_graph, b_graph, a_map, b_map, components)
     uncertain_components = _qualify_entity_components(
         components,
         a_uncertain_host_refs=set(a_uncertain_host_refs or ()),
@@ -1662,8 +1572,7 @@ def compare_topology_graphs(
         item["status"] in projection_only_statuses for item in components
     )
     has_observed_relationship_differences = any(
-        item["status"] not in relationship_no_topology_statuses
-        for item in relationships
+        item["status"] not in relationship_no_topology_statuses for item in relationships
     )
     has_confirmed_observed_relationship_differences = any(
         item["status"] not in relationship_no_topology_statuses
@@ -1701,19 +1610,13 @@ def compare_topology_graphs(
         "available": True,
         "authority": {
             "observation_completeness": observation_completeness,
-            "a_observation_completeness": a_authority.get(
-                "observation_completeness", "unknown"
-            ),
-            "b_observation_completeness": b_authority.get(
-                "observation_completeness", "unknown"
-            ),
+            "a_observation_completeness": a_authority.get("observation_completeness", "unknown"),
+            "b_observation_completeness": b_authority.get("observation_completeness", "unknown"),
             "entity_resolution": "provisional",
             "physical_topology": "not_inferred",
             "directness": "unresolved",
         },
-        "message": (
-            "Graph differences found" if has_differences else "No graph differences"
-        ),
+        "message": ("Graph differences found" if has_differences else "No graph differences"),
         "has_differences": has_differences,
         "has_resolution_differences": has_resolution_differences,
         "has_observed_relationship_differences": has_observed_relationship_differences,
@@ -1724,9 +1627,7 @@ def compare_topology_graphs(
         # observations without asserting that a cable or physical adjacency
         # changed.  This field is intentionally categorical rather than boolean.
         "physical_topology_assessment": (
-            "not_inferred"
-            if has_observed_relationship_differences
-            else "no_change_indicated"
+            "not_inferred" if has_observed_relationship_differences else "no_change_indicated"
         ),
         "summary": {
             "entity_correspondence": entity_counts,

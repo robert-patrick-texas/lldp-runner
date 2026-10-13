@@ -172,9 +172,7 @@ def _install_fake_pysnmp(monkeypatch: pytest.MonkeyPatch, behavior: Behavior):
 
         @classmethod
         async def create(cls, destination: tuple[str, int], **kwargs: Any) -> Any:
-            behavior.targets.append(
-                {"family": cls.family, "destination": destination, **kwargs}
-            )
+            behavior.targets.append({"family": cls.family, "destination": destination, **kwargs})
             if behavior.target_cancel:
                 raise asyncio.CancelledError
             if behavior.target_error is not None:
@@ -295,9 +293,7 @@ def test_authpriv_preflight_probes_each_distinct_supported_cipher(
         checked.append,
     )
 
-    module.preflight_pysnmp_authpriv(
-        ("des", "aes256", "aes128", "aes256-blumenthal", "aes128")
-    )
+    module.preflight_pysnmp_authpriv(("des", "aes256", "aes128", "aes256-blumenthal", "aes128"))
 
     assert checked == ["aes128", "aes256", "aes256-blumenthal", "des"]
     assert behavior.engines == []
@@ -923,11 +919,8 @@ def test_installed_pysnmp_authpriv_crypto_when_available() -> None:
         pytest.skip(f"installed PySNMP authPriv dependencies unavailable: {exc}")
     if tuple(int(part) for part in cryptography_version.split(".")[:2]) < (50, 0):
         pytest.skip(
-            "installed cryptography predates the 0.37.0 release constraint: "
-            f"{cryptography_version}"
+            f"installed cryptography predates the 0.37.0 release constraint: {cryptography_version}"
         )
 
     module = importlib.import_module("lldp_runner.snmp.pysnmp")
-    module.preflight_pysnmp_authpriv(
-        ("aes128", "aes256", "aes256-blumenthal", "des")
-    )
+    module.preflight_pysnmp_authpriv(("aes128", "aes256", "aes256-blumenthal", "des"))

@@ -79,9 +79,7 @@ def test_required_authpriv_protocols_include_reachable_and_direct_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    config = _load(
-        _write_config(tmp_path / "pysnmp.toml", backend="pysnmp", include_v3=True)
-    )
+    config = _load(_write_config(tmp_path / "pysnmp.toml", backend="pysnmp", include_v3=True))
     direct = DirectCredential(
         name="seed-direct",
         version="v3",
@@ -142,9 +140,7 @@ def test_pysnmp_preflight_delegates_distinct_protocols_without_network(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    config = _load(
-        _write_config(tmp_path / "pysnmp.toml", backend="pysnmp", include_v3=True)
-    )
+    config = _load(_write_config(tmp_path / "pysnmp.toml", backend="pysnmp", include_v3=True))
     observed: list[tuple[str, ...]] = []
 
     from lldp_runner.snmp import pysnmp as pysnmp_module

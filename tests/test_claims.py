@@ -74,8 +74,7 @@ def test_candidate_claims_separate_strong_and_weak_evidence() -> None:
     chassis = next(
         claim
         for claim in claims
-        if claim.claim_type == "chassis"
-        and claim.claim_subtype == "network_address"
+        if claim.claim_type == "chassis" and claim.claim_subtype == "network_address"
     )
     assert chassis.normalized_value == "198.51.100.3"
     assert chassis.strength == "weak"
@@ -85,8 +84,7 @@ def test_candidate_claims_separate_strong_and_weak_evidence() -> None:
     dns = next(
         claim
         for claim in claims
-        if claim.claim_type == "name"
-        and claim.normalized_value == "phone-service.example.com"
+        if claim.claim_type == "name" and claim.normalized_value == "phone-service.example.com"
     )
     assert dns.provenance == "dns_enrichment"
     assert dns.scope == "diagnostic"
@@ -112,11 +110,7 @@ def test_anonymous_local_chassis_port_mac_becomes_bounded_hardware_claim() -> No
 
     claims = candidate_claims(candidate)
     chassis = next(claim for claim in claims if claim.claim_type == "chassis")
-    endpoint = next(
-        claim
-        for claim in claims
-        if claim.claim_subtype == "anonymous_lldp_port_mac"
-    )
+    endpoint = next(claim for claim in claims if claim.claim_subtype == "anonymous_lldp_port_mac")
 
     assert chassis.normalized_value == "hex:a1:00:00:00:00:00"
     assert chassis.scope == "edge"
@@ -141,9 +135,7 @@ def test_named_endpoint_does_not_promote_port_mac_to_device_identity() -> None:
         )
     )
 
-    assert not any(
-        claim.claim_subtype == "anonymous_lldp_port_mac" for claim in claims
-    )
+    assert not any(claim.claim_subtype == "anonymous_lldp_port_mac" for claim in claims)
 
 
 def test_replaying_candidate_is_idempotent_in_claim_ledger(tmp_path: Path) -> None:
@@ -208,34 +200,22 @@ def test_observations_claims_and_decisions_reject_mutation(tmp_path: Path) -> No
     )
     observation_id = int(state.observations()[0]["id"])
     claim_id = int(state.claims_for_observation(observation_id)[0]["id"])
-    decision_id = int(
-        state.resolution_decisions_for_observation(observation_id)[0]["id"]
-    )
+    decision_id = int(state.resolution_decisions_for_observation(observation_id)[0]["id"])
 
     with pytest.raises(sqlite3.IntegrityError, match="observations are immutable"):
-        state.conn.execute(
-            "UPDATE observations SET protocol='cdp' WHERE id=?", (observation_id,)
-        )
+        state.conn.execute("UPDATE observations SET protocol='cdp' WHERE id=?", (observation_id,))
     state.conn.rollback()
     with pytest.raises(sqlite3.IntegrityError, match="claims are immutable"):
-        state.conn.execute(
-            "UPDATE claims SET strength='weak' WHERE id=?", (claim_id,)
-        )
+        state.conn.execute("UPDATE claims SET strength='weak' WHERE id=?", (claim_id,))
     state.conn.rollback()
-    with pytest.raises(
-        sqlite3.IntegrityError, match="resolution decisions are immutable"
-    ):
+    with pytest.raises(sqlite3.IntegrityError, match="resolution decisions are immutable"):
         state.conn.execute(
             "UPDATE resolution_decisions SET confidence='low' WHERE id=?",
             (decision_id,),
         )
     state.conn.rollback()
-    with pytest.raises(
-        sqlite3.IntegrityError, match="decision claim links are immutable"
-    ):
-        state.conn.execute(
-            "DELETE FROM decision_claims WHERE decision_id=?", (decision_id,)
-        )
+    with pytest.raises(sqlite3.IntegrityError, match="decision claim links are immutable"):
+        state.conn.execute("DELETE FROM decision_claims WHERE decision_id=?", (decision_id,))
     state.conn.rollback()
     state.close()
 
@@ -452,9 +432,7 @@ def test_opening_pre_claim_ledger_state_adds_tables_without_rebuilding_hosts(
         "resolution_decisions",
         "decision_claims",
     } <= tables
-    resumed.upsert_candidate(
-        Candidate(names=["switch2.example.com"], category="managed_device")
-    )
+    resumed.upsert_candidate(Candidate(names=["switch2.example.com"], category="managed_device"))
     assert len(resumed.observations()) == 1
     resumed.close()
 
@@ -478,12 +456,8 @@ def test_decorated_name_yields_base_and_non_merging_serial_hint_claims() -> None
         for claim in claims
         if claim.claim_type == "name" and claim.claim_subtype == "dns_name"
     )
-    base = next(
-        claim for claim in claims if claim.claim_subtype == "decorated_base_name"
-    )
-    serial = next(
-        claim for claim in claims if claim.claim_subtype == "advertised_serial_hint"
-    )
+    base = next(claim for claim in claims if claim.claim_subtype == "decorated_base_name")
+    serial = next(claim for claim in claims if claim.claim_subtype == "advertised_serial_hint")
     assert raw.raw_value == "hq-vdc2-7nx1.net.example.com(SERIAL000001)"
     assert base.normalized_value == "hq-vdc2-7nx1.net.example.com"
     assert base.identity_eligible is True

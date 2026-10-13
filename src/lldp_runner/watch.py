@@ -260,9 +260,7 @@ def load_current_scoreboard(scratch_root: Path) -> ScoreboardSource:
         raise WatchError("scoreboard JSON root must be an object")
     schema = payload.get("scoreboard_schema")
     if schema != SCOREBOARD_SCHEMA:
-        raise WatchError(
-            f"unsupported scoreboard schema {schema!r}; expected {SCOREBOARD_SCHEMA}"
-        )
+        raise WatchError(f"unsupported scoreboard schema {schema!r}; expected {SCOREBOARD_SCHEMA}")
     workers = payload.get("workers", {})
     if not isinstance(workers, dict):
         raise WatchError("scoreboard workers must be an object")
@@ -496,9 +494,7 @@ def _metric_block_geometry(width: int, columns: int) -> tuple[int, list[int], in
     return block_width, widths, gap
 
 
-def _metric_lines(
-    payload: dict[str, Any], deltas: dict[str, int], width: int
-) -> list[WatchLine]:
+def _metric_lines(payload: dict[str, Any], deltas: dict[str, int], width: int) -> list[WatchLine]:
     """Pack counters into a wide, centered grid with invariant column starts."""
 
     columns = _metric_column_count(width)
@@ -607,10 +603,7 @@ def _worker_cell(
     if mode == "full":
         batch = _bounded_worker_field(info.get("batch", "-"), _WORKER_BATCH_WIDTH)
         size = _bounded_worker_field(info.get("size", 0), _WORKER_FULL_SIZE_WIDTH)
-        return (
-            f"[Worker {worker_text} {state:<{_WORKER_STATE_WIDTH}} "
-            f"batch={batch} size={size}]"
-        )
+        return f"[Worker {worker_text} {state:<{_WORKER_STATE_WIDTH}} batch={batch} size={size}]"
     if mode == "compact":
         size = _bounded_worker_field(info.get("size", 0), _WORKER_COMPACT_SIZE_WIDTH)
         return f"[{worker_text} {state:<{_WORKER_STATE_WIDTH}} sz={size}]"
@@ -748,10 +741,7 @@ def _worker_gap_positions(line_count: int, blank_rows: int) -> set[int]:
         return set()
     if count == gap_count:
         return set(range(gap_count))
-    return {
-        min(gap_count - 1, ((index + 1) * gap_count) // (count + 1))
-        for index in range(count)
-    }
+    return {min(gap_count - 1, ((index + 1) * gap_count) // (count + 1)) for index in range(count)}
 
 
 def _layout_spacing(
@@ -1206,20 +1196,15 @@ def _run_summary_text(
         f"Plan {effective_workers} workers / batch {batch_size}"
     )
     spacious_compact_plan = (
-        f"Started {started}      Elapsed {elapsed}      "
-        f"Plan {effective_workers}/{batch_size}"
+        f"Started {started}      Elapsed {elapsed}      Plan {effective_workers}/{batch_size}"
     )
-    compact_plan = (
-        f"Started {started}   Elapsed {elapsed}   "
-        f"Plan {effective_workers}/{batch_size}"
-    )
+    compact_plan = f"Started {started}   Elapsed {elapsed}   Plan {effective_workers}/{batch_size}"
     without_plan = f"Started {started}   Elapsed {elapsed}"
 
     started_parts = started.split()
     short_started = " ".join(started_parts[-2:]) if len(started_parts) >= 2 else started
     short_plan = (
-        f"Started {short_started}   Elapsed {elapsed}   "
-        f"Plan {effective_workers}/{batch_size}"
+        f"Started {short_started}   Elapsed {elapsed}   Plan {effective_workers}/{batch_size}"
     )
     short_without_plan = f"Started {short_started}   Elapsed {elapsed}"
 
@@ -1353,11 +1338,7 @@ def _render_watch_frame_core(
         stale=stale,
     )
 
-    plan = (
-        payload.get("execution_plan")
-        if isinstance(payload.get("execution_plan"), dict)
-        else {}
-    )
+    plan = payload.get("execution_plan") if isinstance(payload.get("execution_plan"), dict) else {}
     plan_lines: list[WatchLine] = []
     plan_text = _run_summary_text(payload, plan, content_width)
     if plan_text is not None:
@@ -1485,8 +1466,7 @@ def _render_watch_frame_core(
         lines[-1:-1] = _blank_lines(height - len(lines))
 
     bordered_lines = [
-        _inset_watch_line(line, content_width) if line.text else line
-        for line in lines[:height]
+        _inset_watch_line(line, content_width) if line.text else line for line in lines[:height]
     ]
 
     return WatchFrame(
@@ -1640,9 +1620,7 @@ def _span_attr(
     if stale and role not in {"stale", "default", "source_error"}:
         role = "muted"
     attr = roles.get(role, roles.get("default", 0))
-    if span.emphasize and not (
-        stale and span.role not in {"stale", "source_error"}
-    ):
+    if span.emphasize and not (stale and span.role not in {"stale", "source_error"}):
         attr |= curses.A_BOLD
     if span.role == "stale":
         attr |= curses.A_BOLD | curses.A_REVERSE
@@ -1855,9 +1833,7 @@ def run_watch(
         )
 
     color_enabled = (
-        not no_color
-        and config.terminal.color != "never"
-        and "NO_COLOR" not in os.environ
+        not no_color and config.terminal.color != "never" and "NO_COLOR" not in os.environ
     )
     try:
         curses.wrapper(

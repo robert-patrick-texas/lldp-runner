@@ -249,11 +249,7 @@ def test_stale_alarm_survives_narrow_header() -> None:
     assert "00:30" in header_text
     assert "20260103" in header_text
     assert "entifier" in header_text
-    assert any(
-        span.role == "stale"
-        for line in frame.lines[:2]
-        for span in line.spans
-    )
+    assert any(span.role == "stale" for line in frame.lines[:2] for span in line.spans)
 
 
 def test_auto_heatmap_keeps_128_workers_individual_on_practical_terminal() -> None:
@@ -311,9 +307,7 @@ def test_worker_grid_uses_stable_padded_column_starts() -> None:
         requested_worker_view="full",
     )
     worker_rows = [
-        line.text.lstrip()
-        for line in frame.lines
-        if line.text.lstrip().startswith("[Worker ")
+        line.text.lstrip() for line in frame.lines if line.text.lstrip().startswith("[Worker ")
     ]
     assert len(worker_rows) > 2
 
@@ -371,7 +365,6 @@ def test_busy_worker_palette_is_distinct_from_headers_and_metrics() -> None:
         roles = _WATCH_256[palette]
         assert roles["busy"] != roles["heading"]
         assert roles["busy"] != roles["metric"]
-
 
 
 def test_watch_loop_m_key_changes_requested_mode(monkeypatch, config) -> None:
@@ -522,9 +515,7 @@ def test_wide_header_uses_one_justified_four_section_title_line() -> None:
     ]
     assert max(gaps) - min(gaps) <= 1
     assert any(
-        span.text == title_text
-        and span.role == "heading"
-        and span.emphasize
+        span.text == title_text and span.role == "heading" and span.emphasize
         for span in title_line.spans
     )
     assert any(
@@ -533,10 +524,7 @@ def test_wide_header_uses_one_justified_four_section_title_line() -> None:
     )
     run_span = next(span for span in title_line.spans if span.text == run_text)
     assert run_span.role == "muted"
-    assert any(
-        span.role == run_span.role and span.text.strip()
-        for span in frame.lines[-1].spans
-    )
+    assert any(span.role == run_span.role and span.text.strip() for span in frame.lines[-1].spans)
 
 
 def test_roomy_header_has_top_border_and_blank_line_before_summary() -> None:
@@ -564,9 +552,7 @@ def test_normal_watch_adds_one_blank_after_started_and_around_workers() -> None:
         requested_worker_view="auto",
     )
     started_index = next(
-        index
-        for index, line in enumerate(frame.lines)
-        if line.text.lstrip().startswith("Started ")
+        index for index, line in enumerate(frame.lines) if line.text.lstrip().startswith("Started ")
     )
     worker_index = next(
         index
@@ -592,9 +578,7 @@ def test_roomy_watch_adds_second_blank_after_started_and_around_workers() -> Non
         requested_worker_view="auto",
     )
     started_index = next(
-        index
-        for index, line in enumerate(frame.lines)
-        if line.text.lstrip().startswith("Started ")
+        index for index, line in enumerate(frame.lines) if line.text.lstrip().startswith("Started ")
     )
     worker_index = next(
         index
@@ -765,9 +749,7 @@ def test_roomy_metrics_have_blank_rows_and_data_independent_column_starts() -> N
     )
 
     labels = ("Hosts", "Managed", "Endpoints")
-    first_row_index = next(
-        index for index, line in enumerate(first.lines) if "Hosts" in line.text
-    )
+    first_row_index = next(index for index, line in enumerate(first.lines) if "Hosts" in line.text)
     second_row_index = next(
         index for index, line in enumerate(second.lines) if "Hosts" in line.text
     )
@@ -830,9 +812,7 @@ def test_tall_worker_grid_can_put_blank_line_between_every_row() -> None:
     )
     assert frame.worker_view == "full"
     worker_indexes = [
-        index
-        for index, line in enumerate(frame.lines)
-        if line.text.lstrip().startswith("[Worker ")
+        index for index, line in enumerate(frame.lines) if line.text.lstrip().startswith("[Worker ")
     ]
     assert len(worker_indexes) > 1
     assert all(frame.lines[index + 1].text == "" for index in worker_indexes[:-1])
@@ -886,12 +866,8 @@ def test_run_summary_uses_centered_lines_and_wide_fixed_metric_columns() -> None
         height=44,
         requested_worker_view="auto",
     )
-    started = next(
-        line for line in frame.lines if line.text.lstrip().startswith("Started ")
-    )
-    worker = next(
-        line for line in frame.lines if line.text.lstrip().startswith("Workers 64:")
-    )
+    started = next(line for line in frame.lines if line.text.lstrip().startswith("Started "))
+    worker = next(line for line in frame.lines if line.text.lstrip().startswith("Workers 64:"))
     metric = next(line for line in frame.lines if "Hosts" in line.text)
 
     for line in (started, worker):
@@ -916,9 +892,7 @@ def test_wide_run_summary_doubles_spacing_between_three_sections() -> None:
         requested_worker_view="auto",
     )
     started = next(
-        line.text.strip()
-        for line in frame.lines
-        if line.text.lstrip().startswith("Started ")
+        line.text.strip() for line in frame.lines if line.text.lstrip().startswith("Started ")
     )
 
     assert "      Elapsed " in started
@@ -937,9 +911,7 @@ def test_watch_keeps_side_borders_at_layout_boundary() -> None:
 
     assert frame.lines[0].text == ""
     assert all(
-        line.text.startswith(" ") and len(line.text) <= 63
-        for line in frame.lines
-        if line.text
+        line.text.startswith(" ") and len(line.text) <= 63 for line in frame.lines if line.text
     )
 
 
@@ -1035,11 +1007,7 @@ def test_complete_worker_rows_are_centered_to_one_column() -> None:
         height=44,
         requested_worker_view="auto",
     )
-    rows = [
-        line.text
-        for line in frame.lines
-        if line.text.lstrip().startswith("[Worker ")
-    ]
+    rows = [line.text for line in frame.lines if line.text.lstrip().startswith("[Worker ")]
     complete_cell_count = max(row.count("[Worker ") for row in rows)
     complete_rows = [row for row in rows if row.count("[Worker ") == complete_cell_count]
 
@@ -1090,11 +1058,7 @@ def test_america_overlay_colors_letters_and_keeps_requested_taglines() -> None:
     assert "250 years and the best has yet to come!" in text
 
     tagline_indices = [
-        next(
-            index
-            for index, line in enumerate(frame.lines)
-            if tagline in line.text
-        )
+        next(index for index, line in enumerate(frame.lines) if tagline in line.text)
         for tagline in (
             "United States of America",
             "1776-2026",
@@ -1125,8 +1089,7 @@ def test_america_overlay_uses_centered_taglines_only_when_art_does_not_fit() -> 
         "250 years and the best has yet to come!",
     ]
     assert all(
-        len(line.text) - len(line.text.lstrip())
-        == (42 - len(line.text.strip())) // 2
+        len(line.text) - len(line.text.lstrip()) == (42 - len(line.text.strip())) // 2
         for line in nonblank
     )
     tagline_indices = [frame.lines.index(line) for line in nonblank]
@@ -1252,8 +1215,7 @@ def test_partial_worker_row_keeps_first_table_column_offset() -> None:
     from lldp_runner.watch import _pack_worker_cells
 
     workers = {
-        worker_id: {"status": "BUSY", "batch": worker_id, "size": 8}
-        for worker_id in range(10)
+        worker_id: {"status": "BUSY", "batch": worker_id, "size": 8} for worker_id in range(10)
     }
     rows = _pack_worker_cells(workers, "full", 120, set())
     assert rows is not None and len(rows) > 1
@@ -1283,9 +1245,7 @@ def test_source_error_is_below_workers_bright_red_and_surrounded_by_blanks() -> 
     left = warning.text.index(visible)
     right = 120 - (left + len(visible))
     worker_indexes = [
-        index
-        for index, line in enumerate(frame.lines)
-        if line.text.lstrip().startswith("[Worker ")
+        index for index, line in enumerate(frame.lines) if line.text.lstrip().startswith("[Worker ")
     ]
 
     assert abs(left - right) <= 1

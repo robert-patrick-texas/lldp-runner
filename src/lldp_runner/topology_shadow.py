@@ -99,8 +99,7 @@ def build_interface_observation_groups(
                     observation.details.get("local_interface_namespace")
                     or (
                         "resolved"
-                        if observation.local_interface
-                        and ":" not in observation.local_interface
+                        if observation.local_interface and ":" not in observation.local_interface
                         else "typed"
                     )
                 ).casefold()

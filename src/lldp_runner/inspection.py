@@ -25,7 +25,13 @@ from typing import Any
 from lldp_runner.classify import Classifier
 from lldp_runner.config import AppConfig
 from lldp_runner.identity import is_ip, resolve_seed, unique_preserve
-from lldp_runner.models import Candidate, DeviceResult, DeviceTask, NeighborObservation, TargetAttempt
+from lldp_runner.models import (
+    Candidate,
+    DeviceResult,
+    DeviceTask,
+    NeighborObservation,
+    TargetAttempt,
+)
 from lldp_runner.policy import PolicyEngine
 from lldp_runner.snmp.trace import SnmpTrace
 from lldp_runner.timeutil import iso_now
@@ -136,9 +142,7 @@ def _finalize_result(result: InspectionResult, overall_start: float) -> Inspecti
 def _ordered_addresses(config: AppConfig, addresses: list[str]) -> list[str]:
     """Apply the same IPv4/IPv6 management-address preference used by discovery."""
 
-    preference = {
-        name: index for index, name in enumerate(config.discovery.address_preference)
-    }
+    preference = {name: index for index, name in enumerate(config.discovery.address_preference)}
 
     def key(value: str) -> tuple[int, int]:
         """Return configured address-family priority plus numeric IP ordering."""
@@ -150,9 +154,7 @@ def _ordered_addresses(config: AppConfig, addresses: list[str]) -> list[str]:
     return sorted(dict.fromkeys(addresses), key=key)
 
 
-def _reverse_dns(
-    addresses: list[str], *, trace: SnmpTrace | None = None
-) -> list[ReverseDnsResult]:
+def _reverse_dns(addresses: list[str], *, trace: SnmpTrace | None = None) -> list[ReverseDnsResult]:
     """Resolve PTR names while retaining per-address failures for diagnostics.
 
     Args:
@@ -186,9 +188,7 @@ def _reverse_dns(
         except OSError as exc:
             results.append(ReverseDnsResult(address=address, error=str(exc)))
             if trace is not None and number is not None:
-                trace.resolver_no_response(
-                    number, f"{exc.__class__.__name__}: {exc}"
-                )
+                trace.resolver_no_response(number, f"{exc.__class__.__name__}: {exc}")
     return results
 
 
@@ -231,9 +231,7 @@ def _forward_dns_for_display(
         infos = socket.getaddrinfo(ptr_name, None, type=socket.SOCK_DGRAM)
     except socket.gaierror as exc:
         if trace is not None and number is not None:
-            trace.resolver_no_response(
-                number, f"{exc.__class__.__name__}: {exc}"
-            )
+            trace.resolver_no_response(number, f"{exc.__class__.__name__}: {exc}")
         return rows
     confirmed: list[str] = []
     for family, _socktype, _proto, _canonname, sockaddr in infos:
@@ -345,7 +343,9 @@ def neighbor_record(config: AppConfig, obs: NeighborObservation) -> dict[str, An
     candidate.category = decision.category
     protocols = list(dict.fromkeys(obs.details.get("protocols", [obs.protocol])))
     order = {"cdp": 0, "lldp": 1, "lldpv2": 2}
-    protocols = sorted((str(item) for item in protocols), key=lambda item: (order.get(item, 99), item))
+    protocols = sorted(
+        (str(item) for item in protocols), key=lambda item: (order.get(item, 99), item)
+    )
     details = dict(obs.details)
     details.update(
         {
@@ -359,7 +359,9 @@ def neighbor_record(config: AppConfig, obs: NeighborObservation) -> dict[str, An
     )
     return {
         "host_ref": None,
-        "name": obs.remote_name or obs.chassis_id or (obs.remote_addresses[0] if obs.remote_addresses else "unknown"),
+        "name": obs.remote_name
+        or obs.chassis_id
+        or (obs.remote_addresses[0] if obs.remote_addresses else "unknown"),
         "classification": decision.category,
         "classification_reason": decision.reasons,
         "local_interface": obs.local_interface,
@@ -394,8 +396,7 @@ def inspection_json(config: AppConfig, result: InspectionResult) -> dict[str, An
         # Inspection always reports the lightweight metrics. Full discovery uses
         # snmp.report_metrics to decide whether the same structure is persisted.
         snmp["collection_metrics"] = {
-            section: asdict(metric)
-            for section, metric in device.collection_metrics.items()
+            section: asdict(metric) for section, metric in device.collection_metrics.items()
         }
     if device and device.snmp_sessions:
         snmp["adaptive_sessions"] = [asdict(item) for item in device.snmp_sessions]
@@ -476,9 +477,7 @@ async def inspect_target(
         # two-argument resolver contract.
         resolved = resolve_seed(target, config.discovery.dns_suffixes)
         reverse = _reverse_dns(resolved.addresses)
-        forward = _forward_dns_for_display(
-            target, resolved.names, resolved.addresses, reverse
-        )
+        forward = _forward_dns_for_display(target, resolved.names, resolved.addresses, reverse)
     else:
         resolved = resolve_seed(target, config.discovery.dns_suffixes, trace=trace)
         reverse = _reverse_dns(resolved.addresses, trace=trace)
@@ -514,7 +513,9 @@ async def inspect_target(
 
     task = _build_task(config, result)
     if task is None:
-        result.status = "denied" if any(not row.query_allowed for row in policies) else "no_credentials"
+        result.status = (
+            "denied" if any(not row.query_allowed for row in policies) else "no_credentials"
+        )
         return _finalize_result(result, overall_start)
 
     query_start = time.perf_counter()

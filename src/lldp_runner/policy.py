@@ -43,7 +43,9 @@ class PolicyEngine:
         """
 
         self.config = config
-        self.boundaries = [ipaddress.ip_network(x, strict=False) for x in config.discovery.boundaries]
+        self.boundaries = [
+            ipaddress.ip_network(x, strict=False) for x in config.discovery.boundaries
+        ]
 
         # Address rules retain longest-prefix semantics across every CIDR in every
         # configured rule. Python's stable sort preserves configuration/list order

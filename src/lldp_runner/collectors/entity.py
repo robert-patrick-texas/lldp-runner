@@ -400,12 +400,8 @@ async def _collect_structure(
         enriched.append(
             replace(
                 candidate,
-                contained_in=_number(
-                    values.get(_entry_instance(COL_CONTAINED_IN, index))
-                ),
-                parent_rel_pos=_number(
-                    values.get(_entry_instance(COL_PARENT_REL_POS, index))
-                ),
+                contained_in=_number(values.get(_entry_instance(COL_CONTAINED_IN, index))),
+                parent_rel_pos=_number(values.get(_entry_instance(COL_PARENT_REL_POS, index))),
                 name=_text(values.get(_entry_instance(COL_NAME, index))),
                 description=_text(values.get(_entry_instance(COL_DESCR, index))),
             )
@@ -549,9 +545,7 @@ def _member_entity_candidates(entities: list[PhysicalEntity]) -> list[PhysicalEn
     stack_indexes = {
         entity.entity_index for entity in entities if entity.entity_class == CLASS_STACK
     }
-    explicit_members = [
-        entity for entity in chassis if entity.contained_in in stack_indexes
-    ]
+    explicit_members = [entity for entity in chassis if entity.contained_in in stack_indexes]
     if explicit_members:
         return explicit_members
 
@@ -670,8 +664,7 @@ def _build_stack_members(
     explicit_stack = any(
         candidate.contained_in is not None
         and any(
-            entity.entity_class == CLASS_STACK
-            and entity.entity_index == candidate.contained_in
+            entity.entity_class == CLASS_STACK and entity.entity_index == candidate.contained_in
             for entity in entities
         )
         for candidate in candidates
@@ -716,15 +709,11 @@ async def _collect_selective(
 
     member_entities = _member_entity_candidates(entities)
     indexes = list(
-        dict.fromkeys(
-            [overall.entity_index, *(entity.entity_index for entity in member_entities)]
-        )
+        dict.fromkeys([overall.entity_index, *(entity.entity_index for entity in member_entities)])
     )
     plan = _query_plan(mode, system)
     oids = [
-        _entry_instance(column, entity_index)
-        for entity_index in indexes
-        for column in plan.columns
+        _entry_instance(column, entity_index) for entity_index in indexes for column in plan.columns
     ]
     values = await client.get_many(oids)
     columns_by_index: dict[int, dict[int, object]] = {}
@@ -758,12 +747,8 @@ def _apply_identity_columns(system: SystemDetails, columns: dict[int, object]) -
     if model:
         system.model = model
     system.serial_number = _text(columns.get(COL_SERIAL_NUMBER)) or system.serial_number
-    system.hardware_revision = (
-        _text(columns.get(COL_HARDWARE_REV)) or system.hardware_revision
-    )
-    system.firmware_revision = (
-        _text(columns.get(COL_FIRMWARE_REV)) or system.firmware_revision
-    )
+    system.hardware_revision = _text(columns.get(COL_HARDWARE_REV)) or system.hardware_revision
+    system.firmware_revision = _text(columns.get(COL_FIRMWARE_REV)) or system.firmware_revision
     system.entity_software_revision = (
         _text(columns.get(COL_SOFTWARE_REV)) or system.entity_software_revision
     )
@@ -800,10 +785,7 @@ async def enrich_system_from_entity_mib(
 
     normalized_mode = str(mode).casefold()
     if normalized_mode not in {"full", "auto", "brief"}:
-        raise ValueError(
-            "ENTITY-MIB mode must be 'full', 'auto', or 'brief'; "
-            f"got {mode!r}"
-        )
+        raise ValueError(f"ENTITY-MIB mode must be 'full', 'auto', or 'brief'; got {mode!r}")
 
     if normalized_mode == "full":
         rows = await client.walk(ENT_PHYSICAL_ENTRY)

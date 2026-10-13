@@ -117,16 +117,12 @@ def test_failed_host_can_use_one_later_cross_family_address(
     assert state.host_row(host_id)["state"] == "COMPLETE"
     assert state.attempted_addresses(host_id) == {failed_target, new_target}
     events = state.scheduler_events_for_host(host_id)
-    assert [event["event_type"] for event in events] == [
-        "late_address_recovery_admitted"
-    ]
+    assert [event["event_type"] for event in events] == ["late_address_recovery_admitted"]
     assert events[0]["payload"]["new_addresses"] == [new_target]
     state.close()
 
 
-def test_repeated_or_policy_rejected_address_does_not_requeue(
-    tmp_path: Path, config
-) -> None:
+def test_repeated_or_policy_rejected_address_does_not_requeue(tmp_path: Path, config) -> None:
     state = StateStore(tmp_path / "state.sqlite")
     host_id = state.upsert_candidate(
         Candidate(
@@ -190,9 +186,7 @@ def test_late_recovery_cap_survives_restart_and_same_address_evidence(
 
     # The admitted address also fails. The one configured allowance has now
     # been consumed and must remain consumed after SQLite is reopened.
-    state.apply_device_result(
-        _failed_result(host_id, "2001:db8:8000:da02::30", attempt=2)
-    )
+    state.apply_device_result(_failed_result(host_id, "2001:db8:8000:da02::30", attempt=2))
     state.close()
 
     resumed = StateStore(path)
@@ -212,9 +206,7 @@ def test_late_recovery_cap_survives_restart_and_same_address_evidence(
         )
     )
     resumed_coordinator = _coordinator(config, resumed)
-    resumed_coordinator._schedule_if_queryable(
-        host_id, evidence_source="cdp:neighbor"
-    )
+    resumed_coordinator._schedule_if_queryable(host_id, evidence_source="cdp:neighbor")
 
     row = resumed.host_row(host_id)
     assert row["state"] == "FAILED"
@@ -231,9 +223,7 @@ def test_host_merge_preserves_max_recovery_count_without_new_allowance(
     tmp_path: Path,
 ) -> None:
     state = StateStore(tmp_path / "state.sqlite")
-    by_name = state.upsert_candidate(
-        Candidate(names=["merge-switch"], category="managed_device")
-    )
+    by_name = state.upsert_candidate(Candidate(names=["merge-switch"], category="managed_device"))
     by_address = state.upsert_candidate(
         Candidate(addresses=["198.18.44.40"], category="managed_device")
     )
@@ -269,11 +259,14 @@ def test_host_merge_preserves_max_recovery_count_without_new_allowance(
 
     state.conn.execute("UPDATE hosts SET state='FAILED' WHERE id=?", (merged,))
     state.conn.commit()
-    assert state.admit_late_address_recovery(
-        merged,
-        new_addresses=["198.18.44.44"],
-        evidence_source="test-after-merge",
-        allowance=1,
-    ) == []
+    assert (
+        state.admit_late_address_recovery(
+            merged,
+            new_addresses=["198.18.44.44"],
+            evidence_source="test-after-merge",
+            allowance=1,
+        )
+        == []
+    )
     assert state.host_row(merged)["state"] == "FAILED"
     state.close()

@@ -115,18 +115,14 @@ class AsyncIcmpPinger:
             sock.setblocking(False)
             payload = struct.pack("!d", time.monotonic()) + b"lldp-runner"
             if ip.version == 4:
-                header = struct.pack(
-                    "!BBHHH", 8, 0, 0, identifier, sequence & 0xFFFF
-                )
+                header = struct.pack("!BBHHH", 8, 0, 0, identifier, sequence & 0xFFFF)
                 checksum = _checksum(header + payload)
-                packet = struct.pack(
-                    "!BBHHH", 8, 0, checksum, identifier, sequence & 0xFFFF
-                ) + payload
+                packet = (
+                    struct.pack("!BBHHH", 8, 0, checksum, identifier, sequence & 0xFFFF) + payload
+                )
             else:
                 # Linux computes the ICMPv6 checksum for IPPROTO_ICMPV6 raw sockets.
-                packet = struct.pack(
-                    "!BBHHH", 128, 0, 0, identifier, sequence & 0xFFFF
-                ) + payload
+                packet = struct.pack("!BBHHH", 128, 0, 0, identifier, sequence & 0xFFFF) + payload
             sock.connect((address, 0))
             loop = asyncio.get_running_loop()
             started = time.monotonic()
@@ -135,9 +131,7 @@ class AsyncIcmpPinger:
             while True:
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
-                    probe = PingProbe(
-                        status="no-response", timestamp=iso_now(), address=address
-                    )
+                    probe = PingProbe(status="no-response", timestamp=iso_now(), address=address)
                     self._trace_probe_response(
                         trace_number, probe, sequence=sequence, backend="raw"
                     )
@@ -145,9 +139,7 @@ class AsyncIcmpPinger:
                 try:
                     data = await asyncio.wait_for(loop.sock_recv(sock, 65535), remaining)
                 except TimeoutError:
-                    probe = PingProbe(
-                        status="no-response", timestamp=iso_now(), address=address
-                    )
+                    probe = PingProbe(status="no-response", timestamp=iso_now(), address=address)
                     self._trace_probe_response(
                         trace_number, probe, sequence=sequence, backend="raw"
                     )
@@ -186,9 +178,7 @@ class AsyncIcmpPinger:
                     address=address,
                     rtt_ms=round(rtt, 3),
                 )
-                self._trace_probe_response(
-                    trace_number, probe, sequence=sequence, backend="raw"
-                )
+                self._trace_probe_response(trace_number, probe, sequence=sequence, backend="raw")
                 return probe
         except (PermissionError, OSError) as exc:
             if self.trace is not None and trace_number is not None:
@@ -246,9 +236,7 @@ class AsyncIcmpPinger:
         except TimeoutError:
             proc.kill()
             await proc.wait()
-            probe = PingProbe(
-                status="no-response", timestamp=iso_now(), address=address
-            )
+            probe = PingProbe(status="no-response", timestamp=iso_now(), address=address)
             self._trace_probe_response(
                 trace_number, probe, sequence=sequence, backend="system ping"
             )
@@ -256,31 +244,20 @@ class AsyncIcmpPinger:
         if proc.returncode == 0:
             match = _RTT_RE.search(stdout)
             rtt = float(match.group(1)) if match else None
-            probe = PingProbe(
-                status="reply", timestamp=iso_now(), address=address, rtt_ms=rtt
-            )
+            probe = PingProbe(status="reply", timestamp=iso_now(), address=address, rtt_ms=rtt)
             self._trace_probe_response(
                 trace_number, probe, sequence=sequence, backend="system ping"
             )
             return probe
         if proc.returncode == 1:
-            probe = PingProbe(
-                status="no-response", timestamp=iso_now(), address=address
-            )
+            probe = PingProbe(status="no-response", timestamp=iso_now(), address=address)
             self._trace_probe_response(
                 trace_number, probe, sequence=sequence, backend="system ping"
             )
             return probe
-        message = (
-            stderr.decode("utf-8", errors="replace").strip()
-            or f"ping exit {proc.returncode}"
-        )
-        probe = PingProbe(
-            status="error", timestamp=iso_now(), address=address, error=message
-        )
-        self._trace_probe_response(
-            trace_number, probe, sequence=sequence, backend="system ping"
-        )
+        message = stderr.decode("utf-8", errors="replace").strip() or f"ping exit {proc.returncode}"
+        probe = PingProbe(status="error", timestamp=iso_now(), address=address, error=message)
+        self._trace_probe_response(trace_number, probe, sequence=sequence, backend="system ping")
         return probe
 
     def _trace_probe_response(

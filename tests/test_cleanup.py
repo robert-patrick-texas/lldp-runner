@@ -56,9 +56,7 @@ def _populate_history(tmp_path: Path) -> tuple[Path, Path, Path]:
     runs.mkdir()
     output.mkdir()
 
-    for index, name in enumerate(
-        ("run-old", "run-current", "run-latest", "run-newest"), start=1
-    ):
+    for index, name in enumerate(("run-old", "run-current", "run-latest", "run-newest"), start=1):
         durable = _run_dir(runs, name, marker="discovery-state.sqlite")
         transient = _run_dir(scratch, name, marker="scoreboard.json")
         _set_age(durable, index)
@@ -228,9 +226,7 @@ def test_clean_dry_run_reports_without_removing(tmp_path: Path, capsys) -> None:
     assert "Clean dry-run: would remove" in output
 
 
-def test_clean_scratch_removes_stable_live_scoreboard_directory(
-    tmp_path: Path, capsys
-) -> None:
+def test_clean_scratch_removes_stable_live_scoreboard_directory(tmp_path: Path, capsys) -> None:
     """The reserved live publication directory is removed independently of runs."""
 
     config, _, scratch = _config(tmp_path)
@@ -247,9 +243,7 @@ def test_clean_scratch_removes_stable_live_scoreboard_directory(
     assert "Clean complete: removed 1 LLDP-Runner artifact(s)" in output
 
 
-def test_clean_dry_run_reports_live_scoreboard_without_removing_it(
-    tmp_path: Path, capsys
-) -> None:
+def test_clean_dry_run_reports_live_scoreboard_without_removing_it(tmp_path: Path, capsys) -> None:
     """Dry-run includes the stable scoreboard but leaves its files untouched."""
 
     config, _, scratch = _config(tmp_path)

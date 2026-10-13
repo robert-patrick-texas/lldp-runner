@@ -72,9 +72,7 @@ def _same_link(left: NeighborObservation, right: NeighborObservation) -> bool:
     )
 
 
-def _same_local_interface(
-    left: NeighborObservation, right: NeighborObservation
-) -> bool:
+def _same_local_interface(left: NeighborObservation, right: NeighborObservation) -> bool:
     """Return whether two observations were learned on the same local port."""
 
     if not left.local_interface or not right.local_interface:
@@ -102,17 +100,13 @@ def _observation_usable_addresses(obs: NeighborObservation) -> set[str]:
     return addresses
 
 
-def _shared_usable_address(
-    left: NeighborObservation, right: NeighborObservation
-) -> bool:
+def _shared_usable_address(left: NeighborObservation, right: NeighborObservation) -> bool:
     """Return whether both protocols carry at least one same usable host IP."""
 
     return bool(_observation_usable_addresses(left) & _observation_usable_addresses(right))
 
 
-def _sep_name_match(
-    left_name: str | None, right_name: str | None
-) -> tuple[bool, str | None]:
+def _sep_name_match(left_name: str | None, right_name: str | None) -> tuple[bool, str | None]:
     """Match strict Cisco ``SEP<MAC>`` endpoint names across suffix changes.
 
     Cisco phones and video endpoints encode the endpoint MAC in the left-most
@@ -132,9 +126,7 @@ def _sep_name_match(
     return True, candidates[0]
 
 
-def _short_fqdn_match(
-    left_name: str | None, right_name: str | None
-) -> tuple[bool, str | None]:
+def _short_fqdn_match(left_name: str | None, right_name: str | None) -> tuple[bool, str | None]:
     """Match one short host name to the host component of one FQDN.
 
     This is intentionally narrower than generic suffix stripping.  Exactly one
@@ -151,9 +143,7 @@ def _short_fqdn_match(
         return False, None
     left_parsed = normalized_advertised_name(left_name)
     right_parsed = normalized_advertised_name(right_name)
-    left = normalize_identity_name(
-        left_parsed.base_name if left_parsed is not None else left_name
-    )
+    left = normalize_identity_name(left_parsed.base_name if left_parsed is not None else left_name)
     right = normalize_identity_name(
         right_parsed.base_name if right_parsed is not None else right_name
     )
@@ -214,9 +204,7 @@ def _local_numeric_index(obs: NeighborObservation) -> int | None:
         return None
 
 
-def _exact_remote_port_match(
-    left: NeighborObservation, right: NeighborObservation
-) -> bool:
+def _exact_remote_port_match(left: NeighborObservation, right: NeighborObservation) -> bool:
     """Return whether both protocols name the same remote physical port."""
 
     if not left.remote_interface or not right.remote_interface:
@@ -283,9 +271,7 @@ def _cross_protocol_name_match(
     left_parsed = normalized_advertised_name(left.remote_name)
     right_parsed = normalized_advertised_name(right.remote_name)
     left_base = left_parsed.base_name if left_parsed is not None else left.remote_name
-    right_base = (
-        right_parsed.base_name if right_parsed is not None else right.remote_name
-    )
+    right_base = right_parsed.base_name if right_parsed is not None else right.remote_name
     left_name = normalize_name(left_base)
     right_name = normalize_name(right_base)
     if left_name != right_name:
@@ -339,9 +325,7 @@ def _observations_match(left: NeighborObservation, right: NeighborObservation) -
     return names_match
 
 
-def _ordered_remote_addresses(
-    left: NeighborObservation, right: NeighborObservation
-) -> list[str]:
+def _ordered_remote_addresses(left: NeighborObservation, right: NeighborObservation) -> list[str]:
     """Combine addresses while preferring LLDP management-address evidence.
 
     CISCO-CDP-MIB ``cdpCacheAddress`` is an entry address and can differ from the
@@ -399,9 +383,7 @@ def _merge_into(
             dict.fromkeys([*current.remote_addresses, *obs.remote_addresses])
         )
 
-    current.capabilities = sorted(
-        dict.fromkeys([*current.capabilities, *obs.capabilities])
-    )
+    current.capabilities = sorted(dict.fromkeys([*current.capabilities, *obs.capabilities]))
     # LLDP generally carries the richer system description and actual management
     # address semantics.  Prefer its description when reconciling with CDP while
     # retaining both raw protocol values under ``details``.
@@ -433,9 +415,7 @@ def _merge_into(
         current.details["local_interface_namespace"] = resolved.details.get(
             "local_interface_namespace", "cross_protocol"
         )
-        current.details["local_interface_resolution_method"] = (
-            "cross_protocol_same_endpoint"
-        )
+        current.details["local_interface_resolution_method"] = "cross_protocol_same_endpoint"
         current.details["local_interface_resolution_source"] = resolved.protocol
     else:
         current.local_interface = current.local_interface or obs.local_interface
@@ -449,9 +429,7 @@ def _merge_into(
         current.remote_interface_raw = obs.remote_interface_raw
     else:
         current.remote_interface = current.remote_interface or obs.remote_interface
-        current.remote_interface_raw = (
-            current.remote_interface_raw or obs.remote_interface_raw
-        )
+        current.remote_interface_raw = current.remote_interface_raw or obs.remote_interface_raw
 
 
 def _observation_sort_key(obs: NeighborObservation) -> tuple[object, ...]:
@@ -461,9 +439,7 @@ def _observation_sort_key(obs: NeighborObservation) -> tuple[object, ...]:
     parsed = normalized_advertised_name(obs.remote_name)
     base_name = parsed.base_name if parsed is not None else (obs.remote_name or "")
     canonical_record = obs.to_dict()
-    canonical_record["remote_addresses"] = sorted(
-        dict.fromkeys(obs.remote_addresses)
-    )
+    canonical_record["remote_addresses"] = sorted(dict.fromkeys(obs.remote_addresses))
     canonical_record["capabilities"] = sorted(dict.fromkeys(obs.capabilities))
     return (
         (obs.local_interface or "").casefold(),
@@ -515,9 +491,7 @@ def merge_neighbor_observations(
         inferred_local_resolution = False
         if matched is None:
             inferred_matches = [
-                item
-                for item in merged
-                if _inferred_local_cross_protocol_match(item, obs)
+                item for item in merged if _inferred_local_cross_protocol_match(item, obs)
             ]
             # Do not let a numeric coincidence choose among parallel or duplicate
             # candidates. Ambiguous rows remain distinct observations for the

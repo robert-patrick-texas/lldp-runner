@@ -55,11 +55,10 @@ class OutputWriteResult(list[Path]):
     milliseconds, matching the existing run-manifest precision.
     """
 
-    def __init__(
-        self, paths: list[Path], *, phase_metrics: dict[str, float]
-    ) -> None:
+    def __init__(self, paths: list[Path], *, phase_metrics: dict[str, float]) -> None:
         super().__init__(paths)
         self.phase_metrics = dict(phase_metrics)
+
 
 # discovery.json is the durable structured interchange contract.  Increment this
 # only when consumers need to distinguish incompatible document structures.
@@ -195,13 +194,7 @@ def _normalized_subtype_id(value: object | None) -> int | None:
 def _is_mac_chassis_subtype(subtype_name: object | None, subtype_id: object | None) -> bool:
     """Return whether an observed chassis value is explicitly a MAC address."""
 
-    normalized = (
-        str(subtype_name or "")
-        .strip()
-        .casefold()
-        .replace("-", "_")
-        .replace(" ", "_")
-    )
+    normalized = str(subtype_name or "").strip().casefold().replace("-", "_").replace(" ", "_")
     return _normalized_subtype_id(subtype_id) == 4 or normalized in {
         "mac",
         "mac_address",
@@ -303,12 +296,10 @@ def _output_preferred_name(
 
     if normalized_name in _NULL_ADVERTISED_NAME_VALUES:
         names_are_placeholders = bool(observed_names) and all(
-            value.casefold() in _NULL_ADVERTISED_NAME_VALUES
-            for value in observed_names
+            value.casefold() in _NULL_ADVERTISED_NAME_VALUES for value in observed_names
         )
         descriptions_are_placeholders = bool(descriptions) and all(
-            value.casefold() in _NULL_ADVERTISED_NAME_VALUES
-            for value in descriptions
+            value.casefold() in _NULL_ADVERTISED_NAME_VALUES for value in descriptions
         )
         if names_are_placeholders and descriptions_are_placeholders:
             candidates = _observed_chassis_candidates(
@@ -537,9 +528,7 @@ def _learned_neighbor_summary(record: dict[str, Any]) -> str:
         local = neighbor.get("local_interface") or "?"
         remote = neighbor.get("name") or "unknown"
         remote_if = neighbor.get("remote_interface") or "?"
-        parts.append(
-            f"{local}={remote}:{remote_if}{_neighbor_protocol_tag(neighbor)}"
-        )
+        parts.append(f"{local}={remote}:{remote_if}{_neighbor_protocol_tag(neighbor)}")
     return ";".join(parts)
 
 
@@ -567,9 +556,7 @@ def _observed_by_neighbor_summary(record: dict[str, Any]) -> str:
         # intentionally prints the observer first.
         source_if = neighbor.get("remote_interface") or "?"
         this_if = neighbor.get("local_interface") or "?"
-        parts.append(
-            f"{source}:{source_if}={this_if}{_neighbor_protocol_tag(neighbor)}"
-        )
+        parts.append(f"{source}:{source_if}={this_if}{_neighbor_protocol_tag(neighbor)}")
     return ";".join(parts)
 
 
@@ -636,12 +623,8 @@ def _inbound_evidence(record: dict[str, Any]) -> dict[str, str]:
         "remote_descriptions": ";".join(dict.fromkeys(descriptions)),
         "capabilities": ";".join(dict.fromkeys(capabilities)),
         "observed_chassis_ids": ";".join(dict.fromkeys(observed_chassis_ids)),
-        "observed_chassis_id_subtypes": ";".join(
-            dict.fromkeys(observed_chassis_id_subtypes)
-        ),
-        "observed_chassis_id_subtype_ids": ";".join(
-            dict.fromkeys(observed_chassis_id_subtype_ids)
-        ),
+        "observed_chassis_id_subtypes": ";".join(dict.fromkeys(observed_chassis_id_subtypes)),
+        "observed_chassis_id_subtype_ids": ";".join(dict.fromkeys(observed_chassis_id_subtype_ids)),
     }
 
 
@@ -1021,18 +1004,14 @@ def _error_csv_row(error: dict[str, Any]) -> dict[str, Any]:
         "category": error.get("category") or "",
         "exception_type": error.get("exception_type") or "",
         "exception_errno": (
-            error.get("exception_errno")
-            if error.get("exception_errno") is not None
-            else ""
+            error.get("exception_errno") if error.get("exception_errno") is not None else ""
         ),
         "exception_strerror": error.get("exception_strerror") or "",
         "credential_profile": error.get("credential_profile") or "",
         "credential_stage": error.get("credential_stage") or "",
         "credential_source": error.get("credential_source") or "",
         "credential_label": error.get("credential_label") or "",
-        "attempt": (
-            error.get("attempt") if error.get("attempt") is not None else ""
-        ),
+        "attempt": (error.get("attempt") if error.get("attempt") is not None else ""),
         "message": error.get("message") or "",
         "recoverable": bool(error.get("recoverable")),
         "final_state": error.get("final_state") or "",
@@ -1156,9 +1135,7 @@ def _build_discovery_document(
         "completion_reason": state.get_meta("completion_reason"),
         "snmp_report_metrics": config.snmp.report_metrics,
         "counts": state.counts(),
-        "topology_graph_fingerprint": graph_result.document.get(
-            "projection_fingerprint"
-        ),
+        "topology_graph_fingerprint": graph_result.document.get("projection_fingerprint"),
         "topology_graph_summary": graph_result.document.get("summary", {}),
     }
     errors = [_error_record(row) for row in state.all_errors()]
@@ -1171,7 +1148,6 @@ def _build_discovery_document(
             "errors": errors,
         }
     )
-
 
 
 def _custom_csv_contexts(
@@ -1343,11 +1319,7 @@ def write_custom_csv_outputs(
     directory.mkdir(parents=True, exist_ok=True)
     suffix = ".draft" if draft else ""
     written: list[Path] = []
-    suppressed = (
-        _empty_csvs_not_written
-        if _empty_csvs_not_written is not None
-        else []
-    )
+    suppressed = _empty_csvs_not_written if _empty_csvs_not_written is not None else []
 
     for name in sorted(config.output.custom_csv):
         custom = config.output.custom_csv[name]
@@ -1431,11 +1403,7 @@ def write_fixed_csv_outputs(
     error_records = [record for record in errors if isinstance(record, dict)]
 
     written_paths: list[Path] = []
-    empty_csvs_not_written = (
-        _empty_csvs_not_written
-        if _empty_csvs_not_written is not None
-        else []
-    )
+    empty_csvs_not_written = _empty_csvs_not_written if _empty_csvs_not_written is not None else []
 
     hosts_path = directory / f"hosts.csv{suffix}"
     if config.output.write_hosts_csv:
@@ -1589,11 +1557,7 @@ def write_outputs(
         _empty_csvs_not_written=empty_csvs_not_written,
         _emit_empty_alert=False,
     )
-    if (
-        empty_csvs_not_written
-        and config.output.log_alert_on_empty_csv
-        and status != "RUNNING"
-    ):
+    if empty_csvs_not_written and config.output.log_alert_on_empty_csv and status != "RUNNING":
         LOG.info(
             "empty csv not written for %s",
             ", ".join(empty_csvs_not_written),

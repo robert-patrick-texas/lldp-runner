@@ -41,7 +41,6 @@ def test_seed_csv_input_reuses_query_target_and_all_address_aliases(tmp_path: Pa
     ]
 
 
-
 def test_seed_csv_filters_non_host_address_hints(tmp_path: Path) -> None:
     """Reusable inventory cannot reintroduce sentinel/broadcast host aliases."""
 
@@ -61,6 +60,7 @@ def test_seed_csv_filters_non_host_address_hints(tmp_path: Path) -> None:
     assert seed.ipv6 == ["fe80::1"]
     assert any("unspecified address" in error for error in seed.parse_errors)
     assert any("limited-broadcast address" in error for error in seed.parse_errors)
+
 
 def test_seed_csv_input_rejects_previous_0182_schema(tmp_path: Path) -> None:
     """The v0.18.2 seed schema is rejected after JSON/CSV name reconciliation."""
@@ -103,7 +103,10 @@ def test_seed_csv_input_accepts_reordered_case_insensitive_columns(tmp_path: Pat
 def test_plain_seed_lines_trim_metadata_and_comments() -> None:
     """Text seed parsing keeps only the target before comma/semicolon/hash metadata."""
 
-    assert parse_text_seed_line("  switch1.net.example.com, core switch  ") == "switch1.net.example.com"
+    assert (
+        parse_text_seed_line("  switch1.net.example.com, core switch  ")
+        == "switch1.net.example.com"
+    )
     assert parse_text_seed_line("198.18.10.5 ; temporary") == "198.18.10.5"
     assert parse_text_seed_line("2001:db8::10 # IPv6 target") == "2001:db8::10"
     assert parse_text_seed_line("  ; disabled by operator") is None
@@ -120,18 +123,14 @@ def test_seed_directory_recurses_and_skips_control_files(tmp_path: Path) -> None
     (root / ".hidden-dir").mkdir()
 
     (root / "10-core.txt").write_text(
-        "core1.net.example.com, primary core\n"
-        " ; comment line\n"
-        "198.18.10.11 # address seed\n",
+        "core1.net.example.com, primary core\n ; comment line\n198.18.10.11 # address seed\n",
         encoding="utf-8",
     )
     (root / "README.md").write_text("do not parse me\n", encoding="utf-8")
     (root / "20-old.disabled").write_text("disabled.example.com\n", encoding="utf-8")
     (root / "30-notes.note").write_text("notes.example.com\n", encoding="utf-8")
     (root / ".hidden").write_text("hidden.example.com\n", encoding="utf-8")
-    (root / ".hidden-dir" / "hosts.txt").write_text(
-        "hidden-dir.example.com\n", encoding="utf-8"
-    )
+    (root / ".hidden-dir" / "hosts.txt").write_text("hidden-dir.example.com\n", encoding="utf-8")
     (root / "sub" / "20-edge.list").write_text(
         "edge1.net.example.com ; access\n2001:db8::20\n",
         encoding="utf-8",
@@ -187,9 +186,7 @@ def test_collect_seeds_adds_config_cli_and_environment_directories(
     ]
 
 
-def test_collect_seeds_reports_raw_count_before_textual_deduplication(
-    config, monkeypatch
-) -> None:
+def test_collect_seeds_reports_raw_count_before_textual_deduplication(config, monkeypatch) -> None:
     """Startup reporting distinguishes raw records from input identity de-duplication."""
 
     config.discovery.seeds = ["switch1.net.example.com", "switch1.net.example.com"]
@@ -566,9 +563,7 @@ def test_reused_learned_seed_row_becomes_seed_in_later_run(
     assert bool(row["is_seed"])
 
     output = tmp_path / "run-two-output"
-    write_outputs(
-        state, config, output, run_id="run-two", status="RUNNING", draft=False
-    )
+    write_outputs(state, config, output, run_id="run-two", status="RUNNING", draft=False)
     with (output / "seeds.csv").open(encoding="utf-8", newline="") as fh:
         exported = next(csv.DictReader(fh))
     assert exported["origin"] == "seed"

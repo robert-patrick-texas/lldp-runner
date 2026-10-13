@@ -51,7 +51,7 @@ def test_partial_config_inherits_defaults_and_replaces_default_lists(
     _isolate_auto_paths(monkeypatch, tmp_path)
     path = tmp_path / "partial.toml"
     path.write_text(
-        '''[discovery]\nbatch_size = 11\nboundaries = ["192.0.2.0/24"]\n''',
+        """[discovery]\nbatch_size = 11\nboundaries = ["192.0.2.0/24"]\n""",
         encoding="utf-8",
     )
 
@@ -133,7 +133,9 @@ def test_existing_auto_persistent_permission_error_does_not_fall_through(
     assert calls == [first]
 
 
-def test_defaults_only_persistent_error_mentions_generate_config(monkeypatch, tmp_path: Path) -> None:
+def test_defaults_only_persistent_error_mentions_generate_config(
+    monkeypatch, tmp_path: Path
+) -> None:
     candidate = tmp_path / "existing"
     candidate.mkdir()
     monkeypatch.setattr(config_module, "PERSISTENT_ROOT_AUTO_CANDIDATES", (str(candidate),))
@@ -290,17 +292,17 @@ def test_version_command_does_not_load_config(monkeypatch, capsys) -> None:
     assert capsys.readouterr().out.strip() == "lldp-runner 0.37.0"
 
 
-def test_generate_config_writes_commented_defaults_and_honors_set(
-    tmp_path: Path, capsys
-) -> None:
+def test_generate_config_writes_commented_defaults_and_honors_set(tmp_path: Path, capsys) -> None:
     output = tmp_path / "generated.toml"
 
-    main([
-        "--set",
-        "snmp.max_repetitions=31",
-        "generate-config",
-        str(output),
-    ])
+    main(
+        [
+            "--set",
+            "snmp.max_repetitions=31",
+            "generate-config",
+            str(output),
+        ]
+    )
 
     text = output.read_text(encoding="utf-8")
     parsed = tomllib.loads(text)
@@ -355,7 +357,7 @@ def test_generate_config_writes_commented_defaults_and_honors_set(
     assert "sha256 with aes256 (Reeder/Cisco)" in text
     assert "aes256-blumenthal" in text
     assert "SNMPCOMM" in text
-    assert "On this host, workers = \"auto\" currently resolves to" in text
+    assert 'On this host, workers = "auto" currently resolves to' in text
     assert f"Generated configuration: {output.resolve()}" in capsys.readouterr().out
 
 
@@ -400,7 +402,7 @@ def test_generate_config_does_not_replace_existing_primary_name(
     home = tmp_path / "home"
     standard = home / "lldp-runner"
     standard.mkdir(parents=True)
-    (standard / "config.toml").write_text("[logging]\nlevel = \"INFO\"\n")
+    (standard / "config.toml").write_text('[logging]\nlevel = "INFO"\n')
 
     destination = _default_generated_config_path(cwd=standard, home=home)
 
@@ -456,9 +458,7 @@ def test_release_dependency_constraints_are_exact_and_documented() -> None:
     root = Path(__file__).parents[1]
     project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
     runtime_constraints = project["tool"]["uv"]["constraint-dependencies"]
-    build_constraints = project["tool"]["uv"][
-        "build-constraint-dependencies"
-    ]
+    build_constraints = project["tool"]["uv"]["build-constraint-dependencies"]
     expected = [
         "cryptography==50.0.1",
         "gufo-snmp==0.12.0",
@@ -492,10 +492,7 @@ def test_project_and_package_versions_stay_in_sync() -> None:
         (Path(__file__).parents[1] / "pyproject.toml").read_text(encoding="utf-8")
     )
     assert project["project"]["version"] == __version__ == "0.37.0"
-    assert (
-        project["project"]["scripts"]["show-neighbors"]
-        == "lldp_runner.cli:show_neighbors_main"
-    )
+    assert project["project"]["scripts"]["show-neighbors"] == "lldp_runner.cli:show_neighbors_main"
     assert project["tool"]["uv"]["link-mode"] == "copy"
 
 
@@ -514,12 +511,14 @@ def test_generate_config_rejects_invalid_set_type(tmp_path: Path) -> None:
     output = tmp_path / "invalid.toml"
 
     with pytest.raises(SystemExit) as exc:
-        main([
-            "--set",
-            'snmp.timeout_seconds="slow"',
-            "generate-config",
-            str(output),
-        ])
+        main(
+            [
+                "--set",
+                'snmp.timeout_seconds="slow"',
+                "generate-config",
+                str(output),
+            ]
+        )
 
     assert exc.value.code == 2
     assert not output.exists()
@@ -578,7 +577,7 @@ def test_generated_config_wraps_long_lines_and_pattern_lists(tmp_path: Path) -> 
     text = output.read_text(encoding="utf-8")
     lines = text.splitlines()
     assert max(map(len, lines)) <= 80
-    assert 'managed_endpoint_patterns = [' in text
+    assert "managed_endpoint_patterns = [" in text
     assert '  "(?i)\\\\bCisco\\\\s+(IP\\\\s+)?Phone\\\\b",' in text
     assert 'managed_endpoint_patterns = ["' not in text
 
@@ -643,9 +642,7 @@ def test_run_parser_accepts_seed_dns_mode_override() -> None:
 
     from lldp_runner.cli import _parser
 
-    parsed = _parser().parse_args(
-        ["run", "--seed-dns-mode", "skip-addressed", "--seed", "switch1"]
-    )
+    parsed = _parser().parse_args(["run", "--seed-dns-mode", "skip-addressed", "--seed", "switch1"])
 
     assert parsed.seed_dns_mode == "skip-addressed"
 

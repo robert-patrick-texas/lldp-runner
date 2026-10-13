@@ -214,9 +214,7 @@ def _preflight_atomic_file_output(directory: Path, *, label: str) -> None:
                 probe.unlink(missing_ok=True)
             except OSError:
                 pass
-        raise OSError(
-            f"{label} cannot support atomic file output: {directory}: {exc}"
-        ) from exc
+        raise OSError(f"{label} cannot support atomic file output: {directory}: {exc}") from exc
 
 
 def _preflight_latest_symlink(
@@ -241,12 +239,8 @@ def _preflight_latest_symlink(
         persistent root.
     """
 
-    if (
-        latest_link.exists() or latest_link.is_symlink()
-    ) and not latest_link.is_symlink():
-        raise OSError(
-            f"{label} latest path exists and is not a symlink: {latest_link}"
-        )
+    if (latest_link.exists() or latest_link.is_symlink()) and not latest_link.is_symlink():
+        raise OSError(f"{label} latest path exists and is not a symlink: {latest_link}")
 
     token = uuid.uuid4().hex
     root = latest_link.parent
@@ -262,9 +256,7 @@ def _preflight_latest_symlink(
                 probe.unlink(missing_ok=True)
             except OSError:
                 pass
-        raise OSError(
-            f"{label} root cannot publish the latest symlink: {root}: {exc}"
-        ) from exc
+        raise OSError(f"{label} root cannot publish the latest symlink: {root}: {exc}") from exc
 
 
 def publish_latest_symlink(latest_link: Path, target_directory: Path) -> None:
@@ -294,14 +286,10 @@ def publish_latest_symlink(latest_link: Path, target_directory: Path) -> None:
         )
     if not target_directory.exists() or not target_directory.is_dir():
         raise OSError(f"latest symlink target is not a directory: {target_directory}")
-    if (
-        latest_link.exists() or latest_link.is_symlink()
-    ) and not latest_link.is_symlink():
+    if (latest_link.exists() or latest_link.is_symlink()) and not latest_link.is_symlink():
         raise OSError(f"latest path exists and is not a symlink: {latest_link}")
 
-    temporary = latest_link.with_name(
-        f".{latest_link.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
-    )
+    temporary = latest_link.with_name(f".{latest_link.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
     try:
         temporary.symlink_to(target_directory.name)
         os.replace(temporary, latest_link)
@@ -311,8 +299,7 @@ def publish_latest_symlink(latest_link: Path, target_directory: Path) -> None:
         except OSError:
             pass
         raise OSError(
-            f"unable to publish latest symlink {latest_link} -> "
-            f"{target_directory.name}: {exc}"
+            f"unable to publish latest symlink {latest_link} -> {target_directory.name}: {exc}"
         ) from exc
 
 
@@ -365,19 +352,13 @@ def clean_completed_scratch(paths: RunPaths) -> None:
     try:
         if current.is_symlink():
             raw_target = Path(os.readlink(current))
-            target = (
-                raw_target
-                if raw_target.is_absolute()
-                else current.parent / raw_target
-            )
+            target = raw_target if raw_target.is_absolute() else current.parent / raw_target
             if target.resolve(strict=False) == scratch_dir.resolve(strict=False):
                 current.unlink()
         if scratch_dir.exists():
             shutil.rmtree(scratch_dir)
     except OSError as exc:
-        raise OSError(
-            f"unable to clean completed scratch directory {scratch_dir}: {exc}"
-        ) from exc
+        raise OSError(f"unable to clean completed scratch directory {scratch_dir}: {exc}") from exc
 
 
 def preflight_run_storage(paths: RunPaths) -> None:
@@ -416,8 +397,7 @@ def preflight_run_storage(paths: RunPaths) -> None:
         if paths.output_run_dir.exists():
             if not paths.output_run_dir.is_dir():
                 raise OSError(
-                    "persistent output destination is not a directory: "
-                    f"{paths.output_run_dir}"
+                    f"persistent output destination is not a directory: {paths.output_run_dir}"
                 )
         else:
             paths.output_run_dir.mkdir(parents=True, exist_ok=False)

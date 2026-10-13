@@ -16,8 +16,8 @@ include them in an exception message.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import time
+from dataclasses import dataclass, field
 from typing import Protocol, TextIO
 
 from lldp_runner.textutil import safe_output_text, snmp_text
@@ -56,54 +56,228 @@ _OIDS: tuple[OidDescription, ...] = (
     OidDescription("1.3.6.1.2.1.1.4.0", "sysContact", "System contact", "SYSTEM-MIB"),
     OidDescription("1.3.6.1.2.1.1.5.0", "sysName", "System name", "SYSTEM-MIB"),
     OidDescription("1.3.6.1.2.1.1.6.0", "sysLocation", "System location", "SYSTEM-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.2", "entPhysicalDescr", "Physical entity description", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.4", "entPhysicalContainedIn", "Containing physical entity index", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.5", "entPhysicalClass", "Physical entity class", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.6", "entPhysicalParentRelPos", "Relative position within parent", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.7", "entPhysicalName", "Physical entity name", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.8", "entPhysicalHardwareRev", "Physical entity hardware revision", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.9", "entPhysicalFirmwareRev", "Physical entity firmware revision", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.10", "entPhysicalSoftwareRev", "Physical entity software revision", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.11", "entPhysicalSerialNum", "Physical entity serial number", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.12", "entPhysicalMfgName", "Physical entity manufacturer", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1.13", "entPhysicalModelName", "Physical entity model name", "ENTITY-MIB"),
-    OidDescription("1.3.6.1.2.1.47.1.1.1.1", "entPhysicalEntry", "ENTITY-MIB physical inventory table", "ENTITY-MIB"),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.2", "entPhysicalDescr", "Physical entity description", "ENTITY-MIB"
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.4",
+        "entPhysicalContainedIn",
+        "Containing physical entity index",
+        "ENTITY-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.5", "entPhysicalClass", "Physical entity class", "ENTITY-MIB"
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.6",
+        "entPhysicalParentRelPos",
+        "Relative position within parent",
+        "ENTITY-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.7", "entPhysicalName", "Physical entity name", "ENTITY-MIB"
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.8",
+        "entPhysicalHardwareRev",
+        "Physical entity hardware revision",
+        "ENTITY-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.9",
+        "entPhysicalFirmwareRev",
+        "Physical entity firmware revision",
+        "ENTITY-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.10",
+        "entPhysicalSoftwareRev",
+        "Physical entity software revision",
+        "ENTITY-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.11",
+        "entPhysicalSerialNum",
+        "Physical entity serial number",
+        "ENTITY-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.12",
+        "entPhysicalMfgName",
+        "Physical entity manufacturer",
+        "ENTITY-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1.13",
+        "entPhysicalModelName",
+        "Physical entity model name",
+        "ENTITY-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.2.1.47.1.1.1.1",
+        "entPhysicalEntry",
+        "ENTITY-MIB physical inventory table",
+        "ENTITY-MIB",
+    ),
     OidDescription("1.3.6.1.2.1.31.1.1.1.1", "ifName", "Interface name table", "IF-MIB"),
     OidDescription("1.3.6.1.2.1.2.2.1.2", "ifDescr", "Interface description table", "IF-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.3.7.1.2", "lldpLocPortIdSubtype", "Local LLDP Port ID subtype", "LLDP-MIB"),
+    OidDescription(
+        "1.0.8802.1.1.2.1.3.7.1.2", "lldpLocPortIdSubtype", "Local LLDP Port ID subtype", "LLDP-MIB"
+    ),
     OidDescription("1.0.8802.1.1.2.1.3.7.1.3", "lldpLocPortId", "Local LLDP Port ID", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.3.7.1.4", "lldpLocPortDesc", "Local LLDP port description", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.3.7.1", "lldpLocPortEntry", "Local LLDP port table", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.4.1.1.4", "lldpRemChassisIdSubtype", "Remote chassis ID subtype", "LLDP-MIB"),
+    OidDescription(
+        "1.0.8802.1.1.2.1.3.7.1.4", "lldpLocPortDesc", "Local LLDP port description", "LLDP-MIB"
+    ),
+    OidDescription(
+        "1.0.8802.1.1.2.1.3.7.1", "lldpLocPortEntry", "Local LLDP port table", "LLDP-MIB"
+    ),
+    OidDescription(
+        "1.0.8802.1.1.2.1.4.1.1.4",
+        "lldpRemChassisIdSubtype",
+        "Remote chassis ID subtype",
+        "LLDP-MIB",
+    ),
     OidDescription("1.0.8802.1.1.2.1.4.1.1.5", "lldpRemChassisId", "Remote chassis ID", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.4.1.1.6", "lldpRemPortIdSubtype", "Remote Port ID subtype", "LLDP-MIB"),
+    OidDescription(
+        "1.0.8802.1.1.2.1.4.1.1.6", "lldpRemPortIdSubtype", "Remote Port ID subtype", "LLDP-MIB"
+    ),
     OidDescription("1.0.8802.1.1.2.1.4.1.1.7", "lldpRemPortId", "Remote Port ID", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.4.1.1.8", "lldpRemPortDesc", "Remote port description", "LLDP-MIB"),
+    OidDescription(
+        "1.0.8802.1.1.2.1.4.1.1.8", "lldpRemPortDesc", "Remote port description", "LLDP-MIB"
+    ),
     OidDescription("1.0.8802.1.1.2.1.4.1.1.9", "lldpRemSysName", "Remote system name", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.4.1.1.10", "lldpRemSysDesc", "Remote system description", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.4.1.1.11", "lldpRemSysCapSupported", "Remote supported capabilities", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.4.1.1.12", "lldpRemSysCapEnabled", "Remote enabled capabilities", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.4.1.1", "lldpRemEntry", "Remote LLDP neighbor table", "LLDP-MIB"),
-    OidDescription("1.0.8802.1.1.2.1.4.2.1", "lldpRemManAddrEntry", "Remote LLDP management-address table", "LLDP-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.5", "lldpV2RemChassisIdSubtype", "Remote LLDPv2 chassis ID subtype", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.6", "lldpV2RemChassisId", "Remote LLDPv2 chassis ID", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.7", "lldpV2RemPortIdSubtype", "Remote LLDPv2 Port ID subtype", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.8", "lldpV2RemPortId", "Remote LLDPv2 Port ID", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.9", "lldpV2RemPortDesc", "Remote LLDPv2 port description", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.10", "lldpV2RemSysName", "Remote LLDPv2 system name", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.11", "lldpV2RemSysDesc", "Remote LLDPv2 system description", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.12", "lldpV2RemSysCapSupported", "Remote LLDPv2 supported capabilities", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1.13", "lldpV2RemSysCapEnabled", "Remote LLDPv2 enabled capabilities", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.1.1", "lldpV2RemEntry", "Remote LLDPv2 neighbor table", "LLDPv2-MIB"),
-    OidDescription("1.3.111.2.802.1.1.13.1.4.2.1", "lldpV2RemManAddrEntry", "Remote LLDPv2 management-address table", "LLDPv2-MIB"),
-    OidDescription("1.3.6.1.4.1.9.9.23.1.2.1.1.3", "cdpCacheAddressType", "CDP neighbor address type", "CISCO-CDP-MIB"),
-    OidDescription("1.3.6.1.4.1.9.9.23.1.2.1.1.4", "cdpCacheAddress", "CDP neighbor management address", "CISCO-CDP-MIB"),
-    OidDescription("1.3.6.1.4.1.9.9.23.1.2.1.1.5", "cdpCacheVersion", "CDP neighbor software/version description", "CISCO-CDP-MIB"),
-    OidDescription("1.3.6.1.4.1.9.9.23.1.2.1.1.6", "cdpCacheDeviceId", "CDP neighbor device ID", "CISCO-CDP-MIB"),
-    OidDescription("1.3.6.1.4.1.9.9.23.1.2.1.1.7", "cdpCacheDevicePort", "CDP neighbor remote port", "CISCO-CDP-MIB"),
-    OidDescription("1.3.6.1.4.1.9.9.23.1.2.1.1.8", "cdpCachePlatform", "CDP neighbor platform", "CISCO-CDP-MIB"),
-    OidDescription("1.3.6.1.4.1.9.9.23.1.2.1.1.9", "cdpCacheCapabilities", "CDP neighbor capabilities", "CISCO-CDP-MIB"),
-    OidDescription("1.3.6.1.4.1.9.9.23.1.2.1.1", "cdpCacheEntry", "Cisco CDP neighbor cache table", "CISCO-CDP-MIB"),
+    OidDescription(
+        "1.0.8802.1.1.2.1.4.1.1.10", "lldpRemSysDesc", "Remote system description", "LLDP-MIB"
+    ),
+    OidDescription(
+        "1.0.8802.1.1.2.1.4.1.1.11",
+        "lldpRemSysCapSupported",
+        "Remote supported capabilities",
+        "LLDP-MIB",
+    ),
+    OidDescription(
+        "1.0.8802.1.1.2.1.4.1.1.12",
+        "lldpRemSysCapEnabled",
+        "Remote enabled capabilities",
+        "LLDP-MIB",
+    ),
+    OidDescription(
+        "1.0.8802.1.1.2.1.4.1.1", "lldpRemEntry", "Remote LLDP neighbor table", "LLDP-MIB"
+    ),
+    OidDescription(
+        "1.0.8802.1.1.2.1.4.2.1",
+        "lldpRemManAddrEntry",
+        "Remote LLDP management-address table",
+        "LLDP-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.5",
+        "lldpV2RemChassisIdSubtype",
+        "Remote LLDPv2 chassis ID subtype",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.6",
+        "lldpV2RemChassisId",
+        "Remote LLDPv2 chassis ID",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.7",
+        "lldpV2RemPortIdSubtype",
+        "Remote LLDPv2 Port ID subtype",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.8", "lldpV2RemPortId", "Remote LLDPv2 Port ID", "LLDPv2-MIB"
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.9",
+        "lldpV2RemPortDesc",
+        "Remote LLDPv2 port description",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.10",
+        "lldpV2RemSysName",
+        "Remote LLDPv2 system name",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.11",
+        "lldpV2RemSysDesc",
+        "Remote LLDPv2 system description",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.12",
+        "lldpV2RemSysCapSupported",
+        "Remote LLDPv2 supported capabilities",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1.13",
+        "lldpV2RemSysCapEnabled",
+        "Remote LLDPv2 enabled capabilities",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.1.1",
+        "lldpV2RemEntry",
+        "Remote LLDPv2 neighbor table",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.111.2.802.1.1.13.1.4.2.1",
+        "lldpV2RemManAddrEntry",
+        "Remote LLDPv2 management-address table",
+        "LLDPv2-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.4.1.9.9.23.1.2.1.1.3",
+        "cdpCacheAddressType",
+        "CDP neighbor address type",
+        "CISCO-CDP-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.4.1.9.9.23.1.2.1.1.4",
+        "cdpCacheAddress",
+        "CDP neighbor management address",
+        "CISCO-CDP-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.4.1.9.9.23.1.2.1.1.5",
+        "cdpCacheVersion",
+        "CDP neighbor software/version description",
+        "CISCO-CDP-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.4.1.9.9.23.1.2.1.1.6",
+        "cdpCacheDeviceId",
+        "CDP neighbor device ID",
+        "CISCO-CDP-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.4.1.9.9.23.1.2.1.1.7",
+        "cdpCacheDevicePort",
+        "CDP neighbor remote port",
+        "CISCO-CDP-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.4.1.9.9.23.1.2.1.1.8", "cdpCachePlatform", "CDP neighbor platform", "CISCO-CDP-MIB"
+    ),
+    OidDescription(
+        "1.3.6.1.4.1.9.9.23.1.2.1.1.9",
+        "cdpCacheCapabilities",
+        "CDP neighbor capabilities",
+        "CISCO-CDP-MIB",
+    ),
+    OidDescription(
+        "1.3.6.1.4.1.9.9.23.1.2.1.1",
+        "cdpCacheEntry",
+        "Cisco CDP neighbor cache table",
+        "CISCO-CDP-MIB",
+    ),
 )
 
 
@@ -221,9 +395,7 @@ class SnmpTrace:
         self._line("")
         return number
 
-    def resolver_response(
-        self, number: int, rows: list[tuple[str, object]]
-    ) -> None:
+    def resolver_response(self, number: int, rows: list[tuple[str, object]]) -> None:
         """Write the values returned by one resolver operation."""
 
         del number  # Number is carried by the preceding query header.
@@ -233,10 +405,7 @@ class SnmpTrace:
             self._line("  Reason:      resolver returned no values")
         else:
             for label, value in rows:
-                self._line(
-                    f"  {safe_output_text(label) + ':':<12} "
-                    f"{safe_output_text(value)}"
-                )
+                self._line(f"  {safe_output_text(label) + ':':<12} {safe_output_text(value)}")
         self._line("")
 
     def resolver_no_response(self, number: int, reason: object) -> None:
@@ -318,7 +487,7 @@ class SnmpTrace:
         self._line(f"ICMP note: {safe_output_text(text)}")
         self._line("")
 
-    def wrap(self, client: TraceableSnmpClient, context: TraceContext) -> "TracingSnmpClient":
+    def wrap(self, client: TraceableSnmpClient, context: TraceContext) -> TracingSnmpClient:
         """Return a tracing facade for one already-open project SNMP client."""
 
         self._session_number += 1

@@ -256,23 +256,15 @@ def test_preferred_name_output_normalization_and_typed_chassis_fallbacks(
             values = {row["preferred_name"] for row in csv.DictReader(handle)}
         assert set(expected.values()).issubset(values)
 
-    with (scratch / "preferred-names.csv").open(
-        encoding="utf-8", newline=""
-    ) as handle:
+    with (scratch / "preferred-names.csv").open(encoding="utf-8", newline="") as handle:
         custom_rows = list(csv.DictReader(handle))
-    custom_pairs = {
-        (row["preferred_name"], row["json_preferred_name"])
-        for row in custom_rows
-    }
+    custom_pairs = {(row["preferred_name"], row["json_preferred_name"]) for row in custom_rows}
     assert {(value, value) for value in expected.values()}.issubset(custom_pairs)
 
-    with (scratch / "unknown-preferred-names.csv").open(
-        encoding="utf-8", newline=""
-    ) as handle:
+    with (scratch / "unknown-preferred-names.csv").open(encoding="utf-8", newline="") as handle:
         unknown_custom_rows = list(csv.DictReader(handle))
     unknown_custom_pairs = {
-        (row["preferred_name"], row["json_preferred_name"])
-        for row in unknown_custom_rows
+        (row["preferred_name"], row["json_preferred_name"]) for row in unknown_custom_rows
     }
     assert {(value, value) for value in expected.values()} == unknown_custom_pairs
     state.close()
@@ -314,9 +306,7 @@ def test_preferred_name_output_fallback_refuses_mixed_or_ambiguous_chassis() -> 
         }
         for value in ("02-34-56-78-9A-BC", "0234.5678.9abc")
     ]
-    assert _output_preferred_name("unknown", repeated_mac) == (
-        "02:34:56:78:9a:bc"
-    )
+    assert _output_preferred_name("unknown", repeated_mac) == ("02:34:56:78:9a:bc")
 
     described_mac = [
         {
@@ -369,9 +359,7 @@ def test_preferred_name_output_fallback_refuses_mixed_or_ambiguous_chassis() -> 
             },
         },
     ]
-    assert _output_preferred_name("not advertised", malformed_mac) == (
-        "not advertised"
-    )
+    assert _output_preferred_name("not advertised", malformed_mac) == ("not advertised")
     assert _output_preferred_name("switch (lab)", []) == "switch (lab)"
 
 
@@ -484,9 +472,7 @@ def test_chassis_id_name_fallback_and_tags_in_outputs(tmp_path: Path, config):
     state.close()
 
 
-def test_repeated_local_chassis_endpoints_remain_distinct_in_public_outputs(
-    tmp_path: Path, config
-):
+def test_repeated_local_chassis_endpoints_remain_distinct_in_public_outputs(tmp_path: Path, config):
     """Typed Port-ID MACs keep anonymous subtype-7 endpoints one-to-one."""
 
     import csv
@@ -580,9 +566,7 @@ def test_repeated_local_chassis_endpoints_remain_distinct_in_public_outputs(
     assert graph["summary"]["compatibility_projection_diagnostics"] == 0
     assert graph["compatibility_projection_diagnostics"] == []
     assert {
-        item["entity_key"]
-        for item in graph["entities"]
-        if item["entity_type"] == "observed_system"
+        item["entity_key"] for item in graph["entities"] if item["entity_type"] == "observed_system"
     } == {
         "endpoint:mac:08:92:04:f6:d6:f4",
         "endpoint:mac:10:98:19:4d:2f:97",
@@ -605,13 +589,19 @@ def test_name_like_chassis_fallback_rejects_mac_but_any_accepts_it(tmp_path: Pat
     write_outputs(state, config, scratch, run_id="run1", status="RUNNING", draft=False)
     with (scratch / "hosts.csv").open(encoding="utf-8", newline="") as fh:
         rows = list(csv.DictReader(fh))
-    assert next(item for item in rows if item["classification"] == "unknown_device")["preferred_name"] == "unknown"
+    assert (
+        next(item for item in rows if item["classification"] == "unknown_device")["preferred_name"]
+        == "unknown"
+    )
 
     config.output.chassis_id_name_fallback = "any"
     write_outputs(state, config, scratch, run_id="run1", status="RUNNING", draft=False)
     with (scratch / "hosts.csv").open(encoding="utf-8", newline="") as fh:
         rows = list(csv.DictReader(fh))
-    assert next(item for item in rows if item["classification"] == "unknown_device")["preferred_name"] == "8c:04:ba:a3:1a:0d"
+    assert (
+        next(item for item in rows if item["classification"] == "unknown_device")["preferred_name"]
+        == "8c:04:ba:a3:1a:0d"
+    )
     assert state.host_row(host_id)["preferred_name"] == "unknown"
     state.close()
 
@@ -680,9 +670,7 @@ def test_all_csv_outputs_strip_embedded_control_characters(tmp_path: Path, confi
         # CR/LF are legitimate CSV record separators.  No other Unicode control
         # character may survive inside an emitted field.
         bad = [
-            char
-            for char in text
-            if unicodedata.category(char) == "Cc" and char not in {"\r", "\n"}
+            char for char in text if unicodedata.category(char) == "Cc" and char not in {"\r", "\n"}
         ]
         assert not bad, (name, bad)
 
@@ -770,9 +758,7 @@ def test_bidirectional_neighbor_fields_preserve_failed_managed_child_and_protoco
         rows = {row["preferred_name"]: row for row in csv.DictReader(fh)}
 
     parent = rows["parent-sw.net.example.com"]
-    assert parent["learned_neighbors"] == (
-        "Gi1/0/48=child-sw.net.example.com:Gi1/0/24[cdp,lldp]"
-    )
+    assert parent["learned_neighbors"] == ("Gi1/0/48=child-sw.net.example.com:Gi1/0/24[cdp,lldp]")
     assert parent["observed_by_neighbors"] == ""
 
     child = rows["child-sw.net.example.com"]
@@ -819,7 +805,6 @@ def test_hosts_csv_origin_distinguishes_seed_from_learned(tmp_path: Path, config
     assert rows["learned-sw.example.net"]["origin"] == "learned"
     assert {row["origin"] for row in rows.values()} <= {"seed", "learned"}
     state.close()
-
 
 
 def test_discovery_json_is_complete_structured_output_contract(tmp_path: Path, config):
@@ -984,9 +969,7 @@ def test_stack_members_csv_is_one_physical_switch_per_row(tmp_path: Path, config
     state.conn.commit()
 
     scratch = tmp_path / "scratch"
-    written = write_outputs(
-        state, config, scratch, run_id="stack", status="COMPLETED", draft=False
-    )
+    written = write_outputs(state, config, scratch, run_id="stack", status="COMPLETED", draft=False)
 
     assert "stack-members.csv" in {path.name for path in written}
     with (scratch / "stack-members.csv").open(encoding="utf-8", newline="") as fh:
@@ -1021,9 +1004,7 @@ def test_stack_members_csv_is_one_physical_switch_per_row(tmp_path: Path, config
     state.close()
 
 
-def test_fixed_csv_outputs_are_reproducible_from_discovery_json_alone(
-    tmp_path: Path, config
-):
+def test_fixed_csv_outputs_are_reproducible_from_discovery_json_alone(tmp_path: Path, config):
     """Every fixed CSV must be reproducible after SQLite state is unavailable.
 
     This is the architectural gate for future custom CSV support: once the
@@ -1126,9 +1107,7 @@ def test_fixed_csv_outputs_are_reproducible_from_discovery_json_alone(
 
     document = json.loads((normal / "discovery.json").read_text(encoding="utf-8"))
     unknown_record = next(
-        record
-        for record in document["hosts"]
-        if record["classification"] == "unknown_device"
+        record for record in document["hosts"] if record["classification"] == "unknown_device"
     )
     assert unknown_record["observed_by_neighbors"][0]["protocols"] == ["cdp", "lldp"]
     state.close()
@@ -1144,7 +1123,6 @@ def test_fixed_csv_outputs_are_reproducible_from_discovery_json_alone(
     with (normal / "unknown-devices.csv").open(encoding="utf-8", newline="") as fh:
         unknown_rows = list(csv.DictReader(fh))
     assert unknown_rows[0]["protocols"] == "cdp;lldp"
-
 
 
 def test_empty_fixed_csv_files_are_suppressed_by_default(tmp_path: Path, config):
@@ -1171,15 +1149,11 @@ def test_empty_fixed_csv_files_are_suppressed_by_default(tmp_path: Path, config)
         assert not (scratch / name).exists()
 
     config.output.write_empty_csv = True
-    write_outputs(
-        state, config, scratch, run_id="empty-stack", status="RUNNING", draft=False
-    )
+    write_outputs(state, config, scratch, run_id="empty-stack", status="RUNNING", draft=False)
     assert all((scratch / name).exists() for name in OUTPUT_NAMES)
 
     config.output.write_stack_members_csv = False
-    write_outputs(
-        state, config, scratch, run_id="empty-stack", status="RUNNING", draft=False
-    )
+    write_outputs(state, config, scratch, run_id="empty-stack", status="RUNNING", draft=False)
     assert not (scratch / "stack-members.csv").exists()
     state.close()
 
@@ -1226,15 +1200,11 @@ def test_global_empty_csv_policy_removes_stale_header_only_files(tmp_path: Path,
     scratch = tmp_path / "scratch"
 
     config.output.write_empty_csv = True
-    written = write_outputs(
-        state, config, scratch, run_id="empty", status="RUNNING", draft=False
-    )
+    written = write_outputs(state, config, scratch, run_id="empty", status="RUNNING", draft=False)
     assert {path.name for path in written} == set(OUTPUT_NAMES)
 
     config.output.write_empty_csv = False
-    written = write_outputs(
-        state, config, scratch, run_id="empty", status="COMPLETED", draft=False
-    )
+    written = write_outputs(state, config, scratch, run_id="empty", status="COMPLETED", draft=False)
     assert [path.name for path in written] == ["discovery.json"]
     for name in OUTPUT_NAMES[1:]:
         assert not (scratch / name).exists()
@@ -1257,14 +1227,10 @@ def test_empty_csv_alert_is_aggregated_only_for_terminal_snapshots(
     config.output.log_alert_on_empty_csv = True
     caplog.set_level(logging.INFO, logger="lldp_runner.outputs")
 
-    write_outputs(
-        state, config, scratch, run_id="alert", status="RUNNING", draft=True
-    )
+    write_outputs(state, config, scratch, run_id="alert", status="RUNNING", draft=True)
     assert "empty csv not written" not in caplog.text
 
-    write_outputs(
-        state, config, scratch, run_id="alert", status="PAUSED", draft=True
-    )
+    write_outputs(state, config, scratch, run_id="alert", status="PAUSED", draft=True)
     messages = [
         record.getMessage()
         for record in caplog.records
@@ -1276,9 +1242,7 @@ def test_empty_csv_alert_is_aggregated_only_for_terminal_snapshots(
 
     caplog.clear()
     config.output.write_errors_csv = False
-    write_outputs(
-        state, config, scratch, run_id="alert", status="COMPLETED", draft=False
-    )
+    write_outputs(state, config, scratch, run_id="alert", status="COMPLETED", draft=False)
     assert [
         record.getMessage()
         for record in caplog.records
@@ -1314,9 +1278,7 @@ def test_finalize_accepts_enabled_output_subset(tmp_path: Path):
     assert latest.resolve() == final.resolve()
 
 
-def test_distinct_neighbors_with_malformed_network_chassis_stay_separate(
-    tmp_path: Path, config
-):
+def test_distinct_neighbors_with_malformed_network_chassis_stay_separate(tmp_path: Path, config):
     """Canonical output must retain each Aruba-learned phone as its own host."""
 
     import json
@@ -1385,26 +1347,20 @@ def test_distinct_neighbors_with_malformed_network_chassis_stay_separate(
 
     assert len(set(remote_ids)) == 3
     learned_by_port = {item["local_interface"]: item for item in learned}
+    assert {port: learned_by_port[port]["name"] for port, _name, _address, _remote in phones} == {
+        port: name for port, name, _address, _remote in phones
+    }
     assert {
-        port: learned_by_port[port]["name"] for port, _name, _address, _remote in phones
-    } == {port: name for port, name, _address, _remote in phones}
-    assert {
-        port: learned_by_port[port]["observed_name"]
-        for port, _name, _address, _remote in phones
+        port: learned_by_port[port]["observed_name"] for port, _name, _address, _remote in phones
     } == {port: name for port, name, _address, _remote in phones}
     assert len({item["host_ref"] for item in learned}) == 3
-    assert all(
-        item["details"]["chassis_id"] == "hex:15:00:00:00:00:00"
-        for item in learned
-    )
+    assert all(item["details"]["chassis_id"] == "hex:15:00:00:00:00:00" for item in learned)
     hosts = {item["id"]: item for item in payload["hosts"]}
     assert all(hosts[remote_id]["chassis_id"] is None for remote_id in remote_ids)
     state.close()
 
 
-def test_nexus_vdc_cdp_lldp_edges_consolidate_without_merging_other_vdcs(
-    tmp_path: Path, config
-):
+def test_nexus_vdc_cdp_lldp_edges_consolidate_without_merging_other_vdcs(tmp_path: Path, config):
     """Nexus VDC edge evidence should merge per link and per logical VDC only."""
 
     import json
@@ -1540,7 +1496,6 @@ def test_nexus_vdc_cdp_lldp_edges_consolidate_without_merging_other_vdcs(
     assert len(vdc1_ids) == 1
     assert vdc2_ids[0] == vdc2_ids[1]
     assert vdc1_ids[0] != vdc2_ids[0]
-    vdc1_id = vdc1_ids[0]
 
     scratch = tmp_path / "scratch"
     write_outputs(state, config, scratch, run_id="run1", status="COMPLETED", draft=False)
@@ -1559,9 +1514,7 @@ def test_nexus_vdc_cdp_lldp_edges_consolidate_without_merging_other_vdcs(
             "203.0.113.24",
             "203.0.113.103",
         ]
-        assert item["details"]["cdp.remote_name"] == (
-            "hq-vdc2-7nx1.net.example.com(SERIAL000001)"
-        )
+        assert item["details"]["cdp.remote_name"] == ("hq-vdc2-7nx1.net.example.com(SERIAL000001)")
         assert item["details"]["cdp.entry_addresses"] == ["203.0.113.103"]
 
     assert learned["Hu1/0/21"]["name"] == "hq-vdc1-7nx1.net.example.com"

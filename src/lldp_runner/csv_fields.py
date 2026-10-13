@@ -136,9 +136,7 @@ class JsonFieldSpec:
 
 _SCALAR = JsonFieldSpec("scalar")
 _BOOL_ORIGIN = JsonFieldSpec("scalar", frozenset({"origin"}))
-_LIST_JOIN = JsonFieldSpec(
-    "list", frozenset({"join:semicolon", "join:comma", "json"})
-)
+_LIST_JOIN = JsonFieldSpec("list", frozenset({"join:semicolon", "join:comma", "json"}))
 _LIST_JSON = JsonFieldSpec("list", frozenset({"json"}))
 _OBJECT_JSON = JsonFieldSpec("object", frozenset({"json"}))
 
@@ -297,9 +295,7 @@ def validate_field_reference(
             continue
         leaf = field_name[len(prefix) :]
         if "." in leaf or leaf not in FIXED_FIELDS_BY_SOURCE[namespace]:
-            raise ValueError(
-                f"unknown field {field_name!r} for custom CSV source {source!r}"
-            )
+            raise ValueError(f"unknown field {field_name!r} for custom CSV source {source!r}")
         if transform:
             raise ValueError(
                 f"field {field_name!r} is already a fixed presentation field; "
@@ -318,8 +314,7 @@ def validate_field_reference(
     if root not in _SOURCE_JSON_ROOTS[source]:
         allowed_roots = ", ".join(sorted(_SOURCE_JSON_ROOTS[source]))
         raise ValueError(
-            f"JSON context {root!r} is not valid for source {source!r}; "
-            f"use one of: {allowed_roots}"
+            f"JSON context {root!r} is not valid for source {source!r}; use one of: {allowed_roots}"
         )
     spec = JSON_FIELDS.get(root, {}).get(path)
     if spec is None:
@@ -330,8 +325,7 @@ def validate_field_reference(
         if transform is not None and transform not in allowed:
             names = ", ".join(sorted(allowed)) or "none"
             raise ValueError(
-                f"transform {transform!r} is not valid for {field_name!r}; "
-                f"allowed: {names}"
+                f"transform {transform!r} is not valid for {field_name!r}; allowed: {names}"
             )
         return
 

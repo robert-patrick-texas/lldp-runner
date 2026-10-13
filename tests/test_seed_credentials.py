@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from copy import deepcopy
 import json
+from copy import deepcopy
 from pathlib import Path
 from threading import Event
 from types import SimpleNamespace
@@ -129,8 +129,7 @@ def test_json_array_order_controls_attempt_order_not_source_line(tmp_path: Path,
 def test_seed_present_but_without_credential_data_warns_and_skips(tmp_path: Path, config) -> None:
     path = _secure_write(
         tmp_path / "empty.csv",
-        ",".join(SEED_CREDENTIAL_COLUMNS)
-        + "\n198.18.20.1,prefer,alpha,,,,,,,,\n",
+        ",".join(SEED_CREDENTIAL_COLUMNS) + "\n198.18.20.1,prefer,alpha,,,,,,,,\n",
     )
 
     loaded = load_seed_credential_files([path], config)
@@ -143,8 +142,7 @@ def test_seed_present_but_without_credential_data_warns_and_skips(tmp_path: Path
 def test_literal_secret_file_rejects_world_readable_permissions(tmp_path: Path, config) -> None:
     path = tmp_path / "unsafe.csv"
     path.write_text(
-        ",".join(SEED_CREDENTIAL_COLUMNS)
-        + "\n198.18.20.1,prefer,alpha,,v2c,secret,,,,,\n",
+        ",".join(SEED_CREDENTIAL_COLUMNS) + "\n198.18.20.1,prefer,alpha,,v2c,secret,,,,,\n",
         encoding="utf-8",
     )
     path.chmod(0o644)
@@ -193,14 +191,17 @@ def test_prefer_and_exclusive_compile_to_ordered_task_attempts(tmp_path: Path, c
     assert prefer_task is not None
     assert exclusive_task is not None
 
-    assert [(item.credential_source, item.credential_label, item.credential_profile) for item in prefer_task.attempts] == [
+    assert [
+        (item.credential_source, item.credential_label, item.credential_profile)
+        for item in prefer_task.attempts
+    ] == [
         ("seed-direct", "alpha", None),
         ("seed-profile", "beta", "specific"),
         ("policy-profile", None, "default"),
     ]
-    assert [(item.credential_source, item.credential_label) for item in exclusive_task.attempts] == [
-        ("seed-direct", "gamma")
-    ]
+    assert [
+        (item.credential_source, item.credential_label) for item in exclusive_task.attempts
+    ] == [("seed-direct", "gamma")]
     coordinator.state.close()
 
 
@@ -243,8 +244,7 @@ def test_worker_state_advances_direct_then_profile_without_label_identity(config
 def test_resume_requires_seed_credential_overlay_again(tmp_path: Path, config) -> None:
     path = _secure_write(
         tmp_path / "overlay.csv",
-        ",".join(SEED_CREDENTIAL_COLUMNS)
-        + "\n198.18.20.1,exclusive,alpha,,v2c,private,,,,,\n",
+        ",".join(SEED_CREDENTIAL_COLUMNS) + "\n198.18.20.1,exclusive,alpha,,v2c,private,,,,,\n",
     )
     loaded = load_seed_credential_files([path], config)
     first = _coordinator(config, tmp_path, loaded)
@@ -347,8 +347,7 @@ def test_seed_credential_loading_rejects_backend_mutation_after_selection(
     config.snmp.backend = "pysnmp"
     path = _secure_write(
         tmp_path / "mutated-backend.csv",
-        ",".join(SEED_CREDENTIAL_COLUMNS)
-        + "\n198.18.20.1,exclusive,alpha,,v2c,private,,,,,\n",
+        ",".join(SEED_CREDENTIAL_COLUMNS) + "\n198.18.20.1,exclusive,alpha,,v2c,private,,,,,\n",
     )
 
     with pytest.raises(ValueError, match="SNMP backend selection is fixed"):

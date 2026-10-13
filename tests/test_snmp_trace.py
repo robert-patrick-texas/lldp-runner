@@ -110,10 +110,7 @@ def test_tracefile_requires_filename_with_operator_friendly_error(capsys) -> Non
         parser.parse_args(["router1", "--tracefile"])
 
     assert exc_info.value.code == 2
-    assert (
-        "--tracefile requires a filename to be identified for output"
-        in capsys.readouterr().err
-    )
+    assert "--tracefile requires a filename to be identified for output" in capsys.readouterr().err
 
 
 def test_tracefile_empty_filename_is_rejected(monkeypatch, config) -> None:
@@ -157,9 +154,7 @@ def test_tracefile_alone_writes_file_and_both_options_fan_out(
     assert "TRACE-MARKER" in file_text
     assert "Trace complete:" in file_text
 
-    args = parser.parse_args(
-        ["router1", "--trace", "--tracefile", "trace-both.txt"]
-    )
+    args = parser.parse_args(["router1", "--trace", "--tracefile", "trace-both.txt"])
     assert cli._execute_inspect(args, parser) == 0
     second = capsys.readouterr()
     assert second.out == "RESULT\n"
@@ -167,7 +162,9 @@ def test_tracefile_alone_writes_file_and_both_options_fan_out(
     assert "TRACE-MARKER" in (tmp_path / "trace-both.txt").read_text(encoding="utf-8")
 
 
-def test_tracefile_open_failure_occurs_before_inspection(monkeypatch, config, tmp_path: Path) -> None:
+def test_tracefile_open_failure_occurs_before_inspection(
+    monkeypatch, config, tmp_path: Path
+) -> None:
     monkeypatch.setattr(cli, "_load_app", lambda *_args, **_kwargs: config)
 
     def forbidden(*_args, **_kwargs):
@@ -175,13 +172,12 @@ def test_tracefile_open_failure_occurs_before_inspection(monkeypatch, config, tm
 
     monkeypatch.setattr(cli, "inspect_target_sync", forbidden)
     parser = cli._get_neighbors_parser()
-    args = parser.parse_args(
-        ["router1", "--tracefile", str(tmp_path / "missing" / "trace.txt")]
-    )
+    args = parser.parse_args(["router1", "--tracefile", str(tmp_path / "missing" / "trace.txt")])
 
     with pytest.raises(SystemExit) as exc_info:
         cli._execute_inspect(args, parser)
     assert exc_info.value.code == 2
+
 
 class _FakeSnmpContext:
     def __init__(self, client: object) -> None:
@@ -194,9 +190,7 @@ class _FakeSnmpContext:
         return None
 
 
-def test_single_device_worker_wires_trace_through_system_collection(
-    monkeypatch, config
-) -> None:
+def test_single_device_worker_wires_trace_through_system_collection(monkeypatch, config) -> None:
     from lldp_runner import worker
     from lldp_runner.models import DeviceTask, TargetAttempt
 
@@ -275,9 +269,7 @@ def test_network_trace_records_resolver_queries_and_results(monkeypatch) -> None
         "getfqdn",
         lambda name: f"{name}.canonical.example.net",
     )
-    resolved = identity.resolve_seed(
-        "router1", ["example.net"], trace=trace
-    )
+    resolved = identity.resolve_seed("router1", ["example.net"], trace=trace)
     assert "198.18.0.10" in resolved.addresses
 
     monkeypatch.setattr(

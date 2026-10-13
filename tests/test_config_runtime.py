@@ -230,10 +230,7 @@ def test_run_storage_preflight_reports_persistent_output_write_failure(
     def controlled_open(path: Path, *args, **kwargs):
         """Simulate an OS permission failure only for the final-output probe."""
 
-        if (
-            path.parent == paths.output_run_dir
-            and path.name.startswith(".lldp-runner-preflight-")
-        ):
+        if path.parent == paths.output_run_dir and path.name.startswith(".lldp-runner-preflight-"):
             raise PermissionError("simulated persistent-output permission failure")
         return original_open(path, *args, **kwargs)
 
@@ -271,7 +268,6 @@ def test_clean_scratch_default_and_type_validation(config) -> None:
         validate_config(config)
 
 
-
 def test_neighbor_table_width_defaults_and_validation(config):
     """Table baselines default to 18 and reject unusable column widths."""
 
@@ -307,7 +303,7 @@ def test_terminal_color_defaults_and_validation(config):
     assert config.terminal.metric_color == "green"
 
     config.terminal.heading_color = "ultraviolet"
-    with pytest.raises(ConfigError, match="terminal.heading_color"):
+    with pytest.raises(ConfigError, match=r"terminal\.heading_color"):
         validate_config(config)
 
 
@@ -350,7 +346,7 @@ def test_validate_config_accepts_chassis_id_subtype_evidence_fields(config):
 
 def test_toml_rule_lists_load_and_validate(config_file: Path) -> None:
     text = config_file.read_text(encoding="utf-8")
-    text += r'''
+    text += r"""
 
 [[query_policy.name_rules]]
 patterns = ['(?i)\.ops\.example\.com$', '(?i)\.external\.example\.org$']
@@ -378,7 +374,7 @@ name_patterns = ['(?i)^SEP', '(?i)^VIPER-']
 networks = ['198.18.64.0/20', '198.18.80.0/20']
 field_patterns = { remote_description = ['(?i)Cisco.*Phone', '(?i)General Dynamics'] }
 tags = ['service:voice']
-'''
+"""
     config_file.write_text(text, encoding="utf-8")
     loaded = load_config(config_file)
     assert loaded.query_policy.name_rules[-1].pattern_values() == [
@@ -397,7 +393,7 @@ def test_discovery_seed_dirs_load_from_toml(config_file: Path) -> None:
 
     text = config_file.read_text(encoding="utf-8")
     text = text.replace(
-        '[discovery]\n',
+        "[discovery]\n",
         '[discovery]\nseed_dirs = ["/opt/lldp-runner/seeds.d", "/srv/netops/seeds"]\n',
         1,
     )
@@ -409,7 +405,6 @@ def test_discovery_seed_dirs_load_from_toml(config_file: Path) -> None:
         "/opt/lldp-runner/seeds.d",
         "/srv/netops/seeds",
     ]
-
 
 
 def test_partial_output_csv_controls_inherit_other_defaults(tmp_path: Path):
@@ -496,22 +491,21 @@ def test_logging_destination_defaults_and_runtime_paths(
     assert config.logging.filename == "activity.log"
 
     paths = make_run_paths(config, "20260102-145100-EDT")
-    assert paths.activity_log == (
-        config.paths.persistent_root
-        / "runs"
-        / "20260102-145100-EDT"
-        / "activity.log"
-    ).resolve()
+    assert (
+        paths.activity_log
+        == (
+            config.paths.persistent_root / "runs" / "20260102-145100-EDT" / "activity.log"
+        ).resolve()
+    )
 
     config.logging.filename = "logs/netops.log"
     paths = make_run_paths(config, "20260102-145200-EDT")
-    assert paths.activity_log == (
-        config.paths.persistent_root
-        / "runs"
-        / "20260102-145200-EDT"
-        / "logs"
-        / "netops.log"
-    ).resolve()
+    assert (
+        paths.activity_log
+        == (
+            config.paths.persistent_root / "runs" / "20260102-145200-EDT" / "logs" / "netops.log"
+        ).resolve()
+    )
 
     absolute = tmp_path / "central" / "lldprunner.log"
     config.logging.filename = str(absolute)
@@ -556,7 +550,7 @@ def test_snmp_report_metrics_requires_boolean_value(tmp_path: Path):
         '[snmp]\nreport_metrics = "false"\n',
         encoding="utf-8",
     )
-    with pytest.raises(ConfigError, match="snmp.report_metrics must be true or false"):
+    with pytest.raises(ConfigError, match=r"snmp\.report_metrics must be true or false"):
         load_config(
             config_file,
             credential_mode=CredentialMode.OPTIONAL,
@@ -607,7 +601,7 @@ def test_collect_entity_mib_requires_boolean_value(tmp_path: Path) -> None:
         '[snmp]\ncollect_entity_mib = "false"\n',
         encoding="utf-8",
     )
-    with pytest.raises(ConfigError, match="snmp.collect_entity_mib must be true or false"):
+    with pytest.raises(ConfigError, match=r"snmp\.collect_entity_mib must be true or false"):
         load_config(
             config_file,
             credential_mode=CredentialMode.OPTIONAL,
@@ -728,11 +722,11 @@ def test_terminal_watch_palette_and_color_policy_validation(config):
     from lldp_runner.config import ConfigError, validate_config
 
     config.terminal.palette = "paper"
-    with pytest.raises(ConfigError, match="terminal.palette"):
+    with pytest.raises(ConfigError, match=r"terminal\.palette"):
         validate_config(config)
     config.terminal.palette = "dark"
     config.terminal.color = "always"
-    with pytest.raises(ConfigError, match="terminal.color"):
+    with pytest.raises(ConfigError, match=r"terminal\.color"):
         validate_config(config)
 
 
@@ -747,7 +741,6 @@ def test_terminal_color_never_disables_tty_styling(config) -> None:
 
     config.terminal.color = "never"
     assert use_color(Tty(), config.terminal) is False
-
 
 
 def test_adaptive_snmp_retry_defaults_and_validation(config) -> None:

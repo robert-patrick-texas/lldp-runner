@@ -93,9 +93,7 @@ def test_failed_route_fields_survive_later_success_and_csv_projection(
         status="COMPLETED",
         draft=False,
     )
-    document = json.loads(
-        (output / "discovery.json").read_text(encoding="utf-8")
-    )
+    document = json.loads((output / "discovery.json").read_text(encoding="utf-8"))
     route_error, host_warning = document["errors"]
     assert route_error == {
         "host_ref": host_id,
@@ -168,9 +166,7 @@ def test_legacy_gufo_ipv6_error_backfill_requires_unique_session_route(
                     {
                         "target": target,
                         "credential_profile": "specific",
-                        "credential_route": (
-                            f"{target}|policy-profile|primary|specific-v2"
-                        ),
+                        "credential_route": (f"{target}|policy-profile|primary|specific-v2"),
                     }
                 ]
             ),
@@ -230,9 +226,7 @@ def test_legacy_gufo_backfill_pairs_equal_ordered_route_groups(
                 {
                     "target": target,
                     "credential_profile": "specific",
-                    "credential_route": (
-                        f"{target}|policy-profile|{stage}|{credential}"
-                    ),
+                    "credential_route": (f"{target}|policy-profile|{stage}|{credential}"),
                 }
             )
     state.conn.execute(
@@ -286,8 +280,7 @@ def test_legacy_error_target_is_not_inferred_when_sessions_are_ambiguous(
         )
     )
     state.conn.execute(
-        "UPDATE hosts SET state='FAILED', query_target=?, snmp_sessions_json=? "
-        "WHERE id=?",
+        "UPDATE hosts SET state='FAILED', query_target=?, snmp_sessions_json=? WHERE id=?",
         (
             "2001:db8:8000:da02::61",
             json.dumps(
@@ -295,9 +288,7 @@ def test_legacy_error_target_is_not_inferred_when_sessions_are_ambiguous(
                     {
                         "target": value,
                         "credential_profile": "specific",
-                        "credential_route": (
-                            f"{value}|policy-profile|primary|specific-v2"
-                        ),
+                        "credential_route": (f"{value}|policy-profile|primary|specific-v2"),
                     }
                     for value in (
                         "2001:db8:8000:da02::61",

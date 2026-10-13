@@ -41,8 +41,9 @@ import ipaddress
 import os
 import socket
 import sys
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Sequence
+from typing import Any
 
 OID = "1.3.6.1.2.1.1.1.0"
 EXIT_OK = 0
@@ -112,9 +113,7 @@ def resolve_ipv6_targets(
 
     if parsed is not None:
         if isinstance(parsed, ipaddress.IPv4Address):
-            raise ValueError(
-                f"TARGET {target!r} is an IPv4 literal; this diagnostic requires IPv6"
-            )
+            raise ValueError(f"TARGET {target!r} is an IPv4 literal; this diagnostic requires IPv6")
         return [str(parsed)]
 
     try:
@@ -158,7 +157,7 @@ def load_gufo_session_class() -> Any:
 
     try:
         module = importlib.import_module("gufo.snmp")
-        session_class = getattr(module, "SnmpSession")
+        session_class = module.SnmpSession
     except (ImportError, AttributeError) as exc:
         raise RuntimeError(f"Gufo SNMP import failed: {exc}") from exc
     return session_class

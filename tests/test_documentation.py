@@ -1,9 +1,7 @@
 """Release-documentation invariants for operator-facing project files."""
 
-from pathlib import Path
-
 import tomllib
-
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCUMENTATION_FILES = (
@@ -46,9 +44,7 @@ def test_documentation_files_exist_and_stay_within_terminal_width() -> None:
 
     for path in DOCUMENTATION_FILES:
         assert path.is_file(), path
-        for line_number, line in enumerate(
-            path.read_text(encoding="utf-8").splitlines(), start=1
-        ):
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
             assert len(line) <= 80, f"{path}:{line_number} is {len(line)} columns"
 
 
@@ -56,9 +52,7 @@ def test_unfinished_roadmap_items_include_operator_planning_detail() -> None:
     """Every open action states implementation scope, benefit, and effort."""
 
     lines = (ROOT / "docs" / "ROADMAP.md").read_text(encoding="utf-8").splitlines()
-    open_items = [
-        index for index, line in enumerate(lines) if line.startswith("- [ ] ")
-    ]
+    open_items = [index for index, line in enumerate(lines) if line.startswith("- [ ] ")]
     assert open_items
 
     for position, start in enumerate(open_items):
@@ -135,15 +129,11 @@ def test_runtime_flow_diagrams_track_source_boundaries() -> None:
     assert callable(outputs.write_outputs)
     assert callable(topology_graph.build_topology_graph)
 
-    assert "dev/FLOW-DIAGRAMS.md" in (
-        ROOT / "docs" / "ARCHITECTURE.md"
-    ).read_text(encoding="utf-8")
-    assert "FLOW-DIAGRAMS.md" in (ROOT / "docs" / "DEV.md").read_text(
+    assert "dev/FLOW-DIAGRAMS.md" in (ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8")
+    assert "FLOW-DIAGRAMS.md" in (ROOT / "docs" / "DEV.md").read_text(encoding="utf-8")
+    assert "FLOW-DIAGRAMS.md" in (ROOT / "docs" / "dev" / "ARCHITECTURE.md").read_text(
         encoding="utf-8"
     )
-    assert "FLOW-DIAGRAMS.md" in (
-        ROOT / "docs" / "dev" / "ARCHITECTURE.md"
-    ).read_text(encoding="utf-8")
     roadmap = (ROOT / "docs" / "ROADMAP.md").read_text(encoding="utf-8")
     assert "- [x] Add source-maintained diagrams" in roadmap
 
@@ -263,8 +253,7 @@ def test_schema_quick_reference_matches_implementation_constants() -> None:
         f"{TOPOLOGY_GRAPH_SCHEMA_VERSION} |",
         f"| Diff JSON | `schema_version` | {DIFF_JSON_SCHEMA_VERSION} |",
         f"| `run.json` | `schema_version` | {RUN_JSON_SCHEMA_VERSION} |",
-        "| Active-run `scoreboard.json` | `scoreboard_schema` | "
-        f"{SCOREBOARD_SCHEMA} |",
+        f"| Active-run `scoreboard.json` | `scoreboard_schema` | {SCOREBOARD_SCHEMA} |",
     )
     for row in expected_rows:
         assert row in text
@@ -307,9 +296,7 @@ def test_plan_example_configuration_is_loadable(tmp_path: Path) -> None:
     overlay_path.chmod(0o600)
     loaded = load_seed_credential_files([overlay_path], config)
     assert len(loaded.records) == 2
-    assert {item.credential_profile for item in loaded.records} == {
-        "exception"
-    }
+    assert {item.credential_profile for item in loaded.records} == {"exception"}
 
 
 def test_terminal_color_fragment_is_parseable_and_documents_defaults() -> None:
@@ -384,16 +371,12 @@ def test_output_docs_cover_unknown_csv_and_mac_name_fallback() -> None:
     """Keep the changed fixed schema and guarded presentation rule explicit."""
 
     names = (ROOT / "docs" / "NAMES.md").read_text(encoding="utf-8")
-    architecture = (ROOT / "docs" / "ARCHITECTURE.md").read_text(
-        encoding="utf-8"
-    )
+    architecture = (ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8")
     custom = (ROOT / "docs" / "CUSTOM-CSV.md").read_text(encoding="utf-8")
 
     assert "one unambiguous\n   MAC-address-typed chassis value" in names
     assert "A nonblank\n   observed name or description prevents this substitution" in names
-    assert "preferred_name,ipv4,ipv6,last_seen,protocols,observed_names" in (
-        architecture
-    )
+    assert "preferred_name,ipv4,ipv6,last_seen,protocols,observed_names" in (architecture)
     assert "consistently blank `manufacturer` and `model`" in architecture
     assert "are not supported and fail configuration validation" in custom
     assert "`unknown-devices.manufacturer`" in custom
@@ -508,4 +491,4 @@ def test_markdown_page_references_are_links_not_inline_code() -> None:
         for reference in code_pattern.findall(unlinked_text):
             if (path, reference) in allowed_literals:
                 continue
-            assert False, f"{path}: unlinked Markdown page reference {reference}"
+            raise AssertionError(f"{path}: unlinked Markdown page reference {reference}")

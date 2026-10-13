@@ -6,7 +6,6 @@ import json
 import queue
 from datetime import datetime
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
@@ -29,9 +28,7 @@ def test_config_loader_records_effective_file_merge_order(tmp_path: Path) -> Non
     fragment = conf_d / "20-site.toml"
     fragment.write_text("[output]\npurge_keep = 2\n", encoding="utf-8")
     primary = tmp_path / "config.toml"
-    primary.write_text(
-        '@include "explicit.toml"\n[logging]\nfile = false\n', encoding="utf-8"
-    )
+    primary.write_text('@include "explicit.toml"\n[logging]\nfile = false\n', encoding="utf-8")
 
     config = load_config(
         primary,
@@ -72,7 +69,7 @@ def test_run_provenance_redacts_secrets_before_persistence(tmp_path: Path) -> No
         "--snmp-auth=auth-secret",
         "--set",
         'credentials.site.priv_password="priv-secret"',
-        "--set=credentials.inline={ version = \"2c\", community = \"argv-table-secret\" }",
+        '--set=credentials.inline={ version = "2c", community = "argv-table-secret" }',
         "run",
         "--seed",
         "198.18.0.1",
@@ -204,21 +201,15 @@ def test_completed_run_publishes_run_json_with_discovery_times(
     outcome = coordinator.run()
 
     assert outcome.status == "COMPLETED"
-    run_document = json.loads(
-        (paths.output_run_dir / "run.json").read_text(encoding="utf-8")
-    )
-    discovery = json.loads(
-        (paths.output_run_dir / "discovery.json").read_text(encoding="utf-8")
-    )
+    run_document = json.loads((paths.output_run_dir / "run.json").read_text(encoding="utf-8"))
+    discovery = json.loads((paths.output_run_dir / "discovery.json").read_text(encoding="utf-8"))
     assert list(run_document)[:3] == ["schema_version", "app_name", "app_version"]
     assert run_document["app_name"] == APP_NAME == "LLDP-Runner"
     assert run_document["app_version"] == __version__ == "0.37.0"
     assert run_document["run_id"] == paths.run_id
     assert run_document["snmp_backend"]["name"] == "gufo"
     assert run_document["snmp_backend"]["version"]
-    assert run_document["invocations"][0]["snmp_backend"] == run_document[
-        "snmp_backend"
-    ]
+    assert run_document["invocations"][0]["snmp_backend"] == run_document["snmp_backend"]
     assert run_document["started"] == discovery["discovery"]["started"]
     assert run_document["completed"] == discovery["discovery"]["completed"]
     assert run_document["status"] == "COMPLETED"
@@ -233,13 +224,9 @@ def test_completed_run_publishes_run_json_with_discovery_times(
     completed = datetime.fromisoformat(run_document["completed"])
     assert started.utcoffset() is not None
     assert completed.utcoffset() is not None
-    assert run_document["duration"] == round(
-        (completed - started).total_seconds(), 3
-    )
+    assert run_document["duration"] == round((completed - started).total_seconds(), 3)
     assert run_document["started_by"]["username"]
-    invocation_ended = datetime.fromisoformat(
-        run_document["invocations"][0]["ended"]
-    )
+    invocation_ended = datetime.fromisoformat(run_document["invocations"][0]["ended"])
     assert invocation_ended >= completed
     for field in (
         "discovery_duration",
@@ -252,16 +239,11 @@ def test_completed_run_publishes_run_json_with_discovery_times(
         assert isinstance(run_document[field], float)
         assert run_document[field] >= 0.0
     assert run_document["total_wall_clock_duration"] == pytest.approx(
-        run_document["discovery_duration"]
-        + run_document["finalization_duration"],
+        run_document["discovery_duration"] + run_document["finalization_duration"],
         abs=0.002,
     )
-    assert run_document["finalization_duration"] >= run_document[
-        "graph_resolution_duration"
-    ]
-    assert run_document["finalization_duration"] >= run_document[
-        "graph_serialization_duration"
-    ]
+    assert run_document["finalization_duration"] >= run_document["graph_resolution_duration"]
+    assert run_document["finalization_duration"] >= run_document["graph_serialization_duration"]
     assert run_document["invocations"][0]["argv"][0] == "run"
     assert paths.latest_link.is_symlink()
     assert paths.latest_link.resolve() == paths.output_run_dir.resolve()

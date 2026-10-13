@@ -113,15 +113,12 @@ def validate_run_id_format(format_text: str) -> str:
         raise ValueError("paths.run_id_format may contain {counter} at most once")
     remainder = text.replace(COUNTER_TOKEN, "")
     if "{" in remainder or "}" in remainder:
-        raise ValueError(
-            "paths.run_id_format supports only the optional {counter} placeholder"
-        )
+        raise ValueError("paths.run_id_format supports only the optional {counter} placeholder")
     _validate_directives(remainder)
     literal = re.sub(r"%[A-Za-z%]", "", remainder)
     if literal and SAFE_RUN_ID_RE.fullmatch(literal) is None:
         raise ValueError(
-            "paths.run_id_format literal text may use only letters, digits, '.', '_', "
-            "and '-'"
+            "paths.run_id_format literal text may use only letters, digits, '.', '_', and '-'"
         )
     return text
 

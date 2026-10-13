@@ -9,7 +9,6 @@ import sys
 import tarfile
 from pathlib import Path
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_NAMES = (
     "lrun-checkconfig",
@@ -155,7 +154,7 @@ def test_shared_setup_helper_is_shipped_and_documents_group_inheritance() -> Non
     text = path.read_text(encoding="utf-8")
     assert text.startswith("#!/usr/bin/env bash\n")
     assert "chmod -R g+rwX" in text
-    assert "find \"$root\" -type d -exec chmod g+s" in text
+    assert 'find "$root" -type d -exec chmod g+s' in text
     assert "setfacl" in text
     assert "umask 0002" in text
     assert '# GROUP_NAME="${LLDP_RUNNER_GROUP:-lldp-runner}"' in text
@@ -221,7 +220,7 @@ def test_systemd_service_helpers_are_shipped_and_safe() -> None:
     assert "is not a member of group" in text
     assert "run scripts/svc-remove.sh first" in text
     assert "lrun-clean && $PROJECT_ROOT/scripts/lrun-purge --keep $PURGE_KEEP" in text
-    assert 'paths may not contain single quotes' in text
+    assert "paths may not contain single quotes" in text
 
     remove_text = remove.read_text(encoding="utf-8")
     assert "Runtime/output data was preserved" in remove_text
@@ -254,21 +253,19 @@ def test_markdown_publisher_uses_hyphenated_flat_names(tmp_path: Path) -> None:
     (project / "docs" / "guides").mkdir(parents=True)
     (project / "README.md").write_text("# Root\n", encoding="utf-8")
     (project / "docs" / "CLI.md").write_text("# CLI\n", encoding="utf-8")
-    (project / "docs" / "guides" / "OPS.md").write_text(
-        "# Operations\n", encoding="utf-8"
-    )
+    (project / "docs" / "guides" / "OPS.md").write_text("# Operations\n", encoding="utf-8")
 
     fake_pandoc = tmp_path / "pandoc"
     fake_pandoc.write_text(
         "#!/bin/sh\n"
         "set -eu\n"
         "output=\n"
-        "for arg in \"$@\"; do\n"
-        "  case \"$arg\" in\n"
+        'for arg in "$@"; do\n'
+        '  case "$arg" in\n'
         "    --output=*) output=${arg#--output=} ;;\n"
         "  esac\n"
         "done\n"
-        "[ -n \"$output\" ]\n"
+        '[ -n "$output" ]\n'
         "printf '<!doctype html><title>test</title>\\n' > \"$output\"\n",
         encoding="utf-8",
     )
@@ -419,9 +416,7 @@ def test_bundle_diff_selects_latest_runs_and_preserves_layout(tmp_path: Path) ->
         extracted / "runs" / "20260107-03" / "discovery-state.sqlite"
     ) as connection:
         assert connection.execute("PRAGMA integrity_check").fetchone() == ("ok",)
-        assert connection.execute("SELECT value FROM fixture").fetchone() == (
-            "review",
-        )
+        assert connection.execute("SELECT value FROM fixture").fetchone() == ("review",)
 
 
 def test_bundle_diff_requires_matching_output_and_runtime_directories(

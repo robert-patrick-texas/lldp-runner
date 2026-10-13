@@ -107,9 +107,7 @@ def _capabilities(value: object | None) -> list[str]:
     return [name for bit, name in mapping.items() if number & bit]
 
 
-def _validate_cdp_row(
-    index: tuple[int, int], cols: dict[int, object]
-) -> None:
+def _validate_cdp_row(index: tuple[int, int], cols: dict[int, object]) -> None:
     """Reject one row that lacks mandatory identity or disagrees with its index.
 
     ``cdpCacheDeviceId`` and ``cdpCacheDevicePort`` are the minimum safe
@@ -121,13 +119,9 @@ def _validate_cdp_row(
     ifindex, device_index = index
     mismatches: list[str] = []
     if 1 in cols and _integer(cols.get(1)) != ifindex:
-        mismatches.append(
-            f"cdpCacheIfIndex={_integer(cols.get(1))!r} expected {ifindex}"
-        )
+        mismatches.append(f"cdpCacheIfIndex={_integer(cols.get(1))!r} expected {ifindex}")
     if 2 in cols and _integer(cols.get(2)) != device_index:
-        mismatches.append(
-            f"cdpCacheDeviceIndex={_integer(cols.get(2))!r} expected {device_index}"
-        )
+        mismatches.append(f"cdpCacheDeviceIndex={_integer(cols.get(2))!r} expected {device_index}")
 
     missing: list[str] = []
     if not _text(cols.get(6)):

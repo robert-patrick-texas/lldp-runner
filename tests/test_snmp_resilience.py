@@ -40,7 +40,7 @@ class _ScriptedClient:
         self.get_many_requests = get_many_requests
         self.open_outcome = open_outcome
 
-    async def __aenter__(self) -> "_ScriptedClient":
+    async def __aenter__(self) -> _ScriptedClient:
         self.entered.append(self.profile)
         if isinstance(self.open_outcome, BaseException):
             raise self.open_outcome
@@ -180,9 +180,7 @@ def test_mid_walk_timeout_discards_partial_attempt_and_restarts_table() -> None:
         ("1.3.6.1.2.1.2.2.1.2.1", "Gi1/0/1"),
         ("1.3.6.1.2.1.2.2.1.2.2", "Gi1/0/2"),
     ]
-    factory = _Factory(
-        walk=[TimeoutError("GETBULK timed out mid-table"), complete]
-    )
+    factory = _Factory(walk=[TimeoutError("GETBULK timed out mid-table"), complete])
     state = _state("198.18.0.20", timeout=4.0)
 
     async def exercise() -> list[tuple[str, object]]:
@@ -255,9 +253,7 @@ def test_recovered_get_many_does_not_block_later_lldp_structural_restart() -> No
 def test_second_timeout_is_propagated_without_unbounded_retry() -> None:
     """The retried operation stops when the fresh degraded session also times out."""
 
-    factory = _Factory(
-        get=[TimeoutError("first timeout"), TimeoutError("second timeout")]
-    )
+    factory = _Factory(get=[TimeoutError("first timeout"), TimeoutError("second timeout")])
     state = _state("198.18.0.40")
 
     async def exercise() -> None:
@@ -403,18 +399,14 @@ def test_ordinary_text_containing_access_word_is_not_an_snmp_error() -> None:
     """A hostname or description must not be mistaken for a VACM status."""
 
     assert snmp_access_restriction_detail("noaccess-switch.example.com") is None
-    assert (
-        snmp_access_restriction_detail("Access denied banner test appliance") is None
-    )
+    assert snmp_access_restriction_detail("Access denied banner test appliance") is None
     assert snmp_access_restriction_detail("noAccess") == "noAccess"
 
 
 def test_degraded_profile_paces_retry_and_later_operations(monkeypatch) -> None:
     """The configured delay remains active after a target demonstrates slowness."""
 
-    factory = _Factory(
-        get=[TimeoutError("initial timeout"), "retry-ok", "later-ok"]
-    )
+    factory = _Factory(get=[TimeoutError("initial timeout"), "retry-ok", "later-ok"])
     state = _state("198.18.0.44", retry_delay_ms=100.0)
     sleeps: list[float] = []
 

@@ -384,8 +384,7 @@ def render_table(config: AppConfig, result: InspectionResult, *, stream: Any = s
             _one_line(obs.remote_interface or obs.remote_interface_raw) for obs in neighbors
         ),
         management_values=(
-            _one_line(obs.remote_addresses[0] if obs.remote_addresses else "-")
-            for obs in neighbors
+            _one_line(obs.remote_addresses[0] if obs.remote_addresses else "-") for obs in neighbors
         ),
     )
     lines.append(format_neighbor_header(widths))
@@ -398,12 +397,8 @@ def render_table(config: AppConfig, result: InspectionResult, *, stream: Any = s
                 protocol=",".join(_protocols(obs)),
                 neighbor=_one_line(_neighbor_name(obs)),
                 remote_port=_one_line(obs.remote_interface or obs.remote_interface_raw),
-                management=_one_line(
-                    obs.remote_addresses[0] if obs.remote_addresses else "-"
-                ),
-                protocol_style=lambda cell: paint(
-                    cell, styles.inspection_neighbor, color
-                ),
+                management=_one_line(obs.remote_addresses[0] if obs.remote_addresses else "-"),
+                protocol_style=lambda cell: paint(cell, styles.inspection_neighbor, color),
             )
         )
     if not neighbors:
@@ -502,7 +497,8 @@ def render_detail(config: AppConfig, result: InspectionResult, *, stream: Any = 
         extra = {
             key: value
             for key, value in obs.details.items()
-            if key not in {
+            if key
+            not in {
                 "protocols",
                 "port_id",
                 "port_id_subtype",

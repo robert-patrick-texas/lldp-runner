@@ -59,9 +59,7 @@ def _discovery(path: Path, *, completed: str | None, generated: str | None) -> N
     (path / "discovery.json").write_text(json.dumps(payload), encoding="utf-8")
 
 
-def test_purge_uses_configured_keep_as_default_and_preserves_latest(
-    tmp_path: Path, capsys
-) -> None:
+def test_purge_uses_configured_keep_as_default_and_preserves_latest(tmp_path: Path, capsys) -> None:
     config, persistent, _ = _config(tmp_path, keep=1)
     output_root = persistent / "outputs"
     old = _output(persistent, "run-old")

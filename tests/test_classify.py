@@ -208,7 +208,6 @@ def test_tag_rule_uses_and_semantics_for_category_network_and_evidence(config):
     assert classifier.tags_for_candidate(wrong_network) == []
 
 
-
 def test_evidence_rule_matches_chassis_id_subtype_text_and_numeric_id(config):
     from lldp_runner.classify import Classifier
     from lldp_runner.config import ClassificationEvidenceRule

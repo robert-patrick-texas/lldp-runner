@@ -201,14 +201,10 @@ def load_discovery_document(
     hosts_by_id: dict[int, dict[str, Any]] = {}
     for position, item in enumerate(raw_hosts):
         if not isinstance(item, dict):
-            raise DiscoveryQueryError(
-                f"discovery.json hosts[{position}] must be an object"
-            )
+            raise DiscoveryQueryError(f"discovery.json hosts[{position}] must be an object")
         host_id = item.get("id")
         if not isinstance(host_id, int) or isinstance(host_id, bool):
-            raise DiscoveryQueryError(
-                f"discovery.json hosts[{position}].id must be an integer"
-            )
+            raise DiscoveryQueryError(f"discovery.json hosts[{position}].id must be an integer")
         if host_id in hosts_by_id:
             raise DiscoveryQueryError(f"duplicate discovery host id: {host_id}")
         hosts.append(item)
@@ -271,9 +267,7 @@ def parse_key_criterion(expression: str) -> KeyCriterion:
     key, separator, raw_pattern = expression.partition(":")
     key = key.strip()
     if not separator or not key:
-        raise DiscoveryQueryError(
-            f"invalid --key {expression!r}; expected KEY:PATTERN"
-        )
+        raise DiscoveryQueryError(f"invalid --key {expression!r}; expected KEY:PATTERN")
     if any(not part for part in key.split(".")):
         raise DiscoveryQueryError(f"invalid --key path {key!r}")
     pattern_text = _unquote_pattern(raw_pattern.strip())
@@ -368,13 +362,9 @@ def parse_address_criterion(value: str, *, family: int) -> AddressCriterion:
         try:
             network = ipaddress.ip_network(text, strict=False)
         except ValueError as exc:
-            raise DiscoveryQueryError(
-                f"invalid --ipv{family} CIDR {value!r}: {exc}"
-            ) from exc
+            raise DiscoveryQueryError(f"invalid --ipv{family} CIDR {value!r}: {exc}") from exc
         if network.version != family:
-            raise DiscoveryQueryError(
-                f"--ipv{family} requires an IPv{family} CIDR, got {value!r}"
-            )
+            raise DiscoveryQueryError(f"--ipv{family} requires an IPv{family} CIDR, got {value!r}")
         return AddressCriterion(family=family, text=text, network=network)
 
     prefix = _validate_ipv4_prefix(text) if family == 4 else _validate_ipv6_prefix(text)

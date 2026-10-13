@@ -63,23 +63,16 @@ def test_shadow_group_preserves_many_members_and_is_order_independent() -> None:
         "hq-vdc2-7nx1.net.example.com",
         "hq-vdc2-7nx2.net.example.com",
     ]
-    members_by_name = {
-        member["remote_base_name"]: member for member in group["members"]
-    }
-    assert (
-        members_by_name["hq-vdc2-7nx1.net.example.com"]["serial_hint"]
-        == "SERIAL000001"
-    )
-    assert all(
-        member["relationship_scope"] == "unclassified"
-        for member in group["members"]
-    )
+    members_by_name = {member["remote_base_name"]: member for member in group["members"]}
+    assert members_by_name["hq-vdc2-7nx1.net.example.com"]["serial_hint"] == "SERIAL000001"
+    assert all(member["relationship_scope"] == "unclassified" for member in group["members"])
 
 
 def test_shadow_groups_omit_simple_one_neighbor_interfaces() -> None:
     """The audit view stays concise when no many-neighbor analysis is needed."""
 
     assert build_interface_observation_groups(100, _observations()[:1]) == []
+
 
 def test_shadow_group_fingerprint_ignores_run_local_source_id() -> None:
     """The same nested interface group remains comparable across run host IDs."""

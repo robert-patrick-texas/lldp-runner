@@ -39,10 +39,11 @@ import socket
 import sys
 import time
 import traceback
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 DEFAULT_OID = "1.3.6.1.2.1.1.1.0"
 EXIT_OK = 0
@@ -111,9 +112,7 @@ class SecretRedactor:
             value = os.environ.get(name)
             if value:
                 by_value.setdefault(value, f"<redacted:{name}>")
-        replacements = tuple(
-            sorted(by_value.items(), key=lambda item: len(item[0]), reverse=True)
-        )
+        replacements = tuple(sorted(by_value.items(), key=lambda item: len(item[0]), reverse=True))
         return cls(replacements=replacements)
 
     def redact(self, value: str) -> str:
@@ -175,9 +174,7 @@ def numeric_oid(value: str) -> str:
         candidate = candidate[1:]
     parts = candidate.split(".")
     if len(parts) < 2 or any(not part.isdigit() for part in parts):
-        raise argparse.ArgumentTypeError(
-            "must be a numeric dotted OID such as 1.3.6.1.2.1.1.1.0"
-        )
+        raise argparse.ArgumentTypeError("must be a numeric dotted OID such as 1.3.6.1.2.1.1.1.0")
     return ".".join(str(int(part)) for part in parts)
 
 
@@ -230,10 +227,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         type=numeric_oid,
         metavar="OID",
-        help=(
-            "numeric OID to GET; may be repeated "
-            f"(default: sysDescr.0, {DEFAULT_OID})"
-        ),
+        help=(f"numeric OID to GET; may be repeated (default: sysDescr.0, {DEFAULT_OID})"),
     )
     parser.add_argument(
         "--port",
@@ -326,9 +320,7 @@ def resolve_target(
         if family not in (socket.AF_UNSPEC, literal_family):
             requested = "IPv4" if family == socket.AF_INET else "IPv6"
             actual = "IPv4" if literal.version == 4 else "IPv6"
-            raise ValueError(
-                f"target is an {actual} literal but {requested} was forced"
-            )
+            raise ValueError(f"target is an {actual} literal but {requested} was forced")
         return "numeric-literal", [
             ResolvedTarget(
                 address=candidate,
@@ -347,9 +339,7 @@ def resolve_target(
             proto=socket.IPPROTO_UDP,
         )
     except socket.gaierror as exc:
-        raise RuntimeError(
-            f"DNS/address resolution failed for {candidate!r}: {exc}"
-        ) from exc
+        raise RuntimeError(f"DNS/address resolution failed for {candidate!r}: {exc}") from exc
 
     resolved: list[ResolvedTarget] = []
     seen: set[tuple[int, str]] = set()
@@ -428,8 +418,7 @@ def load_gufo() -> GufoApi:
     missing = [name for name in required if not hasattr(module, name)]
     if missing:
         raise RuntimeError(
-            "installed gufo.snmp module lacks required API objects: "
-            + ", ".join(missing)
+            "installed gufo.snmp module lacks required API objects: " + ", ".join(missing)
         )
     return GufoApi(
         module=module,
@@ -461,12 +450,8 @@ def build_security_kwargs(args: argparse.Namespace, gufo: GufoApi) -> dict[str, 
     username = require_environment("SNMPUSER")
     auth_password = require_environment("SNMPAUTH")
     priv_password = require_environment("SNMPPRIV")
-    auth_class = (
-        gufo.sha1_key_class if args.auth_protocol == "sha1" else gufo.md5_key_class
-    )
-    priv_class = (
-        gufo.aes128_key_class if args.priv_protocol == "aes128" else gufo.des_key_class
-    )
+    auth_class = gufo.sha1_key_class if args.auth_protocol == "sha1" else gufo.md5_key_class
+    priv_class = gufo.aes128_key_class if args.priv_protocol == "aes128" else gufo.des_key_class
     return {
         "user": gufo.user_class(
             username,
@@ -536,14 +521,10 @@ def exception_details(
             details.append((name, redactor.redact(limited_repr(value))))
     if exc.__cause__ is not None:
         details.append(("cause_type", qualified_type(exc.__cause__)))
-        details.append(
-            ("cause", redactor.redact(str(exc.__cause__)) or "<empty>")
-        )
+        details.append(("cause", redactor.redact(str(exc.__cause__)) or "<empty>"))
     if exc.__context__ is not None and exc.__context__ is not exc.__cause__:
         details.append(("context_type", qualified_type(exc.__context__)))
-        details.append(
-            ("context", redactor.redact(str(exc.__context__)) or "<empty>")
-        )
+        details.append(("context", redactor.redact(str(exc.__context__)) or "<empty>"))
     return details
 
 
@@ -640,9 +621,7 @@ def print_header(
     if args.snmp_version == "2c":
         print("credentials: SNMPCOMM=<set>; value not displayed")
     else:
-        print(
-            "credentials: SNMPUSER/SNMPAUTH/SNMPPRIV=<set>; values not displayed"
-        )
+        print("credentials: SNMPUSER/SNMPAUTH/SNMPPRIV=<set>; values not displayed")
         print(f"snmpv3_auth_protocol: {args.auth_protocol}")
         print(f"snmpv3_priv_protocol: {args.priv_protocol}")
     print("application_retries: disabled (use --repeat for fresh-session repetitions)")
@@ -828,8 +807,7 @@ async def run_probes(
     totals = ProbeTotals()
     for target_index, target in enumerate(targets, start=1):
         print(
-            f"Destination {target_index}/{len(targets)}: {target.address} "
-            f"({target.family_name})",
+            f"Destination {target_index}/{len(targets)}: {target.address} ({target.family_name})",
             flush=True,
         )
         for attempt_number in range(1, args.repeat + 1):

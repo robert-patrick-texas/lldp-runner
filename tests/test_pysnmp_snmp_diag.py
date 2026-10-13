@@ -11,7 +11,7 @@ import sys
 import warnings
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import ClassVar
 
 import pytest
 
@@ -90,7 +90,7 @@ class _Engine:
 
     construct_error: BaseException | None = None
     close_error: BaseException | None = None
-    calls: list[tuple[str, object]] = []
+    calls: ClassVar[list[tuple[str, object]]] = []
 
     def __init__(self) -> None:
         type(self).calls.append(("engine_construct", None))
@@ -107,7 +107,7 @@ class _TransportBase:
     """Fake async transport-target factory shared by IPv4 and IPv6."""
 
     create_error: BaseException | None = None
-    calls: list[tuple[type[object], tuple[str, int], float, int]] = []
+    calls: ClassVar[list[tuple[type[object], tuple[str, int], float, int]]] = []
 
     @classmethod
     async def create(
@@ -134,7 +134,7 @@ class _Udp6Target(_TransportBase):
 class _CommunityData:
     """Capture SNMPv2c construction without exposing a real secret."""
 
-    calls: list[tuple[str, int]] = []
+    calls: ClassVar[list[tuple[str, int]]] = []
 
     def __init__(self, community: str, *, mpModel: int) -> None:
         type(self).calls.append((community, mpModel))
@@ -145,7 +145,7 @@ class _CommunityData:
 class _UsmUserData:
     """Capture SNMPv3 construction and protocol mapping."""
 
-    calls: list[tuple[str, dict[str, object]]] = []
+    calls: ClassVar[list[tuple[str, dict[str, object]]]] = []
 
     def __init__(self, username: str, **kwargs: object) -> None:
         type(self).calls.append((username, kwargs))
@@ -251,9 +251,7 @@ def _probe(module, capsys, *, state: _FakeApiState | None = None):
             security_data=SimpleNamespace(kind="community"),
             attempt_number=1,
             totals=totals,
-            redactor=module.SecretRedactor(
-                replacements=(("not-printed", "<redacted:SNMPCOMM>"),)
-            ),
+            redactor=module.SecretRedactor(replacements=(("not-printed", "<redacted:SNMPCOMM>"),)),
         )
     )
     captured = capsys.readouterr()
@@ -322,9 +320,7 @@ def test_success_uses_ipv6_target_zero_retries_and_closes_dispatcher(capsys) -> 
         ("engine_construct", None),
         ("dispatcher_close", None),
     ]
-    assert _TransportBase.calls == [
-        (_Udp6Target, ("2001:db8::1", 161), 5.0, 0)
-    ]
+    assert _TransportBase.calls == [(_Udp6Target, ("2001:db8::1", 161), 5.0, 0)]
     assert len(state.calls) == 1
     positional, keyword = state.calls[0]
     assert len(positional) == 5
@@ -503,9 +499,7 @@ def test_v3_security_maps_existing_auth_priv_options_and_redacts(monkeypatch) ->
     }
     redactor = module.SecretRedactor.from_environment()
     rendered = redactor.redact(" ".join(values.values()))
-    assert rendered == (
-        "<redacted:SNMPUSER> <redacted:SNMPAUTH> <redacted:SNMPPRIV>"
-    )
+    assert rendered == ("<redacted:SNMPUSER> <redacted:SNMPAUTH> <redacted:SNMPPRIV>")
 
 
 @pytest.mark.parametrize(
@@ -812,7 +806,7 @@ def test_load_pysnmp_rejects_incomplete_api(monkeypatch) -> None:
     fake_module = SimpleNamespace(SnmpEngine=object)
     monkeypatch.setattr(module.importlib, "import_module", lambda _name: fake_module)
 
-    with pytest.raises(RuntimeError, match="lacks required 7.1 asyncio API"):
+    with pytest.raises(RuntimeError, match=r"lacks required 7\.1 asyncio API"):
         module.load_pysnmp()
 
 

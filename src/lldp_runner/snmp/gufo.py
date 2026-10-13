@@ -96,9 +96,7 @@ class GufoSnmpClient:
         if version == "v2c":
             community = self.credential.secret("community", os.environ)
             if not community:
-                raise RuntimeError(
-                    f"missing community for credential {self.credential.name}"
-                )
+                raise RuntimeError(f"missing community for credential {self.credential.name}")
             return {"community": community}
 
         if version != "v3":
@@ -111,9 +109,7 @@ class GufoSnmpClient:
         auth_password = self.credential.secret("auth_password", os.environ)
         priv_password = self.credential.secret("priv_password", os.environ)
         if not username or not auth_password or not priv_password:
-            raise RuntimeError(
-                f"missing authPriv secret for credential {self.credential.name}"
-            )
+            raise RuntimeError(f"missing authPriv secret for credential {self.credential.name}")
         auth_protocol, priv_protocol = validate_snmp_v3_protocols(
             "gufo",
             auth_protocol=self.credential.auth_protocol,
@@ -170,10 +166,7 @@ class GufoSnmpClient:
         try:
             return SnmpSession(**self._session_kwargs(transport_address=self.address))
         except Exception as raw_exc:
-            if not (
-                self.address_family == "ipv6"
-                and _is_gufo_ipv6_invalid_address(raw_exc)
-            ):
+            if not (self.address_family == "ipv6" and _is_gufo_ipv6_invalid_address(raw_exc)):
                 self._log_phase_failure(
                     phase="session_construct",
                     operation="SESSION-CONSTRUCT",
@@ -206,9 +199,7 @@ class GufoSnmpClient:
                 platform.python_version(),
             )
             try:
-                return SnmpSession(
-                    **self._session_kwargs(transport_address=bracketed)
-                )
+                return SnmpSession(**self._session_kwargs(transport_address=bracketed))
             except Exception as bracket_exc:
                 self._log_phase_failure(
                     phase="session_construct",
@@ -234,9 +225,7 @@ class GufoSnmpClient:
         try:
             await self._session.__aenter__()
         except Exception as exc:
-            self._log_phase_failure(
-                phase="session_open", operation="SESSION-OPEN", exc=exc
-            )
+            self._log_phase_failure(phase="session_open", operation="SESSION-OPEN", exc=exc)
             self._session = None
             raise SnmpBackendError(
                 phase="session_open",
@@ -262,9 +251,7 @@ class GufoSnmpClient:
         try:
             await session.__aexit__(exc_type, exc, tb)
         except Exception as close_exc:
-            self._log_phase_failure(
-                phase="session_close", operation="SESSION-CLOSE", exc=close_exc
-            )
+            self._log_phase_failure(phase="session_close", operation="SESSION-CLOSE", exc=close_exc)
             raise SnmpBackendError(
                 phase="session_close",
                 attempted_target=self.address,

@@ -10,7 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
@@ -50,7 +50,7 @@ class _Session:
     request_error: BaseException | None = None
     close_error: BaseException | None = None
     value: object = b"system description"
-    calls: list[tuple[str, object]] = []
+    calls: ClassVar[list[tuple[str, object]]] = []
 
     def __init__(self, **kwargs: object) -> None:
         type(self).calls.append(("construct", kwargs["addr"]))
@@ -129,9 +129,7 @@ def _probe(module, capsys, **session_values: object):
             security_kwargs={"community": "not-printed"},
             attempt_number=1,
             totals=totals,
-            redactor=module.SecretRedactor(
-                replacements=(("not-printed", "<redacted:SNMPCOMM>"),)
-            ),
+            redactor=module.SecretRedactor(replacements=(("not-printed", "<redacted:SNMPCOMM>"),)),
         )
     )
     captured = capsys.readouterr()
@@ -164,9 +162,7 @@ def test_success_reports_all_phases() -> None:
             security_kwargs={"community": "secret"},
             attempt_number=1,
             totals=totals,
-            redactor=module.SecretRedactor(
-                replacements=(("secret", "<redacted:SNMPCOMM>"),)
-            ),
+            redactor=module.SecretRedactor(replacements=(("secret", "<redacted:SNMPCOMM>"),)),
         )
     )
     assert result is True
@@ -217,9 +213,7 @@ def test_failures_report_exact_phase_and_original_exception(
     exception_type: str,
 ) -> None:
     module = _load_tool()
-    result, totals, stdout, stderr = _probe(
-        module, capsys, **session_values
-    )
+    result, totals, stdout, stderr = _probe(module, capsys, **session_values)
     assert result is False
     assert totals.sessions_failed == 1
     assert f"phase: {phase}" in stderr
@@ -282,6 +276,4 @@ def test_snmpv3_security_path_uses_environment_without_printing_secrets(
     redactor = module.SecretRedactor.from_environment()
     rendered = redactor.redact(" ".join(values.values()))
     assert "diagnostic-" not in rendered
-    assert rendered == (
-        "<redacted:SNMPUSER> <redacted:SNMPAUTH> <redacted:SNMPPRIV>"
-    )
+    assert rendered == ("<redacted:SNMPUSER> <redacted:SNMPAUTH> <redacted:SNMPPRIV>")

@@ -9,10 +9,8 @@ initialize the same policy independently of the coordinator process.
 from __future__ import annotations
 
 import time
-from datetime import datetime
-from datetime import tzinfo
-from zoneinfo import ZoneInfo
-from zoneinfo import ZoneInfoNotFoundError
+from datetime import datetime, tzinfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 _DEFAULT_TIMEZONE = "America/New_York"
 _TIMEZONE_ALIASES = {

@@ -16,7 +16,8 @@ from lldp_runner.coordinator import Coordinator
 from lldp_runner.models import DirectCredential, SeedInput
 from lldp_runner.run_manifest import build_invocation_provenance
 from lldp_runner.runtime import make_run_paths
-from lldp_runner.snmp import create_snmp_client, selection as selection_module
+from lldp_runner.snmp import create_snmp_client
+from lldp_runner.snmp import selection as selection_module
 from lldp_runner.snmp.selection import selected_snmp_backend
 
 
@@ -61,9 +62,7 @@ def test_pysnmp_is_default_and_both_backends_are_explicitly_selectable(
     assert selected_snmp_backend(default.snmp).name == "pysnmp"
 
     gufo = _load(_minimal_config(tmp_path / "gufo.toml", backend="gufo"), env={})
-    pysnmp = _load(
-        _minimal_config(tmp_path / "pysnmp.toml", backend="pysnmp"), env={}
-    )
+    pysnmp = _load(_minimal_config(tmp_path / "pysnmp.toml", backend="pysnmp"), env={})
     assert selected_snmp_backend(gufo.snmp).name == "gufo"
     assert selected_snmp_backend(pysnmp.snmp).name == "pysnmp"
 
@@ -155,7 +154,7 @@ def test_invalid_backend_is_rejected_during_configuration_validation(
     tmp_path: Path,
 ) -> None:
     path = _minimal_config(tmp_path / "invalid.toml", backend="automatic")
-    with pytest.raises(ConfigError, match="snmp.backend must be gufo or pysnmp"):
+    with pytest.raises(ConfigError, match=r"snmp\.backend must be gufo or pysnmp"):
         _load(path, env={})
 
 
@@ -282,8 +281,7 @@ def test_runtime_backend_binding_fields_are_not_valid_toml_options(
 ) -> None:
     path = _minimal_config(tmp_path / "invalid-runtime.toml")
     path.write_text(
-        path.read_text(encoding="utf-8")
-        + 'selected_backend = "pysnmp"\n',
+        path.read_text(encoding="utf-8") + 'selected_backend = "pysnmp"\n',
         encoding="utf-8",
     )
 
@@ -432,9 +430,7 @@ def test_backend_diagnostics_are_durable_and_do_not_contain_secrets(
         invocation_provenance=provenance,
     )
     try:
-        payload = json.loads(
-            (paths.run_dir / "run.json.draft").read_text(encoding="utf-8")
-        )
+        payload = json.loads((paths.run_dir / "run.json.draft").read_text(encoding="utf-8"))
         assert payload["snmp_backend"] == {"name": "pysnmp", "version": "7.1.29"}
         assert payload["invocations"][0]["snmp_backend"] == payload["snmp_backend"]
         rendered = json.dumps(payload)

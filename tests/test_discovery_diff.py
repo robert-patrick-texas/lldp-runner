@@ -251,19 +251,30 @@ def test_pairing_uses_physical_then_address_then_name_and_refuses_conflict() -> 
     assert result.ambiguous[0].conflicting_identity is True
 
 
-
 def test_pairing_disambiguates_nexus_vdcs_that_share_one_physical_serial() -> None:
     """Shared chassis serials must not make logical Nexus VDCs ambiguous."""
 
     a = [
-        _host(10, "hq-vdc1-7nx1", address="203.0.113.23", serial="SERIAL000001", chassis="C-VDC1-A"),
-        _host(20, "hq-vdc2-7nx1", address="203.0.113.24", serial="SERIAL000001", chassis="C-VDC2-A"),
-        _host(30, "hq-vdc3-7nx1", address="203.0.113.22", serial="SERIAL000001", chassis="C-VDC3-A"),
+        _host(
+            10, "hq-vdc1-7nx1", address="203.0.113.23", serial="SERIAL000001", chassis="C-VDC1-A"
+        ),
+        _host(
+            20, "hq-vdc2-7nx1", address="203.0.113.24", serial="SERIAL000001", chassis="C-VDC2-A"
+        ),
+        _host(
+            30, "hq-vdc3-7nx1", address="203.0.113.22", serial="SERIAL000001", chassis="C-VDC3-A"
+        ),
     ]
     b = [
-        _host(103, "hq-vdc3-7nx1", address="203.0.113.22", serial="SERIAL000001", chassis="C-VDC3-B"),
-        _host(101, "hq-vdc1-7nx1", address="203.0.113.23", serial="SERIAL000001", chassis="C-VDC1-B"),
-        _host(102, "hq-vdc2-7nx1", address="203.0.113.24", serial="SERIAL000001", chassis="C-VDC2-B"),
+        _host(
+            103, "hq-vdc3-7nx1", address="203.0.113.22", serial="SERIAL000001", chassis="C-VDC3-B"
+        ),
+        _host(
+            101, "hq-vdc1-7nx1", address="203.0.113.23", serial="SERIAL000001", chassis="C-VDC1-B"
+        ),
+        _host(
+            102, "hq-vdc2-7nx1", address="203.0.113.24", serial="SERIAL000001", chassis="C-VDC2-B"
+        ),
     ]
 
     result = pair_hosts(a, b)
@@ -329,13 +340,29 @@ def test_host_diff_treats_vdc_neighbor_edges_as_same_across_run_local_ids(tmp_pa
         _neighbor(503, "hq-vdc3-7nx1", local="Hu1/0/29", remote="Eth4/22", address="203.0.113.22"),
     ]
     a_hosts = [
-        _host(111, "hq-core-9500-1", address="203.0.113.101", serial="SERIAL000002", chassis="CORE", learned=a_neighbors, observed_by=a_neighbors),
+        _host(
+            111,
+            "hq-core-9500-1",
+            address="203.0.113.101",
+            serial="SERIAL000002",
+            chassis="CORE",
+            learned=a_neighbors,
+            observed_by=a_neighbors,
+        ),
         _host(176, "hq-vdc1-7nx1", address="203.0.113.23", serial="SERIAL000001", chassis="VDC1-A"),
         _host(27, "hq-vdc2-7nx1", address="203.0.113.24", serial="SERIAL000001", chassis="VDC2-A"),
         _host(197, "hq-vdc3-7nx1", address="203.0.113.22", serial="SERIAL000001", chassis="VDC3-A"),
     ]
     b_hosts = [
-        _host(900, "hq-core-9500-1", address="203.0.113.101", serial="SERIAL000002", chassis="CORE", learned=b_neighbors, observed_by=b_neighbors),
+        _host(
+            900,
+            "hq-core-9500-1",
+            address="203.0.113.101",
+            serial="SERIAL000002",
+            chassis="CORE",
+            learned=b_neighbors,
+            observed_by=b_neighbors,
+        ),
         _host(501, "hq-vdc1-7nx1", address="203.0.113.23", serial="SERIAL000001", chassis="VDC1-B"),
         _host(502, "hq-vdc2-7nx1", address="203.0.113.24", serial="SERIAL000001", chassis="VDC2-B"),
         _host(503, "hq-vdc3-7nx1", address="203.0.113.22", serial="SERIAL000001", chassis="VDC3-B"),
@@ -387,7 +414,6 @@ def test_pairing_ignores_non_host_addresses_and_falls_back_to_names() -> None:
     assert not result.b_only
 
 
-
 def test_pairing_does_not_reclassify_rejected_ip_literal_as_name() -> None:
     """A rejected address sentinel cannot re-enter pairing through name tokens."""
 
@@ -400,6 +426,7 @@ def test_pairing_does_not_reclassify_rejected_ip_literal_as_name() -> None:
     assert not result.ambiguous
     assert [host["id"] for host in result.a_only] == [1]
     assert [host["id"] for host in result.b_only] == [2]
+
 
 def test_macro_diff_pairs_shared_serial_vdcs_without_false_topology_churn(
     tmp_path: Path,
@@ -417,13 +444,27 @@ def test_macro_diff_pairs_shared_serial_vdcs_without_false_topology_churn(
         _neighbor(197, "hq-vdc3-7nx1", local="Hu1/0/29", remote="Eth4/22", address="203.0.113.22"),
     ]
     old_hosts = [
-        _host(900, "hq-core-9500-1", address="203.0.113.101", serial="SERIAL000002", chassis="CORE", learned=old_neighbors),
+        _host(
+            900,
+            "hq-core-9500-1",
+            address="203.0.113.101",
+            serial="SERIAL000002",
+            chassis="CORE",
+            learned=old_neighbors,
+        ),
         _host(501, "hq-vdc1-7nx1", address="203.0.113.23", serial="SERIAL000001", chassis="VDC1-B"),
         _host(502, "hq-vdc2-7nx1", address="203.0.113.24", serial="SERIAL000001", chassis="VDC2-B"),
         _host(503, "hq-vdc3-7nx1", address="203.0.113.22", serial="SERIAL000001", chassis="VDC3-B"),
     ]
     new_hosts = [
-        _host(111, "hq-core-9500-1", address="203.0.113.101", serial="SERIAL000002", chassis="CORE", learned=new_neighbors),
+        _host(
+            111,
+            "hq-core-9500-1",
+            address="203.0.113.101",
+            serial="SERIAL000002",
+            chassis="CORE",
+            learned=new_neighbors,
+        ),
         _host(176, "hq-vdc1-7nx1", address="203.0.113.23", serial="SERIAL000001", chassis="VDC1-A"),
         _host(27, "hq-vdc2-7nx1", address="203.0.113.24", serial="SERIAL000001", chassis="VDC2-A"),
         _host(197, "hq-vdc3-7nx1", address="203.0.113.22", serial="SERIAL000001", chassis="VDC3-A"),
@@ -467,9 +508,7 @@ def test_macro_diff_pairs_shared_serial_vdcs_without_false_topology_churn(
         "uncertain": 0,
     }
     core = next(
-        item
-        for item in outcome.data["hosts"]
-        if item["a"]["preferred_name"] == "hq-core-9500-1"
+        item for item in outcome.data["hosts"] if item["a"]["preferred_name"] == "hq-core-9500-1"
     )
     assert core["status"] == "same"
     assert core["learned_neighbor_difference_count"] == 0
@@ -478,9 +517,8 @@ def test_macro_diff_pairs_shared_serial_vdcs_without_false_topology_churn(
             item["a"]["preferred_name"].startswith("hq-vdc")
             and "7nx1" in item["a"]["preferred_name"]
         ):
-            assert [difference["path"] for difference in item["host_differences"]] == [
-                "chassis_id"
-            ]
+            assert [difference["path"] for difference in item["host_differences"]] == ["chassis_id"]
+
 
 def test_pairing_normalizes_identity_once_per_host(monkeypatch) -> None:
     """Large unique inventories must not reconstruct identity for every A/B pair."""
@@ -863,8 +901,12 @@ def test_cli_latest_alone_is_usage_error_with_result_line(tmp_path: Path, capsys
 
 def test_cli_json_is_valid_machine_output_and_reports_exit_code(tmp_path: Path, capsys) -> None:
     config = _write_config(tmp_path)
-    _write_run(tmp_path, "old", "2026-08-27T09:00:00-04:00", [_host(1, "sw", serial="S1", version="1")])
-    _write_run(tmp_path, "new", "2026-08-27T10:00:00-04:00", [_host(2, "sw", serial="S1", version="2")])
+    _write_run(
+        tmp_path, "old", "2026-08-27T09:00:00-04:00", [_host(1, "sw", serial="S1", version="1")]
+    )
+    _write_run(
+        tmp_path, "new", "2026-08-27T10:00:00-04:00", [_host(2, "sw", serial="S1", version="2")]
+    )
     with pytest.raises(SystemExit) as exc:
         main(["--config", str(config), "diff", "--json"])
     assert exc.value.code == 1
@@ -883,7 +925,10 @@ def test_cli_default_no_prior_reports_no_comparison_possible(tmp_path: Path, cap
         main(["--config", str(config), "diff"])
     assert exc.value.code == 4
     output = capsys.readouterr().out
-    assert output.strip() == "Result: No comparison possible: no prior finalized discovery run is available."
+    assert (
+        output.strip()
+        == "Result: No comparison possible: no prior finalized discovery run is available."
+    )
 
 
 def test_cli_parser_usage_error_also_has_result_line(capsys) -> None:
@@ -1010,21 +1055,13 @@ def test_macro_diff_marks_missing_cdp_evidence_uncertain_after_collector_failure
     nexus = next(item for item in outcome.data["hosts"] if item["a"]["preferred_name"] == "nexus")
     assert nexus["status"] == "uncertain"
     assert nexus["learned_neighbors"][0]["status"] == "uncertain"
-    assert nexus["learned_neighbors"][0]["uncertainty_reasons"] == [
-        "B cdp collection failed"
-    ]
+    assert nexus["learned_neighbors"][0]["uncertainty_reasons"] == ["B cdp collection failed"]
     assert nexus["collection_coverage"]["b"]["failed_protocols"] == ["cdp"]
     assert outcome.data["summary"]["learned_neighbors"]["uncertain"] == 1
     assert outcome.data["summary"]["learned_neighbors"]["changed"] == 0
-    assert outcome.data["summary"]["collection_coverage"]["a"][
-        "affected_host_count"
-    ] == 0
-    assert outcome.data["summary"]["collection_coverage"]["b"][
-        "affected_host_count"
-    ] == 1
-    assert outcome.data["summary"]["collection_coverage"]["b"][
-        "failed_protocols"
-    ] == {"cdp": 1}
+    assert outcome.data["summary"]["collection_coverage"]["a"]["affected_host_count"] == 0
+    assert outcome.data["summary"]["collection_coverage"]["b"]["affected_host_count"] == 1
+    assert outcome.data["summary"]["collection_coverage"]["b"]["failed_protocols"] == {"cdp": 1}
     assert any("Collection coverage is incomplete" in item for item in outcome.warnings)
 
 
@@ -1610,25 +1647,23 @@ def test_missing_entity_rows_are_not_confirmed_removed_without_complete_coverage
     assert {item.kind for item in differences} == {"not_observed"}
 
 
-
 def test_snmp_collection_row_count_does_not_change_host_attributes() -> None:
     """Collection inventory size belongs to coverage, not device attributes."""
 
     a = _host(1, "switch.example.com", address="192.0.2.1", serial="S1")
     b = _host(2, "switch.example.com", address="192.0.2.1", serial="S1")
-    a["snmp"]["collection_coverage"] = {
-        "lldp": {"status": "complete", "row_count": 19}
-    }
-    b["snmp"]["collection_coverage"] = {
-        "lldp": {"status": "complete", "row_count": 20}
-    }
+    a["snmp"]["collection_coverage"] = {"lldp": {"status": "complete", "row_count": 19}}
+    b["snmp"]["collection_coverage"] = {"lldp": {"status": "complete", "row_count": 20}}
 
-    assert discovery_diff.compare_host_fields(
-        a,
-        b,
-        a_completed=None,
-        b_completed=None,
-    ) == ()
+    assert (
+        discovery_diff.compare_host_fields(
+            a,
+            b,
+            a_completed=None,
+            b_completed=None,
+        )
+        == ()
+    )
 
 
 def test_empty_complete_entity_snapshot_is_not_authoritative_removal() -> None:
@@ -1754,9 +1789,7 @@ def test_projection_fold_accepts_direct_short_name_and_fqdn() -> None:
 
     components = discovery_diff._projection_duplicate_components([short, fqdn])
 
-    assert components == [
-        ("switch1.example.com", [1, 2], ["ipv4:192.0.2.1"])
-    ]
+    assert components == [("switch1.example.com", [1, 2], ["ipv4:192.0.2.1"])]
 
 
 def test_projection_fold_does_not_strip_two_fqdn_suffixes() -> None:
@@ -2049,10 +2082,7 @@ def test_host_pairing_confidence_is_categorical_and_explainable(tmp_path: Path) 
 
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
 
-    confidence = {
-        item["a"]["id"]: item["match"]["confidence"]
-        for item in outcome.data["hosts"]
-    }
+    confidence = {item["a"]["id"]: item["match"]["confidence"] for item in outcome.data["hosts"]}
     assert confidence == {1: "verified", 2: "medium", 3: "low"}
     assert outcome.data["summary"]["host_pairing_confidence"] == {
         "verified": 1,
@@ -2100,33 +2130,25 @@ def _set_schema8_lldp_coverage(
         },
         "lldp": {
             "status": aggregate,
-            "resolution_status": (
-                "resolved" if aggregate == "complete" else "partial"
-            ),
+            "resolution_status": ("resolved" if aggregate == "complete" else "partial"),
             "message": None,
             "subtables": {
                 "local_port": {
                     "status": local_port,
-                    "resolution_status": (
-                        "resolved" if local_port == "complete" else "partial"
-                    ),
+                    "resolution_status": ("resolved" if local_port == "complete" else "partial"),
                     "message": None,
                 },
                 "remote_neighbor": {
                     "status": remote_neighbor,
                     "resolution_status": (
-                        "resolved"
-                        if remote_neighbor == "complete"
-                        else "unresolved"
+                        "resolved" if remote_neighbor == "complete" else "unresolved"
                     ),
                     "message": None,
                 },
                 "remote_management_address": {
                     "status": remote_management_address,
                     "resolution_status": (
-                        "resolved"
-                        if remote_management_address == "complete"
-                        else "partial"
+                        "resolved" if remote_management_address == "complete" else "partial"
                     ),
                     "message": (
                         None
@@ -2152,12 +2174,8 @@ def test_macro_diff_propagates_failed_observer_protocol_to_one_sided_entity(
     endpoint["state"] = "no_query"
     endpoint["observed_by_neighbors"] = [_neighbor(1, "source")]
 
-    a_path = _write_run(
-        tmp_path, "a", "2026-08-30T02:00:00-04:00", [a_source, endpoint]
-    )
-    b_path = _write_run(
-        tmp_path, "b", "2026-08-30T01:00:00-04:00", [b_source]
-    )
+    a_path = _write_run(tmp_path, "a", "2026-08-30T02:00:00-04:00", [a_source, endpoint])
+    b_path = _write_run(tmp_path, "b", "2026-08-30T01:00:00-04:00", [b_source])
     config = _config(tmp_path)
     source_a, source_b = resolve_diff_sources(
         config,
@@ -2203,9 +2221,7 @@ def test_macro_diff_recursively_propagates_original_coverage_incident(
         "2026-08-30T02:00:00-04:00",
         [a_root, branch, endpoint],
     )
-    b_path = _write_run(
-        tmp_path, "b", "2026-08-30T01:00:00-04:00", [b_root]
-    )
+    b_path = _write_run(tmp_path, "b", "2026-08-30T01:00:00-04:00", [b_root])
     config = _config(tmp_path)
     source_a, source_b = resolve_diff_sources(
         config,
@@ -2215,14 +2231,11 @@ def test_macro_diff_recursively_propagates_original_coverage_incident(
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
 
     assert outcome.data["summary"]["hosts"]["coverage_uncertain"] == 2
-    by_name = {
-        item["preferred_name"]: item for item in outcome.data["presence_uncertain"]
-    }
+    by_name = {item["preferred_name"]: item for item in outcome.data["presence_uncertain"]}
     assert by_name["branch"]["coverage_source"]["origin"] == "direct"
     assert by_name["phone"]["coverage_source"]["origin"] == "recursive"
     assert [
-        item["preferred_name"]
-        for item in by_name["phone"]["coverage_source"]["recursive_path"]
+        item["preferred_name"] for item in by_name["phone"]["coverage_source"]["recursive_path"]
     ] == ["branch", "phone"]
     incident = outcome.data["collection_incidents"][0]
     assert incident["affected_remote_entity_count"] == 1
@@ -2242,12 +2255,8 @@ def test_macro_diff_keeps_genuine_absence_confirmed_with_complete_coverage(
     endpoint["state"] = "no_query"
     endpoint["observed_by_neighbors"] = [_neighbor(1, "source")]
 
-    a_path = _write_run(
-        tmp_path, "a", "2026-08-30T02:00:00-04:00", [a_source, endpoint]
-    )
-    b_path = _write_run(
-        tmp_path, "b", "2026-08-30T01:00:00-04:00", [b_source]
-    )
+    a_path = _write_run(tmp_path, "a", "2026-08-30T02:00:00-04:00", [a_source, endpoint])
+    b_path = _write_run(tmp_path, "b", "2026-08-30T01:00:00-04:00", [b_source])
     config = _config(tmp_path)
     source_a, source_b = resolve_diff_sources(
         config,
@@ -2420,12 +2429,8 @@ def test_cli_collection_timing_config_can_be_explicitly_disabled(
     new = _host(2, "switch", address="192.0.2.1", serial="SW")
     assert isinstance(old["snmp"], dict)
     assert isinstance(new["snmp"], dict)
-    old["snmp"]["collection_coverage"] = {
-        "lldp": {"status": "complete", "duration_ms": 10.0}
-    }
-    new["snmp"]["collection_coverage"] = {
-        "lldp": {"status": "complete", "duration_ms": 20.0}
-    }
+    old["snmp"]["collection_coverage"] = {"lldp": {"status": "complete", "duration_ms": 10.0}}
+    new["snmp"]["collection_coverage"] = {"lldp": {"status": "complete", "duration_ms": 20.0}}
     _write_run(tmp_path, "old", "2026-08-31T01:00:00-04:00", [old])
     _write_run(tmp_path, "new", "2026-08-31T02:00:00-04:00", [new])
 
@@ -2582,9 +2587,7 @@ def test_missing_lldp_derived_chassis_attribute_retains_observer_provenance(
         chassis=None,
     )
     observation = _neighbor(1, "observer", address="192.0.2.1")
-    observation["details"] = {
-        "lldp": {"chassis_id": "aa:bb:cc:dd:ee:ff"}
-    }
+    observation["details"] = {"lldp": {"chassis_id": "aa:bb:cc:dd:ee:ff"}}
     a_endpoint["observed_by_neighbors"] = [observation]
     a_path = _write_run(
         tmp_path,
@@ -2607,9 +2610,7 @@ def test_missing_lldp_derived_chassis_attribute_retains_observer_provenance(
     outcome = macro_diff(config, source_a, source_b, changes_only=False)
 
     endpoint = next(
-        item
-        for item in outcome.data["hosts"]
-        if item["a"]["preferred_name"] == "endpoint"
+        item for item in outcome.data["hosts"] if item["a"]["preferred_name"] == "endpoint"
     )
     difference = endpoint["host_differences"][0]
     assert difference["path"] == "chassis_id"
@@ -2803,9 +2804,7 @@ def test_macro_diff_reports_topology_health_gap_without_claiming_diff_dependency
             remote_neighbor="timeout",
         )
         coverage = host["snmp"]["collection_coverage"]["lldp"]
-        coverage["subtables"]["remote_neighbor"]["message"] = (
-            "remote-neighbor walk timeout"
-        )
+        coverage["subtables"]["remote_neighbor"]["message"] = "remote-neighbor walk timeout"
 
     a_path = _write_run(
         tmp_path,
@@ -2831,17 +2830,13 @@ def test_macro_diff_reports_topology_health_gap_without_claiming_diff_dependency
     assert len(incidents) == 2
     assert {item["missing_side"] for item in incidents} == {"a", "b"}
     assert {item["table"] for item in incidents} == {"lldp.remote_neighbor"}
-    assert all(
-        item["reported_difference_depends_on_gap"] is False
-        for item in incidents
-    )
+    assert all(item["reported_difference_depends_on_gap"] is False for item in incidents)
     incident_summary = outcome.data["summary"]["collection_incidents"]
     assert incident_summary["reported_difference_dependent_incident_count"] == 0
     assert incident_summary["health_only_incident_count"] == 2
     assert incident_summary["topology_gap_observer_count"] == {"a": 1, "b": 1}
     assert any(
-        "no reported difference depends on those gaps" in warning
-        for warning in outcome.warnings
+        "no reported difference depends on those gaps" in warning for warning in outcome.warnings
     )
 
     rendered = render_diff(config, outcome, json_output=False, json_indent=2, summary_only=True)

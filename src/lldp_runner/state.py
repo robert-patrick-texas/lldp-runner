@@ -433,23 +433,19 @@ class StateStore:
             )
         if "snmp_sessions_json" not in host_columns:
             self.conn.execute(
-                "ALTER TABLE hosts ADD COLUMN snmp_sessions_json "
-                "TEXT NOT NULL DEFAULT '[]'"
+                "ALTER TABLE hosts ADD COLUMN snmp_sessions_json TEXT NOT NULL DEFAULT '[]'"
             )
         if "interface_groups_json" not in host_columns:
             self.conn.execute(
-                "ALTER TABLE hosts ADD COLUMN interface_groups_json "
-                "TEXT NOT NULL DEFAULT '[]'"
+                "ALTER TABLE hosts ADD COLUMN interface_groups_json TEXT NOT NULL DEFAULT '[]'"
             )
         if "collection_coverage_json" not in host_columns:
             self.conn.execute(
-                "ALTER TABLE hosts ADD COLUMN collection_coverage_json "
-                "TEXT NOT NULL DEFAULT '{}'"
+                "ALTER TABLE hosts ADD COLUMN collection_coverage_json TEXT NOT NULL DEFAULT '{}'"
             )
         if "late_recovery_used" not in host_columns:
             self.conn.execute(
-                "ALTER TABLE hosts ADD COLUMN late_recovery_used "
-                "INTEGER NOT NULL DEFAULT 0"
+                "ALTER TABLE hosts ADD COLUMN late_recovery_used INTEGER NOT NULL DEFAULT 0"
             )
         if "credential_source" not in host_columns:
             self.conn.execute("ALTER TABLE hosts ADD COLUMN credential_source TEXT")
@@ -478,25 +474,19 @@ class StateStore:
             ("collector", "TEXT"),
         ):
             if column not in error_columns:
-                self.conn.execute(
-                    f"ALTER TABLE errors ADD COLUMN {column} {definition}"
-                )
+                self.conn.execute(f"ALTER TABLE errors ADD COLUMN {column} {definition}")
 
         address_columns = {
-            str(row[1])
-            for row in self.conn.execute("PRAGMA table_info(host_addresses)").fetchall()
+            str(row[1]) for row in self.conn.execute("PRAGMA table_info(host_addresses)").fetchall()
         }
         if "identity_eligible" not in address_columns:
             self.conn.execute(
-                "ALTER TABLE host_addresses ADD COLUMN "
-                "identity_eligible INTEGER NOT NULL DEFAULT 1"
+                "ALTER TABLE host_addresses ADD COLUMN identity_eligible INTEGER NOT NULL DEFAULT 1"
             )
 
         advertisement_columns = {
             str(row[1])
-            for row in self.conn.execute(
-                "PRAGMA table_info(protocol_advertisements)"
-            ).fetchall()
+            for row in self.conn.execute("PRAGMA table_info(protocol_advertisements)").fetchall()
         }
         if "source_context_json" not in advertisement_columns:
             self.conn.execute(
@@ -520,8 +510,7 @@ class StateStore:
             self.conn.execute("ALTER TABLE graph_projection ADD COLUMN payload_blob BLOB")
         if "summary_json" not in projection_columns:
             self.conn.execute(
-                "ALTER TABLE graph_projection ADD COLUMN "
-                "summary_json TEXT NOT NULL DEFAULT '{}'"
+                "ALTER TABLE graph_projection ADD COLUMN summary_json TEXT NOT NULL DEFAULT '{}'"
             )
 
         # Releases through 0.31.3 stored addresses in the one-owner alias table.
@@ -579,9 +568,7 @@ class StateStore:
             if not isinstance(sessions, list):
                 continue
 
-            session_groups: dict[
-                tuple[str | None, str | None, str | None], list[str]
-            ] = {}
+            session_groups: dict[tuple[str | None, str | None, str | None], list[str]] = {}
             for session in sessions:
                 if not isinstance(session, dict):
                     continue
@@ -613,9 +600,7 @@ class StateStore:
                 """,
                 (int(host["id"]),),
             ).fetchall()
-            error_groups: dict[
-                tuple[str | None, str | None, str | None], list[sqlite3.Row]
-            ] = {}
+            error_groups: dict[tuple[str | None, str | None, str | None], list[sqlite3.Row]] = {}
             for error in errors:
                 key = (
                     str(error["credential_profile"])
@@ -640,9 +625,7 @@ class StateStore:
                     assignments = list(candidates)
                 else:
                     continue
-                for error, target in zip(
-                    grouped_errors, assignments, strict=True
-                ):
+                for error, target in zip(grouped_errors, assignments, strict=True):
                     self.conn.execute(
                         """
                         UPDATE errors SET attempted_target=?,
@@ -748,9 +731,7 @@ class StateStore:
             claim_ids.append(int(row["id"]))
         return list(dict.fromkeys(claim_ids))
 
-    def _protocol_source_context_uncommitted(
-        self, result: DeviceResult
-    ) -> dict[str, Any]:
+    def _protocol_source_context_uncommitted(self, result: DeviceResult) -> dict[str, Any]:
         """Return compact source metadata not present in the SNMP result fact.
 
         Each protocol row references the immutable ``snmp_device_result``
@@ -808,9 +789,7 @@ class StateStore:
                 continue
             observation = observation_from_payload(payload)
             claims = neighbor_observation_claims(result.host_id, observation)
-            claim_ids = self._record_claims_uncommitted(
-                observation_id, fingerprint, claims
-            )
+            claim_ids = self._record_claims_uncommitted(observation_id, fingerprint, claims)
             details = observation.details if isinstance(observation.details, dict) else {}
             namespace = str(details.get("local_interface_namespace") or "")
             if not namespace:
@@ -844,9 +823,7 @@ class StateStore:
                 projected_host_id=None,
                 candidate_host_ids=[],
                 confidence=self._claim_confidence(claims),
-                rationale=[
-                    "raw protocol advertisement retained before cross-protocol reasoning"
-                ],
+                rationale=["raw protocol advertisement retained before cross-protocol reasoning"],
                 supporting_claim_ids=claim_ids,
                 coalesce_same_outcome=True,
             )
@@ -919,9 +896,7 @@ class StateStore:
                     if latest["projected_host_id"] is not None
                     else None
                 ),
-                "candidate_host_ids": json.loads(
-                    str(latest["candidate_host_ids_json"] or "[]")
-                ),
+                "candidate_host_ids": json.loads(str(latest["candidate_host_ids_json"] or "[]")),
                 "confidence": str(latest["confidence"]),
                 "rationale": json.loads(str(latest["rationale_json"] or "[]")),
             }
@@ -935,8 +910,7 @@ class StateStore:
             # a superseding decision even when the projected host remains equal.
             if coalesce_same_outcome and (
                 latest_semantic["decision_type"] == semantic["decision_type"]
-                and latest_semantic["projected_host_id"]
-                == semantic["projected_host_id"]
+                and latest_semantic["projected_host_id"] == semantic["projected_host_id"]
                 and latest_semantic["confidence"] == semantic["confidence"]
             ):
                 return int(latest["id"])
@@ -1033,14 +1007,11 @@ class StateStore:
             (observation_id,),
         ).fetchall()
 
-    def resolution_decisions_for_observation(
-        self, observation_id: int
-    ) -> list[sqlite3.Row]:
+    def resolution_decisions_for_observation(self, observation_id: int) -> list[sqlite3.Row]:
         """Return the complete, supersedable decision history for an observation."""
 
         return self.conn.execute(
-            "SELECT * FROM resolution_decisions WHERE observation_id=? "
-            "ORDER BY sequence",
+            "SELECT * FROM resolution_decisions WHERE observation_id=? ORDER BY sequence",
             (observation_id,),
         ).fetchall()
 
@@ -1116,9 +1087,7 @@ class StateStore:
             "WHERE host_id=? AND identity_eligible=1",
             (host_id,),
         ).fetchall()
-        evidence.update(
-            (str(row["address_type"]), str(row["value"])) for row in rows
-        )
+        evidence.update((str(row["address_type"]), str(row["value"])) for row in rows)
 
         host = self.conn.execute(
             "SELECT preferred_name FROM hosts WHERE id=?", (host_id,)
@@ -1171,9 +1140,7 @@ class StateStore:
 
         candidate = set(candidate_aliases)
         names = {value for kind, value in candidate if kind == "name"}
-        addresses = {
-            (kind, value) for kind, value in candidate if kind in {"ipv4", "ipv6"}
-        }
+        addresses = {(kind, value) for kind, value in candidate if kind in {"ipv4", "ipv6"}}
         if not names or not addresses:
             return []
         found: set[int] = set()
@@ -1186,17 +1153,13 @@ class StateStore:
                 existing = self._identity_aliases_for_host(host_id)
                 existing_names = {value for kind, value in existing if kind == "name"}
                 existing_addresses = {
-                    (kind, value)
-                    for kind, value in existing
-                    if kind in {"ipv4", "ipv6"}
+                    (kind, value) for kind, value in existing if kind in {"ipv4", "ipv6"}
                 }
                 if names & existing_names and addresses & existing_addresses:
                     found.add(host_id)
         return sorted(found)
 
-    def _identity_conflicts(
-        self, host_id: int, candidate_aliases: list[tuple[str, str]]
-    ) -> bool:
+    def _identity_conflicts(self, host_id: int, candidate_aliases: list[tuple[str, str]]) -> bool:
         """Return whether candidate evidence contradicts an established host.
 
         Strict Cisco ``SEP<12-hex>`` names contribute canonical ``mac`` aliases.
@@ -1222,9 +1185,7 @@ class StateStore:
         candidate = set(candidate_aliases)
         shared = existing & candidate
         shared_names = {item for item in shared if item[0] == "name"}
-        shared_addresses = {
-            item for item in shared if item[0] in {"ipv4", "ipv6"}
-        }
+        shared_addresses = {item for item in shared if item[0] in {"ipv4", "ipv6"}}
         shared_macs = {item for item in shared if item[0] == "mac"}
         existing_macs = {value for kind, value in existing if kind == "mac"}
         candidate_macs = {value for kind, value in candidate if kind == "mac"}
@@ -1235,11 +1196,7 @@ class StateStore:
         # Check this before the generic shared-non-chassis fast path below;
         # otherwise one repeated/default phone address can transitively collapse
         # many distinct SEP endpoints into whichever host was observed first.
-        if (
-            existing_macs
-            and candidate_macs
-            and existing_macs.isdisjoint(candidate_macs)
-        ):
+        if existing_macs and candidate_macs and existing_macs.isdisjoint(candidate_macs):
             return True
 
         # Address equality is weak when both observations also carry direct names
@@ -1248,9 +1205,7 @@ class StateStore:
         # space, or a vendor default address from becoming one state host.  Exact
         # SEP/MAC or MAC-address chassis evidence can still override a name change.
         shared_mac_chassis = {
-            value
-            for kind, value in shared
-            if kind == "chassis_id" and value.startswith("4:")
+            value for kind, value in shared if kind == "chassis_id" and value.startswith("4:")
         }
         if (
             shared_addresses
@@ -1264,8 +1219,10 @@ class StateStore:
 
         existing_chassis = {value for kind, value in existing if kind == "chassis_id"}
         candidate_chassis = {value for kind, value in candidate if kind == "chassis_id"}
-        if existing_chassis and candidate_chassis and existing_chassis.isdisjoint(
-            candidate_chassis
+        if (
+            existing_chassis
+            and candidate_chassis
+            and existing_chassis.isdisjoint(candidate_chassis)
         ):
             # Name *and* address agreement is deliberately stronger than a
             # per-link chassis disagreement.  Requiring both keeps duplicate-name
@@ -1279,12 +1236,8 @@ class StateStore:
         if not shared_chassis or shared_non_chassis:
             return False
 
-        existing_addresses = {
-            value for kind, value in existing if kind in {"ipv4", "ipv6"}
-        }
-        candidate_addresses = {
-            value for kind, value in candidate if kind in {"ipv4", "ipv6"}
-        }
+        existing_addresses = {value for kind, value in existing if kind in {"ipv4", "ipv6"}}
+        candidate_addresses = {value for kind, value in candidate if kind in {"ipv4", "ipv6"}}
         names_conflict = (
             bool(existing_names)
             and bool(candidate_names)
@@ -1351,13 +1304,9 @@ class StateStore:
             text = str(value or "").strip().casefold()
             return text or None
 
-        return normalized(system.get("serial_number")), normalized(
-            system.get("snmp_engine_id")
-        )
+        return normalized(system.get("serial_number")), normalized(system.get("snmp_engine_id"))
 
-    def _query_projection_identity_conflicts(
-        self, left: sqlite3.Row, right: sqlite3.Row
-    ) -> bool:
+    def _query_projection_identity_conflicts(self, left: sqlite3.Row, right: sqlite3.Row) -> bool:
         """Return whether direct managed-projection evidence is contradictory.
 
         This check intentionally differs from the general candidate resolver's
@@ -1379,14 +1328,10 @@ class StateStore:
         left_names = self._query_projection_logical_names(left)
         right_names = self._query_projection_logical_names(right)
         left_addresses = {
-            (kind, value)
-            for kind, value in left_evidence
-            if kind in {"ipv4", "ipv6"}
+            (kind, value) for kind, value in left_evidence if kind in {"ipv4", "ipv6"}
         }
         right_addresses = {
-            (kind, value)
-            for kind, value in right_evidence
-            if kind in {"ipv4", "ipv6"}
+            (kind, value) for kind, value in right_evidence if kind in {"ipv4", "ipv6"}
         }
 
         left_macs = {value for kind, value in left_evidence if kind == "mac"}
@@ -1401,24 +1346,17 @@ class StateStore:
         if left_engine and right_engine and left_engine != right_engine:
             return True
 
-        left_chassis = {
-            value for kind, value in left_evidence if kind == "chassis_id"
-        }
-        right_chassis = {
-            value for kind, value in right_evidence if kind == "chassis_id"
-        }
+        left_chassis = {value for kind, value in left_evidence if kind == "chassis_id"}
+        right_chassis = {value for kind, value in right_evidence if kind == "chassis_id"}
         if left_chassis and right_chassis and left_chassis.isdisjoint(right_chassis):
-            logical_corroboration = (
-                _identity_name_sets_compatible(left_names, right_names)
-                and bool(left_addresses & right_addresses)
-            )
+            logical_corroboration = _identity_name_sets_compatible(
+                left_names, right_names
+            ) and bool(left_addresses & right_addresses)
             if not logical_corroboration:
                 return True
         return False
 
-    def _query_projection_pair_is_equivalent(
-        self, left: sqlite3.Row, right: sqlite3.Row
-    ) -> bool:
+    def _query_projection_pair_is_equivalent(self, left: sqlite3.Row, right: sqlite3.Row) -> bool:
         """Return whether two managed rows are duplicate query projections.
 
         Reconciliation requires compatible direct names and at least one shared
@@ -1428,9 +1366,10 @@ class StateStore:
         exact logical name and management-address evidence identify one VDC.
         """
 
-        if str(left["classification"]) != "managed_device" or str(
-            right["classification"]
-        ) != "managed_device":
+        if (
+            str(left["classification"]) != "managed_device"
+            or str(right["classification"]) != "managed_device"
+        ):
             return False
 
         left_names = self._query_projection_logical_names(left)
@@ -1443,14 +1382,10 @@ class StateStore:
         left_evidence = self._identity_aliases_for_host(int(left["id"]))
         right_evidence = self._identity_aliases_for_host(int(right["id"]))
         left_addresses = {
-            (kind, value)
-            for kind, value in left_evidence
-            if kind in {"ipv4", "ipv6"}
+            (kind, value) for kind, value in left_evidence if kind in {"ipv4", "ipv6"}
         }
         right_addresses = {
-            (kind, value)
-            for kind, value in right_evidence
-            if kind in {"ipv4", "ipv6"}
+            (kind, value) for kind, value in right_evidence if kind in {"ipv4", "ipv6"}
         }
         if not (left_addresses & right_addresses):
             return False
@@ -1481,9 +1416,7 @@ class StateStore:
                 key=lambda row: (
                     state_priority.get(str(row["state"]), 99),
                     0 if int(row["is_seed"]) else 1,
-                    int(row["seed_rank"])
-                    if row["seed_rank"] is not None
-                    else 2**31,
+                    int(row["seed_rank"]) if row["seed_rank"] is not None else 2**31,
                     int(row["id"]),
                 ),
             )["id"]
@@ -1517,9 +1450,7 @@ class StateStore:
             host_id = int(row["host_id"])
             if host_id not in by_id:
                 continue
-            owners.setdefault((str(row["address_type"]), str(row["value"])), []).append(
-                host_id
-            )
+            owners.setdefault((str(row["address_type"]), str(row["value"])), []).append(host_id)
 
         parent = {host_id: host_id for host_id in by_id}
 
@@ -1544,9 +1475,7 @@ class StateStore:
                     if pair in checked:
                         continue
                     checked.add(pair)
-                    if self._query_projection_pair_is_equivalent(
-                        by_id[left_id], by_id[right_id]
-                    ):
+                    if self._query_projection_pair_is_equivalent(by_id[left_id], by_id[right_id]):
                         union(left_id, right_id)
 
         components: dict[int, list[int]] = {}
@@ -1572,10 +1501,9 @@ class StateStore:
                 left_names = self._query_projection_logical_names(left)
                 for right in component_rows[index + 1 :]:
                     right_names = self._query_projection_logical_names(right)
-                    if (
-                        not _identity_name_sets_compatible(left_names, right_names)
-                        or self._query_projection_identity_conflicts(left, right)
-                    ):
+                    if not _identity_name_sets_compatible(
+                        left_names, right_names
+                    ) or self._query_projection_identity_conflicts(left, right):
                         component_conflict = True
                         break
                 if component_conflict:
@@ -1636,9 +1564,7 @@ class StateStore:
             else candidate.addresses
         )
         aliases = alias_tuples(
-            candidate.identity_names
-            if candidate.identity_names is not None
-            else candidate.names,
+            candidate.identity_names if candidate.identity_names is not None else candidate.names,
             identity_addresses,
             candidate.chassis_id,
             candidate.chassis_id_subtype,
@@ -1663,13 +1589,9 @@ class StateStore:
             )
             if endpoint_mac is not None:
                 aliases = [("mac", endpoint_mac)]
-        identity_address_claims = {
-            item for item in aliases if item[0] in {"ipv4", "ipv6"}
-        }
+        identity_address_claims = {item for item in aliases if item[0] in {"ipv4", "ipv6"}}
         all_address_claims = {
-            item
-            for item in alias_tuples([], candidate.addresses)
-            if item[0] in {"ipv4", "ipv6"}
+            item for item in alias_tuples([], candidate.addresses) if item[0] in {"ipv4", "ipv6"}
         }
         # Only direct management addresses enter the compatibility projection.
         # LLDP network-address chassis values remain immutable edge-scoped
@@ -1689,13 +1611,11 @@ class StateStore:
         now = iso_now()
         self.conn.execute("BEGIN IMMEDIATE")
         try:
-            observation_id, observation_fingerprint = (
-                self._record_observation_uncommitted(
-                    observation_payload,
-                    source_host_id=candidate.source_host_id,
-                    protocol=candidate.protocol,
-                    observed_at=now,
-                )
+            observation_id, observation_fingerprint = self._record_observation_uncommitted(
+                observation_payload,
+                source_host_id=candidate.source_host_id,
+                protocol=candidate.protocol,
+                observed_at=now,
             )
             claim_ids = self._record_claims_uncommitted(
                 observation_id, observation_fingerprint, evidence_claims
@@ -1715,8 +1635,7 @@ class StateStore:
                 # observation without allowing an old edge key to merge a true
                 # endpoint replacement whose identity evidence is disjoint.
                 observation_row = self.conn.execute(
-                    "SELECT host_id FROM aliases "
-                    "WHERE alias_type='observation' AND value=?",
+                    "SELECT host_id FROM aliases WHERE alias_type='observation' AND value=?",
                     (synthetic_alias,),
                 ).fetchone()
                 if observation_row is not None:
@@ -1780,7 +1699,9 @@ class StateStore:
                             self._merge_hosts(host_id, loser)
             else:
                 created_projection = True
-                presentation = preferred_name or self._best_name(candidate.names, candidate.addresses)
+                presentation = preferred_name or self._best_name(
+                    candidate.names, candidate.addresses
+                )
                 self.conn.execute(
                     """
                     INSERT INTO hosts(
@@ -1812,8 +1733,7 @@ class StateStore:
                 if alias_type in {"ipv4", "ipv6"}:
                     continue
                 self.conn.execute(
-                    "INSERT OR IGNORE INTO aliases(alias_type, value, host_id) "
-                    "VALUES(?, ?, ?)",
+                    "INSERT OR IGNORE INTO aliases(alias_type, value, host_id) VALUES(?, ?, ?)",
                     (alias_type, value, host_id),
                 )
             for address_type, value in sorted(all_address_claims):
@@ -1831,13 +1751,10 @@ class StateStore:
             # the accepted chassis identity alias.  Malformed values, and a reused
             # chassis alias rejected because other evidence conflicts, remain only
             # in neighbor observation details.
-            chassis_aliases = [
-                value for alias_type, value in aliases if alias_type == "chassis_id"
-            ]
+            chassis_aliases = [value for alias_type, value in aliases if alias_type == "chassis_id"]
             owns_chassis_alias = any(
                 self.conn.execute(
-                    "SELECT 1 FROM aliases WHERE alias_type='chassis_id' "
-                    "AND value=? AND host_id=?",
+                    "SELECT 1 FROM aliases WHERE alias_type='chassis_id' AND value=? AND host_id=?",
                     (value, host_id),
                 ).fetchone()
                 is not None
@@ -1906,9 +1823,7 @@ class StateStore:
             if created_projection:
                 decision_rationale.append("no compatible existing projection was selected")
             if merged_host_ids:
-                decision_rationale.append(
-                    "compatible inactive host projections were consolidated"
-                )
+                decision_rationale.append("compatible inactive host projections were consolidated")
             if rejected_host_ids:
                 decision_rationale.append(
                     "contradictory strong or scoped evidence rejected one or more candidates"
@@ -1921,9 +1836,7 @@ class StateStore:
             self._record_resolution_decision_uncommitted(
                 observation_id,
                 decision_type=(
-                    "projected_host_with_conflict"
-                    if rejected_host_ids
-                    else "projected_host"
+                    "projected_host_with_conflict" if rejected_host_ids else "projected_host"
                 ),
                 projected_host_id=host_id,
                 candidate_host_ids=[
@@ -1954,7 +1867,7 @@ class StateStore:
 
     @staticmethod
     def _prefer_presentation(existing: str, candidate: str) -> str:
-        if "." in candidate and not "." in existing and ":" not in candidate:
+        if "." in candidate and "." not in existing and ":" not in candidate:
             return candidate
         if existing in {"unknown", ""}:
             return candidate
@@ -2009,7 +1922,9 @@ class StateStore:
                     row["last_seen"],
                 ),
             )
-        self.conn.execute("DELETE FROM neighbors WHERE source_host_id=? OR remote_host_id=?", (loser, loser))
+        self.conn.execute(
+            "DELETE FROM neighbors WHERE source_host_id=? OR remote_host_id=?", (loser, loser)
+        )
         # A duplicate projection may carry an alias already owned by the winner.
         # Copy with conflict suppression before deleting the loser instead of a
         # direct UPDATE that could violate the aliases primary key.
@@ -2066,9 +1981,7 @@ class StateStore:
                 ),
             )
         self.conn.execute("DELETE FROM route_attempts WHERE host_id=?", (loser,))
-        self.conn.execute(
-            "UPDATE scheduler_events SET host_id=? WHERE host_id=?", (winner, loser)
-        )
+        self.conn.execute("UPDATE scheduler_events SET host_id=? WHERE host_id=?", (winner, loser))
         merged_category = self._merge_category(
             str(winner_row["classification"]),
             str(loser_row["classification"]),
@@ -2124,24 +2037,21 @@ class StateStore:
         loser_sessions = str(loser_row["snmp_sessions_json"] or "[]")
         snmp_sessions_json = (
             loser_sessions
-            if copy_complete_result
-            or (winner_sessions == "[]" and loser_sessions != "[]")
+            if copy_complete_result or (winner_sessions == "[]" and loser_sessions != "[]")
             else winner_sessions
         )
         winner_interfaces = str(winner_row["interface_groups_json"] or "[]")
         loser_interfaces = str(loser_row["interface_groups_json"] or "[]")
         interface_groups_json = (
             loser_interfaces
-            if copy_complete_result
-            or (winner_interfaces == "[]" and loser_interfaces != "[]")
+            if copy_complete_result or (winner_interfaces == "[]" and loser_interfaces != "[]")
             else winner_interfaces
         )
         winner_coverage = str(winner_row["collection_coverage_json"] or "{}")
         loser_coverage = str(loser_row["collection_coverage_json"] or "{}")
         collection_coverage_json = (
             loser_coverage
-            if copy_complete_result
-            or (winner_coverage == "{}" and loser_coverage != "{}")
+            if copy_complete_result or (winner_coverage == "{}" and loser_coverage != "{}")
             else winner_coverage
         )
         seed_ranks = [
@@ -2199,9 +2109,7 @@ class StateStore:
                 (winner, loser),
             )
         else:
-            self.conn.execute(
-                "DELETE FROM seed_credential_requirements WHERE host_id=?", (loser,)
-            )
+            self.conn.execute("DELETE FROM seed_credential_requirements WHERE host_id=?", (loser,))
         self.conn.execute("DELETE FROM hosts WHERE id=?", (loser,))
 
     def _add_tags_uncommitted(self, host_id: int, tags: Iterable[str]) -> None:
@@ -2226,7 +2134,8 @@ class StateStore:
 
     def aliases_for_host(self, host_id: int) -> tuple[list[str], list[str], str | None]:
         rows = self.conn.execute(
-            "SELECT alias_type, value FROM aliases WHERE host_id=? ORDER BY alias_type, value", (host_id,)
+            "SELECT alias_type, value FROM aliases WHERE host_id=? ORDER BY alias_type, value",
+            (host_id,),
         ).fetchall()
         names: list[str] = []
         addresses: list[str] = []
@@ -2333,8 +2242,7 @@ class StateStore:
             # After all READY seeds are claimed, normal recursive work returns to
             # deterministic cohort assignment with optional stealing.
             rows = self.conn.execute(
-                "SELECT id FROM hosts WHERE state='READY' AND is_seed=1 "
-                "ORDER BY seed_rank, id",
+                "SELECT id FROM hosts WHERE state='READY' AND is_seed=1 ORDER BY seed_rank, id",
             ).fetchall()
             if not rows:
                 rows = self.conn.execute(
@@ -2344,8 +2252,7 @@ class StateStore:
                 ).fetchall()
             if not rows and allow_steal:
                 rows = self.conn.execute(
-                    "SELECT id FROM hosts WHERE state='READY' AND is_seed=0 "
-                    "ORDER BY id",
+                    "SELECT id FROM hosts WHERE state='READY' AND is_seed=0 ORDER BY id",
                 ).fetchall()
             excluded = {int(value) for value in exclude_host_ids}
             ids: list[int] = []
@@ -2394,7 +2301,9 @@ class StateStore:
         self.conn.commit()
         return int(cur.rowcount)
 
-    def add_neighbor(self, source_host_id: int, remote_host_id: int, obs: NeighborObservation) -> None:
+    def add_neighbor(
+        self, source_host_id: int, remote_host_id: int, obs: NeighborObservation
+    ) -> None:
         protocols = obs.details.get("protocols", [obs.protocol])
         edge_details = dict(obs.details)
         if obs.remote_description:
@@ -2691,13 +2600,20 @@ class StateStore:
                 result.credential_label,
                 result.credential_result,
                 snmp_sysname,
-                json.dumps([p.__dict__ if hasattr(p, "__dict__") else {
-                    "status": p.status,
-                    "timestamp": p.timestamp,
-                    "address": p.address,
-                    "rtt_ms": p.rtt_ms,
-                    "error": p.error,
-                } for p in result.ping_probes]),
+                json.dumps(
+                    [
+                        p.__dict__
+                        if hasattr(p, "__dict__")
+                        else {
+                            "status": p.status,
+                            "timestamp": p.timestamp,
+                            "address": p.address,
+                            "rtt_ms": p.rtt_ms,
+                            "error": p.error,
+                        }
+                        for p in result.ping_probes
+                    ]
+                ),
                 json.dumps(system_dict, default=str),
                 json.dumps(metrics_dict, default=str),
                 json.dumps(snmp_sessions, default=str),
@@ -2709,9 +2625,7 @@ class StateStore:
                 result.host_id,
             ),
         )
-        normalized_sysname = (
-            normalize_identity_name(str(snmp_sysname)) if snmp_sysname else None
-        )
+        normalized_sysname = normalize_identity_name(str(snmp_sysname)) if snmp_sysname else None
         if normalized_sysname:
             self.conn.execute(
                 "INSERT OR IGNORE INTO aliases(alias_type, value, host_id) VALUES('name', ?, ?)",
@@ -2885,9 +2799,7 @@ class StateStore:
             final_device_status=final_device_status,
         )
 
-    def clear_errors(
-        self, host_ids: Iterable[int], operation: str, category: str
-    ) -> int:
+    def clear_errors(self, host_ids: Iterable[int], operation: str, category: str) -> int:
         """Delete stale errors for many hosts with one batched commit.
 
         Output-time integrity checks may describe a condition that is only
@@ -3010,8 +2922,7 @@ class StateStore:
             now = iso_now()
             for rank, host_id in enumerate(ordered_host_ids):
                 self.conn.execute(
-                    "UPDATE hosts SET seed_rank=?, updated_at=? "
-                    "WHERE id=? AND is_seed=1",
+                    "UPDATE hosts SET seed_rank=?, updated_at=? WHERE id=? AND is_seed=1",
                     (rank, now, host_id),
                 )
             self.conn.commit()
@@ -3044,8 +2955,7 @@ class StateStore:
 
         return int(
             self.conn.execute(
-                "SELECT COUNT(*) FROM hosts "
-                "WHERE is_seed=1 AND classification='managed_device'"
+                "SELECT COUNT(*) FROM hosts WHERE is_seed=1 AND classification='managed_device'"
             ).fetchone()[0]
         )
 
@@ -3112,7 +3022,9 @@ class StateStore:
         return int(cursor.rowcount)
 
     def ready_count(self) -> int:
-        return int(self.conn.execute("SELECT COUNT(*) FROM hosts WHERE state='READY'").fetchone()[0])
+        return int(
+            self.conn.execute("SELECT COUNT(*) FROM hosts WHERE state='READY'").fetchone()[0]
+        )
 
     def active_count(self) -> int:
         placeholders = ",".join("?" for _ in ACTIVE_STATES)
@@ -3144,7 +3056,9 @@ class StateStore:
             "unmanaged_device": "unmanaged_devices",
             "unknown_device": "unknown_devices",
         }
-        for row in self.conn.execute("SELECT classification, COUNT(*) n FROM hosts GROUP BY classification"):
+        for row in self.conn.execute(
+            "SELECT classification, COUNT(*) n FROM hosts GROUP BY classification"
+        ):
             if str(row["classification"]) in category_key:
                 counts[category_key[str(row["classification"])]] = int(row["n"])
         for row in self.conn.execute("SELECT state, COUNT(*) n FROM hosts GROUP BY state"):
@@ -3179,9 +3093,7 @@ class StateStore:
             details = json.loads(str(row["details_json"] or "{}"))
             if not isinstance(details, dict):
                 details = {}
-            protocols = [
-                value for value in str(row["protocols"] or "").split(",") if value
-            ]
+            protocols = [value for value in str(row["protocols"] or "").split(",") if value]
             protocol = protocols[0] if protocols else "unknown"
             details.setdefault("protocols", protocols or [protocol])
             observation = NeighborObservation(
@@ -3191,9 +3103,7 @@ class StateStore:
                 remote_name=row["observed_name"],
                 remote_interface=str(row["remote_interface"] or "") or None,
                 remote_interface_raw=row["remote_interface_raw"],
-                remote_addresses=list(
-                    json.loads(str(row["observed_addresses_json"] or "[]"))
-                ),
+                remote_addresses=list(json.loads(str(row["observed_addresses_json"] or "[]"))),
                 remote_description=details.get("remote_description"),
                 remote_platform=details.get("remote_platform"),
                 capabilities=list(details.get("capabilities") or []),
@@ -3202,9 +3112,7 @@ class StateStore:
                 chassis_id_subtype_id=details.get("chassis_id_subtype_id"),
                 details=details,
             )
-            record = canonical_raw_advertisements(
-                int(row["source_host_id"]), [observation]
-            )[0]
+            record = canonical_raw_advertisements(int(row["source_host_id"]), [observation])[0]
             record["remote_host_id"] = int(row["remote_host_id"])
             record["migration_source"] = "merged_neighbor_projection"
             record["occurrence_fingerprint"] = stable_fingerprint(
@@ -3216,17 +3124,13 @@ class StateStore:
             records.append(record)
         return records
 
-    def _record_graph_component_decision_uncommitted(
-        self, decision: dict[str, Any]
-    ) -> int:
+    def _record_graph_component_decision_uncommitted(self, decision: dict[str, Any]) -> int:
         """Append one graph conclusion when its semantic outcome changed."""
 
         component_key = str(decision["component_key"])
         decision_type = str(decision["decision_type"])
         outcome = decision.get("outcome", {})
-        evidence = sorted(
-            dict.fromkeys(str(value) for value in decision.get("evidence", []))
-        )
+        evidence = sorted(dict.fromkeys(str(value) for value in decision.get("evidence", [])))
         semantic = {
             "decision_type": decision_type,
             "outcome": outcome,
@@ -3288,17 +3192,14 @@ class StateStore:
         host_rows = [dict(row) for row in self.conn.execute("SELECT * FROM hosts")]
         names_by_host: dict[int, list[str]] = {}
         for row in self.conn.execute(
-            "SELECT host_id, value FROM aliases WHERE alias_type='name' "
-            "ORDER BY host_id, value"
+            "SELECT host_id, value FROM aliases WHERE alias_type='name' ORDER BY host_id, value"
         ):
             names_by_host.setdefault(int(row["host_id"]), []).append(str(row["value"]))
         addresses_by_host: dict[int, list[str]] = {}
         for row in self.conn.execute(
             "SELECT host_id, value FROM host_addresses ORDER BY host_id, value"
         ):
-            addresses_by_host.setdefault(int(row["host_id"]), []).append(
-                str(row["value"])
-            )
+            addresses_by_host.setdefault(int(row["host_id"]), []).append(str(row["value"]))
         coverage_by_host: dict[int, dict[str, Any]] = {}
         for row in host_rows:
             try:
@@ -3339,9 +3240,7 @@ class StateStore:
                 "preferred_name": sys_name or query_target or "unknown",
                 "snmp_sysname": sys_name,
                 "classification": "managed_device",
-                "state": (
-                    "COMPLETE" if payload.get("status") == "success" else "FAILED"
-                ),
+                "state": ("COMPLETE" if payload.get("status") == "success" else "FAILED"),
                 "query_target": query_target,
                 "names": [sys_name] if sys_name else [],
                 "addresses": [query_target] if query_target else [],
@@ -3421,9 +3320,7 @@ class StateStore:
                     or "unknown"
                 ),
                 "snmp_sysname": context.get("snmp_sysname"),
-                "classification": str(
-                    context.get("classification") or "managed_device"
-                ),
+                "classification": str(context.get("classification") or "managed_device"),
                 "query_target": context.get("query_target"),
                 "system_json": stable_json(system),
                 "state": str(context.get("state") or "COMPLETE"),
@@ -3435,13 +3332,9 @@ class StateStore:
             host_row_by_id[host_id] = synthetic
 
         for host_id in names_by_host:
-            names_by_host[host_id] = sorted(
-                dict.fromkeys(names_by_host[host_id]), key=str.casefold
-            )
+            names_by_host[host_id] = sorted(dict.fromkeys(names_by_host[host_id]), key=str.casefold)
         for host_id in addresses_by_host:
-            addresses_by_host[host_id] = sorted(
-                dict.fromkeys(addresses_by_host[host_id])
-            )
+            addresses_by_host[host_id] = sorted(dict.fromkeys(addresses_by_host[host_id]))
 
         raw_sources = {
             int(record["source_host_id"])
@@ -3478,14 +3371,10 @@ class StateStore:
                     "decision_type": "graph_materialized",
                     "outcome": {
                         "schema_version": result.document.get("schema_version"),
-                        "projection_fingerprint": result.document.get(
-                            "projection_fingerprint"
-                        ),
+                        "projection_fingerprint": result.document.get("projection_fingerprint"),
                         "summary": result.document.get("summary", {}),
                     },
-                    "evidence": [
-                        f"projection:{result.document.get('projection_fingerprint')}"
-                    ],
+                    "evidence": [f"projection:{result.document.get('projection_fingerprint')}"],
                 }
             )
             graph_json = stable_json(result.document)

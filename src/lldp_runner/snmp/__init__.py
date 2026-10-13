@@ -5,7 +5,7 @@ from __future__ import annotations
 from lldp_runner.config import AppConfig, CredentialConfig
 from lldp_runner.models import DirectCredential
 from lldp_runner.snmp.base import SnmpClient
-from lldp_runner.snmp.preflight import preflight_snmp_backend
+from lldp_runner.snmp.preflight import preflight_snmp_backend as preflight_snmp_backend
 from lldp_runner.snmp.resilience import AdaptiveSnmpClient, AdaptiveSnmpState
 from lldp_runner.snmp.selection import (
     SnmpBackendSelection,
@@ -56,10 +56,7 @@ def create_snmp_client(
     selection = selected_snmp_backend(config.snmp)
     state = adaptive_state or create_adaptive_snmp_state(config, address)
     if state.target != address:
-        raise ValueError(
-            "adaptive SNMP state target "
-            f"{state.target!r} does not match {address!r}"
-        )
+        raise ValueError(f"adaptive SNMP state target {state.target!r} does not match {address!r}")
 
     if selection.name == "gufo":
         from lldp_runner.snmp.gufo import GufoSnmpClient

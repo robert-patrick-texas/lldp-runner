@@ -7,10 +7,9 @@ import socket
 import sys
 from pathlib import Path
 from types import ModuleType
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "gufo-ipv6-test.py"
@@ -40,8 +39,8 @@ def _record(family: int, address: str) -> tuple[Any, ...]:
 class FakeSession:
     """Minimal asynchronous Gufo session with address-specific failures."""
 
-    calls: list[str] = []
-    failures: dict[str, BaseException] = {}
+    calls: ClassVar[list[str]] = []
+    failures: ClassVar[dict[str, BaseException]] = {}
 
     def __init__(
         self,

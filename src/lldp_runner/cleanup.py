@@ -11,9 +11,9 @@ from __future__ import annotations
 
 import os
 import shutil
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
 from lldp_runner.config import AppConfig
 from lldp_runner.outputs import OUTPUT_NAMES
@@ -157,9 +157,7 @@ def _persistent_area(
             try:
                 _remove_entry(entry)
             except OSError as exc:
-                raise OSError(
-                    f"unable to remove persistent run artifact {entry}: {exc}"
-                ) from exc
+                raise OSError(f"unable to remove persistent run artifact {entry}: {exc}") from exc
         removed.append(entry.name)
 
     return CleanAreaResult(
@@ -253,13 +251,9 @@ def _scratch_area(
             output_root / "latest", expected_parent=output_root
         )
         runs_root = persistent_root / config.paths.runs_dirname
-        run_latest_run_id = _alias_target_name(
-            runs_root / "latest", expected_parent=runs_root
-        )
+        run_latest_run_id = _alias_target_name(runs_root / "latest", expected_parent=runs_root)
         latest_run_ids.update(
-            run_id
-            for run_id in (output_latest_run_id, run_latest_run_id)
-            if run_id is not None
+            run_id for run_id in (output_latest_run_id, run_latest_run_id) if run_id is not None
         )
     if current_run_id is not None:
         known_run_ids.add(current_run_id)
@@ -302,9 +296,7 @@ def _scratch_area(
             try:
                 _remove_entry(entry)
             except OSError as exc:
-                raise OSError(
-                    f"unable to remove scratch run artifact {entry}: {exc}"
-                ) from exc
+                raise OSError(f"unable to remove scratch run artifact {entry}: {exc}") from exc
         removed.append(entry.name)
 
     # Alias names are not candidates for deletion, but mention an existing one in

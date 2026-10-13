@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ipaddress
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import cast
 
@@ -136,7 +137,9 @@ class Classifier:
             re.compile(x) for x in config.classification.managed_endpoint_patterns
         ]
         self.unmanaged_patterns = [re.compile(x) for x in config.classification.unmanaged_patterns]
-        self.managed_manufacturers = {x.casefold() for x in config.classification.managed_manufacturers}
+        self.managed_manufacturers = {
+            x.casefold() for x in config.classification.managed_manufacturers
+        }
 
     def classify_candidate(self, candidate: Candidate) -> ClassificationDecision:
         parsed_addresses: list[ipaddress.IPv4Address | ipaddress.IPv6Address] = []
@@ -288,9 +291,7 @@ class Classifier:
         if rule.category is not None and candidate.category != rule.category:
             return False
         if rule.name_regexes and not any(
-            regex.search(name)
-            for regex in rule.name_regexes
-            for name in candidate.names
+            regex.search(name) for regex in rule.name_regexes for name in candidate.names
         ):
             return False
         if rule.networks and not any(

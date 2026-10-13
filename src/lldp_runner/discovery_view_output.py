@@ -34,7 +34,6 @@ from lldp_runner.terminal_style import (
 from lldp_runner.textutil import safe_output_text
 from lldp_runner.timeutil import format_iso_wall_clock
 
-
 NeighborDirection = str
 
 
@@ -197,9 +196,7 @@ def _graph_entities(document: DiscoveryDocument) -> dict[str, Mapping[str, Any]]
     }
 
 
-def _graph_source_entity_key(
-    document: DiscoveryDocument, host: Mapping[str, Any]
-) -> str | None:
+def _graph_source_entity_key(document: DiscoveryDocument, host: Mapping[str, Any]) -> str | None:
     """Return the logical graph entity containing the selected host projection."""
 
     host_id = host.get("id")
@@ -226,12 +223,15 @@ def _graph_relationship_groups(
         return []
     graph = _topology_graph(document)
     values = graph.get("relationship_groups", [])
-    groups = [
-        item
-        for item in values
-        if isinstance(item, Mapping)
-        and item.get("source_entity_key") == source_key
-    ] if isinstance(values, list) else []
+    groups = (
+        [
+            item
+            for item in values
+            if isinstance(item, Mapping) and item.get("source_entity_key") == source_key
+        ]
+        if isinstance(values, list)
+        else []
+    )
     return sorted(
         groups,
         key=lambda item: (
@@ -244,9 +244,7 @@ def _graph_relationship_groups(
     )
 
 
-def _graph_management(
-    member: Mapping[str, Any], entities: Mapping[str, Mapping[str, Any]]
-) -> str:
+def _graph_management(member: Mapping[str, Any], entities: Mapping[str, Mapping[str, Any]]) -> str:
     """Select one management address from the remote graph entity."""
 
     entity = entities.get(str(member.get("remote_entity_key") or ""), {})
@@ -261,7 +259,9 @@ def _graph_protocol_text(member: Mapping[str, Any], *, code: str | None) -> str:
     """Return deterministic protocol text, optionally prefixed by a view label."""
 
     values = member.get("protocols", [])
-    protocol = ",".join(str(value) for value in values) if isinstance(values, list) else str(values or "-")
+    protocol = (
+        ",".join(str(value) for value in values) if isinstance(values, list) else str(values or "-")
+    )
     multiplicity = member.get("multiplicity")
     if isinstance(multiplicity, int) and multiplicity > 1:
         protocol = f"{protocol} x{multiplicity}"
@@ -276,11 +276,15 @@ def _graph_rows(
 
     graph = _topology_graph(document)
     values = graph.get("relationships", [])
-    relationship_by_key = {
-        str(item["relationship_key"]): item
-        for item in values
-        if isinstance(item, Mapping) and item.get("relationship_key")
-    } if isinstance(values, list) else {}
+    relationship_by_key = (
+        {
+            str(item["relationship_key"]): item
+            for item in values
+            if isinstance(item, Mapping) and item.get("relationship_key")
+        }
+        if isinstance(values, list)
+        else {}
+    )
     rows: list[tuple[Mapping[str, Any], Mapping[str, Any]]] = []
     for group in groups:
         keys = group.get("relationship_keys")
@@ -294,9 +298,7 @@ def _graph_rows(
         # remains responsible for rejecting incompatible formal input.
         members = group.get("members", [])
         if isinstance(members, list):
-            rows.extend(
-                (group, member) for member in members if isinstance(member, Mapping)
-            )
+            rows.extend((group, member) for member in members if isinstance(member, Mapping))
     return rows
 
 
@@ -328,17 +330,9 @@ def _append_graph_relationship_tables(
         width,
         configured_local=config.output.neighbor_local_width,
         configured_remote_port=config.output.neighbor_remote_port_width,
-        local_values=(
-            _one_line(group.get("local_interface"))
-            for group, _member in rows
-        ),
-        remote_port_values=(
-            _one_line(member.get("remote_interface"))
-            for _group, member in rows
-        ),
-        management_values=(
-            _graph_management(member, entities) for _group, member in rows
-        ),
+        local_values=(_one_line(group.get("local_interface")) for group, _member in rows),
+        remote_port_values=(_one_line(member.get("remote_interface")) for _group, member in rows),
+        management_values=(_graph_management(member, entities) for _group, member in rows),
     )
 
     def append_rows(
@@ -369,12 +363,12 @@ def _append_graph_relationship_tables(
             "Relationship labels: A=observed relationship, V=shared-chassis logical "
             "member, O=overlay, M=multiple-neighbor discrepancy"
         )
-        lines.append(_neighbor_header(widths, label="Graph", label_style=styles.learned, color=color))
+        lines.append(
+            _neighbor_header(widths, label="Graph", label_style=styles.learned, color=color)
+        )
         lines.append("-" * widths.table)
         for classification in _GRAPH_SECTION_ORDER:
-            selected = [
-                row for row in rows if row[0].get("classification") == classification
-            ]
+            selected = [row for row in rows if row[0].get("classification") == classification]
             if not selected:
                 continue
             code = _GRAPH_SECTION_META[classification][0]
@@ -478,9 +472,7 @@ def _neighbor_row(
     style = styles.learned if direction == "learned" else styles.observed_by
     return format_neighbor_row(
         widths,
-        local=_one_line(
-            neighbor.get("local_interface") or neighbor.get("local_interface_raw")
-        ),
+        local=_one_line(neighbor.get("local_interface") or neighbor.get("local_interface_raw")),
         protocol=_protocol_text(neighbor),
         neighbor=_one_line(neighbor.get("name") or "unknown"),
         remote_port=_one_line(
@@ -553,26 +545,18 @@ def _append_compatibility_neighbor_table(
     """Append selected learned/observed_by sections using shared width planning."""
 
     sections = selected_neighbor_sections(host, neighbor_mode)
-    selected_rows = [
-        (direction, neighbor)
-        for direction, values in sections
-        for neighbor in values
-    ]
+    selected_rows = [(direction, neighbor) for direction, values in sections for neighbor in values]
     selected_neighbors = [neighbor for _direction, neighbor in selected_rows]
     widths = plan_neighbor_widths(
         width,
         configured_local=config.output.neighbor_local_width,
         configured_remote_port=config.output.neighbor_remote_port_width,
         local_values=(
-            _one_line(
-                neighbor.get("local_interface") or neighbor.get("local_interface_raw")
-            )
+            _one_line(neighbor.get("local_interface") or neighbor.get("local_interface_raw"))
             for neighbor in selected_neighbors
         ),
         remote_port_values=(
-            _one_line(
-                neighbor.get("remote_interface") or neighbor.get("remote_interface_raw")
-            )
+            _one_line(neighbor.get("remote_interface") or neighbor.get("remote_interface_raw"))
             for neighbor in selected_neighbors
         ),
         management_values=(
@@ -601,9 +585,7 @@ def _append_compatibility_neighbor_table(
         if labeled or neighbor_mode == "both":
             label = "Learned" if direction == "learned" else "Observed_by"
         style = styles.learned if direction == "learned" else styles.observed_by
-        lines.append(
-            _neighbor_header(widths, label=label, label_style=style, color=color)
-        )
+        lines.append(_neighbor_header(widths, label=label, label_style=style, color=color))
         lines.append("-" * widths.table)
         for neighbor in neighbors:
             lines.append(
@@ -619,7 +601,6 @@ def _append_compatibility_neighbor_table(
         if not neighbors:
             label_text = "learned" if direction == "learned" else "observed_by"
             lines.append(f"No {label_text} neighbors are available")
-
 
 
 def _append_neighbor_table(
@@ -676,6 +657,7 @@ def _append_neighbor_table(
         width=width,
         styles=styles,
     )
+
 
 def render_table(
     config: AppConfig,
@@ -773,9 +755,7 @@ def render_detail(
         for key, value in host.items()
         if key not in {"system", "snmp", "icmp", "learned_neighbors", "observed_by_neighbors"}
     }
-    _append_mapping_details(
-        lines, "Host details", base, color=color, width=width, styles=styles
-    )
+    _append_mapping_details(lines, "Host details", base, color=color, width=width, styles=styles)
     system = _system(host)
     if system:
         _append_mapping_details(
@@ -941,8 +921,7 @@ def render_ambiguous_matches(hosts: Sequence[Mapping[str, Any]]) -> str:
     lines.append(f"{'-' * id_width}  {'-' * 40}")
     for host in hosts:
         lines.append(
-            f"{str(host.get('id', '-')):>{id_width}}  "
-            f"{_one_line(host.get('preferred_name'))}"
+            f"{host.get('id', '-')!s:>{id_width}}  {_one_line(host.get('preferred_name'))}"
         )
     return "\n".join(lines)
 

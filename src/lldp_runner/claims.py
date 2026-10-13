@@ -140,9 +140,7 @@ def candidate_claims(candidate: Candidate, *, is_seed: bool = False) -> list[Ide
     claims: list[IdentityClaim] = []
     direct_names = list(
         dict.fromkeys(
-            candidate.identity_names
-            if candidate.identity_names is not None
-            else candidate.names
+            candidate.identity_names if candidate.identity_names is not None else candidate.names
         )
     )
     all_names = list(dict.fromkeys(candidate.names))
@@ -277,11 +275,7 @@ def candidate_claims(candidate: Candidate, *, is_seed: bool = False) -> list[Ide
                 raw_value=raw_address,
                 normalized_value=normalized,
                 provenance=(
-                    "seed"
-                    if is_seed
-                    else "direct_protocol"
-                    if direct
-                    else "dns_enrichment"
+                    "seed" if is_seed else "direct_protocol" if direct else "dns_enrichment"
                 ),
                 scope="global" if direct or is_seed else "diagnostic",
                 strength="weak",

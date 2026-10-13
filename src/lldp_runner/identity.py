@@ -11,16 +11,11 @@ from typing import TYPE_CHECKING
 
 from lldp_runner.models import SeedInput
 
-
 _IPV4_THIS_NETWORK = ipaddress.ip_network("0.0.0.0/8")
 _IPV4_RESERVED_FUTURE = ipaddress.ip_network("240.0.0.0/4")
 _CISCO_SEP_HOST = re.compile(r"^sep(?P<mac>[0-9a-f]{12})$")
-_CISCO_AP_HOST = re.compile(
-    r"^ap(?P<mac>(?:[0-9a-f]{12}|[0-9a-f]{4}\.[0-9a-f]{4}\.[0-9a-f]{4}))$"
-)
-_ADVERTISED_SERIAL_SUFFIX = re.compile(
-    r"^(?P<base>.+?)\((?P<serial>[A-Za-z0-9]{6,32})\)$"
-)
+_CISCO_AP_HOST = re.compile(r"^ap(?P<mac>(?:[0-9a-f]{12}|[0-9a-f]{4}\.[0-9a-f]{4}\.[0-9a-f]{4}))$")
+_ADVERTISED_SERIAL_SUFFIX = re.compile(r"^(?P<base>.+?)\((?P<serial>[A-Za-z0-9]{6,32})\)$")
 _IDENTITY_NAME_SENTINELS = frozenset(
     {
         "-",
@@ -109,14 +104,10 @@ def weak_mobility_mac(value: str | None) -> bool:
     if value is None:
         return True
     compact = value.strip().lower().replace(":", "").replace("-", "").replace(".", "")
-    if len(compact) != 12 or any(
-        character not in "0123456789abcdef" for character in compact
-    ):
+    if len(compact) != 12 or any(character not in "0123456789abcdef" for character in compact):
         return True
     first_octet = int(compact[:2], 16)
-    nonzero_octets = sum(
-        compact[index : index + 2] != "00" for index in range(0, 12, 2)
-    )
+    nonzero_octets = sum(compact[index : index + 2] != "00" for index in range(0, 12, 2))
     return (
         compact == "000000000000"
         or nonzero_octets <= 2
@@ -478,17 +469,13 @@ def _trace_getfqdn(name: str, *, trace: SnmpTrace | None, source: str) -> str:
         canonical = socket.getfqdn(name).rstrip(".")
     except OSError as exc:
         if trace is not None and number is not None:
-            trace.resolver_no_response(
-                number, f"{exc.__class__.__name__}: {exc}"
-            )
+            trace.resolver_no_response(number, f"{exc.__class__.__name__}: {exc}")
         raise
     if trace is not None and number is not None:
         if canonical:
             trace.resolver_response(number, [("Canonical", canonical)])
         else:
-            trace.resolver_no_response(
-                number, "resolver returned an empty canonical name"
-            )
+            trace.resolver_no_response(number, "resolver returned an empty canonical name")
     return canonical
 
 
@@ -515,9 +502,9 @@ def resolve_seed(
         address = normalize_host_address(original)
         names: list[str] = []
         try:
-            reverse = _trace_gethostbyaddr(
-                address, trace=trace, source="input IP reverse lookup"
-            )[0]
+            reverse = _trace_gethostbyaddr(address, trace=trace, source="input IP reverse lookup")[
+                0
+            ]
             if reverse:
                 names.append(reverse.rstrip("."))
         except OSError:
@@ -674,8 +661,7 @@ def chassis_identity_value(
     if chassis_id_subtype_id == 4 or subtype_name == "mac_address":
         parts = value.lower().replace("-", ":").split(":")
         if len(parts) != 6 or any(
-            len(part) != 2 or any(ch not in "0123456789abcdef" for ch in part)
-            for part in parts
+            len(part) != 2 or any(ch not in "0123456789abcdef" for ch in part) for part in parts
         ):
             return None
         value = ":".join(parts)

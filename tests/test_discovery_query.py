@@ -187,7 +187,7 @@ def _config(tmp_path: Path):
     config_path.write_text(
         f'''[paths]
 persistent_root = "{tmp_path}"
-scratch_root = "{tmp_path / 'scratch'}"
+scratch_root = "{tmp_path / "scratch"}"
 
 [logging]
 console = false
@@ -440,9 +440,7 @@ def test_show_neighbors_timestamp_uses_json_time_and_right_aligns(
     assert table.splitlines()[0].endswith(expected)
     assert detail.splitlines()[0].endswith(expected)
     assert len(table.splitlines()[0]) == 100
-    assert csv_text.splitlines()[0].endswith(
-        "state=complete,timestamp=2026-08-25 15:52:26"
-    )
+    assert csv_text.splitlines()[0].endswith("state=complete,timestamp=2026-08-25 15:52:26")
     assert "Neighbor 1" in detail
 
 
@@ -505,9 +503,7 @@ def test_show_neighbors_terminal_colors_are_configurable(tmp_path: Path) -> None
     assert "\x1b[1m\x1b[31mObserved_by" in rendered
 
 
-def test_show_neighbors_table_shares_dynamic_interface_widths(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_show_neighbors_table_shares_dynamic_interface_widths(tmp_path: Path, monkeypatch) -> None:
     """show-neighbors uses the same configured/dynamic width policy as probing."""
 
     _write_discovery(tmp_path)
@@ -623,15 +619,12 @@ def test_show_neighbors_detail_with_neighbors_receives_effective_config(
     """Detail rendering with neighbors must not reference an unbound config."""
 
     _write_discovery(tmp_path)
-    show_neighbors_main(
-        ["--persistent-root", str(tmp_path), "--id", "1", "--detail"]
-    )
+    show_neighbors_main(["--persistent-root", str(tmp_path), "--id", "1", "--detail"])
 
     output = capsys.readouterr().out
     assert "LLDP-Runner discovery record" in output
     assert "Neighbor 1" in output
     assert "Remote port:" not in output  # Stored detail uses persisted key names.
-
 
 
 def test_graph_relationship_views_are_sectioned_or_combined(tmp_path: Path) -> None:
@@ -745,6 +738,7 @@ def test_cli_relationship_view_overrides_configuration(tmp_path: Path, capsys) -
     )
     assert "LLDP-Runner discovery record" in capsys.readouterr().out
 
+
 def test_lldp_runner_show_neighbors_supports_combined_filters(tmp_path: Path, capsys) -> None:
     """The main CLI subcommand shares the standalone show-neighbors query contract."""
 
@@ -845,9 +839,7 @@ def test_viewer_source_options_are_exclusive_and_runid_is_one_component(
     assert "one non-empty path component" in capsys.readouterr().err
 
 
-def test_file_source_does_not_require_persistent_root_to_exist(
-    tmp_path: Path, capsys
-) -> None:
+def test_file_source_does_not_require_persistent_root_to_exist(tmp_path: Path, capsys) -> None:
     """An exported discovery file is usable independently of persistent storage."""
 
     source_root = tmp_path / "source"

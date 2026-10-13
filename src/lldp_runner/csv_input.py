@@ -14,9 +14,10 @@ predictable for Network Operations.
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator, Sequence
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,8 +115,7 @@ def _apply_field_bounds(
         if max_fields is not None:
             expected.append(f"maximum {max_fields}")
         raise CsvInputError(
-            f"CSV {path}:{line_number}: field count {count} violates "
-            + " and ".join(expected)
+            f"CSV {path}:{line_number}: field count {count} violates " + " and ".join(expected)
         )
     if above and drop_extra_fields and max_fields is not None:
         return values[:max_fields]
@@ -178,9 +178,7 @@ def _iter_active_lines(
                 if any(stripped.startswith(prefix) for prefix in comment_prefixes):
                     continue
                 if "\x00" in text:
-                    raise CsvInputError(
-                        f"CSV {path}:{line_number}: NUL input is not supported"
-                    )
+                    raise CsvInputError(f"CSV {path}:{line_number}: NUL input is not supported")
                 yield line_number, text
         except UnicodeError as exc:
             raise CsvInputError(f"CSV {path}: invalid {encoding} input: {exc}") from exc
@@ -246,12 +244,10 @@ def iter_csv_rows(
         header_line, header_text = next(active)
     except StopIteration:
         if requested and error_on_missing_fields:
-            raise CsvInputError(f"CSV {path}: no header record was found")
+            raise CsvInputError(f"CSV {path}: no header record was found") from None
         return
 
-    header = _parse_physical_record(
-        path, header_line, header_text, delimiter=delimiter
-    )
+    header = _parse_physical_record(path, header_line, header_text, delimiter=delimiter)
     if ascii_only:
         _check_ascii(path, header_line, header)
     header = _apply_field_bounds(
@@ -266,9 +262,7 @@ def iter_csv_rows(
 
     if any(not name for name in header):
         raise CsvInputError(f"CSV {path}:{header_line}: header contains a blank field name")
-    header_keys = [
-        _match_key(name, case_sensitive=case_sensitive_headers) for name in header
-    ]
+    header_keys = [_match_key(name, case_sensitive=case_sensitive_headers) for name in header]
     if len(set(header_keys)) != len(header_keys):
         seen: set[str] = set()
         duplicates: list[str] = []
@@ -277,8 +271,7 @@ def iter_csv_rows(
                 duplicates.append(name)
             seen.add(key)
         raise CsvInputError(
-            f"CSV {path}:{header_line}: duplicate header field(s): "
-            + ", ".join(duplicates)
+            f"CSV {path}:{header_line}: duplicate header field(s): " + ", ".join(duplicates)
         )
 
     header_index = {key: index for index, key in enumerate(header_keys)}
@@ -297,8 +290,7 @@ def iter_csv_rows(
             selected.append((name, index))
         if missing and error_on_missing_fields:
             raise CsvInputError(
-                f"CSV {path}:{header_line}: missing expected header field(s): "
-                + ", ".join(missing)
+                f"CSV {path}:{header_line}: missing expected header field(s): " + ", ".join(missing)
             )
 
     header_width = len(header)

@@ -49,9 +49,7 @@ _NEIGHBOR_COLLECTOR_FAMILIES = {
     "lldpv2": "lldp",
     "cdp": "cdp",
 }
-_NEIGHBOR_COLLECTOR_FAMILY_NAMES = frozenset(
-    _NEIGHBOR_COLLECTOR_FAMILIES.values()
-)
+_NEIGHBOR_COLLECTOR_FAMILY_NAMES = frozenset(_NEIGHBOR_COLLECTOR_FAMILIES.values())
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,9 +70,7 @@ class SnmpAccessRestrictedError(PermissionError):
         self.oids = oids
         self.detail = detail
         target = ", ".join(oids) if oids else "requested OID"
-        super().__init__(
-            f"SNMP access restriction during {operation} for {target}: {detail}"
-        )
+        super().__init__(f"SNMP access restriction during {operation} for {target}: {detail}")
 
 
 def is_snmp_timeout(exc: BaseException) -> bool:
@@ -97,9 +93,7 @@ def is_snmp_timeout(exc: BaseException) -> bool:
 def _compact_access_text(value: object) -> str:
     """Return lowercase alphanumeric text for an SNMP status comparison."""
 
-    return "".join(
-        character for character in str(value).casefold() if character.isalnum()
-    )
+    return "".join(character for character in str(value).casefold() if character.isalnum())
 
 
 def _exception_access_marker(value: BaseException) -> str | None:
@@ -224,20 +218,13 @@ class AdaptiveSnmpState:
         if structural_table_retry > retry_total_cap:
             raise ValueError("SNMP structural_table_retry exceeds retry_total_cap")
         if retry_per_collector > retry_total_cap + retry_neighbor_reserve:
-            raise ValueError(
-                "SNMP retry_per_collector exceeds shared cap plus "
-                "neighbor reserve"
-            )
+            raise ValueError("SNMP retry_per_collector exceeds shared cap plus neighbor reserve")
         if timeout_multiplier <= 1:
             raise ValueError("SNMP retry timeout multiplier must be greater than 1")
         if not 0 < max_repetitions_multiplier < 1:
-            raise ValueError(
-                "SNMP retry max-repetitions multiplier must be between 0 and 1"
-            )
+            raise ValueError("SNMP retry max-repetitions multiplier must be between 0 and 1")
         if not 1 <= min_max_repetitions <= max_repetitions:
-            raise ValueError(
-                "SNMP retry minimum max_repetitions is outside the configured range"
-            )
+            raise ValueError("SNMP retry minimum max_repetitions is outside the configured range")
         if retry_inter_pdu_delay_ms < 0:
             raise ValueError("SNMP retry inter-PDU delay cannot be negative")
 
@@ -348,15 +335,11 @@ class AdaptiveSnmpState:
     ) -> str | None:
         """Explain which normal retry boundary rejected an operation."""
 
-        if (
-            self.operation_retry_counts.get(operation_key, 0)
-            >= self._retry_limit(retry_kind)
-        ):
+        if self.operation_retry_counts.get(operation_key, 0) >= self._retry_limit(retry_kind):
             return "operation_retry_limit"
         if (
             collector_family != "unscoped"
-            and self.collector_retry_counts.get(collector_family, 0)
-            >= self.retry_per_collector
+            and self.collector_retry_counts.get(collector_family, 0) >= self.retry_per_collector
         ):
             return "collector_retry_limit"
         if self._normal_retry_pool(collector_family) is None:
@@ -393,17 +376,11 @@ class AdaptiveSnmpState:
         self.timeout_seconds *= self.timeout_multiplier
         self.max_repetitions = max(
             self.min_max_repetitions,
-            int(
-                math.ceil(
-                    self.max_repetitions * self.max_repetitions_multiplier
-                )
-            ),
+            math.ceil(self.max_repetitions * self.max_repetitions_multiplier),
         )
         self.inter_pdu_delay_ms += self.retry_inter_pdu_delay_ms
         current_interval_ms = 1000.0 / old_rps
-        self.per_device_rps = 1000.0 / (
-            current_interval_ms + self.retry_inter_pdu_delay_ms
-        )
+        self.per_device_rps = 1000.0 / (current_interval_ms + self.retry_inter_pdu_delay_ms)
         self._degraded = True
 
     def consume_retry(
@@ -443,9 +420,7 @@ class AdaptiveSnmpState:
         self._apply_degraded_profile_once()
         per_operation_count = self.operation_retry_counts.get(operation_key, 0) + 1
         self.operation_retry_counts[operation_key] = per_operation_count
-        per_collector_count = (
-            self.collector_retry_counts.get(collector_family, 0) + 1
-        )
+        per_collector_count = self.collector_retry_counts.get(collector_family, 0) + 1
         self.collector_retry_counts[collector_family] = per_collector_count
         if retry_pool == "neighbor_reserve":
             self.neighbor_reserve_used += 1
@@ -508,14 +483,15 @@ class AdaptiveSnmpState:
 
         collector_family = self.collector_family(collector)
         per_operation_count = self.operation_retry_counts.get(operation_key, 0)
-        per_collector_count = self.collector_retry_counts.get(
-            collector_family, 0
+        per_collector_count = self.collector_retry_counts.get(collector_family, 0)
+        reason = (
+            self._normal_retry_unavailable_reason(
+                operation_key,
+                retry_kind=retry_kind,
+                collector_family=collector_family,
+            )
+            or "retry_unavailable"
         )
-        reason = self._normal_retry_unavailable_reason(
-            operation_key,
-            retry_kind=retry_kind,
-            collector_family=collector_family,
-        ) or "retry_unavailable"
         event = SnmpRetryEvent(
             sequence=len(self.events) + 1,
             target=self.target,
@@ -585,9 +561,7 @@ class AdaptiveSnmpState:
         self.stability_retry_counts[collector_key] = 1
         self.stability_retries_used += 1
         self.total_retries_used += 1
-        per_collector_count = (
-            self.collector_retry_counts.get(collector_family, 0) + 1
-        )
+        per_collector_count = self.collector_retry_counts.get(collector_family, 0) + 1
         event = SnmpRetryEvent(
             sequence=len(self.events) + 1,
             target=self.target,
@@ -648,9 +622,7 @@ class AdaptiveSnmpState:
             neighbor_reserve_used=self.neighbor_reserve_used,
             stability_retries_used=self.stability_retries_used,
             collector_retry_counts=dict(sorted(self.collector_retry_counts.items())),
-            stability_retry_counts=dict(
-                sorted(self.stability_retry_counts.items())
-            ),
+            stability_retry_counts=dict(sorted(self.stability_retry_counts.items())),
         )
 
 
@@ -740,7 +712,7 @@ class AdaptiveSnmpClient:
             f"{self._operation_sequence}"
         )
 
-    async def __aenter__(self) -> "AdaptiveSnmpClient":
+    async def __aenter__(self) -> AdaptiveSnmpClient:
         operation_key = self._new_operation_key("SESSION-OPEN", None, "transport")
         try:
             await self._open()
@@ -771,9 +743,7 @@ class AdaptiveSnmpClient:
                 detail = snmp_access_restriction_detail(retry_exc)
                 if detail is not None:
                     self._log_access_restriction("SESSION-OPEN", (), detail)
-                    raise SnmpAccessRestrictedError(
-                        "SESSION-OPEN", (), detail
-                    ) from retry_exc
+                    raise SnmpAccessRestrictedError("SESSION-OPEN", (), detail) from retry_exc
                 raise
             else:
                 event.final_outcome = "succeeded"
@@ -848,9 +818,7 @@ class AdaptiveSnmpClient:
             detail = snmp_access_restriction_detail(reopen_exc)
             if detail is not None:
                 self._log_access_restriction(logical_operation, (), detail)
-                raise SnmpAccessRestrictedError(
-                    logical_operation, (), detail
-                ) from reopen_exc
+                raise SnmpAccessRestrictedError(logical_operation, (), detail) from reopen_exc
             raise
 
     async def _prepare_retry(
@@ -1034,8 +1002,7 @@ class AdaptiveSnmpClient:
         )
         if event is None:
             LOG.warning(
-                "SNMP target=%s stability retry unavailable collector=%s "
-                "operation=%s category=%s",
+                "SNMP target=%s stability retry unavailable collector=%s operation=%s category=%s",
                 self.address,
                 context.collector,
                 operation,
@@ -1068,9 +1035,7 @@ class AdaptiveSnmpClient:
             raise
         return True
 
-    def _log_access_restriction(
-        self, operation: str, oids: tuple[str, ...], detail: str
-    ) -> None:
+    def _log_access_restriction(self, operation: str, oids: tuple[str, ...], detail: str) -> None:
         LOG.error(
             "SNMP target=%s access restriction operation=%s oids=%s detail=%s",
             self.address,
@@ -1132,13 +1097,9 @@ class AdaptiveSnmpClient:
                 event.final_outcome = "failed"
                 event.outcome_type = retry_exc.__class__.__name__
                 detail = snmp_access_restriction_detail(retry_exc)
-                if detail is not None and not isinstance(
-                    retry_exc, SnmpAccessRestrictedError
-                ):
+                if detail is not None and not isinstance(retry_exc, SnmpAccessRestrictedError):
                     self._log_access_restriction(operation, oids, detail)
-                    raise SnmpAccessRestrictedError(
-                        operation, oids, detail
-                    ) from retry_exc
+                    raise SnmpAccessRestrictedError(operation, oids, detail) from retry_exc
                 raise
             else:
                 event.final_outcome = "succeeded"
@@ -1163,7 +1124,7 @@ class AdaptiveSnmpClient:
             return await client.get_many(list(requested))
         chunk_size = max(
             1,
-            int(math.ceil(len(requested) * self.state.max_repetitions_multiplier)),
+            math.ceil(len(requested) * self.state.max_repetitions_multiplier),
         )
         result: dict[str, object] = {}
         for index in range(0, len(requested), chunk_size):

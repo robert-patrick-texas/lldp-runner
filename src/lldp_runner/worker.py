@@ -22,8 +22,8 @@ from lldp_runner.collectors.cdp import (
 from lldp_runner.collectors.entity import enrich_system_from_entity_mib
 from lldp_runner.collectors.interfaces import InterfaceCollectionError, collect_interfaces
 from lldp_runner.collectors.lldp import (
-    LLDPV2_REM_ENTRY,
     LLDP_REM_ENTRY,
+    LLDPV2_REM_ENTRY,
     LldpSnapshotIncompleteError,
     collect_lldp,
     collect_lldpv2,
@@ -194,11 +194,7 @@ def _backend_error(exc: BaseException) -> SnmpBackendError | None:
     """Return phase metadata carried by the project-owned SNMP boundary."""
 
     return next(
-        (
-            current
-            for current in _exception_chain(exc)
-            if isinstance(current, SnmpBackendError)
-        ),
+        (current for current in _exception_chain(exc) if isinstance(current, SnmpBackendError)),
         None,
     )
 
@@ -253,10 +249,7 @@ def _safe_exception_message(
     """Render the original backend exception while redacting credential values."""
 
     original = _original_exception(exc)
-    qualified = (
-        f"{original.__class__.__module__}."
-        f"{original.__class__.__qualname__}"
-    )
+    qualified = f"{original.__class__.__module__}.{original.__class__.__qualname__}"
     message = _redact_exception_text(original, credential)
     return f"{qualified}: {message}" if message else qualified
 
@@ -310,10 +303,7 @@ def _worker_error(
     exception_strerror: str | None = None
     exception_args: list[str] = []
     if original is not None:
-        exception_type = (
-            f"{original.__class__.__module__}."
-            f"{original.__class__.__qualname__}"
-        )
+        exception_type = f"{original.__class__.__module__}.{original.__class__.__qualname__}"
         raw_errno = getattr(original, "errno", None)
         if isinstance(raw_errno, int) and not isinstance(raw_errno, bool):
             exception_errno = raw_errno
@@ -477,9 +467,7 @@ def _merge_subtable_coverage(
         replacement = copy.deepcopy(value)
         replacement.attempts += previous.attempts
         replacement.object_count += previous.object_count
-        replacement.duration_ms = round(
-            previous.duration_ms + replacement.duration_ms, 3
-        )
+        replacement.duration_ms = round(previous.duration_ms + replacement.duration_ms, 3)
         merged[name] = replacement
     return merged
 
@@ -495,13 +483,13 @@ def _publish_subtable_coverage(
         return
     if values is not None:
         try:
-            setattr(values, "subtable_coverage", dict(coverage))
+            setattr(values, "subtable_coverage", dict(coverage))  # noqa: B010 - ty: values may be None
             return
         except (AttributeError, TypeError):
             pass
     if exc is not None:
         try:
-            setattr(exc, "lldp_subtable_coverage", dict(coverage))
+            setattr(exc, "lldp_subtable_coverage", dict(coverage))  # noqa: B010 - ty: dynamic attribute on exception
         except (AttributeError, TypeError):
             pass
 
@@ -563,9 +551,7 @@ async def _collect_neighbor_protocol(
                 # LLDP results are list subclasses so retain their attached
                 # coverage. Generic collectors are normalized to a plain list.
                 normalized_values = values if isinstance(values, list) else list(values)
-                _publish_subtable_coverage(
-                    normalized_values, None, subtable_coverage
-                )
+                _publish_subtable_coverage(normalized_values, None, subtable_coverage)
                 return normalized_values, None, attempt
             except Exception as exc:
                 subtable_coverage = _merge_subtable_coverage(
@@ -620,11 +606,7 @@ async def _collect_neighbor_protocol(
                     exc=exc,
                     active_event=active_retry_event,
                 )
-                log = (
-                    LOG.error
-                    if category == "snmp_access_restricted"
-                    else LOG.warning
-                )
+                log = LOG.error if category == "snmp_access_restricted" else LOG.warning
                 log(
                     "SNMP target=%s neighbor collector failed "
                     "operation=%s category=%s attempt=%d type=%s",
@@ -661,9 +643,7 @@ async def _collect_interface_map(
                 values = await _measured_collection(
                     "interfaces", metrics_result, client, collect_interfaces
                 )
-                attempt = _collector_attempt_count(
-                    adaptive_client, event_start, "interfaces"
-                )
+                attempt = _collector_attempt_count(adaptive_client, event_start, "interfaces")
                 _finish_pending_retry_event(
                     adaptive_client,
                     event_start,
@@ -693,16 +673,13 @@ async def _collect_interface_map(
                                 adaptive_client, event_start, "interfaces"
                             )
                             LOG.info(
-                                "SNMP target=%s interface collector restart "
-                                "category=%s attempt=%d",
+                                "SNMP target=%s interface collector restart category=%s attempt=%d",
                                 target,
                                 category,
                                 attempt,
                             )
                             continue
-                attempt = _collector_attempt_count(
-                    adaptive_client, event_start, "interfaces"
-                )
+                attempt = _collector_attempt_count(adaptive_client, event_start, "interfaces")
                 _finish_pending_retry_event(
                     adaptive_client,
                     event_start,
@@ -710,14 +687,9 @@ async def _collect_interface_map(
                     outcome="failed",
                     exc=exc,
                 )
-                log = (
-                    LOG.error
-                    if category == "snmp_access_restricted"
-                    else LOG.warning
-                )
+                log = LOG.error if category == "snmp_access_restricted" else LOG.warning
                 log(
-                    "SNMP target=%s interface collector failed "
-                    "category=%s attempt=%d type=%s",
+                    "SNMP target=%s interface collector failed category=%s attempt=%d type=%s",
                     target,
                     category,
                     attempt,
@@ -895,9 +867,7 @@ class _BasicState:
 
         route = self._adaptive_route_key(resolved)
         if self._last_adaptive_state is None or self._last_adaptive_route != route:
-            self._last_adaptive_state = create_adaptive_snmp_state(
-                config, resolved.address
-            )
+            self._last_adaptive_state = create_adaptive_snmp_state(config, resolved.address)
             self._last_adaptive_route = route
         self._last_adaptive_state.set_route_context(
             credential_route="|".join(
@@ -960,9 +930,7 @@ class _BasicState:
                 raise RuntimeError("target attempt has neither profile nor direct credential")
             profile = config.credential_profiles[target.credential_profile]
             limit = (
-                profile.primary_attempts
-                if self.stage == "primary"
-                else profile.fallback_attempts
+                profile.primary_attempts if self.stage == "primary" else profile.fallback_attempts
             )
             if self.attempt < limit:
                 self.attempt += 1
@@ -1061,12 +1029,12 @@ async def _basic_wavefront(
     ]
     semaphore = asyncio.Semaphore(config.snmp.max_outstanding_devices_per_worker)
     pinger = (
-        AsyncIcmpPinger(config.icmp)
-        if trace is None
-        else AsyncIcmpPinger(config.icmp, trace=trace)
+        AsyncIcmpPinger(config.icmp) if trace is None else AsyncIcmpPinger(config.icmp, trace=trace)
     )
 
-    async def one_attempt(state: _BasicState) -> tuple[_BasicState, SystemDetails | None, BaseException | None]:
+    async def one_attempt(
+        state: _BasicState,
+    ) -> tuple[_BasicState, SystemDetails | None, BaseException | None]:
         """Execute one SYSTEM-MIB attempt for a wavefront state.
 
         Args:
@@ -1126,8 +1094,7 @@ async def _basic_wavefront(
                             collect_basic_system,
                         )
                 LOG.debug(
-                    "SNMP target=%s basic success "
-                    "profile=%s stage=%s attempt=%d",
+                    "SNMP target=%s basic success profile=%s stage=%s attempt=%d",
                     address,
                     resolved.profile_name or resolved.credential_source,
                     resolved.credential_result,
@@ -1202,9 +1169,7 @@ async def _basic_wavefront(
                 completed_route = state._adaptive_route_key(resolved)
                 state.advance(config)
                 next_route = (
-                    None
-                    if state.exhausted
-                    else state._adaptive_route_key(state.current(config))
+                    None if state.exhausted else state._adaptive_route_key(state.current(config))
                 )
                 if next_route != completed_route:
                     telemetry = state.take_adaptive_telemetry()
@@ -1312,17 +1277,14 @@ async def _run_delayed_neighbor_stability_pass(
 
     if not config.snmp.neighbor_stability_retry or adaptive_client is None:
         return
-    eligible = [
-        outcome for outcome in outcomes if _stability_retry_eligible(outcome.exc)
-    ]
+    eligible = [outcome for outcome in outcomes if _stability_retry_eligible(outcome.exc)]
     if not eligible:
         return
 
     delay_seconds = float(config.snmp.neighbor_stability_retry_delay_seconds)
     operations = ",".join(outcome.spec.operation for outcome in eligible)
     LOG.info(
-        "SNMP target=%s delayed neighbor stability window operations=%s "
-        "delay_seconds=%.3f",
+        "SNMP target=%s delayed neighbor stability window operations=%s delay_seconds=%.3f",
         target,
         operations,
         delay_seconds,
@@ -1332,11 +1294,7 @@ async def _run_delayed_neighbor_stability_pass(
 
     for outcome in eligible:
         spec = outcome.spec
-        category = (
-            _error_category(outcome.exc)
-            if outcome.exc is not None
-            else "failed"
-        )
+        category = _error_category(outcome.exc) if outcome.exc is not None else "failed"
         next_attempt = outcome.attempts + 1
         with _adaptive_collection_context(
             adaptive_client,
@@ -1402,8 +1360,7 @@ def _record_neighbor_outcome(
     unresolved = _unresolved_local_interface_count(outcome.values)
     if unresolved:
         LOG.warning(
-            "SNMP target=%s local-interface resolution incomplete "
-            "operation=%s rows=%d attempt=%d",
+            "SNMP target=%s local-interface resolution incomplete operation=%s rows=%d attempt=%d",
             target,
             spec.operation,
             unresolved,
@@ -1438,8 +1395,7 @@ def _record_neighbor_outcome(
         if incomplete_subtables:
             aggregate_status = "partial"
             aggregate_message = "; ".join(
-                f"{name}={coverage.status}"
-                + (f": {coverage.message}" if coverage.message else "")
+                f"{name}={coverage.status}" + (f": {coverage.message}" if coverage.message else "")
                 for name, coverage in incomplete_subtables
             )
     _set_collection_coverage(
@@ -1505,9 +1461,7 @@ async def _collect_detail(
 
     observations: list[Any] = []
     credential = basic.credential
-    adaptive_state = basic.adaptive_state or create_adaptive_snmp_state(
-        config, basic.address
-    )
+    adaptive_state = basic.adaptive_state or create_adaptive_snmp_state(config, basic.address)
     adaptive_state.set_route_context(
         credential_route="|".join(
             (
@@ -1530,9 +1484,7 @@ async def _collect_detail(
             # Project backends return AdaptiveSnmpClient.  Keeping the local
             # variable optional makes the collector helpers independently
             # testable and preserves a clear failure path for injected tooling.
-            adaptive_client = (
-                client if isinstance(client, AdaptiveSnmpClient) else None
-            )
+            adaptive_client = client if isinstance(client, AdaptiveSnmpClient) else None
             traced_client = client
             if trace is not None:
                 redactions = tuple(
@@ -1689,9 +1641,7 @@ async def _collect_detail(
                 )
 
             manufacturer = (basic.system.manufacturer or "").casefold()
-            cdp_manufacturers = {
-                value.casefold() for value in config.neighbors.cdp_manufacturers
-            }
+            cdp_manufacturers = {value.casefold() for value in config.neighbors.cdp_manufacturers}
             should_cdp = manufacturer in cdp_manufacturers or (
                 config.neighbors.cdp_for_cisco and manufacturer == "cisco"
             )
@@ -1747,8 +1697,7 @@ async def _collect_detail(
                 )
     except Exception as exc:
         LOG.error(
-            "SNMP target=%s detail session failed "
-            "category=%s type=%s",
+            "SNMP target=%s detail session failed category=%s type=%s",
             basic.address,
             _error_category(exc),
             exc.__class__.__name__,
@@ -1825,9 +1774,7 @@ async def process_single_device(
     basic_kwargs: dict[str, Any] = {"collect_metrics": True}
     if trace is not None:
         basic_kwargs["trace"] = trace
-    successful = await _basic_wavefront(
-        config, [task], results, pause_event, **basic_kwargs
-    )
+    successful = await _basic_wavefront(config, [task], results, pause_event, **basic_kwargs)
     basic_phase_ms = round((time.perf_counter() - basic_start) * 1000.0, 3)
     basic = successful[0][1] if successful else None
     if pause_event.is_set() and basic is None:

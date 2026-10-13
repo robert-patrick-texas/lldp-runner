@@ -45,7 +45,6 @@ def test_identity_dedup_and_no_requery(tmp_path: Path):
     state.close()
 
 
-
 def test_unspecified_cdp_address_does_not_merge_distinct_esxi_hosts(tmp_path: Path):
     """VMware CDP 0.0.0.0 placeholders must not become a shared host alias."""
 
@@ -82,6 +81,7 @@ def test_unspecified_cdp_address_does_not_merge_distinct_esxi_hosts(tmp_path: Pa
         == 0
     )
     state.close()
+
 
 def test_neighbor_cycle_is_graph_not_recursive_copy(tmp_path: Path):
     state = StateStore(tmp_path / "state.sqlite")
@@ -121,7 +121,9 @@ def test_neighbor_edge_retains_discovery_evidence(tmp_path: Path):
     import json
 
     state = StateStore(tmp_path / "state.sqlite")
-    source = state.upsert_candidate(Candidate(names=["source"], category="managed_device"), is_seed=True)
+    source = state.upsert_candidate(
+        Candidate(names=["source"], category="managed_device"), is_seed=True
+    )
     remote = state.upsert_candidate(Candidate(names=["remote"], category="unknown_device"))
     state.add_neighbor(
         source,
@@ -175,9 +177,7 @@ def test_ready_does_not_reset_active_claim(tmp_path: Path):
 def test_identity_correlation_does_not_delete_inflight_host(tmp_path: Path):
     state = StateStore(tmp_path / "state.sqlite")
     by_name = state.upsert_candidate(Candidate(names=["switch1"], category="managed_device"))
-    by_ip = state.upsert_candidate(
-        Candidate(addresses=["198.18.10.1"], category="managed_device")
-    )
+    by_ip = state.upsert_candidate(Candidate(addresses=["198.18.10.1"], category="managed_device"))
     state.set_host_ready(by_name, 0)
     assert state.claim_batch(0, 1, 300, allow_steal=False) == [by_name]
     chosen = state.upsert_candidate(
@@ -230,9 +230,7 @@ def test_identity_merge_preserves_complete_query_target(tmp_path: Path):
     by_name = state.upsert_candidate(
         Candidate(names=["switch1.net.example.com"], category="managed_device")
     )
-    by_ip = state.upsert_candidate(
-        Candidate(addresses=["198.18.10.1"], category="managed_device")
-    )
+    by_ip = state.upsert_candidate(Candidate(addresses=["198.18.10.1"], category="managed_device"))
     state.conn.execute(
         "UPDATE hosts SET state='COMPLETE', query_target=NULL WHERE id=?",
         (by_name,),
@@ -300,10 +298,7 @@ def test_state_migrates_optional_collection_metrics_column(tmp_path):
     conn.close()
 
     state = StateStore(path)
-    columns = {
-        str(row[1])
-        for row in state.conn.execute("PRAGMA table_info(hosts)").fetchall()
-    }
+    columns = {str(row[1]) for row in state.conn.execute("PRAGMA table_info(hosts)").fetchall()}
     assert "metrics_json" in columns
     assert "snmp_sessions_json" in columns
     assert "interface_groups_json" in columns
@@ -336,9 +331,9 @@ def test_malformed_network_chassis_id_does_not_merge_distinct_neighbors(tmp_path
     assert len(set(host_ids)) == 3
     assert state.conn.execute("SELECT COUNT(*) FROM hosts").fetchone()[0] == 3
     assert (
-        state.conn.execute(
-            "SELECT COUNT(*) FROM aliases WHERE alias_type='chassis_id'"
-        ).fetchone()[0]
+        state.conn.execute("SELECT COUNT(*) FROM aliases WHERE alias_type='chassis_id'").fetchone()[
+            0
+        ]
         == 0
     )
     state.close()
@@ -466,18 +461,27 @@ def test_device_local_chassis_subtype_is_not_a_global_identity(tmp_path: Path):
     )
 
     assert local_id != interface_id
-    assert state.conn.execute(
-        "SELECT 1 FROM aliases WHERE host_id=? AND alias_type='chassis_id'",
-        (local_id,),
-    ).fetchone() is None
-    assert state.conn.execute(
-        "SELECT value FROM aliases WHERE host_id=? AND alias_type='mac'",
-        (local_id,),
-    ).fetchone()["value"] == "10:98:19:4d:2f:97"
-    assert state.conn.execute(
-        "SELECT 1 FROM aliases WHERE host_id=? AND alias_type='chassis_id'",
-        (interface_id,),
-    ).fetchone() is None
+    assert (
+        state.conn.execute(
+            "SELECT 1 FROM aliases WHERE host_id=? AND alias_type='chassis_id'",
+            (local_id,),
+        ).fetchone()
+        is None
+    )
+    assert (
+        state.conn.execute(
+            "SELECT value FROM aliases WHERE host_id=? AND alias_type='mac'",
+            (local_id,),
+        ).fetchone()["value"]
+        == "10:98:19:4d:2f:97"
+    )
+    assert (
+        state.conn.execute(
+            "SELECT 1 FROM aliases WHERE host_id=? AND alias_type='chassis_id'",
+            (interface_id,),
+        ).fetchone()
+        is None
+    )
     state.close()
 
 
@@ -504,9 +508,7 @@ def test_repeated_local_chassis_uses_distinct_anonymous_port_macs(tmp_path: Path
     first = state.upsert_candidate(endpoint("10:98:19:4d:2f:97"))
     second = state.upsert_candidate(endpoint("08:92:04:f6:d6:f4"))
     repeated = state.upsert_candidate(endpoint("10:98:19:4d:2f:97"))
-    named = state.upsert_candidate(
-        endpoint("ac:b4:80:44:52:de", name="endpoint.example.com")
-    )
+    named = state.upsert_candidate(endpoint("ac:b4:80:44:52:de", name="endpoint.example.com"))
     named_other_port = state.upsert_candidate(
         endpoint("20:88:10:f1:52:c2", name="endpoint.example.com")
     )
@@ -662,18 +664,31 @@ def test_placeholder_preferred_name_does_not_become_identity_evidence(tmp_path: 
 
     state = StateStore(tmp_path / "state.sqlite")
     first = state.upsert_candidate(
-        Candidate(names=["null"], chassis_id="00:11:22:33:44:55", chassis_id_subtype="mac_address", chassis_id_subtype_id=4),
+        Candidate(
+            names=["null"],
+            chassis_id="00:11:22:33:44:55",
+            chassis_id_subtype="mac_address",
+            chassis_id_subtype_id=4,
+        ),
         preferred_name="null",
     )
     second = state.upsert_candidate(
-        Candidate(names=["null"], chassis_id="00:11:22:33:44:66", chassis_id_subtype="mac_address", chassis_id_subtype_id=4),
+        Candidate(
+            names=["null"],
+            chassis_id="00:11:22:33:44:66",
+            chassis_id_subtype="mac_address",
+            chassis_id_subtype_id=4,
+        ),
         preferred_name="null",
     )
 
     assert first != second
-    assert state.conn.execute(
-        "SELECT COUNT(*) FROM aliases WHERE alias_type='name' AND value='null'"
-    ).fetchone()[0] == 0
+    assert (
+        state.conn.execute(
+            "SELECT COUNT(*) FROM aliases WHERE alias_type='name' AND value='null'"
+        ).fetchone()[0]
+        == 0
+    )
     state.close()
 
 
@@ -821,12 +836,14 @@ def test_incompatible_direct_names_can_share_one_contested_address(tmp_path: Pat
         "WHERE address_type='ipv4' AND value='10.10.10.1' ORDER BY host_id"
     ).fetchall()
     assert [int(row[0]) for row in rows] == [first, second]
-    assert state.upsert_candidate(
-        Candidate(names=["router-a.example.com"], addresses=["10.10.10.1"])
-    ) == first
-    assert state.upsert_candidate(
-        Candidate(names=["router-b.example.com"], addresses=["10.10.10.1"])
-    ) == second
+    assert (
+        state.upsert_candidate(Candidate(names=["router-a.example.com"], addresses=["10.10.10.1"]))
+        == first
+    )
+    assert (
+        state.upsert_candidate(Candidate(names=["router-b.example.com"], addresses=["10.10.10.1"]))
+        == second
+    )
     state.close()
 
 
@@ -847,9 +864,7 @@ def test_contested_address_grouping_is_independent_of_ingest_order(
     ):
         state = StateStore(tmp_path / f"{label}.sqlite")
         for name in ordered_names:
-            state.upsert_candidate(
-                Candidate(names=[name], addresses=["10.10.10.1"])
-            )
+            state.upsert_candidate(Candidate(names=[name], addresses=["10.10.10.1"]))
         host_names = [
             str(row[0])
             for row in state.conn.execute(
@@ -880,9 +895,7 @@ def test_contested_address_reuses_same_edge_observation_when_name_is_missing(
     """A transiently absent name must not create a third contested claimant."""
 
     state = StateStore(tmp_path / "state.sqlite")
-    state.upsert_candidate(
-        Candidate(names=["router-a.example.com"], addresses=["10.10.10.1"])
-    )
+    state.upsert_candidate(Candidate(names=["router-a.example.com"], addresses=["10.10.10.1"]))
     edge = "edge:7:lldp:Gi1/0/7:mgmt0:shared-address"
     router_b = state.upsert_candidate(
         Candidate(names=["router-b.example.com"], addresses=["10.10.10.1"]),
@@ -921,10 +934,12 @@ def test_dns_enrichment_names_do_not_become_global_identity_aliases(tmp_path: Pa
     )
 
     assert first != second
-    assert state.conn.execute(
-        "SELECT 1 FROM aliases WHERE alias_type='name' "
-        "AND value='shared-frontend.example.net'"
-    ).fetchone() is None
+    assert (
+        state.conn.execute(
+            "SELECT 1 FROM aliases WHERE alias_type='name' AND value='shared-frontend.example.net'"
+        ).fetchone()
+        is None
+    )
     rows = state.conn.execute(
         "SELECT host_id, identity_eligible FROM host_addresses "
         "WHERE address_type='ipv4' AND value='198.18.44.20' ORDER BY host_id"
@@ -977,9 +992,12 @@ def test_interface_name_chassis_does_not_merge_distinct_vmware_hosts(tmp_path: P
 
     assert first != second
     assert state.host_count() == 2
-    assert state.conn.execute(
-        "SELECT COUNT(*) FROM aliases WHERE alias_type='chassis_id'"
-    ).fetchone()[0] == 0
+    assert (
+        state.conn.execute("SELECT COUNT(*) FROM aliases WHERE alias_type='chassis_id'").fetchone()[
+            0
+        ]
+        == 0
+    )
     state.close()
 
 
@@ -1002,9 +1020,7 @@ def test_opening_0313_state_migrates_address_aliases_to_claims(tmp_path: Path) -
 
     resumed = StateStore(path)
 
-    assert resumed.conn.execute(
-        "SELECT 1 FROM aliases WHERE alias_type='ipv4'"
-    ).fetchone() is None
+    assert resumed.conn.execute("SELECT 1 FROM aliases WHERE alias_type='ipv4'").fetchone() is None
     row = resumed.conn.execute(
         "SELECT host_id, identity_eligible FROM host_addresses "
         "WHERE address_type='ipv4' AND value='198.18.60.10'"
@@ -1013,7 +1029,6 @@ def test_opening_0313_state_migrates_address_aliases_to_claims(tmp_path: Path) -
     assert int(row[1]) == 1
     assert resumed.seed_resolution_counts()["unresolved"] == 0
     resumed.close()
-
 
 
 def test_device_result_persists_adaptive_session_and_shadow_groups(
@@ -1109,9 +1124,7 @@ def test_device_result_persists_adaptive_session_and_shadow_groups(
     assert sessions[0]["effective_max_repetitions"] == 13
     assert sessions[0]["events"][0]["partial_rows_discarded"] is True
     assert groups == [group]
-    observation = next(
-        row for row in reversed(state.observations()) if row["protocol"] == "snmp"
-    )
+    observation = next(row for row in reversed(state.observations()) if row["protocol"] == "snmp")
     payload = json.loads(str(observation["payload_json"]))
     assert payload["snmp_sessions"][0]["degraded"] is True
     assert payload["interface_observation_groups"] == [group]
@@ -1166,9 +1179,10 @@ def test_raw_protocol_advertisements_are_idempotent_and_graph_decisions_supersed
     # Exact replay is idempotent even though the mutable compatibility projection
     # is refreshed with a new last_seen value.
     state.apply_device_result(first)
-    assert int(
-        state.conn.execute("SELECT COUNT(*) FROM protocol_advertisements").fetchone()[0]
-    ) == initial_advertisements
+    assert (
+        int(state.conn.execute("SELECT COUNT(*) FROM protocol_advertisements").fetchone()[0])
+        == initial_advertisements
+    )
     first_graph = state.materialize_topology_graph()
     assert first_graph.document["authority"]["observation_projection"] == "authoritative"
     assert state.current_topology_graph() == first_graph.document
@@ -1180,9 +1194,7 @@ def test_raw_protocol_advertisements_are_idempotent_and_graph_decisions_supersed
     assert projection_row["payload_json"] == "{}"
     assert projection_row["payload_codec"] == "zlib-json"
     assert bytes(projection_row["payload_blob"])
-    assert json.loads(str(projection_row["summary_json"])) == first_graph.document[
-        "summary"
-    ]
+    assert json.loads(str(projection_row["summary_json"])) == first_graph.document["summary"]
     initial_global_history = [
         item
         for item in state.graph_decision_history()
@@ -1236,9 +1248,7 @@ def test_raw_protocol_advertisements_are_idempotent_and_graph_decisions_supersed
     latest = max(group_history, key=lambda item: item["sequence"])
     assert latest["supersedes_decision_id"] is not None
     global_history = [
-        item
-        for item in history
-        if item["component_key"] == "graph:observation_projection"
+        item for item in history if item["component_key"] == "graph:observation_projection"
     ]
     assert [item["sequence"] for item in global_history] == [1, 2]
     assert global_history[-1]["supersedes_decision_id"] == global_history[0]["id"]
@@ -1283,8 +1293,7 @@ def test_graph_retains_advertisements_after_provisional_source_host_is_removed(
     )
     state.apply_device_result(result)
     source_row = state.conn.execute(
-        "SELECT source_observation_id, source_context_json "
-        "FROM protocol_advertisements"
+        "SELECT source_observation_id, source_context_json FROM protocol_advertisements"
     ).fetchone()
     assert source_row is not None
     assert source_row["source_observation_id"] is not None
@@ -1428,19 +1437,13 @@ def test_projection_reconciliation_uses_direct_sysname_not_shadow_alias(
     state.conn.commit()
 
     canonical_alias_names = {
-        value
-        for kind, value in state._identity_aliases_for_host(canonical)
-        if kind == "name"
+        value for kind, value in state._identity_aliases_for_host(canonical) if kind == "name"
     }
     shadow_alias_names = {
-        value
-        for kind, value in state._identity_aliases_for_host(shadow)
-        if kind == "name"
+        value for kind, value in state._identity_aliases_for_host(shadow) if kind == "name"
     }
     assert canonical_alias_names.isdisjoint(shadow_alias_names)
-    canonical_direct_names = state._query_projection_logical_names(
-        state.host_row(canonical)
-    )
+    canonical_direct_names = state._query_projection_logical_names(state.host_row(canonical))
     shadow_direct_names = state._query_projection_logical_names(state.host_row(shadow))
     assert canonical_direct_names & shadow_direct_names
 
@@ -1476,8 +1479,7 @@ def test_claim_batch_defers_projection_equivalent_to_active_worker(
     assert state.host_row(shadow)["state"] == "READY"
 
     state.conn.execute(
-        "UPDATE hosts SET state='COMPLETE', worker_id=NULL, lease_until=NULL "
-        "WHERE id=?",
+        "UPDATE hosts SET state='COMPLETE', worker_id=NULL, lease_until=NULL WHERE id=?",
         (active,),
     )
     state.conn.commit()
@@ -1639,9 +1641,7 @@ def test_duplicate_projection_reconciliation_preserves_raw_graph_advertisements(
             )
         )
 
-    assert state.conn.execute(
-        "SELECT COUNT(*) FROM protocol_advertisements"
-    ).fetchone()[0] == 2
+    assert state.conn.execute("SELECT COUNT(*) FROM protocol_advertisements").fetchone()[0] == 2
     assert state.reconcile_duplicate_query_projections() == {second: first}
     assert state.host_count() == 1
 
