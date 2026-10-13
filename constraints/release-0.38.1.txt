@@ -1,4 +1,4 @@
-# Exact package set selected for the LLDP-Runner 0.38.0 Linux release.
+# Exact package set selected for the LLDP-Runner 0.38.1 Linux release.
 # pyproject.toml applies these through tool.uv.constraint-dependencies and
 # tool.uv.build-constraint-dependencies while published package requirements
 # continue to declare supported minimum versions.

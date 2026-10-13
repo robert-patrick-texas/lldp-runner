@@ -1,6 +1,6 @@
 [project]
 name = "lldp-runner"
-version = "0.38.0"
+version = "0.38.1"
 description = "Recursive SNMP CDP/LLDP network discovery for Network Operations"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -34,7 +34,7 @@ build-backend = "uv_build"
 package = true
 link-mode = "copy"
 # Keep published dependency declarations broad while making maintainer-managed
-# Linux release environments reproducible at the exact versions used for 0.38.0.
+# Linux release environments reproducible at the exact versions used for 0.38.1.
 constraint-dependencies = [
   "cryptography==50.0.1",
   "gufo-snmp==0.12.0",

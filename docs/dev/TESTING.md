@@ -149,6 +149,14 @@ both `member_presence` and `protocol_evidence`, with exact member-scoped events.
 Discovery scheduling, Gufo behavior, collector output, and retry budgets remain
 unchanged from 0.32.7.
 
+## 0.38.1 focused release tests
+
+0.38.1 makes the full `./scripts/check.sh` gate pass. `ty check` must report
+zero diagnostics with the pinned Ty version, in addition to the Ruff gates
+and the complete deterministic suite. Shipped-script mode tests check the
+executable bit that Git records, not an exact mode, so they pass on
+checkouts made under the documented shared `umask 0002`.
+
 ## 0.38.0 focused release tests
 
 0.38.0 is a static-analysis release. `ruff check .` and

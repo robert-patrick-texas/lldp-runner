@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.38.1 - 2026-10-13
+
+- Bring `ty check` to zero diagnostics under the pinned Ty 0.0.63 (251 at
+  0.38.0), so `./scripts/check.sh` passes end to end. Correct annotations
+  that disagreed with the code: `ArgumentParser.error` returns `NoReturn`,
+  `Coordinator.workers` holds `BaseProcess` objects, and the Gufo session
+  argument builders return `dict[str, Any]`.
+- Add `RetryKind` and `RetryPool` type aliases in `models.py` and use them
+  for retry parameters in the adaptive SNMP layer.
+- Replace mypy-style `# type: ignore[code]` comments, which Ty does not
+  honor, with rule-specific `# ty: ignore[rule]` comments, and mark the
+  remaining deliberate dynamic conversions the same way.
+- Check only the executable bit of the shipped SNMP diagnostics and their
+  notes in `test_operator_scripts.py`. Git records nothing else, and the
+  previous exact-mode check failed on checkouts made under the documented
+  shared `umask 0002`.
+- Keep dependency versions, collection, topology, output, diff, watch,
+  credential, retry, and schema behavior unchanged.
+
 ## 0.38.0 - 2026-10-13
 
 - Bring the source tree to a clean `ruff check` and `ruff format --check`

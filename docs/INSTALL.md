@@ -195,7 +195,7 @@ operators use the no-sync launchers.
 The published dependency declarations retain supported minimum versions. For
 maintainer-managed release environments, `[tool.uv]` applies exact runtime,
 test, static-analysis, and build constraints. The same selections are listed in
-`constraints/release-0.38.0.txt` for review. Run `uv lock`, then
+`constraints/release-0.38.1.txt` for review. Run `uv lock`, then
 `uv sync --all-groups --locked`, after extracting a release. This creates one
 site lockfile from the release constraints and prevents later synchronization
 from silently selecting a different tested toolchain. A deliberate dependency
@@ -308,7 +308,7 @@ files too.
 # ---------------------------------------------------------------------------
 # 0. Review these site-specific inputs before doing anything destructive.
 # ---------------------------------------------------------------------------
-ARCHIVE="$PWD/lldp-runner-0.38.0.tar.gz"
+ARCHIVE="$PWD/lldp-runner-0.38.1.tar.gz"
 CONFIG_SOURCE="/path/to/approved-config.toml"
 SEED_SOURCE="/path/to/approved-seed.list"
 DEVELOPER="lldp-maintainer"

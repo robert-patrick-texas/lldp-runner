@@ -267,7 +267,7 @@ def test_version_option_outputs_and_exits(capsys) -> None:
         main(["--version"])
 
     assert exc.value.code == 0
-    assert capsys.readouterr().out.strip() == "lldp-runner 0.38.0"
+    assert capsys.readouterr().out.strip() == "lldp-runner 0.38.1"
 
 
 def test_version_command_matches_version_option(capsys) -> None:
@@ -281,7 +281,7 @@ def test_version_command_matches_version_option(capsys) -> None:
     assert exc.value.code == 0
     option_output = capsys.readouterr().out.strip()
 
-    assert command_output == option_output == "lldp-runner 0.38.0"
+    assert command_output == option_output == "lldp-runner 0.38.1"
 
 
 def test_version_command_does_not_load_config(monkeypatch, capsys) -> None:
@@ -289,7 +289,7 @@ def test_version_command_does_not_load_config(monkeypatch, capsys) -> None:
 
     monkeypatch.setenv("LLDP_RUNNER_CONFIG", "/definitely/missing/lldp-runner.toml")
     main(["version"])
-    assert capsys.readouterr().out.strip() == "lldp-runner 0.38.0"
+    assert capsys.readouterr().out.strip() == "lldp-runner 0.38.1"
 
 
 def test_generate_config_writes_commented_defaults_and_honors_set(tmp_path: Path, capsys) -> None:
@@ -476,7 +476,7 @@ def test_release_dependency_constraints_are_exact_and_documented() -> None:
     assert build_constraints == expected[-1:]
     assert all("==" in item for item in expected)
 
-    manifest = root / "constraints" / "release-0.38.0.txt"
+    manifest = root / "constraints" / "release-0.38.1.txt"
     pinned_lines = [
         line
         for line in manifest.read_text(encoding="utf-8").splitlines()
@@ -491,7 +491,7 @@ def test_project_and_package_versions_stay_in_sync() -> None:
     project = tomllib.loads(
         (Path(__file__).parents[1] / "pyproject.toml").read_text(encoding="utf-8")
     )
-    assert project["project"]["version"] == __version__ == "0.38.0"
+    assert project["project"]["version"] == __version__ == "0.38.1"
     assert project["project"]["scripts"]["show-neighbors"] == "lldp_runner.cli:show_neighbors_main"
     assert project["tool"]["uv"]["link-mode"] == "copy"
 

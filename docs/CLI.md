@@ -1446,7 +1446,7 @@ one justified title line inside one-cell left and right borders. It uses the
 package's canonical application name and version:
 
 ```text
-LLDP-Runner 0.38.0  Run ID = 20260111-04  STATE = RUNNING  updated 00:03 ago
+LLDP-Runner 0.38.1  Run ID = 20260111-04  STATE = RUNNING  updated 00:03 ago
 ```
 
 Update age is total minutes and seconds with at least two digits in each field,

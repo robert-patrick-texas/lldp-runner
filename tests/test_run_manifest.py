@@ -205,7 +205,7 @@ def test_completed_run_publishes_run_json_with_discovery_times(
     discovery = json.loads((paths.output_run_dir / "discovery.json").read_text(encoding="utf-8"))
     assert list(run_document)[:3] == ["schema_version", "app_name", "app_version"]
     assert run_document["app_name"] == APP_NAME == "LLDP-Runner"
-    assert run_document["app_version"] == __version__ == "0.38.0"
+    assert run_document["app_version"] == __version__ == "0.38.1"
     assert run_document["run_id"] == paths.run_id
     assert run_document["snmp_backend"]["name"] == "gufo"
     assert run_document["snmp_backend"]["version"]

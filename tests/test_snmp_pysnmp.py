@@ -919,7 +919,7 @@ def test_installed_pysnmp_authpriv_crypto_when_available() -> None:
         pytest.skip(f"installed PySNMP authPriv dependencies unavailable: {exc}")
     if tuple(int(part) for part in cryptography_version.split(".")[:2]) < (50, 0):
         pytest.skip(
-            f"installed cryptography predates the 0.38.0 release constraint: {cryptography_version}"
+            f"installed cryptography predates the 0.38.1 release constraint: {cryptography_version}"
         )
 
     module = importlib.import_module("lldp_runner.snmp.pysnmp")
