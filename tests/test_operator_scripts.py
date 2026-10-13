@@ -46,20 +46,37 @@ def test_operator_launchers_are_shipped_and_executable() -> None:
         assert not (scripts_dir / name).exists(), f"disallowed launcher shipped: {name}"
 
 
+SNMP_DIAGNOSTIC_FILES = {
+    "gufo-ipv6-test.py": True,
+    "gufo-snmp-diag.py": True,
+    "pysnmp-snmp-diag.py": True,
+    "gufo-readme.txt": False,
+}
+EXECUTE_BITS = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+
+
+def _assert_release_mode(name: str, mode: int, *, executable: bool) -> None:
+    """Check the executable bit that Git records for a shipped file.
+
+    A checkout or extraction applies the local umask to the remaining permission
+    bits, so an exact mode such as 0755 would fail under the documented shared
+    umask 0002.
+    """
+
+    if executable:
+        assert mode & stat.S_IXUSR, f"{name} must be executable (mode {mode:o})"
+    else:
+        assert not mode & EXECUTE_BITS, f"{name} must not be executable (mode {mode:o})"
+
+
 def test_snmp_diagnostics_are_shipped_with_release_modes() -> None:
     """Keep all diagnostics executable and their operator notes non-executable."""
 
-    expected = {
-        "gufo-ipv6-test.py": 0o755,
-        "gufo-snmp-diag.py": 0o755,
-        "pysnmp-snmp-diag.py": 0o755,
-        "gufo-readme.txt": 0o644,
-    }
     scripts = PROJECT_ROOT / "scripts"
-    for name, mode in expected.items():
+    for name, executable in SNMP_DIAGNOSTIC_FILES.items():
         path = scripts / name
         assert path.is_file(), f"missing SNMP diagnostic file: {name}"
-        assert stat.S_IMODE(path.stat().st_mode) == mode
+        _assert_release_mode(name, stat.S_IMODE(path.stat().st_mode), executable=executable)
 
 
 def test_snmp_diagnostics_survive_source_archive_with_modes(
@@ -67,26 +84,23 @@ def test_snmp_diagnostics_survive_source_archive_with_modes(
 ) -> None:
     """The release source-archive layout preserves all diagnostic file modes."""
 
-    expected = {
-        "gufo-ipv6-test.py": 0o755,
-        "gufo-snmp-diag.py": 0o755,
-        "pysnmp-snmp-diag.py": 0o755,
-        "gufo-readme.txt": 0o644,
-    }
+    scripts = PROJECT_ROOT / "scripts"
     archive = tmp_path / "lldp-runner-source.tar.gz"
     with tarfile.open(archive, "w:gz") as handle:
-        for name in expected:
+        for name in SNMP_DIAGNOSTIC_FILES:
             handle.add(
-                PROJECT_ROOT / "scripts" / name,
+                scripts / name,
                 arcname=f"lldp-runner-test/scripts/{name}",
             )
 
     with tarfile.open(archive) as handle:
         members = {member.name: member for member in handle.getmembers()}
-    for name, mode in expected.items():
+    for name, executable in SNMP_DIAGNOSTIC_FILES.items():
         member = members[f"lldp-runner-test/scripts/{name}"]
         assert member.isfile()
-        assert member.mode & 0o777 == mode
+        source_mode = stat.S_IMODE((scripts / name).stat().st_mode) & 0o777
+        assert member.mode & 0o777 == source_mode
+        _assert_release_mode(name, member.mode & 0o777, executable=executable)
 
 
 def test_snmp_diagnostic_help_and_source_compile_without_dependencies() -> None:
