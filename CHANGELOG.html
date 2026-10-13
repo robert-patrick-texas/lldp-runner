@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: CHANGELOG.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="changelog">Changelog</h1>
+<h2 id="0370---2026-09-07">0.37.0 - 2026-09-07</h2>
+<ul>
+<li>Change the built-in <code>snmp.backend</code> default from <code>gufo</code> to <code>pysnmp</code> after repeated production runs demonstrated complete collection, stable topology, correct SNMPv3 and IPv6 behavior, and lower elapsed time. Update generated configuration, CLI help, operator examples, installation guidance, and architecture documentation while retaining Gufo as an explicitly selectable backend.</li>
+<li>Preserve the immutable one-backend-per-run contract. Existing explicit Gufo configurations continue to select Gufo. An existing Gufo run must still resolve to <code>gufo</code> when resumed; an omitted setting now resolves to PySNMP and is rejected if it conflicts with durable run metadata. Do not add automatic fallback or mixed-backend operation.</li>
+<li>Add regression coverage for the new implicit default, explicit Gufo override, configuration and CLI precedence, generated configuration, worker binding, PySNMP default resume, Gufo migration rejection and explicit resume, and credential-free read-only command boundaries. Keep dependency versions, credential algorithms, retry ownership, collection, topology, output, diff, watch, and schema behavior unchanged.</li>
+</ul>
+<h2 id="0363---2026-09-06">0.36.3 - 2026-09-06</h2>
+<ul>
+<li>Add PySNMP-only <code>auth_protocol = "sha256"</code>, mapped exactly to <code>USM_AUTH_HMAC192_SHA256</code>, without changing Gufo's SHA-1/MD5 capability set.</li>
+<li>Add PySNMP-only <code>priv_protocol = "aes256"</code> for the common Reeder key localization (<code>USM_PRIV_CFB256_AES</code>, also called AES-256-Cisco) and <code>aes256-blumenthal</code> for <code>USM_PRIV_CFB256_AES_BLUMENTHAL</code>. Keep the methods explicit and non-interchangeable: do not add an <code>aes256-reeder</code> alias, negotiate a method, downgrade a cipher, or fall back between algorithms. Gufo remains limited to AES-128/DES and rejects PySNMP-only values during configuration validation before secret resolution or network activity.</li>
+<li>Extend the PySNMP local capability preflight, exact upstream CFB-warning filter scope, standalone diagnostic, generated configuration, documentation, and deterministic tests for SHA-256 and both AES-256 mappings. AES-256 probes use a 32-byte key and 16-byte CFB IV. Keep dependencies, retry ownership, backend selection, discovery/topology/output behavior, and all machine-readable schema versions unchanged.</li>
+</ul>
+<h2 id="0362---2026-09-06">0.36.2 - 2026-09-06</h2>
+<ul>
+<li>Move LLDP-Runner's local PySNMP AES capability probe to <code>cryptography.hazmat.decrepit.ciphers.modes.CFB</code>, eliminating the <code>CryptographyDeprecationWarning</code> emitted by the probe under cryptography 50.0.1. SNMPv2c-only invocations continue to skip cryptography capability work entirely.</li>
+<li>Temporarily suppress only PySNMP 7.1.29's known AES-CFB namespace warning during SNMPv3 AES use. The process filter requires the exact <code>CryptographyDeprecationWarning</code> category, complete warning text, and <code>pysnmp.proto.secmod.rfc3826.priv.aes</code> origin; changed messages, other modules, other categories, and all unrelated warnings remain visible. The filter is not installed for SNMPv2c or DES routes.</li>
+<li>Apply the same corrected probe and narrow warning behavior to the standalone <code>pysnmp-snmp-diag.py</code> utility, and add deterministic regression tests for the import path, route scope, and exact warning-filter boundary. Keep dependency versions, Gufo behavior, retry ownership, discovery/topology/output behavior, and all machine-readable schema versions unchanged.</li>
+</ul>
+<h2 id="0361---2026-09-06">0.36.1 - 2026-09-06</h2>
+<ul>
+<li>Add <code>cryptography&gt;=50.0</code> as a runtime dependency for PySNMP SNMPv3 authPriv and pin <code>cryptography==50.0.1</code> in the exact Linux release constraints. This prevents a synchronized installation from reaching production without the cipher provider required by PySNMP privacy protocols.</li>
+<li>Preflight PySNMP authPriv locally after immutable backend/resume validation and before manifests, workers, seed resolution, or network requests. The check derives only AES-128/DES protocol names from profile-reachable and direct seed credentials, never resolves secrets, constructively exercises fixed non-secret cipher operations, and consumes no SNMP retry budget. Gufo and PySNMP SNMPv2c runs skip the probe.</li>
+<li>Normalize PySNMP's <code>Ciphering services not available</code> exception or response indication as the sanitized <code>snmp_backend_capability</code> category rather than a remote authentication or transport failure. It is not timeout-retried, while the existing ordered credential-route fallback behavior remains unchanged.</li>
+<li>Extend <code>pysnmp-snmp-diag.py</code> with the same fail-fast local privacy preflight, installed cryptography version reporting, and explicit <code>local_crypto_capability</code> failure classification.</li>
+<li>Add deterministic tests for startup ordering, direct credentials, secret-free protocol discovery, both privacy mappings, missing/old/unusable providers, runtime normalization, zero retry consumption, diagnostics, and the real installed provider when release dependencies are available. Keep Gufo, discovery, topology, output, diff, watch, and all schema versions unchanged.</li>
+</ul>
+<h2 id="0360---2026-09-06">0.36.0 - 2026-09-06</h2>
+<ul>
+<li>Add explicit <code>gufo</code> and <code>pysnmp</code> discovery backends. Gufo remains the default. Configuration, <code>LLDP_RUNNER_SNMP_BACKEND</code>, <code>--set</code>, and the dedicated <code>--snmp-backend</code> option follow the ordinary documented precedence model.</li>
+<li>Bind exactly one backend before discovery initialization, copy that immutable selection into workers, and persist its name and installed package version in SQLite state, <code>run.json</code>, per-invocation provenance, console diagnostics, and <code>activity.log</code>. Resumes reject a missing or different persisted backend before discovery or run-manifest mutation. There is no automatic fallback or mixed-backend operation.</li>
+<li>Add the PySNMP 7.1 asyncio adapter using the credential mappings already validated by <code>scripts/pysnmp-snmp-diag.py</code>. Every IPv4/IPv6 transport target uses <code>retries=0</code>, leaving all retries and retry budgets under LLDP-Runner's existing adaptive layer.</li>
+<li>Normalize PySNMP GET, GET-MANY, and WALK varbinds to the existing collector contract; normalize timeout, transport, authentication, authorization, engine, PDU, malformed-response, and cancellation behavior without retaining credential values in diagnostics.</li>
+<li>Close each PySNMP <code>SnmpEngine</code> dispatcher deterministically after success, partial setup, request/open failure, and cancellation. SNMPv3 device identity uses only the response security context's remote <code>securityEngineId</code>, never the local manager engine ID.</li>
+<li>Validate configured and direct-seed SNMPv3 protocol names against the selected backend's explicit capability map, and reject unsupported credential versions or algorithms at each adapter boundary instead of silently substituting a different mapping.</li>
+<li>Keep stored-data and local-maintenance commands outside the runtime SNMP selection and factory lifecycle as well as outside credential parsing; these read-only paths do not import or construct either transport adapter.</li>
+<li>Keep Gufo behavior, collection/retry/topology/output/diff/watch behavior, and machine-readable schema versions unchanged. Pin the validated Linux release set in <code>constraints/release-0.36.0.txt</code>.</li>
+</ul>
+<h2 id="0356---2026-09-05">0.35.6 - 2026-09-05</h2>
+<ul>
+<li>Add PySNMP 7.1.29 to the project dependency set and exact Linux release constraints so operators can validate the maintained PySNMP asyncio API in the same environment as LLDP-Runner.</li>
+<li>Add executable <code>scripts/pysnmp-snmp-diag.py</code>, a direct standalone diagnostic for IPv4/IPv6 literals and DNS names, SNMPv2c and the existing SNMPv3 authPriv algorithms, repeated numeric-OID GETs, phase-specific failures, credential redaction, zero PySNMP transport retries, and deterministic dispatcher cleanup.</li>
+<li>Keep Gufo SNMP as the only LLDP-Runner discovery backend in this release. The existing <code>snmp.backend</code> setting remains restricted to <code>gufo</code>; the new dependency and diagnostic do not add a PySNMP backend value, automatic fallback, mixed-backend runs, or changes to collection and retry behavior.</li>
+<li>Keep output fields, durable state, identity, topology, diff behavior, and all machine-readable schema versions unchanged.</li>
+</ul>
+<h2 id="0355---2026-09-05">0.35.5 - 2026-09-05</h2>
+<ul>
+<li>Remove the temporary compatibility-only custom fixed-field selectors <code>unknown-devices.manufacturer</code> and <code>unknown-devices.model</code>. Configurations that still name either field now fail early with an unknown-field error; use <code>json.host.system.manufacturer</code> and <code>json.host.system.model</code> instead.</li>
+<li>Make the <code>unknown-devices</code> custom fixed-field namespace exactly match the fixed <code>unknown-devices.csv</code> schema and remove the hidden manufacturer/model values from its fixed projection context. This is an intentional breaking configuration change.</li>
+<li>Keep the fixed CSV schema, canonical JSON fields, preferred-name fallback, collection, identity, topology, retry, dependency, and machine-readable JSON schema behavior unchanged.</li>
+</ul>
+<h2 id="0354---2026-09-05">0.35.4 - 2026-09-05</h2>
+<ul>
+<li>Remove <code>manufacturer</code> and <code>model</code> from the fixed <code>unknown-devices.csv</code> schema because live unknown-neighbor rows do not populate them. Existing custom fixed-field selectors remain supported for compatibility, and canonical JSON paths remain available for explicit system-value projection.</li>
+<li>Extend canonical output naming so an <code>unknown</code> host with blank inbound names and descriptions can use one unambiguous MAC-address-typed chassis ID as its lowercase colon-separated <code>preferred_name</code>. Existing name aliases and other higher-value presentation evidence continue to win; mixed, malformed, or conflicting chassis evidence does not guess.</li>
+<li>Keep persisted aliases, resolver/graph identity, raw protocol evidence, collection behavior, retry budgets, dependencies, and machine-readable JSON schemas unchanged.</li>
+</ul>
+<h2 id="0353---2026-09-05">0.35.3 - 2026-09-05</h2>
+<ul>
+<li>Replace customer- and operation-derived hostnames, DNS suffixes, management addresses, compact run IDs, asset labels, credential examples, serials, chassis values, and MAC-derived endpoint identifiers across documentation, examples, comments, and regression fixtures. Use role-based names, reserved example domains, TEST-NET/benchmark IPv4 space, <code>2001:db8::/32</code>, and clearly synthetic hardware identity values while preserving linked topology evidence.</li>
+<li>Add contributor guidance for sanitizing production-shaped fixtures. Add a repository-wide regression that stores removed-value fingerprints rather than readable identifiers, detects alternate MAC forms and compact run IDs, and restricts operator documentation to approved example DNS/IP namespaces.</li>
+<li>Keep discovery, collection, scheduling, retry, identity, graph, diff, output, dependency, and machine-readable schema behavior unchanged.</li>
+</ul>
+<h2 id="0352---2026-09-05">0.35.2 - 2026-09-05</h2>
+<ul>
+<li>Rename the executable two-run review helper from <code>scripts/lrun-prepare-bundle</code> to <code>scripts/lrun-bundle-diff</code>. No compatibility launcher is retained. Automatic run selection, explicit A/B ordering, diff generation, coherent SQLite backup, environment variables, and archive layout are unchanged; current operator and contributor references use the new name.</li>
+<li>Add <a href="docs-dev-FLOW-DIAGRAMS.html"><code>docs/dev/FLOW-DIAGRAMS.md</code></a> with source-maintained Mermaid diagrams for collection, compatibility identity resolution, and graph rematerialization. The reference names current module and function boundaries, persistence points, failure paths, fallback rules, append-only decision lineage, and graph-publication transaction behavior.</li>
+<li>Link the diagrams from contributor entry points, add diagram maintenance to contribution review, mark the ROADMAP objective complete, and add release regressions for diagram anchors and the renamed script surface.</li>
+</ul>
+<h2 id="0351---2026-09-05">0.35.1 - 2026-09-05</h2>
+<ul>
+<li>Move active <code>scoreboard.txt</code> and <code>scoreboard.json</code> publication to the stable <code>&lt;scratch_root&gt;/scoreboard/</code> directory. Successful completed runs archive the exact terminal snapshots below persistent <code>runs/&lt;run-id&gt;/</code>; retained per-run scratch receives another copy when automatic scratch cleanup is disabled. The live scoreboard remains after completion, and <code>clean</code> removes its reserved directory as part of scratch maintenance.</li>
+<li>Refine Watch spacing and source-error placement. Wide terminals use doubled gaps between Started, Elapsed, and Plan; roomy terminals add a blank row between the title and summary. Scoreboard-source errors appear below the worker table and above the footer with surrounding blank rows and bright-red color when enabled.</li>
+<li>Remove durable <code>runs/&lt;run-id&gt;/run.json.draft</code> after a successful completed run has published final provenance and closed coordinator resources.</li>
+<li>Expand every unfinished roadmap item with operator-oriented remaining work, operational benefit, and estimated implementation/validation effort.</li>
+</ul>
+<h2 id="0350---2026-09-05">0.35.0 - 2026-09-05</h2>
+<ul>
+<li>Publish an atomic relative <code>latest</code> symlink below the persistent <code>runs/</code> directory after every successful <code>COMPLETED</code> or <code>COMPLETED_LIMIT</code> run. The alias is advertised only after SQLite state and configured activity logging are closed; startup now preflights both persistent <code>latest</code> locations, resume ignores the convenience link, and historical cleanup protects its target.</li>
+<li>Add <code>[paths].clean_scratch_when_completed</code>, enabled by default. After durable run/output publication and resource closure, a successful run removes its entire <code>&lt;scratch_root&gt;/&lt;run-id&gt;/</code> tree and removes <code>&lt;scratch_root&gt;/current</code> only when that link still selects the completed run. Paused, limited-for-resume, interrupted, and failed runs retain scratch data, and overlap guards prevent accidental deletion of persistent state or output.</li>
+<li>Improve canonical host <code>preferred_name</code> presentation shared by <code>discovery.json</code>, fixed CSVs, and custom CSVs. Recognized trailing hardware serial decorations such as <code>name(SERIAL)</code> are omitted from the display name; placeholder-only inbound observations can use one unambiguous locally assigned chassis string for <code>unknown</code>, or one typed canonical MAC chassis value for <code>null</code>/<code>not advertised</code>. Raw names, descriptions, chassis evidence, and identity correlation remain unchanged.</li>
+</ul>
+<h2 id="0341---2026-09-03">0.34.1 - 2026-09-03</h2>
+<ul>
+<li>Refine Watch vertical spacing. A displayed <code>Started ... Elapsed ...</code> row now has a blank row after it. When the ordinary layout would still leave more than ten blank rows immediately above the footer, Watch adds a second row there and a second blank row on both sides of the aggregate worker summary.</li>
+<li>Render the title's <code>Run ID = &lt;runid&gt;</code> segment with the same muted semantic color used by footer text in full, compact, heatmap, and summary layouts.</li>
+<li>Add <a href="docs-dev-SCHEMA.html"><code>docs/dev/SCHEMA.md</code></a> as the current schema quick reference, test its version values against the implementation constants, and document a concise changelog policy that records schema numbers only when a schema changes.</li>
+</ul>
+<h2 id="0340---2026-09-02">0.34.0 - 2026-09-02</h2>
+<ul>
+<li>This display-only minor release does not change discovery scheduling, SNMP collection, CDP/LLDP parsing, retry budgets, identity, graph semantics, or diff classification.</li>
+<li>Replace the Watch dashboard's two-line upper-left header with one justified four-section title row containing application name/version, Run ID, STATE, and update age. Reserve a blank top row plus one blank terminal cell at both side edges in full, compact, heatmap, and summary layouts.</li>
+<li>Widen and stabilize the Watch metric grid. Metric columns now depend only on terminal geometry, use substantially more horizontal space, and keep independent count/delta fields so digit growth does not move following columns. Roomy terminals insert a blank row between metric rows.</li>
+<li>Center the aggregate <code>Workers N: BUSY ... IDLE ... DEAD ...</code> line separately and place a blank row above and below whenever terminal height permits. Keep worker-cell text, density, ordering, fixed field budgets, and partial-row alignment unchanged.</li>
+<li>Make the shared <code>get-neighbors</code> and <code>show-neighbors</code> table planner expand the rightmost <code>Mgmt</code> column to the complete valid IPv6 address. If necessary the plain-text table may exceed the detected terminal width rather than replacing address characters with an ellipsis; IPv4 behavior remains unchanged.</li>
+<li>Add responsive Watch and neighbor-table regressions for equal title spacing, top/side borders, full/compact/heatmap title parity, version-first title compaction, metric stability, worker-summary spacing, and complete IPv6 management-address output.</li>
+</ul>
+<h2 id="0330---2026-09-02">0.33.0 - 2026-09-02</h2>
+<ul>
+<li>This operator-interface release does not change SNMP collection, CDP/LLDP parsing, scheduling, retry budgets, identity, graph semantics, or diff classification.</li>
+<li>Define the exact 0.33.0 release constraint set as Linux-validated. Remove the Windows-only Colorama constraint, keep the two <code>pyproject.toml</code> uv arrays in exact agreement with <code>constraints/release-0.33.0.txt</code>, and add a regression that rejects a <code>win32</code> marker in the Linux manifest.</li>
+<li>Add <code>scripts/gufo-ipv6-test.py</code>, <code>scripts/gufo-snmp-diag.py</code>, and <code>scripts/gufo-readme.txt</code> with release-tested file modes and canonical hyphenated names.</li>
+<li>Modernize <code>gufo-ipv6-test.py</code> to accept one IPv6 literal or IPv6-resolvable hostname, reject IPv4, preserve resolver order while deduplicating AAAA results, validate <code>SNMPCOMM</code> without exposing it, import Gufo after <code>--help</code>, probe the same canonical address unbracketed and bracketed, and return stable conclusive/inconclusive/configuration/interruption exit statuses.</li>
+<li>Complete the Watch layout objective: use the package name/version in a two-line upper-left header, display update age as unbounded total <code>mm:ss</code>, center the intact run-summary block, center worker grids without reducing capacity, keep partial rows aligned to the first worker column, and provide a tested small-terminal fallback down to 20x4 with state, run ID, age, aggregate worker status, and exit guidance.</li>
+<li>Preserve fixed-width worker cells, semantic color roles, changed-worker emphasis, stale/source indications, modal screens, resize/view controls, footer clearing, and terminal restoration.</li>
+</ul>
+<h2 id="0329---2026-09-02">0.32.9 - 2026-09-02</h2>
+<ul>
+<li>This maintenance update changes compatibility identity projection without changing collection or comparison contracts.</li>
+<li>Treat LLDP and LLDPv2 chassis subtype 7 (<code>local</code>/locally assigned) as weak, edge-scoped evidence and operator-facing display text. It no longer enters the global <code>chassis_id</code> alias registry, where repeated opaque values could collapse unrelated endpoints into one compatibility host.</li>
+<li>For an otherwise anonymous endpoint, promote one explicitly typed, unambiguous MAC-address Port ID to a bounded <code>mac</code> identity. Candidates that already have a usable name, management address, or trusted chassis identity continue to use that device-level evidence so multi-interface systems are not split by per-interface Port IDs.</li>
+<li>Add a strong <code>anonymous_lldp_port_mac</code> derived claim while preserving the raw Port ID as edge evidence and the locally assigned chassis value as a weak, non-identity claim.</li>
+<li>Add <code>compatibility_projection_diagnostics</code> to topology graph output and its summary. A legacy flat host spanning several distinct anonymous endpoint MACs is reported as a warning with graph entity and source-host references; the diagnostic explicitly does not alter the authoritative observation graph.</li>
+<li>Add production-shaped identity, state, claim, graph, and public-output regressions. The repeated <code>hex:a1:00:00:00:00:00</code> group reprojects as 44 distinct MAC endpoints for run 20260111-00 and 49 for run 20260111-01, with zero subtype-7 chassis aliases.</li>
+<li>Replay the supplied September 2 discovery pair and preserve its 68 graph-backed change events, zero unmatched/ambiguous/conflicting/graph-only results, and <code>consistent</code> cross-view status. Existing 0.32.8 discovery files remain immutable; the corrected flat-host projection applies to new scans.</li>
+<li>Preserve discovery scheduling, SNMP and protocol collection, topology graph entity/relationship semantics, diff reconciliation, Gufo IPv6 containment, late-address recovery, and every retry budget unchanged.</li>
+</ul>
+<h2 id="0328---2026-09-01">0.32.8 - 2026-09-01</h2>
+<ul>
+<li>Keep <code>discovery.json</code> at schema 8, topology graph schema 2, and <code>run.json</code> schema 3. Advance diff JSON to schema 12 for orthogonal relationship-change dimensions and graph-member-scoped change events.</li>
+<li>Record <code>change_dimensions</code>, <code>member_presence_change</code>, and <code>member_protocol_changes</code> on graph relationship comparisons. A relationship can now report simultaneous membership and protocol-evidence changes without allowing one primary status to hide the other dimension.</li>
+<li>Reconcile protocol, management-address, and relationship-evidence rows inside a <code>member_set_changed</code> relationship only when both sides identify the exact same remote graph component and port. Protocol transitions additionally must reproduce the exact per-member A/B protocol sets recorded by the graph.</li>
+<li>Add <code>graph_member_keys</code> to change events and their stable fingerprints so two different neighbors changing in one local-interface group cannot collapse into one event. Reciprocal observations for the same member can still fold.</li>
+<li>Add production-shaped regression coverage for the concurrent Cisco SEP <code>cdp,lldp</code> to <code>lldp</code> transition and newly observed LLDP member on <code>Gi1/0/6</code>, plus multiple simultaneous member-presence and protocol transitions.</li>
+<li>Replay production runs 20260110-01 and 20260110-00. All 89 non-stable learned observations reconcile to 87 graph-backed events with zero unmatched, ambiguous, conflicting, or graph-only events. The compound relationship keeps separate <code>member_presence</code> and <code>protocol_evidence</code> event dimensions.</li>
+<li>Keep broad supported minimums in published dependency metadata while adding exact uv runtime, test, static-analysis, and build constraints for the 0.32.8 release environment. Ship the readable constraint manifest under <code>constraints/</code>.</li>
+<li>Use <code>filter="data"</code> when tests extract an operator review archive, replace the site-specific maintainer name in installation examples, and reject single quotes in paths embedded in generated systemd shell commands.</li>
+<li>Preserve discovery scheduling, collection behavior, Gufo IPv6 containment, late-address recovery, and every existing retry budget unchanged.</li>
+</ul>
+<h2 id="0327---2026-09-01">0.32.7 - 2026-09-01</h2>
+<ul>
+<li>Keep <code>discovery.json</code> at schema 8, topology graph schema 2, and <code>run.json</code> schema 3. Advance diff JSON to schema 11 for graph-backed change events, compatibility-to-graph reconciliation, graph-native coverage incidents, and management-address collection-health transitions.</li>
+<li>Make graph relationship authority use the LLDP/LLDPv2 <code>remote_neighbor</code> subtable when schema-8 coverage is available. A partial or malformed <code>remote_management_address</code> walk remains a health issue but no longer makes a complete remote-neighbor snapshot coverage-uncertain. A genuine remote-neighbor failure retains exact subtable provenance.</li>
+<li>Cross-reference every non-stable compatibility learned-neighbor observation with its topology-graph relationship record. Emit stable, unique graph-backed change events and an explicit cross-view consistency result; unmatched, ambiguous, conflicting, and graph-only outcomes remain visible instead of being silently reconciled.</li>
+<li>Describe local-port changes as observed attachment changes. The structured result records identity continuity, movement confidence, unresolved directness, and <code>physical_topology=not_inferred</code>; human output uses <code>Attachment</code> rather than implying a confirmed physical cable move.</li>
+<li>Include graph-native and health-only topology collection gaps in collection incidents. Each incident states whether a reported difference depends on the gap, carries graph entity/relationship references, and distinguishes difference-dependent incidents from health warnings that do not qualify any reported change.</li>
+<li>Add compact management-address health comparison with A/B incomplete counts, persistent, new, changed, and recovered incidents plus cause breakdowns and transition detail. Management health remains independent of topology authority.</li>
+<li>Replay production runs 20260109-03 and 20260109-02. All 13 non-stable learned observations reconcile to 13 unique graph-backed events with no unmatched, ambiguous, conflicting, or graph-only event. The prior false coverage-uncertain graph relationship disappears; four genuine topology-sensitive collection gaps per side remain health warnings, and no reported change depends on them. The replay records 97 persistent malformed management-index cases and one timeout recovered in A.</li>
+<li>Preserve Gufo IPv6 containment, exact route diagnostics, late-address recovery, SNMP collection behavior, and every 0.32.4 retry and delayed stability budget unchanged.</li>
+</ul>
+<h2 id="0326---2026-08-31">0.32.6 - 2026-08-31</h2>
+<ul>
+<li>Keep <code>discovery.json</code> at schema 8, topology graph schema 2, and <code>run.json</code> schema 3. Advance diff JSON to schema 10 for collection-timing policy, subtable-scoped coverage authority, relationship-evidence classification, attribute coverage provenance, and compact human-report controls.</li>
+<li>Retain collector <code>duration_ms</code> telemetry in each discovery while excluding it from default cross-run equality. Add <code>--include-collection-timing</code> and its configuration counterpart for explicit timing diagnostics. Ordinary elapsed time jitter no longer marks otherwise stable hosts as collection-changed.</li>
+<li>Use LLDP/LLDPv2 <code>remote_neighbor</code> coverage for relationship presence, original-LLDP <code>local_port</code> coverage for local-interface authority, and each protocol's <code>remote_management_address</code> coverage for management-address removals. Aggregate protocol status remains a health summary but no longer makes complete topology observations uncertain merely because an independent management-address walk was partial.</li>
+<li>Preserve semantic subtable coverage through compatibility-projection folding. Duplicate projections merge each coverage dimension independently, with a complete contributing path preventing an unrelated aggregate partial status from erasing authoritative neighbor or interface coverage.</li>
+<li>Classify stable relationships whose observer, peer, local port, remote port, and protocol set agree but whose names or raw protocol evidence differ as <code>relationship_evidence_changed</code>. The summary exposes a separate <code>Evidence</code> count and records <code>semantic_qualification=evidence_only</code> with no asserted physical-topology effect. Durable identity conflicts and actual port changes retain their existing higher-priority classifications.</li>
+<li>Propagate collection provenance for uncertain entity attributes into graph correspondence and collection incidents. Missing chassis/stack evidence caused by a failed source observation is reported as attribute uncertainty rather than a confirmed entity change or one-sided graph component.</li>
+<li>Collapse derivative coverage-uncertain rows beneath their originating collection incident in default human output. Add <code>--summary-only</code> for summaries/incidents and <code>--expand-collection-incidents</code> for the complete diagnostic rendering. Machine-readable JSON always retains full detail.</li>
+<li>Replay the supplied 20260109-01 and 20260109-00 production pair. Default diff size falls from about 139 MB to about 11 MB; timing-only collection churn no longer marks 1,368 hosts. The comparison retains one credible endpoint port move, one protocol transition, seven stable relationship-evidence changes, nineteen confirmed one-sided observations, and the existing <code>branch-access-3650-stack</code> LLDP structural-failure incident without introducing a pairing or topology regression. Gufo IPv6 containment, late-address recovery, and every 0.32.4 retry budget remain unchanged.</li>
+</ul>
+<h2 id="0325---2026-08-31">0.32.5 - 2026-08-31</h2>
+<ul>
+<li>Contain Gufo SNMP 0.12.0 raw-IPv6 destination construction at the backend boundary. LLDP-Runner tries canonical unbracketed IPv6 first and performs one bracketed construction only for the exact confirmed <code>OSError("invalid address")</code> signature. The compatibility attempt does not consume any SNMP retry allowance, and canonical unbracketed addresses remain authoritative everywhere else.</li>
+<li>Add phase-aware SNMP backend errors and one structured record per failed address and credential route. JSON and CSV output now expose exact attempted target, address family, phase, original exception type and OS fields, credential provenance, operation, collector, attempt, current final state, and basic-route recovery metadata without inferring targets from host presentation fields.</li>
+<li>Add durable route-attempt history and bounded late-management-address recovery. A failed managed host may be admitted once by default when a new, direct, policy-permitted, previously unattempted management address arrives. Recovery accounting survives restart and host merges and does not replay old routes.</li>
+<li>Add explicit LLDP and LLDPv2 subtable coverage for remote-neighbor, management-address, and original-LLDP local-port walks. Coverage records status, attempts, objects, rows, duration, message, and management-address validity/family counts while retaining usable topology when only local-port resolution fails.</li>
+<li>Classify management-address evidence changes on an otherwise stable learned relationship separately from topology changes. Diff JSON schema 9 reports added/removed addresses by family and collection provenance; incomplete address-table coverage yields uncertainty, while physical moves, protocol transitions, and collector failures retain precedence.</li>
+<li>Advance <code>discovery.json</code> to schema 8 and diff JSON to schema 9. Add the direct Gufo diagnostic under <code>tools/</code>, update configuration and operator/developer documentation, and add deterministic transport, migration, recovery, coverage, diff, and production-replay regression tests.</li>
+<li>Replay the supplied 20260108-08 and 20260108-07 production states. The new comparison reports 10 management-address evidence changes, one protocol transition, one A-only learned relationship, and no fabricated physical moves. Both runs recover all 14 historical Gufo IPv6 constructor errors across seven destinations from ordered, credential-matched durable route evidence.</li>
+</ul>
+<h2 id="0324---2026-08-30">0.32.4 - 2026-08-30</h2>
+<ul>
+<li>Keep discovery JSON at schema 7, topology graph schema 2, diff JSON schema 8, and <code>run.json</code> schema 3. This release changes collection resilience and additive retry telemetry only; identity, graph, and diff semantics remain unchanged.</li>
+<li>Allocate normal adaptive retries fairly across collector families. General SYSTEM-MIB, ENTITY-MIB, and IF-MIB work remains bounded by the shared target cap, while LLDP-family and CDP collectors receive a protected reserve that earlier collectors cannot consume. LLDP and LLDPv2 share one normal family; CDP has its own. A per-collector cap prevents one multi-walk collector from exhausting all available repair capacity.</li>
+<li>Add an operator-configurable delayed neighbor stability pass. After every enabled LLDP, LLDPv2, and CDP first pass completes, one shared quiet-period delay is applied and each protocol whose final result is a timeout or structurally invalid snapshot receives exactly one fresh full-protocol retry. The final pass uses the persistent degraded profile, reopens the backend session, starts at the protocol root, and suppresses nested transport or structural retries so persistent loss cannot multiply attempts.</li>
+<li>Record shared-pool, protected-reserve, collector-family, and stability retry accounting in adaptive session telemetry. Collection coverage now reports the actual number of allowed retry attempts rather than leaving a transport-retried collector at attempt 1; unavailable retry decisions remain diagnostic events but do not inflate attempt counts.</li>
+<li>Replay the submitted <code>20260108-05</code> versus <code>20260108-04</code> production pair. The known packet-loss path to <code>hq-access-3650-1</code> demonstrates why LLDP/CDP capacity must survive earlier ENTITY-MIB/IF-MIB failures, while the transient invalid <code>branch-access-3650-stack</code> LLDP snapshot demonstrates the bounded delayed repair case.</li>
+</ul>
+<h2 id="0323---2026-08-30">0.32.3 - 2026-08-30</h2>
+<ul>
+<li>Keep discovery JSON at schema 7, topology graph schema 2, and <code>run.json</code> schema 3. Advance diff JSON to schema 8 for compatibility-projection reconciliation, independent host dimensions, optional-table row-count confidence, and weak-identity mobility records.</li>
+<li>Reconcile inactive duplicate managed-host projections before worker claims, defer ready rows equivalent to an active worker's projection, and perform one final reconciliation after workers stop. Compatible direct logical names (exact, or one guarded short-name/FQDN pair) plus a shared identity-eligible management address are required. Direct SNMP <code>sysName</code> evidence takes precedence over a shadow presentation alias; conflicting serial, SNMP engine, strict MAC, or logical-name evidence prevents merging. Differing per-link chassis IDs are tolerated only under that direct name-and-address corroboration and remain conflicts for sparse transitive bridges. Completed results outrank failed projections, a READY alternate remains queryable after an equivalent route fails, and seed status/rank survive either merge outcome.</li>
+<li>Canonicalize duplicate complete managed-host rows before compatibility host pairing. Remap and deduplicate their neighbor references so a redundant projection cannot create a false one-sided host and a copied inventory of false one-sided neighbors. Immutable graph advertisements remain unchanged.</li>
+<li>Separate durable entity attributes from presentation aliases and collection provenance. Query target, ICMP route, SNMP row counts, retries, credential route, and other collector telemetry no longer inflate the confirmed host change count; their differences remain available in dedicated dimensions.</li>
+<li>Treat a complete but zero-row optional ENTITY-MIB snapshot as insufficient evidence that previously observed chassis or member hardware was removed. Report the attribute difference as collection-coverage uncertainty while a nonempty complete snapshot can still support a confirmed absence.</li>
+<li>Use one shared weak-MAC boundary in compatibility and graph diff. A unique cross-port observation supported only by low-entropy, multicast, locally administered, malformed, or otherwise weak MAC evidence becomes one ambiguous <code>candidate_move</code>, not confirmed A-only and B-only relationships.</li>
+<li>Replay the live <code>20260108-03</code> versus <code>20260108-02</code> pair: remove the duplicate <code>hq-vdc1-7nx1</code> host and its 28 copied neighbor losses, isolate the intermittent Nexus ENTITY-MIB result as attribute uncertainty, preserve one protocol-only transition, retain one confirmed older-run-only MAC endpoint observation, and classify <code>00:00:00:00:01:03</code> movement as ambiguous.</li>
+</ul>
+<h2 id="0322---2026-08-30">0.32.2 - 2026-08-30</h2>
+<ul>
+<li>Keep discovery JSON at schema 7 and topology graph schema 2. Advance diff JSON to schema 7 and <code>run.json</code> to schema 3 for explicit coverage-aware comparison fields and finalization timing metrics.</li>
+<li>Propagate failed protocol/table coverage into one-sided entity and relationship decisions. Direct observations and recursively hidden descendants now use <code>presence_uncertain_due_to_coverage</code> rather than a confirmed addition or removal when the corresponding observer could not collect the needed protocol.</li>
+<li>Add collection-incident aggregation with originating observer, protocol, table, direct effects, recursive effects, and actionable queried-device denominators. Intentional <code>no_query</code> and <code>out_of_scope</code> populations remain separate from queried partial/failed devices.</li>
+<li>Validate complete CDP cache snapshots before materializing endpoints. A row missing device ID or remote port, an index mismatch, or a mid-snapshot partial row rejects the complete table. One bounded restart begins at the CDP root; repeated invalid snapshots record <code>structurally_invalid</code> coverage without creating identity-empty shell hosts or relationships.</li>
+<li>Replace the one-token target session retry policy with a persistent degraded transport profile, one bounded retry allowance per logical operation/table, and a total per-target cap. A recovered scalar or GET-MANY request no longer consumes the only opportunity to repair a later CDP, LLDP, or LLDPv2 table.</li>
+<li>Record complete retry and exhaustion context, including target, collector, operation, table/root OID, credential route/profile, phase, counters, before/after transport values, discarded partial rows, and final outcome. Authentication, access, and unsupported-OID failures remain non-retryable.</li>
+<li>Qualify graph entity and relationship correspondence as <code>confirmed</code>, <code>coverage_uncertain</code>, <code>presentation_only</code>, or <code>ambiguous</code> while continuing to report physical topology as <code>not_inferred</code>.</li>
+<li>Reconcile one uniquely corroborated resolved/typed-unresolved LLDP local port at the relationship level. The relationship remains the same and the local-port resolution loss is reported as presentation-only; no device-wide LLDP-port-number-to-ifIndex rule is created.</li>
+<li>Separate identity, relationship, protocol-evidence, attribute, presentation, and collection-coverage dimensions. Complete-coverage <code>cdp,lldp -&gt; lldp</code> transitions remain protocol-evidence changes with no asserted physical-topology effect; collector failure makes them uncertain.</li>
+<li>Publish canonical <code>outputs/&lt;run-id&gt;/</code> paths in completion messages even when an installation retains a legacy symlink. Add discovery, graph resolution, graph serialization, output publication, finalization, and total wall-clock durations to <code>run.json</code> while retaining the existing logical <code>duration</code> definition.</li>
+<li>Close coordinator multiprocessing queues after workers and the log listener stop, preventing an otherwise completed command or test process from waiting on a stale queue feeder during interpreter shutdown.</li>
+<li>Replay the submitted <code>20260108-01</code> versus <code>20260108-00</code> evidence: all 342 coverage-derived A-only hosts are uncertain, the two malformed CDP shells are invalid source evidence, the five degraded local-port relationships remain presentation-only, and the 12 maintenance protocol transitions keep no asserted physical-topology effect.</li>
+</ul>
+<h2 id="0321---2026-08-29">0.32.1 - 2026-08-29</h2>
+<ul>
+<li>Advance discovery JSON to schema version 7, topology graph schema version 2, diff JSON to schema version 6, and <code>run.json</code> to schema version 2. Current release practice remains to collect two new runs after deployment rather than convert earlier discovery documents.</li>
+<li>Make graph evidence accounting complete. Every durable protocol advertisement is now present in the graph or in an explicit <code>advertisement_exclusions</code> record. A provisional compatibility host that is absorbed or retired can no longer remove its CDP, LLDP, or LLDPv2 evidence from the final graph.</li>
+<li>Link each protocol advertisement to the immutable SNMP-result observation that supplied its source-system facts. Retain a compact source-context hint on each advertisement instead of duplicating the complete system result for every neighbor row.</li>
+<li>Replace the graph's single authority implication with independent dimensions for observation completeness, observation projection, entity-resolution maturity, physical-topology inference, directness, and compatibility-view role. A complete observation projection does not claim that provisional entity clusters or physical cables are proven.</li>
+<li>Make semantic graph identifiers independent of run-local host IDs, query and credential routes, volatile SNMP table indexes, and input row order. Keep storage fingerprints separately for audit and idempotence.</li>
+<li>Treat one Nexus VDC observed through several management routes as one logical system when the normalized logical name and verified physical serial agree. Keep sibling VDCs with different names separate even when they share one Nexus 7700 chassis serial. Production fixtures record <code>hq-vdc2-7nx1</code> at <code>203.0.113.21</code> and <code>203.0.113.24</code>, <code>hq-vdc3-7nx1</code> at <code>203.0.113.22</code>, and <code>hq-vdc1-7nx1</code> at <code>203.0.113.23</code>.</li>
+<li>Compress the current graph projection stored in SQLite and retain a compact summary beside it. Existing text projections remain readable during the additive state migration.</li>
+<li>Add run-wide A/B collection-coverage summaries and an operator warning to diff output. Preserve per-host protocol, table, and interface-resolution details so collection incidents remain distinguishable from confirmed network changes.</li>
+<li>Treat a uniquely corroborated relationship as unchanged when one run has a resolved local-interface name and the other has only the corresponding typed unresolved representation. Diff JSON retains the display-only change under <code>presentation_differences</code> instead of classifying topology as uncertain.</li>
+<li>Change the built-in finalized-output directory to the intentional plural <code>outputs</code>. Default configuration, generated configuration, examples, help, tests, scripts, and current documentation use <code>&lt;persistent_root&gt;/outputs/&lt;runid&gt;/</code> without a singular fallback.</li>
+<li>Add timezone-aware <code>started</code> and <code>completed</code> values plus numeric <code>duration</code> seconds to <code>run.json</code>. <code>duration</code> is the nonnegative elapsed difference between the two persisted logical-run timestamps.</li>
+<li>Harden <code>scripts/lrun-prepare-bundle</code>: use only <code>outputs/</code>, create a coherent SQLite backup for each selected run, verify and compact the staged database, and exclude live WAL/SHM sidecars from the review archive.</li>
+<li>Expand <a href="docs-ROADMAP.html"><code>docs/ROADMAP.md</code></a> with graph inspection, Watch layout, performance counters, run timeboxes and alerting, storage profiles, and production fixtures. Add <a href="docs-DEV.html"><code>docs/DEV.md</code></a> and focused contributor references under <code>docs/dev/</code>. Only <a href="docs-ROADMAP.html"><code>docs/ROADMAP.md</code></a> is maintained; no parallel <code>doc/</code> documentation tree is used.</li>
+</ul>
+<h2 id="0320---2026-08-29">0.32.0 - 2026-08-29</h2>
+<ul>
+<li>Advance discovery JSON to schema version 6 and diff JSON to schema version 5. Earlier discovery formats are not converted by this release; current operational practice is to collect two new runs after deployment.</li>
+<li>Retain immutable CDP, LLDP, and LLDPv2 advertisements before cross-protocol reconciliation. Store the complete raw row in SQLite, publish a compact audit form in discovery JSON, and derive typed claims without DNS or policy enrichment changing what the device actually reported.</li>
+<li>Publish an authoritative claims-driven <code>topology_graph</code> containing physical chassis, logical systems, observed systems, interface occurrences, protocol advertisements, logical membership, observed relationships, interface relationship groups, collection coverage, and a deterministic projection fingerprint.</li>
+<li>Keep physical chassis and logical systems separate. A directly collected serial can associate several Nexus VDC logical systems with one chassis while distinct names, addresses, and management agents remain separate entities. A physical serial alone never merges the VDCs.</li>
+<li>Materialize the graph deterministically from durable evidence. Replaying unchanged evidence is idempotent; a changed component or projection appends a superseding decision and transactionally replaces the current graph without deleting prior observations, claims, or decisions.</li>
+<li>Preserve a locally assigned LLDP chassis label as the operator-facing endpoint name when no system name is advertised, while keeping the label edge-scoped and ineligible to create global host identity by itself.</li>
+<li>Unify already-resolved local interface names across CDP ifIndex and LLDP local-port namespaces while retaining every source namespace. Equal unresolved integers remain separate typed identifiers.</li>
+<li>Represent interfaces with several learned systems as deterministic relationship groups. Preserve member multiplicity and protocol evidence, classify shared-chassis logical members and overlays where supported, flag other multi-neighbor interfaces for operator review, and leave relationship directness unresolved instead of guessing direct versus passed-through.</li>
+<li>Add graph-aware many-to-many diff correspondence. Report one-to-one, one-to-many, many-to-one, and many-to-many components with cluster split, cluster merge, cluster reassociation, duplicate projection introduction, and duplicate absorption outcomes. Resolver changes are separated from observed relationship changes and do not automatically assert physical-link churn.</li>
+<li>Keep the flat host and neighbor comparison as a compatibility diagnostic. Ignore collection-route selection (<code>queried_as</code> and ICMP route) as physical host change, treat ENTITY-MIB absence as <code>not_observed</code> unless collection was complete, and refuse to confirm a physical move from weak low-entropy, multicast, or locally administered MAC-only evidence.</li>
+<li>Record independent collection coverage for SYSTEM-MIB, ENTITY-MIB, IF-MIB, LLDP, LLDPv2, and CDP. Status distinguishes complete, partial, timeout, access-restricted, unsupported, structurally invalid, not attempted, and failed collection so missing data is not automatically interpreted as removal.</li>
+<li>Add <code>output.relationship_view</code> and <code>show-neighbors --relationship-view</code>. <code>sectioned</code> is the default and indents shared-chassis, overlay, and multi-neighbor observations; <code>combined</code> uses compact relationship labels and a legend. Both views retain unresolved directness.</li>
+<li>Include executable <code>scripts/lrun-prepare-bundle</code>. With no arguments it selects the two newest completed runs; with exactly two arguments it preserves the requested A/B order. The script validates matching output/runtime trees, writes a changes-only JSON diff, and creates one portable uncompressed tar archive.</li>
+<li>Add <a href="docs-ROADMAP.html"><code>docs/ROADMAP.md</code></a> for planned resolver, collection, presentation, validation, data-contract, and review-workflow work. Expand the architecture, claims, diff, names, run, CLI, primer, installation, precedence, example configuration, generated comments, and README documentation for the graph model and mixed Network Operations audience.</li>
+</ul>
+<h2 id="0317---2026-08-29">0.31.7 - 2026-08-29</h2>
+<ul>
+<li>Use one adaptive SNMP transport profile for the successful target address and credential route across basic and detail collection. The target has one shared retry budget, preventing a request-level retry and a collector-level retry from multiplying into several attempts. Configured repeated attempts against the same address and credential route also reuse the degraded profile.</li>
+<li>On the first retry-eligible timeout or structurally incomplete table, increase the active request timeout by the configured multiplier (default <code>1.5</code>), reduce GETBULK <code>max_repetitions</code> by the configured multiplier (default <code>0.5</code>, rounded upward), reduce GET-MANY OID batches by the same factor, and add the configured inter-PDU pacing (default <code>100</code> milliseconds). The degraded profile remains active for later operations on that target and resets for the next target. A failed table attempt is discarded and restarted at its root.</li>
+<li>Add <code>snmp.retry_budget</code>, <code>snmp.retry_timeout_multiplier</code>, <code>snmp.retry_max_repetitions_multiplier</code>, <code>snmp.retry_min_max_repetitions</code>, and <code>snmp.retry_inter_pdu_delay_ms</code> to defaults, generated configuration, <code>configs/example.toml</code>, validation, and operator documentation.</li>
+<li>Persist adaptive-session telemetry, including before/after timeout, max-repetitions, request rate, pacing, discarded-partial-result status, and retry outcome, in SQLite immutable SNMP-result evidence and additive discovery JSON fields.</li>
+<li>Preserve the target-first SNMP log contract for every new retry and pacing event. With the normal logging prefix, records read <code>timestamp level worker logger: SNMP target=&lt;address-or-name&gt; &lt;message&gt;</code>, so concurrent worker output keeps the destination at one parseable position.</li>
+<li>Make merged neighbor collections independent of SNMP table row order. Use canonical member, protocol, address, and capability ordering while preserving protocol-specific raw evidence and duplicate advertisements where they are materially distinct.</li>
+<li>Parse a plausible trailing <code>name(serial)</code> advertisement into three retained facts: the raw advertisement, its logical base name, and a separate physical serial hint. The base participates in guarded CDP/LLDP name comparison and DNS lookup. The serial hint is a moderate, non-merging physical-container claim until direct evidence such as ENTITY-MIB corroborates it.</li>
+<li>Add an audit-only local-interface observation-group projection for interfaces with multiple learned members. Groups and members have deterministic fingerprints and canonical order, preserve raw/base names and serial hints, and leave direct/indirect relationship scope unclassified. They do not replace <code>learned_neighbors</code> or change scheduling in the 0.31 maintenance line.</li>
+<li>Add the <a href="docs-PRIMER.html">technical primer</a>, which explains SNMP table pacing, claims, clusters, physical versus logical entities, protocol advertisements, deterministic multisets, deferred reasoning, and reversible decisions for a mixed Network Operations audience.</li>
+<li>Keep discovery JSON schema version 5 and diff JSON schema version 4. The interface observation groups are additive shadow/audit data for the planned graph resolver.</li>
+</ul>
+<h2 id="0316---2026-08-29">0.31.6 - 2026-08-29</h2>
+<ul>
+<li>Standardize operational SNMP log and console messages so the exact transport target immediately follows the <code>SNMP</code> marker. With the existing logging prefix, events now read <code>timestamp level worker logger: SNMP target=&lt;value&gt; &lt;message&gt;</code> for session retries, collector retries/failures, access denials, interface-resolution gaps, basic polling, and detail-session failures.</li>
+<li>Treat a learned edge as topologically unchanged when both runs contain the same typed unresolved local-port token and every normalized neighbor field is equal. The unresolved interface remains visible in discovery data and host collection coverage, but no longer turns an otherwise identical edge into an <code>uncertain</code> change.</li>
+<li>Add a narrowly guarded same-device CDP/LLDP reconciliation path for Cisco IOS agents that expose a resolved CDP IF-MIB port but no usable original-LLDP local-port name. One unresolved LLDP row can attach to one resolved CDP edge only when the protocol-local numeric indexes, exact remote port, and remote endpoint identity corroborate one unique candidate. The raw typed LLDP value remains in protocol details, and no device-wide <code>lldpLocalPort == ifIndex</code> equivalence is created.</li>
+<li>Validate against production runs <code>20260107-01</code> and <code>20260107-02</code>. The diff fix reclassifies 47 byte-for-byte stable unresolved-port edges from <code>uncertain</code> to <code>same</code>. Seven A-only and seven B-only Nexus/VDC edge projections remain intentionally unresolved because safely representing those duplicates requires cluster split/merge correspondence rather than another one-to-one pairing shortcut.</li>
+<li>Keep discovery JSON schema version 5 and diff JSON schema version 4.</li>
+</ul>
+<h2 id="0315---2026-08-29">0.31.5 - 2026-08-29</h2>
+<ul>
+<li>Add an additive immutable evidence layer to the SQLite run database. Normalized candidate and SNMP-result observations use deterministic fingerprints, typed claims preserve raw/normalized value, provenance, scope, strength, identity eligibility, and context, and exact replay is idempotent.</li>
+<li>Add append-only resolution decisions and decision-to-claim links. A later cluster analysis can append a different decision that supersedes the former conclusion without updating or deleting the underlying observation, claims, or decision history. Existing host/edge tables remain the compatibility projection during this staged resolver migration.</li>
+<li>Classify strict Cisco <code>SEP&lt;12-hex&gt;</code> phone/video names and strict Cisco AP names (<code>APxxxx.xxxx.xxxx</code> or compact <code>AP&lt;12-hex&gt;</code>) as strong derived MAC evidence. A strict AP CDP name can reconcile with the identical LLDP MAC-address chassis identity without applying generic hexadecimal hostname inference.</li>
+<li>Keep LLDP <code>network_address</code> chassis values as weak edge-scoped claims and raw protocol evidence instead of admitting them as standalone global address aliases. Repeated/default values such as <code>198.51.100.3</code> therefore cannot merge endpoints observed on unrelated physical edges by chassis value alone.</li>
+<li>Wrap the project-owned SNMP client with adaptive timeout handling. A timeout during session/engine discovery, GET, GET-MANY, or WALK receives one retry using a fresh client and exactly 1.5 times the active timeout. A failed table walk is restarted from its root so partial GETNEXT/GETBULK results are not accepted as a complete snapshot; the increased timeout remains active for later operations in that device session.</li>
+<li>Normalize explicit <code>noAccess</code>, <code>authorizationError</code>, VACM, and equivalent access/view denials as <code>snmp_access_restricted</code>. Log the target, operation, OID context, and safe detail, persist the structured worker error, and prevent optional IF-MIB, LLDP local-port, or ENTITY-MIB fallback paths from silently converting an access restriction into an empty/unsupported table.</li>
+<li>Add additive migration for existing 0.31.4 state databases plus regressions for immutable/idempotent evidence, superseding decisions, strong/weak claim classification, reused network-address chassis values, Cisco AP reconciliation, 50-percent timeout retry (including mid-table and post-success timeouts), and access-restriction propagation.</li>
+<li>Keep discovery JSON schema version 5 and diff JSON schema version 4. The new evidence ledger is internal SQLite state in this maintenance release.</li>
+</ul>
+<h2 id="0314---2026-08-28">0.31.4 - 2026-08-28</h2>
+<ul>
+<li>Replace one-owner IPv4/IPv6 aliases in SQLite with many-to-many host-address claims. A repeated usable address remains visible on every claimant but is treated as contested evidence and cannot select or merge all hosts that advertise it. Existing 0.31.3 state databases migrate their address aliases in place when opened.</li>
+<li>Keep directly advertised CDP/LLDP names distinct from DNS enrichment for identity assembly. Resolver names and addresses remain available for classification, presentation, query policy, and scheduling, but DNS-only convergence on a load balancer, anycast frontend, or shared address can no longer merge unrelated discovered devices.</li>
+<li>Scope LLDP chassis subtypes that are device-local (<code>chassis_component</code>, <code>interface_alias</code>, <code>port_component</code>, and <code>interface_name</code>) out of the global host-alias registry. A <code>network_address</code> chassis value participates only as ordinary address evidence; typed MAC and other accepted chassis evidence keep their existing behavior.</li>
+<li>Retry IF-MIB interface-name collection once after a transient timeout, transport failure, or incomplete-table result. Retry the original LLDP local-port table once independently as well. Persistent failures are recorded as durable collection coverage rather than being silently converted to empty maps or discarded topology.</li>
+<li>Preserve unresolved local-port namespaces as <code>ifIndex:&lt;n&gt;</code> or <code>lldpLocalPort:&lt;n&gt;</code>. Original LLDP no longer assumes that <code>lldpRemLocalPortNum</code> is an IF-MIB <code>ifIndex</code> merely because the integer values match. Per-protocol unresolved-row errors let diff classify affected topology as uncertain.</li>
+<li>Add a reciprocal <code>edge_context</code> host-pairing tier to diff. Otherwise anonymous hosts can pair across runs only when the same already-paired observer sees a unique exact endpoint MAC on the same typed local port; this evidence remains topology-scoped and never becomes a global alias.</li>
+<li>Add the learned-neighbor status <code>moved</code> when one uniquely paired endpoint remains the same but changes resolved local switch ports. A resolved versus unresolved local-port representation is reported as collection uncertainty, not as a physical move.</li>
+<li>Add explainable categorical host-pairing confidence (<code>verified</code>, <code>high</code>, <code>medium</code>, or <code>low</code>) with the evidence tier and tokens retained on every paired host. These are conservative engineering categories, not calibrated probabilities. The macro summary publishes confidence counts and human output adds a Confidence column.</li>
+<li>Harden cross-run conflict handling so disjoint strict SEP-derived MACs remain contradictory even when both records contain the same repeated address. A shared address with incompatible direct names and no agreeing physical identity is retained as an uncertain candidate rather than forced into a host pair.</li>
+<li>Advance diff JSON to schema version 4 for <code>moved</code>, <code>edge_context</code>, pairing confidence, and unresolved-interface coverage. Discovery JSON remains schema version 5.</li>
+<li>Validate the release against the supplied production runs 20260106-13 and 20260106-14. The semantic result improves from 42/43 one-sided hosts and 12/9 one-sided learned edges to 1 arrival, 2 departures, 1 endpoint move, and 8 uncertain learned edges (six interface-resolution gaps and two protocol collection failures), while preserving 16,192 unchanged learned edges.</li>
+</ul>
+<h2 id="0313---2026-08-28">0.31.3 - 2026-08-28</h2>
+<ul>
+<li>Prevent distinct strict Cisco <code>SEP&lt;12-hex&gt;</code> endpoints from collapsing into one discovery host merely because they advertise the same usable IP address or LLDP <code>network_address</code> chassis value. When both observations contain SEP-derived MAC identity and the MAC sets are disjoint, that hardware contradiction now wins over shared address/chassis evidence.</li>
+<li>Fix an encounter-order-dependent production failure in which nine phones at different sites all advertised <code>198.51.100.29</code>; whichever phone was observed first owned the shared address and accumulated every later SEP name/MAC. Two otherwise equivalent runs could therefore choose different aggregate <code>preferred_name</code> values and report false neighbor name changes across the routers that observed those phones.</li>
+<li>Preserve the intended 0.31.2 behavior for one Cisco endpoint across CDP/LLDP, short/FQDN forms, DNS-suffix changes, missing management-address rows, and changing network-address chassis evidence: equal strict SEP MAC identity still reconciles those observations to one host.</li>
+<li>Add a production-shaped state regression using the nine affected SEP identities and their repeated <code>198.51.100.29</code> address. The regression verifies nine durable host identities, one SEP MAC alias per host, and stable re-observation of the same phone.</li>
+<li>Discovery JSON remains schema version 5 and diff JSON remains schema version 3; this release corrects discovery identity assembly and requires no schema change.</li>
+</ul>
+<h2 id="0312---2026-08-28">0.31.2 - 2026-08-28</h2>
+<ul>
+<li>Add strict Cisco endpoint identity for a left-most host component matching <code>SEP</code> plus exactly twelve hexadecimal characters. The embedded value is normalized as a canonical MAC alias, so short names and FQDN forms such as <code>.voice-a...</code> and <code>.voice-b...</code> identify the same phone/video endpoint without applying generic DNS suffix stripping.</li>
+<li>Let strict SEP identity reconcile CDP/LLDP rows on the same local switch port even when the LLDP management-address subtable is temporarily unavailable. Generic short-name/FQDN reconciliation remains guarded by shared usable address evidence.</li>
+<li>Allow an LLDP chassis ID explicitly typed as <code>network_address</code> to participate as address-like same-edge corroboration while preserving its source as chassis evidence in protocol details.</li>
+<li>Stop converting LLDP/LLDPv2 management-address walk exceptions into silently empty address tables. Timeout and transport failures now reach the complete protocol retry path; a final failure is persisted so collection-aware diff can classify affected topology as uncertain.</li>
+<li>Add a dedicated <code>protocol_changed</code> neighbor diff status when a paired physical edge changes protocol set, such as <code>cdp -&gt; cdp,lldp</code> or <code>cdp -&gt; lldp</code>, and all remaining differences are protocol/representation evidence. Collection uncertainty still takes precedence when a relevant collector actually failed.</li>
+<li>Advance diff JSON schema to version 3. Neighbor records can include a structured <code>protocol_change</code> object and macro summaries count <code>protocol_changed</code> separately from ordinary <code>changed</code> topology. Discovery JSON remains schema version 5.</li>
+<li>Add production-shaped regressions for the 91-phone split/merge pattern seen on a Catalyst stack, SEP suffix transitions, missing LLDP management-address evidence, transport retry, strict SEP cross-run pairing, and protocol-change summary/uncertainty behavior.</li>
+<li>Update README, NAMES.md, ARCHITECTURE.md, and DIFF.md to document SEP identity, LLDP management-subtable failure semantics, edge reconciliation, and the distinction between topology change and protocol-evidence change.</li>
+</ul>
+<h2 id="0311---2026-08-28">0.31.1 - 2026-08-28</h2>
+<ul>
+<li>Validate LLDP and LLDPv2 remote-table snapshots before admitting neighbor rows. A row missing the mandatory chassis-ID or Port-ID subtype/value pair now causes one complete protocol retry instead of becoming partial topology. If the retry is still incomplete, the worker records an <code>incomplete_table</code> collector error so diff can treat the affected protocol as uncertain.</li>
+<li>Preserve the full LLDP remote-row identity during table assembly. Original LLDP now keeps <code>timeMark</code> in the row key and LLDPv2 also keeps its destination MAC index context; <code>time_mark</code> remains diagnostic/volatile for diff purposes.</li>
+<li>Extend guarded CDP/LLDP same-edge reconciliation for endpoints whose protocols describe the same physical port differently. The new path requires the same normalized local switch interface, at least one shared usable management IP, and compatible names before two protocol rows can become one edge.</li>
+<li>Define compatible short/FQDN names narrowly: exactly one protocol may report a single-label host name while the other reports that exact host label plus a domain suffix. Two different FQDNs do not match merely because their left-most labels are equal, and the rule never creates a global host alias.</li>
+<li>Prefer the LLDP typed Port ID when a corroborated CDP/LLDP edge has different remote-port strings, while preserving both protocol-specific names, ports, addresses, chassis evidence, and descriptions under <code>details</code>.</li>
+<li>Add production-shaped Cisco phone regressions proving one CDP short-name row and one LLDP FQDN row become one learned edge and one <code>observed_by</code> edge only when local-port, management-address, and name evidence agree. Add negative tests for different addresses, different local ports, and different FQDNs.</li>
+<li>Update README, NAMES.md, and ARCHITECTURE.md with LLDP snapshot-race behavior, full-index assembly, edge-scoped short-name/FQDN corroboration, and examples showing how LLDP-Runner keeps protocol evidence distinct while presenting one physical connection.</li>
+</ul>
+<h2 id="0310---2026-08-28">0.31.0 - 2026-08-28</h2>
+<ul>
+<li>Repair order-dependent host splitting when an early observation cannot own a duplicate global name/address alias. A later candidate can now use the temporary host's usable <code>preferred_name</code> and inbound observed management addresses as corroborating evidence, but reconciliation still requires both normalized name and address agreement before link-specific chassis conflicts can be tolerated.</li>
+<li>Exclude explicit missing-name sentinels such as <code>unknown</code>, <code>null</code>, <code>none</code>, <code>(none).(none)</code>, <code>n/a</code>, <code>-</code>, and <code>not advertised</code> from canonical name aliases and cross-run name identity while preserving the raw protocol/presentation text for diagnostics.</li>
+<li>Add conservative same-local-port diff fallback pairing for endpoints whose run-local remote host cannot be paired. Exact MAC evidence can correlate an anonymous edge, including the mathematically reversible IPv6 modified-EUI-64 form of that MAC, without promoting derived MACs into global discovery identity.</li>
+<li>Retry LLDP, LLDPv2, and CDP table collection once after a timeout. A recovered first timeout is not persisted as an incomplete collector error; a repeated timeout records attempt 2 and leaves the protocol incomplete.</li>
+<li>Make diff consume durable host state and neighbor-collector errors as collection-coverage metadata. Missing/changed topology affected by a failed host or protocol collector is reported as <code>uncertain</code> rather than as a definite add/remove/change. Diff JSON schema version 2 adds per-host <code>collection_coverage</code>, neighbor <code>uncertainty_reasons</code>, and uncertain neighbor counts; discovery JSON remains schema version 5.</li>
+<li>Add production-shaped regressions for the Nexus leaf order-dependent split, anonymous MAC edges, modified-EUI-64/MAC correlation, collector timeout retry, failed-host topology uncertainty, and the Nexus VDC macro-diff behavior from the preceding releases.</li>
+</ul>
+<h2 id="0309---2026-08-28">0.30.9 - 2026-08-28</h2>
+<ul>
+<li>Convert cross-document Markdown references throughout the operator and developer documentation into proper relative Markdown links. References from files below <code>docs/</code> use same-directory targets, while root documents use project-root-relative targets.</li>
+<li>Preserve literal filename examples only where the filename itself is being demonstrated, such as the <code>docs/CLI.md</code> -&gt; <code>docs-CLI.html</code> publication-name example.</li>
+<li>Add documentation regression coverage that verifies every local Markdown page link resolves to a shipped Markdown file and that navigational page references do not regress to unlinked inline-code text.</li>
+<li>Verify <code>scripts/md-to-html.sh</code> rewrites the relative Markdown links to its flattened generated HTML filenames without changing discovery or diff behavior.</li>
+</ul>
+<h2 id="0308---2026-08-28">0.30.8 - 2026-08-28</h2>
+<ul>
+<li>Prevent syntactically valid non-host IP values from becoming discovery identity aliases. The canonical host-address boundary rejects IPv4 this-network, loopback, multicast, reserved/limited-broadcast values and IPv6 unspecified, loopback, and multicast values while preserving private, CGNAT, benchmark, documentation, and link-local unicast addresses.</li>
+<li>Treat CDP <code>cdpCacheAddress</code> placeholders such as <code>0.0.0.0</code> as diagnostic <code>entry_addresses</code> only. They are no longer promoted to remote management addresses, DNS/query candidates, or host aliases. Apply the same defensive filtering to LLDP/LLDPv2 management addresses, reusable seed address hints, network-address chassis IDs, and canonical state correlation.</li>
+<li>Harden cross-run diff pairing so historical <code>0.0.0.0</code>, <code>::</code>, broadcast, multicast, loopback, or other rejected address values cannot become address matching keys. This prevents a placeholder IP from outranking unique host-name evidence in older discovery files.</li>
+<li>Add production-shaped VMware ESXi regressions for the shared <code>0.0.0.0</code> CDP failure and explicit macro-diff coverage confirming the 0.30.7 Nexus VDC shared-serial pairing translates run-local neighbor host references without false <code>a_only</code>/<code>b_only</code> topology churn.</li>
+<li>Update <a href="docs-NAMES.html"><code>docs/NAMES.md</code></a>, <a href="docs-DIFF.html"><code>docs/DIFF.md</code></a>, <a href="docs-ARCHITECTURE.html"><code>docs/ARCHITECTURE.md</code></a>, and README with host-address eligibility, VMware sentinel behavior, and macro VDC guidance.</li>
+</ul>
+<h2 id="0307---2026-08-28">0.30.7 - 2026-08-28</h2>
+<ul>
+<li>Fix cross-run diff host pairing for logical devices that share one physical chassis identity, notably Cisco Nexus 7000 VDCs. Non-unique physical candidates can now be narrowed by exact normalized logical-name plus management-address agreement while reciprocal uniqueness is retained.</li>
+<li>Align diff chassis-conflict handling with discovery consolidation: differing representative LLDP chassis IDs may be tolerated when both logical name and management address agree, while serial-number and SNMP-engine conflicts remain hard conflicts.</li>
+<li>Prevent shared physical Nexus serials from collapsing distinct VDCs when logical corroboration is absent or non-unique. This restores stable learned/observed_by edge pairing across runs instead of reporting unchanged Nexus links as paired <code>a_only</code>/<code>b_only</code> records.</li>
+<li>Update <a href="docs-DIFF.html"><code>docs/DIFF.md</code></a>, <a href="docs-NAMES.html"><code>docs/NAMES.md</code></a>, and README guidance for shared physical containers, logical-host corroboration, and conservative ambiguity behavior.</li>
+</ul>
+<h2 id="0306---2026-08-28">0.30.6 - 2026-08-28</h2>
+<ul>
+<li>Announce run type, primary configuration, raw seed count, seed-resolution start/completion, and discovery start before workers begin network discovery.</li>
+<li>Add 30-second console seed-resolution heartbeats so large DNS-heavy startup phases remain visibly active even while the main thread is inside a slow resolver call. <code>activity.log</code> records more detailed raw/input/unique, queryable/unresolved, policy-state, DNS-used/skipped, and elapsed counters.</li>
+<li>Improve pre-worker initialization failures with explicit console and activity-log messages while preserving the existing detailed CLI error.</li>
+<li>Add <code>discovery.seed_dns_mode</code> and <code>--seed-dns-mode</code> with <code>resolve</code> as the default and conservative <code>skip-addressed</code> reuse for a named seed carrying a valid prior <code>queried_as</code> address and successful/complete state when present. IP-only and failed/mixed-state seeds continue through normal DNS resolution.</li>
+<li>Add <a href="docs-RUN.html"><code>docs/RUN.md</code></a> describing the run lifecycle and <a href="docs-DNS.html"><code>docs/DNS.md</code></a> describing resolver behavior, skip-addressed tradeoffs, local caching-stub guidance, and a future run-scoped internal DNS-cache consideration.</li>
+</ul>
+<h2 id="0305---2026-08-27">0.30.5 - 2026-08-27</h2>
+<ul>
+<li>Reconcile CDP and LLDP observations on the same local/remote port when their logical names agree, including guarded Cisco Nexus NX-OS CDP <code>name(serial)</code> Device IDs paired with the undecorated LLDP VDC System Name. The physical serial suffix is retained as CDP observation evidence and is not a host alias.</li>
+<li>Preserve CDP <code>cdpCacheAddress</code> explicitly as <code>cdp.entry_addresses</code> while retaining existing remote-address evidence. When CDP and LLDP reconcile, LLDP management addresses are ordered first for operator-facing management display.</li>
+<li>Refine host identity conflict handling so matching normalized name <em>and</em> at least one management address can corroborate one logical host even when valid LLDP chassis IDs differ by link, as observed on Nexus 7000 VDCs.</li>
+<li>Retain the 0.30.3 false-consolidation safeguards: different chassis IDs remain conflicting when name/address corroboration is incomplete, malformed chassis values remain observation-only, and shared physical Nexus serials never merge distinct VDC names/addresses.</li>
+<li>Update <a href="docs-NAMES.html"><code>docs/NAMES.md</code></a> and architecture documentation with the evidence-based consolidation model, Nexus VDC example, duplicate-prevention goals, and conservative rules intended to avoid both duplicate hosts and false merges.</li>
+</ul>
+<h2 id="0304---2026-08-27">0.30.4 - 2026-08-27</h2>
+<ul>
+<li>Add <code>app_name</code> and <code>app_version</code> immediately after <code>schema_version</code> in <code>run.json</code>; both values come from canonical package runtime metadata.</li>
+<li>Add a shared standard-library CSV input reader with dynamic header-based field positions, source-line retention, case-insensitive header matching by default, selectors, structural field/line limits, optional ASCII enforcement, and explicit rejection of multiline CSV records.</li>
+<li>Migrate reusable <code>seeds.csv</code> and seed-credential CSV input to the shared reader. Their current field names remain required, but columns may be reordered and unrelated extra columns are ignored without changing operational meaning.</li>
+<li>Add <a href="docs-CSV-INPUT.html"><code>docs/CSV-INPUT.md</code></a> as the common CSV input contract for current and future operator-supplied CSV files.</li>
+</ul>
+<h2 id="0303---2026-08-27">0.30.3 - 2026-08-27</h2>
+<ul>
+<li>Fix learned-host consolidation so an LLDP/LLDPv2 chassis ID advertised as <code>mac_address</code> or <code>network_address</code> participates in identity correlation only when it actually decodes as that advertised type. Malformed <code>hex:...</code> values remain in neighbor observation details for troubleshooting.</li>
+<li>Include the chassis subtype in internal chassis aliases so equal text under different LLDP chassis subtypes cannot collide in the identity registry.</li>
+<li>Add conservative identity-conflict checks: contradictory trusted chassis IDs prevent a duplicate name/address from forcing a merge, and a chassis-only match is rejected when both names and management-address sets are non-empty and mutually disjoint.</li>
+<li>Add regression coverage based on an Aruba CX switch learning multiple Cisco phones with different names, management addresses, and Port IDs but the same malformed subtype-5 chassis value. Canonical output now retains distinct host references and names for those neighbors.</li>
+<li>Update <a href="docs-NAMES.html"><code>docs/NAMES.md</code></a> and architecture documentation for trusted chassis identity, conflict handling, and the distinction between canonical identity and retained observation evidence.</li>
+</ul>
+<h2 id="0302---2026-08-27">0.30.2 - 2026-08-27</h2>
+<ul>
+<li>Ignore volatile SNMP neighbor-table locator values during diff comparison so unchanged topology is not reported merely because LLDP/LLDPv2/CDP row indexes changed between collections. This includes <code>remote_index</code>, <code>local_port_num</code>, <code>local_ifindex</code>, CDP <code>ifindex</code>, and <code>device_index</code>, including protocol-prefixed copies preserved in neighbor details.</li>
+<li>Add regression coverage based on a production-observed LLDP <code>remote_index</code> change while retaining comparison of semantic protocol fields such as <code>port_id_subtype_id</code>.</li>
+<li>Add executable <code>scripts/lrun-diff</code> for the deployed primary configuration. The launcher preserves the operator's current working directory so relative <code>--file</code> paths retain the documented <code>lldp-runner diff</code> semantics.</li>
+</ul>
+<h2 id="0301---2026-08-27">0.30.1 - 2026-08-27</h2>
+<ul>
+<li>Fix <code>lldp-runner diff</code> host pairing performance on large inventories by precomputing normalized host identity evidence and using reverse indexes for physical, management-address, and name candidate lookup.</li>
+<li>Remove the accidental all-hosts Cartesian identity scan that could pin one CPU for many minutes during both macro and selected-host comparisons while preserving reciprocal uniqueness, evidence-tier ordering, and physical conflict safeguards.</li>
+<li>Add regression coverage that verifies physical identity normalization occurs once per host rather than once per possible A/B host pair.</li>
+<li>Document that 0.30.1 fixes the 0.30.0 quadratic matcher while selected <code>discovery.json</code> files are still loaded in memory for comparison.</li>
+</ul>
+<h2 id="0300---2026-08-27">0.30.0 - 2026-08-27</h2>
+<ul>
+<li>Add <code>lldp-runner diff</code> for read-only comparison of two finalized <code>discovery.json</code> data sets, defaulting to latest versus previous.</li>
+<li>Add <code>--latest</code>, <code>--previous</code>/<code>--prior</code>, <code>--oldest</code>, repeatable <code>--runid</code>, and repeatable <code>--file</code> source selection with ordered A/B semantics.</li>
+<li>Resolve history aliases from timezone-aware completion metadata, preferring small <code>run.json</code> files so large historical discovery documents are not loaded merely to rank run history.</li>
+<li>Add one-to-one cross-run host pairing using physical identity, management addresses, then normalized name evidence, with explicit uncertain identity handling instead of guessing across conflicting physical evidence.</li>
+<li>Add macro host and learned-neighbor comparison, host-specific learned and <code>observed_by</code> neighbor comparison, volatile-field normalization, durable stack member matching, and possible-reboot uptime reporting.</li>
+<li>Add terminal tables with existing color policy, stable <code>Result:</code> status lines, exit codes for differences/errors/ambiguity/unavailable comparisons, <code>--changes-only</code>, and machine-readable diff JSON schema version 1.</li>
+<li>Add scope/provenance warnings using discovery metadata plus <code>run.json</code> config file and seed metadata when available.</li>
+<li>Add <a href="docs-DIFF.html"><code>docs/DIFF.md</code></a> with source-selection, identity evidence, normalization, output, JSON, large-file, and maintenance-workflow details.</li>
+</ul>
+<h2 id="0298---2026-08-27">0.29.8 - 2026-08-27</h2>
+<ul>
+<li>Add <a href="docs-NAMES.html"><code>docs/NAMES.md</code></a> as the operator reference for seed, DNS, learned-neighbor, SNMP, and output name/address handling.</li>
+<li>Document intentional alias-based host folding, <code>preferred_name</code> presentation semantics, per-run host IDs, and the possibility that different devices using one duplicated name can be consolidated into one logical host.</li>
+<li>Recommend unique device names across the discovery scope and document <code>discovery.json</code> evidence operators can compare when reviewing suspected name collisions.</li>
+</ul>
+<h2 id="0297---2026-08-27">0.29.7 - 2026-08-27</h2>
+<ul>
+<li>Rename the top-level project license from <code>LICENSE</code> to <a href="LICENSE.html"><code>LICENSE.md</code></a> and keep package metadata, README links, and documentation checks synchronized.</li>
+<li>Add executable <code>scripts/md-to-html.sh</code> for recursively publishing project Markdown as standalone HTML in a flat web directory with rewritten local Markdown links and a generated documentation index.</li>
+<li>Name HTML generated from subdirectories with hyphenated path prefixes, such as <code>docs/CLI.md</code> -&gt; <code>docs-CLI.html</code>; nested path components are flattened in the same order.</li>
+</ul>
+<h2 id="0296---2026-08-27">0.29.6 - 2026-08-27</h2>
+<ul>
+<li>Add <a href="docs-INSTALL.html"><code>docs/INSTALL.md</code></a> as the authoritative installation reference and reduce README installation content to a concise link, avoiding duplicated shared-use guidance.</li>
+<li>Rename <code>scripts/lldp-runner.env.example</code> to <code>scripts/example.private</code> and combine the launcher environment examples with a shared-install profile that lets the configured maintainer synchronize uv while operators use <code>--no-sync</code>.</li>
+<li>Add a copy/paste Ubuntu 24.04/26.04 LTS shared-install walkthrough covering group/service-account creation, operator membership, centralized uv/Python, source extraction, runtime permissions, config validation, and systemd timers.</li>
+</ul>
+<h2 id="0295---2026-08-27">0.29.5 - 2026-08-27</h2>
+<ul>
+<li>Rename <code>scripts/setup-shared.sh</code> to <code>scripts/shared-setup.sh</code> for consistent noun-first operator helper naming.</li>
+<li>Add <code>scripts/svc-setup.sh</code> and <code>scripts/svc-remove.sh</code> to install/remove systemd discovery and maintenance services/timers for shared deployments.</li>
+<li>Default scheduled discovery to every four hours and daily clean/purge, with up to ten minutes of stable randomized timer delay and retention of 12 output directories (<code>latest</code> plus 11 additional runs).</li>
+<li>Install a systemd-tmpfiles rule for <code>scratch_root</code> so volatile paths such as <code>/dev/shm/lldp-runner</code> are recreated after reboot with the configured service user/group and <code>2775</code> permissions.</li>
+</ul>
+<h2 id="0294---2026-08-27">0.29.4 - 2026-08-27</h2>
+<ul>
+<li>Add <a href="docs-PLAN.html"><code>docs/PLAN.md</code></a>, an operator-oriented enterprise planning guide showing a scalable approach to ownership boundaries, query policy, classification, credential profiles/rules, evidence rules, tagging, and staged rollout.</li>
+<li>Document DefaultV2 as a simple default credential with narrow WTI, power, and Palo Alto exceptions, plus a seed-credential overlay example for special <code>ExceptionV3</code> devices.</li>
+<li>Add the planning guide to the README/documentation invariants so future releases keep the reference discoverable and terminal-readable.</li>
+</ul>
+<h2 id="0293---2026-08-26">0.29.3 - 2026-08-26</h2>
+<ul>
+<li>Add executable <code>scripts/lrun-version</code> and <code>scripts/lrun-explain</code> launchers for the <code>version</code> and <code>explain-target</code> operator commands.</li>
+<li>Make <code>explain-target</code> read-only with respect to runtime storage and SNMP secrets: it no longer resolves/probes writable runtime paths and uses optional credential-policy loading so profile/rule selection can be explained without requiring community/auth/privacy secret values.</li>
+<li>Remove upper version caps from Python, gufo-snmp, pytest, Ruff, Ty, and uv_build declarations while retaining their existing minimum versions.</li>
+<li>Update <code>scripts/shared-setup.sh</code> to keep the former shared-site defaults as commented examples and use the requested development defaults for group, persistent root, scratch root, and shared uv Python directory.</li>
+</ul>
+<h2 id="0292---2026-08-26">0.29.2 - 2026-08-26</h2>
+<ul>
+<li>Fix <code>lldp-runner watch</code> terminal teardown so both <code>q</code> and Ctrl-C erase the final dashboard/footer row and return the cursor to column zero before the shell prompt is restored. This prevents stale watch controls from remaining to the right of the prompt in terminals/SSH sessions that retain the curses screen contents.</li>
+</ul>
+<h2 id="0291---2026-08-26">0.29.1 - 2026-08-26</h2>
+<ul>
+<li>Added <a href="docs-CREDS.html"><code>docs/CREDS.md</code></a>, an operator-focused explanation of managed-device eligibility, normal credential policy, per-seed overlays, attempt ordering, success/failure behavior, resume handling, and safe credential provenance.</li>
+<li>Set uv project <code>link-mode = "copy"</code> so shared deployments do not depend on package-cache hardlinks/symlinks owned by the account that performed the sync.</li>
+<li>Expanded README installation guidance for centrally managed <code>/opt/lldp-runner</code> deployments with a shared uv-managed Python under <code>/opt/shared/python</code>.</li>
+<li>Added <code>scripts/setup-shared.sh</code> to prepare dedicated persistent/scratch roots with trusted-group ownership, setgid inheritance, and default POSIX ACLs when available; documented <code>umask 0002</code> as the fallback for environments without ACL support.</li>
+<li>Added <code>configs/conf.d/shared-paths.toml.example</code> and now ignore <code>scripts/.private</code> so shared site launcher settings are less likely to be committed accidentally.</li>
+</ul>
+<h2 id="0290---2026-08-26">0.29.0 - 2026-08-26</h2>
+<ul>
+<li>Add repeatable <code>run --seed-credential-file FILENAME</code> overlays for protected <code>.csv</code> and <code>.json</code> inputs. Credential files never create discovery seeds; they only modify authentication attempts for matching explicit run seeds.</li>
+<li>Support ordered <code>prefer</code> and <code>exclusive</code> per-seed credential strategies. Rows may reference an existing configured credential profile or supply one direct SNMPv2c/SNMPv3 authPriv credential. <code>prefer</code> falls through to ordinary address/name/default credential policy; <code>exclusive</code> does not.</li>
+<li>Rename the operator-facing seed credential identifier to <code>credential_label</code>. Labels are optional reporting metadata, have no uniqueness requirement, and are never used as internal keys or profile selectors.</li>
+<li>Add strict first-release seed credential CSV parsing with the documented 11-column schema, comment/blank-line handling, whitespace trimming, and file order as attempt order. JSON uses matching keys plus optional informational <code>source_line</code>; array order remains authoritative. Flexible CSV headers remain intentionally deferred to a future common CSV-input implementation.</li>
+<li>Keep direct seed credentials ephemeral: literal secrets are rejected from unsafe world-readable/world-writable files and are never persisted to SQLite, run/discovery JSON, generated CSV, trace output, or logs. Resume requires the applicable credential overlay again instead of checkpointing plaintext secrets.</li>
+<li>Log unmatched seed credential records at WARN activity level only and emit one INFO activity record with matched/unmatched counts when a credential file is active. These overlay diagnostics are intentionally suppressed from stderr.</li>
+<li>Bump <code>discovery.json</code> to schema version 5. Host/error credential provenance now distinguishes <code>seed-direct</code>, <code>seed-profile</code>, and <code>policy-profile</code>, carries the optional <code>credential_label</code>, and supports the <code>direct</code> credential-result value.</li>
+</ul>
+<h2 id="0281---2026-08-26">0.28.1 - 2026-08-26</h2>
+<ul>
+<li>Expand <code>get-neighbors --trace</code>/<code>--tracefile</code> from SNMP-only diagnostics into a complete network trace of OS resolver operations, ICMP probes, and logical SNMP requests/responses. Resolver entries identify <code>getaddrinfo</code>, <code>gethostbyaddr</code>, and <code>getfqdn</code> calls and returned values without claiming packet-level DNS visibility through NSS.</li>
+<li>Trace concrete raw/system ICMP attempts with address family, backend, sequence, timeout, explicit reply/no-response/error results, and RTT when available. In automatic mode, raw-backend failure and system-ping fallback are both visible.</li>
+<li>Add a <code>TRACE SUMMARY</code> footer with resolver, ICMP, and logical SNMP operation counts plus total elapsed monotonic time.</li>
+</ul>
+<h2 id="0280---2026-08-26">0.28.0 - 2026-08-26</h2>
+<ul>
+<li>Add <code>get-neighbors --trace</code> for operator-readable logical SNMP query/response diagnostics on stderr. Traces identify known MIB objects/tables and numeric OIDs, include every returned varbind, explicitly mark <code>NO RESPONSE</code>, safely normalize binary/control-bearing values, and redact known credential secrets.</li>
+<li>Add <code>get-neighbors --tracefile FILENAME</code>. Supplying the filename alone enables tracing to a newly truncated file; combining it with <code>--trace</code> fans identical trace output to both stderr and the file while normal inspection output stays on stdout. Trace destinations are preflighted before device network activity.</li>
+<li>Add the non-single-instance <code>scripts/lrun-purge</code> operator launcher for the <code>/opt/lldp-runner/config.toml</code> deployment convention.</li>
+</ul>
+<h2 id="0270---2026-08-26">0.27.0 - 2026-08-26</h2>
+<ul>
+<li>Add schema-versioned <code>run.json</code> provenance to completed <code>lldp-runner run</code> outputs. It records run ID/status/timing, the starting OS account, sanitized CLI attributes, stdin/resolved seed inputs, recognized non-secret environment inputs, configuration-file provenance, and a resume-aware invocation history.</li>
+<li>Redact credential-bearing CLI and <code>--set</code> values as <code>&lt;redacted&gt;</code> before run provenance is written. <code>output.run_json_config_log = false</code> suppresses resolved primary/include/conf.d pathname detail; <code>run --dry-run</code> creates no <code>run.json</code>.</li>
+<li>Add credential-free <code>lldp-runner purge</code> for finalized output retention. The default keeps <code>latest</code>; <code>--keep N</code> keeps latest plus N additional recent output directories, and <code>output.purge_keep</code> supplies the unattended default (0).</li>
+<li>Rank purge retention by <code>run.json</code> completion time, then <code>discovery.completed</code>, then <code>discovery.generated</code>, then the oldest available filesystem mtime among run.json, discovery.json, and the output directory. Missing/malformed files and timestamps safely fall through to the next source.</li>
+<li>Add <code>--dry-run</code> to both <code>clean</code> and <code>purge</code> so cron/systemd retention policies can be previewed using the exact normal selection logic without deleting data.</li>
+</ul>
+<h2 id="0260---2026-08-26">0.26.0 - 2026-08-26</h2>
+<ul>
+<li>Add <code>lldp-runner version</code> as an output-equivalent subcommand form of <code>lldp-runner --version</code>; it bypasses configuration and credentials.</li>
+<li>Add credential-free <code>lldp-runner clean</code> run-history maintenance. The default and <code>--all</code> clean persistent and scratch history while retaining the newest run plus <code>current</code>/<code>latest</code> targets; <code>--scratch</code> limits cleanup to scratch, and <code>--scratch --all</code> has the same all-area behavior as <code>--all</code>.</li>
+<li>Make scratch cleanup conservative on operator-selected roots by removing only recognizable LLDP-Runner run artifacts and leaving unrelated children alone.</li>
+<li>Add the non-single-instance <code>scripts/lrun-clean</code> operator launcher for the <code>/opt/lldp-runner/config.toml</code> deployment convention.</li>
+</ul>
+<h2 id="0255---2026-08-26">0.25.5 - 2026-08-26</h2>
+<ul>
+<li>Add <code>configs/conf.d/custom-inventory-csv.toml.example</code>, which writes <code>inventory.csv</code> from the reusable <code>seeds</code> row source with operator-friendly hostname, address, platform, neighbor, and tag headers.</li>
+<li>Allow <code>source = "seeds"</code> custom CSV reports to select fixed <code>hosts.*</code> presentation fields. Seed rows already have one-to-one managed-host context, so this adds useful inventory projections without weakening row-grain safety.</li>
+</ul>
+<h2 id="0254---2026-08-25">0.25.4 - 2026-08-25</h2>
+<ul>
+<li>Add an opportunistic one-column right watch inset to complement the existing left inset. Both borders are used when losing two content columns preserves metric/worker density and truncation behavior; otherwise the right border is omitted before useful information is sacrificed.</li>
+</ul>
+<h2 id="0253---2026-08-25">0.25.3 - 2026-08-25</h2>
+<ul>
+<li>Add an opportunistic one-column left inset to <code>lldp-runner watch</code>. The margin is used only when it preserves metric density, worker view/row count, abbreviation state, and existing truncation behavior.</li>
+<li>Fill unused leading positions in fixed-width worker batch/size fields with <code>.</code> characters, while retaining <code>#</code> overflow markers for values that exceed their field budget.</li>
+<li>Raise the active-scoreboard stale floor from 10 to 15 seconds while retaining the larger-of-three-scoreboard-intervals rule. This reduces transient stale indications without weakening detection for slower configured publication intervals.</li>
+</ul>
+<h2 id="0252---2026-08-25">0.25.2 - 2026-08-25</h2>
+<ul>
+<li>Refine the <code>lldp-runner watch</code> top line on wide terminals: center a neutral <code>STATE =</code> label, color only the run-state value, keep freshness/stale detail on the right, and add a blank row before Started/Elapsed/Plan when height permits.</li>
+<li>Give worker cells invariant per-mode field budgets so changing batch IDs or batch sizes cannot resize the worker grid. Values that exceed a compact field budget render explicit <code>#</code> overflow markers instead of moving columns.</li>
+<li>Spend tall-screen surplus height inside the worker grid. The renderer can distribute blank rows between worker rows, including one blank row between every full-grid row on a representative 126x55 terminal, while constrained terminals remain compressed and non-scrolling.</li>
+<li>Remove the redundant <code>Worker summary:</code> aggregate line from summary mode; worker totals remain on the section headline and summary detail is reserved for attention/error and changed-worker information.</li>
+<li>Add the interactive <code>h</code> help screen with concise definitions for every watch metric plus worker batch/size and configured-versus-effective worker-plan terminology. Any ordinary key returns from help to the live dashboard.</li>
+<li>Add the <code>h help</code> hint to the watch footer while retaining <code>m</code> view cycling, <code>q</code>/Ctrl-C exit, requested/effective worker view, and terminal geometry.</li>
+</ul>
+<h2 id="0251---2026-08-25">0.25.1 - 2026-08-25</h2>
+<ul>
+<li>Make <code>lldp-runner watch</code> use spare terminal height for section spacing while retaining a compressed no-scroll layout when rows are constrained.</li>
+<li>Pad worker cells to a common per-frame width so worker columns stay aligned horizontally and vertically across full, compact, and heatmap views.</li>
+<li>Keep the watch footer on the bottom row when space permits and include the live terminal geometry after the worker-view detail, for example <code>worker-view auto-&gt;full (120x44)</code>.</li>
+<li>Add the interactive <code>m</code> key to cycle worker views in the stable order <code>auto -&gt; full -&gt; compact -&gt; heatmap -&gt; summary -&gt; auto</code>; resize-responsive behavior continues whenever <code>auto</code> is selected.</li>
+<li>Give BUSY workers a distinct blue hue from dashboard heading/metric colors in both dark and light built-in palettes, with basic-color fallbacks.</li>
+</ul>
+<h2 id="0250---2026-08-25">0.25.0 - 2026-08-25</h2>
+<ul>
+<li>Add a native <code>lldp-runner watch</code> interactive dashboard that reads the current structured scoreboard directly instead of repeatedly spawning <code>status</code>.</li>
+<li>Add <code>--worker-view auto|full|compact|heatmap|summary</code>. Auto responds to terminal resize events and selects the richest no-scroll layout that fits. Fixed views remain fixed while usable and explicitly warn when abbreviated.</li>
+<li>Keep full worker state words in every individual-worker view. Full mode shows worker/batch/size detail, compact keeps worker/state/size, and heatmap keeps worker/state while allowing 64+ workers to fit practical terminals.</li>
+<li>Add semantic watch highlighting for changed counters and worker records without transition annotations. BUSY, IDLE, DEAD, and unexpected states receive distinct roles while worker positions remain stable by worker ID.</li>
+<li>Detect stale active scoreboards after the larger of 10 seconds or three configured scoreboard intervals. Stale dashboards mute ordinary colors to grayscale while strongly emphasizing the literal <code>*** STALE ***</code> marker.</li>
+<li>Add dark-background and light-background watch palettes, <code>terminal.color</code> (<code>auto</code> or <code>never</code>), <code>terminal.palette</code> (<code>dark</code> or <code>light</code>), and watch CLI overrides <code>--palette</code> and <code>--no-color</code>. <code>NO_COLOR</code> remains authoritative.</li>
+<li>Add <code>scoreboard_schema = 1</code> to <code>scoreboard.json</code> as a versioned live-monitoring contract independent from <code>discovery.json</code> schema version 4.</li>
+<li>Make <code>status</code> and <code>watch</code> share current-scoreboard path resolution, disable the credential subsystem entirely, and avoid writable-directory probes so a read-only operator account can monitor an existing scoreboard.</li>
+<li>Add <code>scripts/lrun-watch</code> for <code>/opt/lldp-runner</code> deployments and document the dashboard, palettes, worker layouts, staleness behavior, and terminal fallback.</li>
+</ul>
+<h2 id="0241---2026-08-25">0.24.1 - 2026-08-25</h2>
+<ul>
+<li>Add six operator-provided Bash launchers under <code>scripts/</code>: <code>lrun-checkconfig</code>, <code>lrun-dryrun</code>, <code>lrun-get</code>, <code>lrun-run</code>, <code>lrun-seedrun</code>, and <code>lrun-show</code>.</li>
+<li>Preserve the launchers' supplied <code>/opt/lldp-runner</code> command defaults, optional <code>scripts/.private</code> sourcing, argument forwarding, and per-script single-instance behavior.</li>
+<li>Document each launcher and call out that its fixed paths and run-policy arguments are deployment examples that operators should review before use.</li>
+</ul>
+<h2 id="0240---2026-08-25">0.24.0 - 2026-08-25</h2>
+<ul>
+<li>Add source-aware timestamps to <code>get-neighbors</code> and <code>show-neighbors</code> table, detail, and CSV output. Human timestamps use <code>YYYY-MM-DD HH:MM:SS</code> in the configured <code>[time].timezone</code> and are right-aligned on the title line.</li>
+<li>Make <code>get-neighbors</code> use the most recent successful SNMP access time when available; results without successful device access use one captured result-finalization time. Rename its first CSV metadata field from <code>status</code> to <code>state</code> and append <code>timestamp</code> to that line.</li>
+<li>Make <code>show-neighbors</code> use persisted <code>discovery.generated</code> provenance. Missing or unusable source timestamps render as <code>timestamp=unknown</code> in CSV and <code>(json unknown-time)</code> in terminal output; filesystem mtime/current time are never substituted.</li>
+<li>Replace duplicated hard-coded terminal palettes with one shared semantic color layer. Add validated <code>[terminal]</code> color settings while preserving the existing colors as defaults, retaining TTY-only ANSI behavior and <code>NO_COLOR</code>.</li>
+<li>Add <code>configs/conf.d/terminal-colors.toml.example</code> and document terminal color roles, supported named colors, timestamp provenance, and timezone conversion.</li>
+<li>Fix <code>show-neighbors --detail</code> so it receives the effective configuration when rendering neighbor tables instead of raising <code>NameError</code> when neighbors are present.</li>
+<li>Keep <code>discovery.json</code> schema version 4; this release changes presentation and configuration only, not the persisted discovery document contract.</li>
+</ul>
+<h2 id="0230---2026-08-25">0.23.0 - 2026-08-25</h2>
+<ul>
+<li>Add subtype-aware remote LLDP Port ID decoding for both LLDP-MIB and LLDP-V2-MIB. Port subtype names and numeric subtype IDs are preserved in neighbor details alongside the decoded Port ID and advertised port description.</li>
+<li>Decode binary MAC-address Port IDs to canonical colon-separated MAC text instead of the generic <code>hex:</code> representation. Network-address Port IDs use the same safe structural decoding approach.</li>
+<li>Bump <code>discovery.json</code> to schema version 4 for the expanded LLDP/LLDPv2 neighbor-detail contract.</li>
+<li>Add <code>output.neighbor_local_width</code> and <code>output.neighbor_remote_port_width</code>, both defaulting to 18 columns.</li>
+<li>Share one bounded dynamic neighbor-table width planner between <code>get-neighbors</code> and <code>show-neighbors</code>; Local and Remote Port may expand when longer values fit while preserving a readable Neighbor column.</li>
+</ul>
+<h2 id="0220---2026-08-25">0.22.0 - 2026-08-25</h2>
+<ul>
+<li>Rename the standalone <code>checklldp</code> command to <code>get-neighbors</code> and the standalone <code>showlldp</code> command to <code>show-neighbors</code>. The previous executable names are no longer installed.</li>
+<li>Rename <code>lldp-runner inspect</code> to <code>lldp-runner get-neighbors</code> and <code>lldp-runner show</code> to <code>lldp-runner show-neighbors</code> without compatibility aliases.</li>
+<li>Keep internal inspection terminology where it describes the reusable single-device probing implementation rather than a command name.</li>
+<li>Update current CLI help, documentation, examples, comments, generated configuration guidance, and tests to the new command vocabulary.</li>
+<li>Document the operational distinction prominently: <code>get-neighbors</code> actively probes one device with ICMP/SNMP as applicable, while <code>show-neighbors</code> reads finalized <code>discovery.json</code> data and disables the credential subsystem.</li>
+<li>Replace command-derived phrases such as <code>checklldp-style neighbor columns</code> with implementation-neutral <code>single-device neighbor columns</code> wording.</li>
+</ul>
+<h2 id="0210---2026-08-25">0.21.0 - 2026-08-25</h2>
+<ul>
+<li>Bump <code>discovery.json</code> to schema version 3; rename <code>errors[].final_device_status</code> to <code>errors[].final_state</code> and normalize every non-null final-state value to lowercase at the canonical JSON boundary.</li>
+<li>Rename <code>unknown-devices.csv</code> <code>discovered_connections</code> to <code>observed_by_neighbors</code>, using the same canonical flattened inbound-neighbor formatter as <code>hosts.csv</code>.</li>
+<li>Add named <code>[output.custom_csv.&lt;name&gt;]</code> reports with explicit row sources for hosts, stack members, reusable seeds, unknown devices, and errors.</li>
+<li>Add a bounded custom field registry supporting existing fixed-CSV presentation fields plus approved <code>json.host</code>, <code>json.member</code>, <code>json.error</code>, and <code>json.discovery</code> fields.</li>
+<li>Support ordered custom columns, optional header labels, and controlled <code>lower</code>, <code>upper</code>, <code>origin</code>, join, and compact-JSON transforms while rejecting arbitrary expressions and ambiguous cross-row-source fields.</li>
+<li>Make custom reports participate in atomic output, draft/final publication, <code>write_empty_csv</code>, aggregated empty-file INFO logging, and stale-output cleanup during resumed finalization.</li>
+<li>Make each custom CSV <code>columns</code> list a configuration replacement list across includes/<code>conf.d</code>, so later definitions replace rather than append schemas.</li>
+<li>Add <a href="docs-CUSTOM-CSV.html"><code>docs/CUSTOM-CSV.md</code></a> and regression coverage for all five row grains, JSON-only rendering, transforms, validation, precedence, and empty-file policy.</li>
+</ul>
+<h2 id="0200---2026-08-25">0.20.0 - 2026-08-25</h2>
+<ul>
+<li>Make all five fixed CSV outputs pure projections of the canonical discovery document. After that document is assembled, CSV rendering no longer queries SQLite state, aliases, topology edges, or errors.</li>
+<li>Add a reusable fixed-CSV writer that accepts a parsed schema-v2 discovery document, enabling post-run CSV reproduction without a <code>StateStore</code>.</li>
+<li>Add an end-to-end JSON-only replay regression that closes SQLite state and reproduces <code>hosts.csv</code>, <code>stack-members.csv</code>, <code>seeds.csv</code>, <code>unknown-devices.csv</code>, and <code>errors.csv</code> byte-for-byte from <code>discovery.json</code>.</li>
+<li>Remove the redundant <code>snmp_status</code> column from <code>stack-members.csv</code>; logical lowercase <code>state</code> remains repeated on each physical-member row.</li>
+<li>Rename unknown-device inbound chassis aggregates to <code>observed_chassis_ids</code>, <code>observed_chassis_id_subtypes</code>, and <code>observed_chassis_id_subtype_ids</code> so they are distinct from the host-level canonical <code>chassis_id</code>.</li>
+<li>Derive <code>unknown-devices.csv</code> protocol aggregation from canonical <code>observed_by_neighbors[].protocols[]</code>, using LLDP-Runner's stable protocol ordering rather than independently reading raw edge strings.</li>
+<li>Document the JSON-first output boundary as the architectural prerequisite for a future custom CSV field/projection registry.</li>
+</ul>
+<h2 id="0190---2026-08-25">0.19.0 - 2026-08-25</h2>
+<ul>
+<li>Bump <code>discovery.json</code> to schema version 2 and make <code>hosts[].state</code> a canonical lowercase value while keeping internal SQLite workflow states uppercase for coordinator/state-machine logic.</li>
+<li>Reconcile direct fixed-CSV projections with JSON key names: rename <code>primary_name</code> to <code>preferred_name</code>; rename stack member <code>stack_member</code>, <code>member_name</code>, and <code>member_description</code> to <code>member_number</code>, <code>name</code>, and <code>description</code>; rename seeds <code>seed</code>/<code>query_target</code> to <code>preferred_name</code>/<code>queried_as</code>; and rename errors <code>error_category</code> to <code>category</code>.</li>
+<li>Replace <code>seeds.csv</code> <code>status</code> with direct lowercase <code>state</code>, and remove the redundant <code>hosts.csv</code> <code>snmp_status</code> column.</li>
+<li>Generate reusable seed identity/state fields from the same canonical host records written to <code>discovery.json</code>, reducing parallel SQLite/JSON naming drift. The previous seeds.csv schema is intentionally no longer accepted as input.</li>
+</ul>
+<h2 id="0182---2026-08-24">0.18.2 - 2026-08-24</h2>
+<ul>
+<li>Right-size seed-only (<code>discovery.max_devices = "auto"</code>) execution after seed resolution, using the number of READY seeds, configured worker/batch ceilings, and <code>snmp.max_outstanding_devices_per_worker</code>.</li>
+<li>Keep configured scheduler values immutable while deriving per-run effective worker and batch sizes; recursive discovery retains its configured values.</li>
+<li>Balance small known seed workloads so, for example, 10 READY seeds with 64 workers and batch size 9 run as two workers with five-device batches instead of launching dozens of idle processes or claiming an uneven 9+1 first wave.</li>
+<li>Cap effective seed-only batch size at the worker's asynchronous outstanding device limit so an oversized configured batch cannot unnecessarily hoard work.</li>
+<li>Log the seed-only execution plan at INFO level for console/activity.log output and expose configured/effective scheduler values in both scoreboard formats.</li>
+<li>Add scheduler regression coverage for low seed counts, async-capacity limits, balanced dispatch, recursive-mode preservation, and scoreboard rendering.</li>
+</ul>
+<h2 id="0181---2026-08-24">0.18.1 - 2026-08-24</h2>
+<ul>
+<li>Make <code>checklldp --csv --system-only</code> and its <code>--no-neighbors</code> alias emit only the two existing system metadata comment lines, with no unused neighbor CSV header or neighbor records.</li>
+<li>Add explicit required, optional, and disabled credential-loading modes so commands can declare whether the SNMP credential subsystem participates.</li>
+<li>Run <code>showlldp</code> / <code>lldp-runner show</code> with credentials disabled: do not parse or build credential/profile/rule configuration, synthesize runtime credentials, resolve credential secrets, or validate credential policy.</li>
+<li>Keep live discovery and inspection credential enforcement strict, while retaining optional credential-aware validation for dry-run/config workflows.</li>
+<li>Add regression coverage proving stored-data viewing succeeds with malformed credential policy and incomplete runtime SNMPv3 environment variables while network-capable configuration loading still rejects those conditions.</li>
+<li>Document credential-free stored-data viewing and comments-only system CSV behavior for operators and future read-only command implementations.</li>
+</ul>
+<h2 id="0180---2026-08-24">0.18.0 - 2026-08-24</h2>
+<ul>
+<li>Add <code>[time].timezone</code>, defaulting to <code>eastern</code>, with <code>utc</code>, <code>local</code>, and IANA timezone names supported consistently across logs, summaries, persisted timestamps, workers, scoreboards, and run-ID time expansion.</li>
+<li>Add <code>paths.run_id_format</code>, preserving <code>%Y%m%d-%H%M%S-%Z</code> as the default while allowing safe literal text, documented <code>strftime</code> directives, and one optional <code>{counter}</code> token.</li>
+<li>Implement a stateless <code>{counter}</code> allocator that renders <code>00</code> through <code>99</code>, selects highest matching existing counter plus one across run/output/scratch namespaces, and fails before discovery if the next value would exceed <code>99</code>.</li>
+<li>Recommend <code>%f</code> high-precision timestamps when a counter namespace can exceed 100 runs; reject unsafe path characters, unsupported directives, repeated counter tokens, and timestamp-only run-ID collisions.</li>
+<li>Preserve the existing reverse lexical resumable-run scan; two-digit counters sort correctly within one naming namespace, while documentation calls out that mixed historical naming formats are not inherently chronological.</li>
+<li>Add <code>showlldp</code> / <code>lldp-runner show --runid RUNID</code> to read <code>output/&lt;RUNID&gt;/discovery.json</code>, without requiring the ID to match the current naming format.</li>
+<li>Add mutually exclusive <code>showlldp</code> / <code>lldp-runner show --file FILENAME</code> for arbitrary discovery JSON. Relative paths start at the current working directory; absolute and <code>~</code>-expanded paths are supported.</li>
+<li>Keep alternate viewer inputs read-only and independent of SNMP, SQLite, and writable discovery storage, with traversal-like run IDs rejected as CLI usage errors.</li>
+<li>Expand configuration generation, CLI/architecture documentation, and regression coverage for timezone policy, run-ID allocation/exhaustion, lexical counter ordering, and alternate finalized-discovery sources.</li>
+</ul>
+<h2 id="0170---2026-08-24">0.17.0 - 2026-08-24</h2>
+<ul>
+<li>Add read-only <code>lldp-runner show</code> and <code>showlldp</code> commands that search the latest finalized <code>discovery.json</code> without opening SQLite or sending ICMP/SNMP.</li>
+<li>Search <code>preferred_name</code> with case-insensitive Python regular expressions and beginning-of-string semantics; support exact <code>--id</code> selection and explicit ambiguous-match output containing host IDs and preferred names.</li>
+<li>Add repeatable <code>--key KEY:PATTERN</code> filters for top-level/dotted JSON host keys, including deterministic array/object flattening and AND composition.</li>
+<li>Add repeatable <code>--ipv4</code> and <code>--ipv6</code> filters with literal-prefix matching for partial addresses and numeric network-membership matching for CIDRs.</li>
+<li>Reject invalid regex, key, CIDR, address-family, and contradictory <code>--system-only</code>/<code>--neighbors</code> syntax as CLI usage errors.</li>
+<li>Add compact table, detailed terminal, CSV, and standalone host JSON renderers; standalone JSON preserves the original discovery host <code>id</code>.</li>
+<li>Default topology display to learned neighbors, falling back to <code>observed_by</code> only when no learned evidence exists; explicit <code>--neighbors learned</code> never falls back.</li>
+<li>Add <code>--neighbors [both|learned|observed_by]</code>, with a bare <code>--neighbors</code> selecting both directions and learned always listed before observed_by.</li>
+<li>Keep learned-only terminal columns compatible with <code>checklldp</code> and add aligned, right-labeled <code>Learned</code>/<code>Observed_by</code> sections with contrasting bold ANSI colors when a color-capable terminal is in use.</li>
+<li>Resolve observed_by neighbor management addresses through the observer <code>host_ref</code>, avoiding display of an address that the observer reported for the selected host itself.</li>
+<li>Add viewer documentation and regression coverage for query composition, neighbor direction/fallback, machine output, color behavior, and exit status.</li>
+</ul>
+<h2 id="0161---2026-08-24">0.16.1 - 2026-08-24</h2>
+<ul>
+<li>Make file-log append behavior explicit by opening enabled activity logs with <code>mode="a"</code>; existing per-run or centralized log content is preserved.</li>
+<li>Report activity-log create/append-open failures with the configured pathname before discovery starts, allowing CLI error handling to place the message on standard error without a traceback.</li>
+<li>Add a narrow startup storage preflight for the exact scratch run directory, final timestamped persistent-output directory, and output-root symlink publication used by <code>latest</code>.</li>
+<li>Exercise create, fsync, atomic rename, and cleanup during output preflight, while removing a newly created final-output directory after a successful probe so incomplete runs do not look finalized.</li>
+<li>Keep normal write-time error handling because preflight cannot predict later disk-full, quota, permission-change, or remote-filesystem failures.</li>
+<li>Add regression coverage and operator/developer documentation for append semantics, early storage failure reporting, and preflight cleanup behavior.</li>
+</ul>
+<h2 id="0160---2026-08-24">0.16.0 - 2026-08-24</h2>
+<ul>
+<li>Replace the stack-specific <code>output.write_empty_stack_members_csv</code> option with global <code>output.write_empty_csv=false</code>, applying the same default header-only CSV suppression policy to all five fixed-schema CSV reports.</li>
+<li>Add <code>output.log_alert_on_empty_csv=false</code>. When enabled, terminal snapshot generation emits one INFO log record listing enabled CSV reports omitted because they contained zero data rows; periodic RUNNING snapshots stay quiet.</li>
+<li>Keep each existing <code>output.write_*_csv</code> report enable switch independent from the global empty-report policy. Individually disabled reports are not included in empty-CSV alert messages.</li>
+<li>Add <code>logging.file=true</code> and <code>logging.filename="activity.log"</code> while retaining <code>logging.level</code> and <code>logging.console</code>. Console and file destinations are now independently configurable.</li>
+<li>Resolve relative logging filenames beneath the current timestamped run directory, allow absolute and <code>~</code>-expanded centralized destinations, and reject relative <code>..</code> traversal outside the run directory.</li>
+<li>Report <code>Activity log: disabled</code> in the terminal run summary when file logging is disabled, rather than printing a path for a file that was not created.</li>
+<li>Expand output, runtime, logging, generated-configuration, and documentation regression coverage for the new policies and path semantics.</li>
+<li>Configuration note: v0.15.0 files that explicitly set <code>output.write_empty_stack_members_csv</code> must replace it with <code>output.write_empty_csv</code>; the removed setting is intentionally not aliased.</li>
+</ul>
+<h2 id="0150---2026-08-24">0.15.0 - 2026-08-24</h2>
+<ul>
+<li>Preserve logical stack identity while collecting physical stack-member inventory from ENTITY-MIB, including member number, ENTITY index, name, description, manufacturer, model, serial, and available revision fields.</li>
+<li>Use standards-first ENTITY-MIB containment for switch stacks: prefer a <code>stack(11)</code> container with contained <code>chassis(3)</code> members and conservatively recognize multiple sibling chassis rows when an agent omits a stack root.</li>
+<li>Keep <code>full</code> mode request-compatible by deriving member inventory from the existing complete ENTITY walk with no extra SNMP requests; make <code>auto</code> and <code>brief</code> target the structural/member instances needed after class discovery.</li>
+<li>Add synthetic multi-vendor regression coverage for Cisco Catalyst StackWise, Aruba CX VSF, and Juniper EX Virtual Chassis-style ENTITY-MIB layouts while retaining standards-based support for other conforming manufacturers.</li>
+<li>Add fixed-schema <code>stack-members.csv</code>, one physical member per row, enabled by default with repeated logical-host context and member-specific identity.</li>
+<li>Add <code>output.write_stack_members_csv</code> and <code>output.write_empty_stack_members_csv</code>; the default omits a header-only stack report when no switch stacks were discovered, while operators can force it.</li>
+<li>Leave stack-member <code>uptime_seconds</code> empty unless a true member-specific value is available; do not copy the logical stack SYSTEM-MIB uptime into each row.</li>
+<li>Add <a href="docs-PRECEDENCE.html"><code>docs/PRECEDENCE.md</code></a> as the detailed configuration, include/conf.d, environment, command-line, seed, and credential precedence reference.</li>
+<li>Add a <code>Runtime: &lt;start&gt; to &lt;end&gt; (duration: &lt;N&gt;s)</code> standard-output line immediately after <code>Status:</code> for each discovery invocation, including resumes.</li>
+<li>Expand feature-touched documentation, docstrings, comments, and tests for NetOps operators and future developers.</li>
+</ul>
+<h2 id="0140---2026-08-24">0.14.0 - 2026-08-24</h2>
+<ul>
+<li>Add <code>snmp.entity_mib_mode</code> with <code>full</code>, <code>auto</code>, and <code>brief</code> values while retaining <code>collect_entity_mib</code> as the master ENTITY-MIB enable switch.</li>
+<li>Keep <code>full</code> as the default and preserve the v0.13.1 complete <code>entPhysicalEntry</code> walk and chassis-selection behavior for unchanged sites.</li>
+<li>Make <code>brief</code> walk only <code>entPhysicalClass</code>, discover the agent-assigned chassis/stack/module index, and retrieve manufacturer, model, and serial number for the selected physical entity.</li>
+<li>Make <code>auto</code> use existing SYSTEM-MIB manufacturer/description identity to choose either the brief field set or a network-device profile that also retrieves hardware, firmware, and ENTITY software revisions.</li>
+<li>Prefer a root physical entity when selective mode finds multiple candidates by querying only their <code>entPhysicalContainedIn</code> instances; fall back to deterministic class/index ranking for non-conforming agents.</li>
+<li>Add generated/example configuration guidance, operator/developer documentation, and regression coverage for all ENTITY-MIB query modes.</li>
+<li>Add <a href="docs-ABOUT.html"><code>docs/ABOUT.md</code></a> with the project elevator summary and include it in the release documentation width/link invariants.</li>
+<li>Expand docstrings and implementation comments in feature-touched source so future developers and Network Operations staff can follow inputs, outputs, calling behavior, and operational reasoning.</li>
+<li>Align the <code>uv_build</code> constraint with the uv 0.12.5 development environment and retain ruff, ty, and pytest as the declared release-validation toolchain.</li>
+</ul>
+<h2 id="0131---2026-08-24">0.13.1 - 2026-08-24</h2>
+<ul>
+<li>Rename the SYSTEM-MIB collection metric from <code>basic</code> to <code>sys</code>. The broader <code>Timing ms: basic=...</code> value remains unchanged because it includes ICMP, inter-wave delay, SNMP session setup, and the SYSTEM-MIB query.</li>
+<li>Add <code>--system-only</code> with <code>--no-neighbors</code> as an alias to <code>inspect</code> and <code>checklldp</code>. The mode stops after the initial SYSTEM-MIB probe and does not query ENTITY-MIB, IF-MIB, LLDP, LLDPv2, or CDP.</li>
+<li>Add <code>inspection.collection_mode</code> to inspect JSON with values <code>full</code> or <code>system_only</code>. System-only JSON reports only the <code>sys</code> collection metric.</li>
+<li>Suppress neighbor tables/sections in system-only human output so an omitted neighbor query is not mistaken for a completed query that returned no peers.</li>
+<li>Update CLI, README, architecture documentation, comments, and regression coverage for the new terminology and diagnostic mode.</li>
+</ul>
+<h2 id="0130---2026-08-24">0.13.0 - 2026-08-24</h2>
+<ul>
+<li>Add backend-neutral per-device SNMP collection metrics for <code>basic</code>, <code>entity</code>, <code>interfaces</code>, <code>lldp</code>, <code>lldpv2</code>, and <code>cdp</code> collector sections.</li>
+<li>Count SNMP variable bindings returned before collector filtering/grouping and record cumulative collector elapsed milliseconds without Gufo-specific hooks.</li>
+<li>Add a single <code>SNMP obj/ms:</code> line to the default and detail <code>checklldp</code> human views, using <code>section=objects/duration_ms</code> and color emphasis for numbers.</li>
+<li>Always include <code>collection_metrics</code> in <code>checklldp --json</code> after SNMP collector work; keep the compact inspection CSV unchanged.</li>
+<li>Add <code>snmp.report_metrics=false</code>. Full discovery collects/persists the same per-host telemetry only when enabled and then adds it under each host's <code>snmp.collection_metrics</code> in <code>discovery.json</code>.</li>
+<li>Add SQLite checkpoint migration/preservation for optional metrics so older v0.12 run state remains resumable.</li>
+<li>Update generated/example configuration and operator/developer documentation for metrics semantics, scope, and reporting behavior.</li>
+</ul>
+<h2 id="0122---2026-08-24">0.12.2 - 2026-08-24</h2>
+<ul>
+<li>Replace the Apache License 2.0 with the Unlicense and release the current LLDP-Runner project into the public domain.</li>
+<li>Remove the earlier compilation/copyright restriction from the current <code>LICENSE</code> because it conflicts with an unrestricted public-domain dedication.</li>
+<li>Update README and release-invariant tests so package metadata and operator documentation describe the Unlicense consistently.</li>
+<li>Keep prior CHANGELOG entries unchanged as historical records of the license terms shipped by those older releases.</li>
+</ul>
+<h2 id="0121---2026-08-24">0.12.1 - 2026-08-24</h2>
+<ul>
+<li>Add <code>origin</code> to the fixed <code>seeds.csv</code> schema between <code>credential_result</code> and <code>status</code>, using the same <code>seed</code> / <code>learned</code> provenance vocabulary as <code>hosts.csv</code>.</li>
+<li>Derive seed-inventory provenance from the current run's authoritative <code>is_seed</code> state. A managed device learned dynamically remains <code>learned</code> for that run.</li>
+<li>Treat every row reused from <code>seeds.csv</code> as an explicit seed in the later run, regardless of its prior <code>origin</code>; consequently a previously learned device is exported as <code>origin=seed</code> after it is supplied as new input.</li>
+<li>Advance the strict reusable seed-input contract to the current ten-column schema; prior headers are intentionally not accepted as legacy input.</li>
+<li>Update operator/developer documentation and regression coverage for the new fixed schema and run-relative provenance semantics.</li>
+</ul>
+<h2 id="0120---2026-08-24">0.12.0 - 2026-08-24</h2>
+<ul>
+<li>Make <code>discovery.json</code> the complete structured discovery result by adding a top-level <code>schema_version</code> and structured <code>errors</code> collection alongside run metadata and host/neighbor records.</li>
+<li>Define discovery JSON schema version 1 so future post-run exporters can distinguish incompatible document structures and derive standard reports without reopening SQLite state.</li>
+<li>Preserve complete collected system details in JSON, including hardware and firmware revisions, even when a convenience CSV intentionally omits them.</li>
+<li>Remove <code>hardware_revision</code> and <code>firmware_revision</code> from the fixed <code>hosts.csv</code> schema because those columns are commonly empty or low-value for routine operator use.</li>
+<li>Add <code>[output]</code> booleans <code>write_hosts_csv</code>, <code>write_seeds_csv</code>, <code>write_unknown_devices_csv</code>, and <code>write_errors_csv</code>; all default to <code>true</code> and control only whether the corresponding fixed-schema CSV is generated.</li>
+<li>Keep <code>seeds.csv</code> and <code>errors.csv</code> as fixed contracts rather than making their fields, labels, or transformations operator-configurable.</li>
+<li>Remove stale CSV artifacts when a resumed run disables a standard view and finalize only the output files enabled by the completing invocation.</li>
+<li>Update generated/example configuration and operator/developer documentation to describe the JSON contract and fixed CSV enable/suppress controls.</li>
+<li>Defer post-run export, arbitrary additional CSV reports, configurable column labels, transformations, and filters to a later release.</li>
+</ul>
+<h2 id="0113---2026-08-21">0.11.3 - 2026-08-21</h2>
+<ul>
+<li>Add a <code>docs/</code> documentation set with <a href="docs-CLI.html"><code>CLI.md</code></a>, <a href="docs-ENVIRONMENT.html"><code>ENVIRONMENT.md</code></a>, and <a href="docs-ARCHITECTURE.html"><code>ARCHITECTURE.md</code></a> as operator/developer references for the current command line, environment variables, concept of operations, and internal architecture.</li>
+<li>Rewrite the parent <a href="README.html"><code>README.md</code></a> as a concise operator entry point linking to the detailed references while preserving installation, configuration, inspect, discovery, guardrail, output, and development guidance.</li>
+<li>Reflow <a href="README.html"><code>README.md</code></a>, <a href="CHANGELOG.html"><code>CHANGELOG.md</code></a>, and the new documentation files to an 80-column maximum for terminal readability.</li>
+<li>Add the project <code>LICENSE</code> with the requested Robert Patrick copyright and AI-assistance/compilation notice followed by the standard Apache License 2.0 text, and update package metadata to use that license file.</li>
+<li>Keep this release documentation-focused with no intended discovery, inspection, state, or scheduling behavior changes.</li>
+</ul>
+<h2 id="0112---2026-08-21">0.11.2 - 2026-08-21</h2>
+<ul>
+<li>Make no-argument <code>generate-config</code> create <code>./config.toml</code> when run from <code>~/lldp-runner</code>, <code>/opt/lldp-runner</code>, or <code>/etc/lldp-runner</code> and no primary <code>config.toml</code> already exists; otherwise retain <code>./lldp-runner-config.toml</code>.</li>
+<li>Reformat generated TOML for approximately 80-column readability, including wrapped explanatory comments and one-item-per-line formatting for long lists such as classification patterns.</li>
+<li>Add two commented tagging-rule examples to generated/example configuration so operators can see managed-device and managed-endpoint tag syntax without enabling site policy by default.</li>
+<li>Add maintainability comments and regression coverage for destination selection, safe existing-file behavior, generated TOML parsing, line wrapping, list formatting, and tagging examples.</li>
+</ul>
+<h2 id="0111---2026-08-21">0.11.1 - 2026-08-21</h2>
+<ul>
+<li>Change human <code>inspect</code>/<code>checklldp</code> timing labels to <code>Ping RTT ms:</code> and <code>Timing ms:</code>, declaring milliseconds once in the field title instead of repeating <code>ms</code> after every numeric value.</li>
+<li>When ANSI color is active, emphasize only numeric timing/RTT assignment values so measurements stand out while labels, addresses, separators, and non-numeric probe states remain visually stable.</li>
+<li>Keep JSON timing output unchanged, including the <code>timings_ms</code> object and per-probe <code>rtt_ms</code> fields; CSV behavior is unchanged.</li>
+<li>Add maintainability comments and regression coverage for timing-unit placement, color emphasis, redirected/<code>NO_COLOR</code> output, and the unchanged JSON contract.</li>
+</ul>
+<h2 id="0110---2026-08-21">0.11.0 - 2026-08-21</h2>
+<ul>
+<li>Add first-class single-device <code>lldp-runner inspect SEED</code> probing plus the packaged <code>checklldp</code> console entry point for quick LLDP/CDP troubleshooting and preflight checks before a full discovery run.</li>
+<li>Reuse LLDP-Runner DNS, policy, credential, ICMP, SNMP client, SYSTEM/IF/ENTITY, LLDP/LLDPv2/CDP, sanitation, and neighbor-merge components without creating SQLite state, run directories, scoreboards, snapshots, or recursive neighbor work.</li>
+<li>Add four stdout formats: terminal-aware abbreviated <code>table</code> (default), scrolling <code>detail</code>, compact comment-prefixed <code>csv</code>, and rich <code>json</code> aligned with <code>discovery.json</code> host/neighbor concepts. Human formats use ANSI color only on a TTY and honor <code>NO_COLOR</code>; CSV/JSON never contain color escapes. No inspect renderer emits blank spacer lines.</li>
+<li>Permit an explicitly named inspect target outside <code>discovery.boundaries</code> while reporting the out-of-bound condition; explicit query-policy deny rules remain authoritative and prevent ICMP/SNMP traffic.</li>
+<li>Add inspect <code>--dry-run</code>, which performs DNS and policy/credential selection only and never instantiates the ICMP or SNMP backends.</li>
+<li>Expose applicable runtime overrides to inspect/checklldp, including <code>--config</code>, repeatable <code>--set</code>, runtime SNMP v2c/v3 credential options, <code>--snmp-timeout</code>, <code>--per-device-rps</code>, and <code>--log-level</code>; discovery-only controls such as workers, limits, seed ordering, persistence roots, and resume are intentionally excluded.</li>
+<li>Allow <code>checklldp</code> options before or after the positional target, and allow inspect-local overrides after the <code>lldp-runner inspect</code> subcommand while preserving global <code>--set</code> values supplied before it.</li>
+<li>Report individual ICMP RTTs and millisecond DNS/query/basic/detail/total elapsed timings in human and JSON inspection output. A responding SNMP device with zero neighbors is successful; SNMP failure still prints available DNS/ICMP diagnostics and exits nonzero.</li>
+<li>Skip persistent/scratch auto-path resolution for inspect because the command is stdout-only; unrelated discovery-output permissions cannot block a diagnostic probe.</li>
+<li>Expand source docstrings/comments, CLI help, README, generated/example configuration query-policy guidance, and regression coverage for inspection behavior and output contracts.</li>
+</ul>
+<h2 id="0101---2026-08-20">0.10.1 - 2026-08-20</h2>
+<ul>
+<li>Add a grep-friendly <code>origin</code> column to <code>hosts.csv</code> immediately after <code>snmp_sysname</code>.</li>
+<li>Emit exactly <code>seed</code> when the host identity was supplied as an input seed and <code>learned</code> when LLDP-Runner first obtained the identity through topology discovery.</li>
+<li>Keep origin as provenance rather than query state: a learned managed device remains <code>learned</code> after recursive polling succeeds.</li>
+<li>Document the new CSV field and add regression coverage for column ordering and both allowed values.</li>
+</ul>
+<h2 id="0100---2026-08-20">0.10.0 - 2026-08-20</h2>
+<ul>
+<li>Add <code>discovery.seed_order = "input" | "sorted" | "random"</code> plus <code>--seed-order</code>, with ordering applied after seed-source consolidation and authoritative DNS/alias identity de-duplication.</li>
+<li>Add optional <code>discovery.shuffle_key</code> / <code>--shuffle-key</code>; explicit keys produce reproducible random order, while an omitted key is generated once per new run and persisted so pause/resume retains the same sequence.</li>
+<li>Persist seed scheduling rank in SQLite and prioritize READY seeds globally by that rank before normal cohort-based recursive neighbor work, so worker cohort assignment does not defeat requested input/sorted/random seed ordering.</li>
+<li>Add <code>discovery.limit_behavior = "pause" | "complete"</code> plus <code>--limit-behavior</code>. The default <code>pause</code> retains resumable <code>LIMIT_REACHED</code>; <code>complete</code> finalizes persistent output as <code>COMPLETED_LIMIT</code> with completion/limit metadata and is not selected for automatic resume.</li>
+<li>In <code>max_devices = "auto"</code> seed-only sampling mode, apply <code>max_hosts</code> to discovered non-seed identities rather than the explicit seed inventory, allowing large switch inventories to serve as sampling points without consuming the sample threshold before polling starts. Recursive mode retains the historical all-host guardrail semantics.</li>
+<li>Treat the seed-only host threshold as reached at the configured count while documenting that concurrent in-flight batches may overshoot it; an exact downstream sample-size feature remains separate from the discovery stopping threshold.</li>
+<li>Add <code>LLDP_RUNNER_SEED_ORDER</code>, <code>LLDP_RUNNER_SHUFFLE_KEY</code>, and <code>LLDP_RUNNER_LIMIT_BEHAVIOR</code> environment overrides and update generated/example configuration guidance, README examples, source docstrings/comments, and regression coverage.</li>
+</ul>
+<h2 id="090---2026-08-20">0.9.0 - 2026-08-20</h2>
+<ul>
+<li>Add <code>discovery.max_devices = "auto"</code> / <code>--max-devices auto</code> as explicit seed-only discovery: query every unique seed, retain/classify/output learned neighbors, and never schedule discovered non-seed neighbors for SNMP.</li>
+<li>Resolve the auto effective managed-device count only after seed DNS/alias identity de-duplication; persist the runtime discovery mode/effective count in run metadata for diagnostics.</li>
+<li>Fail before worker startup when a finite positive <code>max_devices</code> is smaller than the de-duplicated managed seed inventory, with operator guidance to raise the limit, use zero/unlimited, or choose auto seed-only mode. Rejected initialization is marked <code>SEED_LIMIT_EXCEEDED</code> rather than left resumable.</li>
+<li>Interpret <code>discovery.max_devices = 0</code> / <code>--max-devices 0</code> as unlimited recursive managed-device discovery and <code>discovery.max_hosts = 0</code> / <code>--max-hosts 0</code> as unlimited identified-host retention.</li>
+<li>Keep <code>max_hosts</code> independent of <code>max_devices</code>; seed-only mode may still apply a finite host guardrail to large neighbor populations.</li>
+<li>Protect resumed auto/seed-only runs by suppressing pending non-seed recursive work left by a previous run mode, while preserving already completed/failed observations and all topology evidence.</li>
+<li>Expand <code>defaults.py</code>, CLI help, generated configuration comments, shipped example configuration, README, and source docstrings/comments to document the behavioral difference between finite, zero/unlimited, and auto limits for future operators and maintainers.</li>
+</ul>
+<h2 id="080---2026-08-20">0.8.0 - 2026-08-20</h2>
+<ul>
+<li>Add <code>src/lldp_runner/defaults.py</code> as the single operator-maintainable source for built-in runtime configuration defaults, with comments explaining dynamic/default behavior and site-local packaging intent.</li>
+<li>Allow partial TOML configuration: site configuration overlays built-in defaults instead of requiring every operational section/value to be present.</li>
+<li>Add automatic primary-config discovery when <code>--config</code> is omitted: <code>~/lldp-runner-config.toml</code>, <code>~/lldp-runner/config.toml</code>, <code>/opt/lldp-runner/config.toml</code>, <code>/etc/lldp-runner/config.toml</code>, then defaults-only operation. Explicit/<code>LLDP_RUNNER_CONFIG</code> paths remain authoritative and fail if missing.</li>
+<li>Preserve <code>@include</code> and recursive sibling <code>conf.d/**/*.toml</code> behavior whenever an actual primary configuration file is selected.</li>
+<li>Treat <code>discovery.boundaries</code> as a replacement list across fragments (like <code>address_preference</code>) so a generated/unlimited primary default cannot accidentally remain active beside a narrower site boundary.</li>
+<li>Define effective precedence as defaults -&gt; TOML/includes/conf.d -&gt; <code>LLDP_RUNNER_*</code> environment overrides -&gt; repeatable <code>--set</code> -&gt; dedicated CLI options. <code>--set</code> parses TOML values so booleans/numbers/lists retain type.</li>
+<li>Add global <code>--version</code> output and regression coverage requiring package <code>__version__</code> and <code>pyproject.toml</code> version to remain synchronized.</li>
+<li>Add <code>generate-config [FILENAME]</code>, defaulting to <code>./lldp-runner-config.toml</code>, with commented defaults, runtime guidance, credential examples, safe refusal to overwrite an existing file, and support for <code>--set</code>/<code>--snmp.version</code> when generating.</li>
+<li>Add <code>workers = "auto"</code>, resolving before discovery to <code>(os.cpu_count() or 1) * 4</code>; set built-in cohort <code>batch_size = 9</code> and <code>snmp.max_outstanding_devices_per_worker = 24</code>.</li>
+<li>Set default discovery boundaries to unlimited IPv4/IPv6 (<code>0.0.0.0/0</code>, <code>::/0</code>) while using conservative built-in guardrails <code>max_devices = 10</code> and <code>max_hosts = 1000</code>.</li>
+<li>Add dynamic <code>persistent_root = "auto"</code>: use the first existing <code>~/lldp-runner</code>, <code>/opt/lldp-runner</code>, or <code>/var/lib/lldp-runner</code>; otherwise use the writable current directory. An existing-but-unwritable candidate is a hard error and is not silently bypassed.</li>
+<li>Add dynamic <code>scratch_root = "auto"</code>: try <code>/dev/shm/lldp-runner</code>, <code>/tmp/lldp-runner</code>, <code>/var/tmp/lldp-runner</code>, then <code>&lt;persistent_root&gt;/tmp</code>, safely falling through unavailable scratch candidates.</li>
+<li>Add lowest-priority default SNMP credential synthesis from <code>SNMPCOMM</code> or the complete <code>SNMPUSER</code>/<code>SNMPAUTH</code>/<code>SNMPPRIV</code> authPriv trio, plus global <code>--snmp.community</code>/<code>--community</code>, <code>--snmp.user</code>, <code>--snmp.auth</code>, <code>--snmp.priv</code>, and <code>--snmp.version</code> options. CLI credential tokens resolve as environment-variable names first and literal strings second.</li>
+<li>When both runtime v2c and v3 credentials exist, use <code>snmp.version</code> to choose primary/fallback. When only one exists, use a single credential with two attempts instead of a duplicate fallback identity. Explicit configured credentials/profiles suppress runtime defaults.</li>
+<li>Reject incomplete default SNMPv3 authPriv credentials and provide a clear no-credentials error for commands that require SNMP access. <code>status</code> and <code>pause</code> continue to load without credential-secret availability.</li>
+<li>Update the shipped example configuration, environment example, bootstrap guidance, README, and regression suite for the defaults-first workflow. One-off/non-recursive discovery remains intentionally deferred to a later release.</li>
+</ul>
+<h2 id="071---2026-08-20">0.7.1 - 2026-08-20</h2>
+<ul>
+<li>Fix periodic seed-inventory validation so transient managed-device states such as <code>READY</code> and <code>CLAIMED</code> do not create durable <code>missing_query_target</code> errors while a worker is still establishing the successful SNMP address.</li>
+<li>Self-heal stale <code>seed_inventory_validation/missing_query_target</code> records left by earlier draft snapshots when the host now has a valid <code>query_target</code> or is in a nonterminal state.</li>
+<li>Continue validating terminal seed rows: <code>COMPLETE</code> without a target remains a non-recoverable state-integrity error, while <code>FAILED</code>, <code>NO_QUERY</code>, and <code>OUT_OF_SCOPE</code> retain explanatory diagnostics when no target was recorded.</li>
+<li>Add aggregated <code>chassis_id</code> to <code>unknown-devices.csv</code> immediately between <code>capabilities</code> and <code>chassis_id_subtypes</code>, keeping the identifier alongside its subtype metadata.</li>
+<li>Add regression coverage for stale CLAIMED snapshot cleanup, completed-target cleanup, unknown-device Chassis ID output/column ordering, and maintainability comments/docstrings around both fixes.</li>
+</ul>
+<h2 id="070---2026-08-20">0.7.0 - 2026-08-20</h2>
+<ul>
+<li>Automatically load <code>conf.d/**/*.toml</code> adjacent to the primary <code>config.toml</code>, recursively and in deterministic lexical relative-path order.</li>
+<li>Keep explicit <code>@include</code> support and allow both relative paths resolved from the including file and absolute paths beginning with <code>/</code>.</li>
+<li>De-duplicate configuration files by resolved path so a fragment is merged only once even when it is both explicitly included and later encountered by automatic <code>conf.d</code> traversal.</li>
+<li>Preserve include-cycle detection separately from duplicate-file suppression, so recursive include loops remain configuration errors.</li>
+<li>Apply primary-file explicit includes first, then remaining automatic <code>conf.d</code> fragments, then the primary file itself so operator scalar settings in <code>config.toml</code> remain authoritative.</li>
+<li>Treat only filenames ending exactly in <code>.toml</code> as automatically active fragments; rename bundled examples to <code>.toml.example</code> so example policy is not activated merely by being present.</li>
+<li>Standardize all seed-directory documentation/examples on <code>/opt/lldp-runner/seeds.d/</code>.</li>
+<li>Add maintainability docstrings/comments and regression coverage for recursive lexical ordering, nested include de-duplication, absolute includes, inactive non-TOML files, and primary scalar precedence.</li>
+</ul>
+<h2 id="060---2026-08-20">0.6.0 - 2026-08-20</h2>
+<ul>
+<li>Remove support for legacy seed CSV input layouts; <code>.csv</code> seed inputs must use the current nine-column <code>seeds.csv</code> schema exactly.</li>
+<li>Add <code>[discovery] seed_dirs</code>, repeatable <code>--seed-dir</code>, and <code>LLDP_RUNNER_SEED_DIRS</code> inputs for recursively loading seed trees.</li>
+<li>Process recursive seed-directory files in deterministic sorted relative-path order and ignore hidden files/directories, <code>README*</code>, <code>*.disabled</code>, and <code>*.note</code> files case-insensitively.</li>
+<li>Parse non-CSV seed files as one target per line, ignoring blank/comment lines and discarding trailing annotation beginning with comma, semicolon, or hash. Standard input now uses the same text-line parser.</li>
+<li>Treat <code>.csv</code> files found through <code>--seed-file</code> or recursive seed directories as strict current-format reusable seed inventories, preserving <code>query_target</code> and all IPv4/IPv6 hints.</li>
+<li>Add clear operator errors for missing seed paths, non-directory <code>seed_dir</code> values, malformed UTF-8 text inputs, and unsupported CSV headers rather than allowing a traceback or partial legacy interpretation.</li>
+<li>Add maintainability docstrings/comments and regression coverage for recursive directory traversal, skip rules, deterministic parsing, inline comments, current CSV address hints, CLI/config/environment directory sources, and legacy CSV rejection.</li>
+</ul>
+<h2 id="051---2026-08-20">0.5.1 - 2026-08-20</h2>
+<ul>
+<li>Expanded <code>seeds.csv</code> to the stable nine-column seed inventory schema.</li>
+<li>Added fixed lowercase seed statuses: <code>complete</code>, <code>failed</code>, <code>no_query</code>, <code>out_of_scope</code>, and <code>pending</code> for nonterminal draft snapshots.</li>
+<li>Reusable seed input now consumes the prior <code>query_target</code> plus all IPv4/IPv6 aliases instead of reading only the <code>seed</code> column; legacy seed CSVs remain supported.</li>
+<li>Added idempotent <code>missing_query_target</code> integrity errors and operator notes for every managed-device seed row without a target, with COMPLETE/no-target treated as a non-recoverable state inconsistency.</li>
+<li>Seed notes now carry recorded per-device error detail when available.</li>
+<li>Improved identity merging so successful COMPLETE query/credential metadata is retained when duplicate host identities are reconciled.</li>
+<li>Added source docstrings/comments and regression coverage for seed schema, legacy input, status normalization, address reuse, error reporting, and query-target-preserving identity merges.</li>
+</ul>
+<h2 id="050---2026-08-20">0.5.0 - 2026-08-20</h2>
+<ul>
+<li>Replace the direction-dependent single <code>neighbors</code> field in <code>discovery.json</code> with two explicit topology-evidence fields on every host: <code>learned_neighbors</code> and <code>observed_by_neighbors</code>.</li>
+<li>Replace the single <code>neighbors</code> column in <code>hosts.csv</code> with <code>learned_neighbors</code> and <code>observed_by_neighbors</code>, so a managed device that fails or is not polled still shows the parent device/interface that observed it.</li>
+<li>Define <code>learned_neighbors</code> as relationships learned directly by querying the current host's CDP/LLDP/LLDPv2 tables; define <code>observed_by_neighbors</code> as reciprocal/inbound relationships reported by other queried managed devices.</li>
+<li>Render protocol provenance deterministically as <code>[cdp]</code>, <code>[lldp]</code>, <code>[lldpv2]</code>, or combined tags such as <code>[cdp,lldp]</code>; JSON includes both the canonical <code>protocols</code> array and an explicit <code>protocol_tag</code> string on each relationship.</li>
+<li>Preserve interface perspective in JSON: for both fields, <code>local_interface</code> belongs to the current host record and <code>remote_interface</code> belongs to the neighboring/observing host.</li>
+<li>Keep <code>unknown-devices.csv</code> <code>discovered_connections</code> aligned with inbound/observed-by topology evidence.</li>
+<li>Add regression coverage for unpolled endpoint/unknown children, failed managed children, reciprocal JSON interface direction, and deterministic combined CDP/LLDP protocol tags.</li>
+<li>Add docstrings and maintenance comments around topology-direction rendering so Network Operations staff and future developers can understand why inbound and outbound evidence are intentionally kept separate.</li>
+</ul>
+<h2 id="041---2026-08-20">0.4.1 - 2026-08-20</h2>
+<ul>
+<li>Centralize SNMP textual OCTET STRING normalization in <code>lldp_runner.textutil</code> and use it across LLDP, CDP, SYSTEM-MIB, ENTITY-MIB, and IF-MIB collectors.</li>
+<li>Preserve valid printable Unicode while normalizing embedded TAB/CR/LF to spaces and preventing C0/C1 control characters or surrogate code points from entering discovery text.</li>
+<li>Treat invalid UTF-8 or byte-backed values containing embedded binary controls as printable <code>hex:aa:bb:...</code> strings; trailing NUL padding remains accepted for otherwise normal SNMP text.</li>
+<li>Decode LLDP/LLDPv2 chassis IDs according to their advertised subtype: binary MAC chassis IDs become canonical colon-separated MAC addresses, recognized network-address chassis IDs become IPv4/IPv6 text, and malformed/binary text-like chassis IDs fall back to printable hexadecimal.</li>
+<li>Add a final recursive JSON and per-cell CSV sanitation boundary so older/resumed state or future collector mistakes cannot write raw NUL/terminal-control bytes to formal output files.</li>
+<li>Add regression tests for the observed FLEXIDOME-style <code>00 07 5f 7b 66 34</code> chassis ID, binary LLDP MAC/network identifiers, valid non-ASCII Unicode, and all generated CSV files remaining free of embedded control characters.</li>
+<li>Expand docstrings and maintenance comments in the new sanitation path and touched collectors/output code so Network Operations staff can follow why and where values are normalized.</li>
+</ul>
+<h2 id="040---2026-08-19">0.4.0 - 2026-08-19</h2>
+<ul>
+<li>Reclassify provisional managed neighbors after DNS enrichment and before state insertion/scheduling, so an FQDN or address learned from DNS can apply explicit classification policy before recursive SNMP polling.</li>
+<li>Add multi-value rule syntax across credential, query-policy, classification, and tagging policy:
+<ul>
+<li>address rules accept <code>networks = ["CIDR", ...]</code>;</li>
+<li>name rules accept <code>patterns = ["regex", ...]</code>;</li>
+<li>evidence/tag rules accept <code>name_patterns = [...]</code> and <code>networks = [...]</code>;</li>
+<li><code>field_patterns</code> and <code>detail_patterns</code> values may be a regex string or a list of regex strings.</li>
+</ul></li>
+<li>Alternatives inside one list use OR semantics. Distinct evidence/tag condition types retain AND semantics. First-match-wins remains at the rule level for credential/query/classification rules; tagging rules continue to accumulate.</li>
+<li>Preserve v0.3.x singular <code>network</code>, <code>pattern</code>, and <code>name_pattern</code> syntax and scalar field/detail pattern values for backward compatibility.</li>
+</ul>
+<h2 id="032---2026-08-19">0.3.2 - 2026-08-19</h2>
+<ul>
+<li>Collect the LLDP-MIB and LLDP-V2-MIB remote Chassis ID subtype alongside the existing Chassis ID value.</li>
+<li>Preserve both <code>chassis_id_subtype_id</code> (numeric) and normalized <code>chassis_id_subtype</code> text (<code>chassis_component</code>, <code>interface_alias</code>, <code>port_component</code>, <code>mac_address</code>, <code>network_address</code>, <code>interface_name</code>, <code>local</code>; unknown numeric values become <code>unknown_&lt;id&gt;</code>).</li>
+<li>Expose both subtype forms as normalized <code>field_patterns</code> evidence for <code>classification.evidence_rules</code> and <code>tagging.rules</code>.</li>
+<li>Preserve protocol-specific subtype evidence under keys such as <code>lldp.chassis_id_subtype</code>, <code>lldp.chassis_id_subtype_id</code>, <code>lldpv2.chassis_id_subtype</code>, and <code>lldpv2.chassis_id_subtype_id</code>.</li>
+<li>Add both subtype values to neighbor <code>details</code> in <code>discovery.json</code> when advertised, and aggregate them into <code>unknown-devices.csv</code> review columns.</li>
+<li>Add regression coverage for LLDP/LLDPv2 subtype collection, protocol-evidence preservation, classification matching, tagging matching, and JSON output.</li>
+</ul>
+<h2 id="031---2026-08-19">0.3.1 - 2026-08-19</h2>
+<ul>
+<li>Fix <code>status</code> and <code>pause</code> to load configuration through the same recursive <code>@include</code>-aware loader used by <code>run</code>, <code>validate-config</code>, and <code>explain-target</code>.</li>
+<li>Honor included <code>[paths] scratch_root</code>, included <code>[resume] pause_indicator</code>, and normal environment overrides for operational commands.</li>
+<li>Keep full configuration/schema validation for <code>status</code> and <code>pause</code> while skipping only SNMP secret-availability checks, allowing operators to control runs started by cron/systemd without inheriting their credential environment.</li>
+<li>Remove the legacy lightweight TOML-only operational-settings reader that could not parse <code>@include</code> directives.</li>
+<li>Add CLI regression coverage for <code>status</code> and <code>pause</code> using settings supplied entirely by chained configuration fragments.</li>
+</ul>
+<h2 id="030---2026-08-19">0.3.0 - 2026-08-19</h2>
+<ul>
+<li>Add configurable <code>[output] chassis_id_name_fallback</code> modes <code>disabled</code>, <code>name_like</code>, and <code>any</code>; boolean <code>true</code>/<code>false</code> remain accepted as aliases for <code>name_like</code>/<code>disabled</code>.</li>
+<li>Use hostname-like LLDP/CDP chassis IDs as presentation-name fallbacks when the observed/discovered name is blank, while preserving raw <code>observed_name</code> and never using the fallback as a DNS/SNMP target.</li>
+<li>Preserve a case-sensitive chassis display value separately from the normalized chassis identity alias.</li>
+<li>Add accumulating <code>[[tagging.rules]]</code> with optional category, name regex, network CIDR, normalized evidence fields, and protocol-specific detail fields using AND semantics within each rule.</li>
+<li>Persist de-duplicated host tags in coordinator-owned SQLite so tags survive snapshots, pause/resume, and host-identity merges.</li>
+<li>Add <code>tags</code> arrays to <code>discovery.json</code> host records and a semicolon-separated <code>tags</code> column to <code>hosts.csv</code>.</li>
+<li>Add regression coverage for Windows-style chassis-name fallback, MAC rejection in <code>name_like</code> mode, <code>any</code> mode, tag accumulation, tag-rule conjunctions, included tag fragments, and output persistence.</li>
+</ul>
+<h2 id="020---2026-08-19">0.2.0 - 2026-08-19</h2>
+<ul>
+<li>Add first-match-wins <code>classification.evidence_rules</code> with AND semantics across any configured <code>name_pattern</code>, management-address <code>network</code> CIDR, normalized CDP/LLDP <code>field_patterns</code>, and protocol-specific <code>detail_patterns</code>.</li>
+<li>Preserve normalized protocol-specific CDP/LLDP/LLDPv2 evidence under namespaced detail keys such as <code>lldp.remote_description</code> and <code>cdp.remote_platform</code>.</li>
+<li>Add recursive <code>@include filename</code> configuration composition with relative-path resolution, deterministic merge order, nested include support, and include-cycle detection.</li>
+<li>Concatenate rule/pattern arrays across included files while allowing the including file to override scalar settings; <code>discovery.address_preference</code> remains a replacement-order list.</li>
+<li>Add validation and regression coverage for evidence-rule fields, evidence conjunctions, first-match ordering, nested includes, relative include paths, and include cycles.</li>
+</ul>
+<h2 id="012---2026-08-18">0.1.2 - 2026-08-18</h2>
+<ul>
+<li>Send the configured two ICMP wake-up probes before the first SNMP attempt to every candidate query address, not only the first preferred address.</li>
+<li>Do not repeat ICMP probes for primary retries or fallback credentials that use the same address.</li>
+<li>Respect <code>icmp.enabled = false</code> and <code>icmp.backend = "disabled"</code> without sending probe traffic.</li>
+<li>Record the probed IPv4/IPv6 address with each ICMP result so multi-address RTT/no-response data is unambiguous.</li>
+<li>Add regression coverage for IPv4 failure followed by an IPv6 alternate-address attempt and for disabled ICMP.</li>
+</ul>
+<h2 id="011---2026-08-18">0.1.1 - 2026-08-18</h2>
+<ul>
+<li>Fix TOML <code>[paths]</code> values being retained as plain strings instead of <code>pathlib.Path</code> objects.</li>
+<li>Add regression coverage for normal-mode resume lookup and run-path construction using TOML-configured roots.</li>
+</ul>
+<h2 id="010---2026-08-17">0.1.0 - 2026-08-17</h2>
+<ul>
+<li>Initial lldp-runner implementation.</li>
+</ul>
+</body>
+</html>

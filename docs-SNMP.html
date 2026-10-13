@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/SNMP.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="snmp-backends-retries-diagnostics-and-ipv6-compatibility">SNMP backends, retries, diagnostics, and IPv6 compatibility</h1>
+<h2 id="backend-ownership-and-selection">Backend ownership and selection</h2>
+<p>LLDP-Runner owns a small asynchronous SNMP client interface. Version 0.36.0 introduced two discovery implementations, and 0.37.0 retains both:</p>
+<ul>
+<li><code>pysnmp</code>, the default PySNMP 7.1 asyncio <code>v3arch</code> adapter;</li>
+<li><code>gufo</code>, the unchanged Gufo SNMP adapter selected explicitly when needed.</li>
+</ul>
+<p>Choose one backend with <code>snmp.backend</code>, <code>LLDP_RUNNER_SNMP_BACKEND</code>, <code>--set 'snmp.backend="..."'</code>, or the dedicated <code>--snmp-backend</code> option. The normal setting precedence in <a href="docs-PRECEDENCE.html">PRECEDENCE.md</a> applies, so the dedicated option has final say.</p>
+<p>The 0.37.0 default change does not rewrite an explicit Gufo selection. A run started with Gufo remains a Gufo run: its resume must still resolve to <code>gufo</code>. When the backend setting is omitted, it now resolves to <code>pysnmp</code>, so attempting to resume durable Gufo state under the implicit default fails before discovery. LLDP-Runner never converts an existing run or falls back between libraries.</p>
+<p>The effective choice is normalized and bound once after configuration assembly and validation. Spawned workers receive that same runtime binding. The factory imports and constructs only the selected implementation; an import, open, or request failure never tries the other library. A logical run therefore cannot contain mixed-backend evidence.</p>
+<p>The backend name and installed distribution version are persisted in SQLite run metadata and in the top-level and per-invocation <code>run.json</code> records. They are also announced in normal run diagnostics. Credential material is not included. A resume must resolve to the same persisted backend name. A different name, or a real older checkpoint with no backend metadata, is rejected before discovery and before the run manifest is changed. The installed version is recorded for each resume invocation because an operator may have upgraded the selected package between invocations.</p>
+<h2 id="pysnmp-71-adapter">PySNMP 7.1 adapter</h2>
+<p>The PySNMP adapter reuses the mappings validated by <code>scripts/pysnmp-snmp-diag.py</code>:</p>
+<pre class="text"><code>SNMPv2c  CommunityData(community, mpModel=1)
+SNMPv3   UsmUserData(username, authKey=..., privKey=...,
+                     authProtocol=..., privProtocol=...)
+IPv4     await UdpTransportTarget.create((address, port), ..., retries=0)
+IPv6     await Udp6TransportTarget.create((address, port), ..., retries=0)</code></pre>
+<p>SNMPv3 algorithm names are backend-specific and are validated before secrets or network activity:</p>
+<table>
+<thead>
+<tr>
+<th>Configuration value</th>
+<th style="text-align: center;">Gufo</th>
+<th>PySNMP mapping</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth_protocol = "sha1"</code></td>
+<td style="text-align: center;">yes</td>
+<td><code>USM_AUTH_HMAC96_SHA</code></td>
+</tr>
+<tr>
+<td><code>auth_protocol = "md5"</code></td>
+<td style="text-align: center;">yes</td>
+<td><code>USM_AUTH_HMAC96_MD5</code></td>
+</tr>
+<tr>
+<td><code>auth_protocol = "sha256"</code></td>
+<td style="text-align: center;">no</td>
+<td><code>USM_AUTH_HMAC192_SHA256</code></td>
+</tr>
+<tr>
+<td><code>priv_protocol = "aes128"</code></td>
+<td style="text-align: center;">yes</td>
+<td><code>USM_PRIV_CFB128_AES</code></td>
+</tr>
+<tr>
+<td><code>priv_protocol = "des"</code></td>
+<td style="text-align: center;">yes</td>
+<td><code>USM_PRIV_CBC56_DES</code></td>
+</tr>
+<tr>
+<td><code>priv_protocol = "aes256"</code></td>
+<td style="text-align: center;">no</td>
+<td><code>USM_PRIV_CFB256_AES</code></td>
+</tr>
+<tr>
+<td><code>priv_protocol = "aes256-blumenthal"</code></td>
+<td style="text-align: center;">no</td>
+<td>Blumenthal AES-256</td>
+</tr>
+</tbody>
+</table>
+<p><code>aes256</code> is intentionally the shorter name for the more common Reeder key localization, also called AES-256-Cisco. <code>aes256-blumenthal</code> selects <code>USM_PRIV_CFB256_AES_BLUMENTHAL</code> with the different Blumenthal key-localization method. They are not interchangeable; LLDP-Runner does not accept <code>aes256-reeder</code> as an alias and never probes, negotiates, downgrades, or falls back between privacy algorithms. Gufo remains limited to SHA-1/MD5 authentication and AES-128/DES privacy. Configuration credentials and direct seed credentials are checked against the selected adapter's explicit capability map, and each adapter repeats the validation at its own boundary.</p>
+<h3 id="pysnmp-authpriv-cryptography-preflight">PySNMP authPriv cryptography preflight</h3>
+<p>PySNMP delegates strong SNMPv3 privacy ciphers to the installed <code>cryptography</code> provider. LLDP-Runner 0.37.0 declares <code>cryptography&gt;=50.0</code>; the exact Linux release constraints pin 50.0.1. Package metadata alone is not enough to prove that the provider and its native bindings can execute every configured cipher, so active PySNMP startup performs a constructive local check.</p>
+<p>After backend selection and durable resume-backend validation, but before a run manifest, worker process, DNS seed resolution, ICMP request, or SNMP request, the coordinator gathers only non-secret metadata from:</p>
+<ul>
+<li>every credential referenced by a configured profile, including profiles that a protected seed overlay could select; and</li>
+<li>every direct SNMPv3 seed credential parsed for this invocation.</li>
+</ul>
+<p>For each distinct reachable privacy protocol, the preflight encrypts fixed non-secret bytes with the corresponding AES-128 or AES-256 CFB primitive, or the DES-compatible TripleDES CBC primitive. AES-128 uses a 16-byte key; <code>aes256</code> and <code>aes256-blumenthal</code> use a 32-byte key and the same 16-byte AES CFB IV. The AES-256 localization distinction is implemented by PySNMP after this local provider check. The AES probe imports CFB from <code>cryptography.hazmat.decrepit.ciphers.modes</code>, which is the supported location for this legacy-but-protocol-required mode in cryptography 50. It does not read a community, username, authentication password, or privacy password. It creates no <code>SnmpEngine</code> or transport and consumes no LLDP-Runner retry allowance. Active <code>get-neighbors</code> performs the same check because it bypasses the coordinator. Dry-run and stored-data commands do not.</p>
+<p>Missing/old cryptography, a failed provider import, or an unusable cipher raises the sanitized <code>SnmpBackendCapabilityError</code> and stops the invocation before network discovery. Gufo and PySNMP SNMPv2c-only invocations do not require this probe. A mixed discovery configuration may perform one startup probe because a different reachable credential route uses SNMPv3 authPriv; that does not use cryptography in any SNMPv2c packet or request path.</p>
+<h3 id="temporary-pysnmp-aes-warning-filter">Temporary PySNMP AES warning filter</h3>
+<p>PySNMP 7.1.29 still references CFB through cryptography's former primitives namespace while performing its AES privacy operations. Version 0.36.3 installs a temporary process warning filter only when a PySNMP SNMPv3 AES-128 or AES-256 route is constructed. The filter matches all three of these attributes exactly:</p>
+<ul>
+<li>category: <code>cryptography.utils.CryptographyDeprecationWarning</code>;</li>
+<li>complete message: the known CFB-moved/removal warning emitted by cryptography 50.0.1;</li>
+<li>origin module: <code>pysnmp.proto.secmod.rfc3826.priv.aes</code>.</li>
+</ul>
+<p>The filter is not installed for SNMPv2c or DES routes. A changed upstream message, the same category from another module, another category from the same module, and every unrelated warning remain visible. Remove the compatibility filter after LLDP-Runner's minimum PySNMP release adopts the decrepit CFB import.</p>
+<p>If a provider becomes unavailable after a successful preflight, the adapter also recognizes PySNMP's <code>Ciphering services not available</code> indication as the stable <code>snmp_backend_capability</code> category. It is not treated as a timeout and therefore does not consume an adaptive request retry; ordinary configured credential-route fallback behavior remains unchanged.</p>
+<p>Every target has PySNMP internal retries disabled. LLDP-Runner's adaptive wrapper remains the only retry owner, so operation, collector, shared, neighbor-reserve, structural, and stability budgets retain their established meaning.</p>
+<p>GET, GET-MANY, and GETBULK WALK responses are converted at the adapter boundary. Numeric OIDs become unprefixed dotted strings, octet-like values become bytes, numeric application values become integers, and OID/IP values become strings. SNMP exception sentinels remain typed so established collector and access checks can recognize them.</p>
+<p>Raised exceptions and response errors are mapped to stable timeout, transport, authentication, authorization, local backend capability, engine, PDU, or malformed-response causes inside the normal phase-aware <code>SnmpBackendError</code>. Configured credential values are removed from backend text before it crosses that boundary. Cancellation is not converted into an ordinary failure.</p>
+<p>One <code>SnmpEngine</code> belongs to each opened adapter session. Its observer and asynchronous dispatcher are released deterministically after success, partial setup, open/request failure, close failure, and cancellation. SNMPv3 engine identity comes only from <code>securityEngineId</code> in the received response security context. The local manager engine ID is never reported as the remote device ID.</p>
+<h2 id="canonical-addresses">Canonical addresses</h2>
+<p>IPv4 and IPv6 management addresses remain canonical, unbracketed IP text in:</p>
+<ul>
+<li>identity and alias processing;</li>
+<li>coordinator scheduling and duplicate prevention;</li>
+<li>SQLite host, route-attempt, and error records;</li>
+<li>activity logs and operator messages;</li>
+<li><code>discovery.json</code>, fixed CSV files, and diff output.</li>
+</ul>
+<p>Brackets are transport syntax, not part of an IPv6 identity. PySNMP receives the canonical address in its family-specific target. Gufo retains the narrowly scoped compatibility handling below.</p>
+<h2 id="gufo-snmp-0120-ipv6-boundary">Gufo SNMP 0.12.0 IPv6 boundary</h2>
+<p>Gufo SNMP 0.12.0 builds its native destination from <code>addr</code> and <code>port</code>. A raw IPv6 literal can therefore be rejected during <code>SnmpSession</code> construction with the exact exception <code>OSError("invalid address")</code>.</p>
+<p>LLDP-Runner contains that behavior at the Gufo boundary:</p>
+<ol type="1">
+<li>Construct the Gufo session with the canonical unbracketed address.</li>
+<li>Only when the address is IPv6 and construction raises the exact confirmed exception, construct once more with <code>[address]</code>.</li>
+<li>Continue to report and persist the canonical unbracketed address.</li>
+</ol>
+<p>IPv4 is never bracketed. An unrelated constructor exception does not activate the compatibility path. A successful bracketed construction is the same logical route, not an SNMP retry, and consumes no adaptive, structural, collector, target, or stability retry allowance. If both forms fail, the final error preserves the bracketed failure as its cause and the original raw-address failure as context.</p>
+<p>The same boundary applies to SNMPv2c and SNMPv3 because address construction is independent of the security model.</p>
+<h2 id="phase-and-error-model">Phase and error model</h2>
+<p>Backend failures carry one of these stable phases:</p>
+<ul>
+<li><code>resolve</code>: address normalization or resolution before session construction;</li>
+<li><code>session_construct</code>: selected-backend object/engine construction;</li>
+<li><code>session_open</code>: transport/security setup or asynchronous session entry;</li>
+<li><code>request</code>: GET, GET-MANY, or WALK work;</li>
+<li><code>session_close</code>: asynchronous session/dispatcher shutdown.</li>
+</ul>
+<p>A valid normalized destination rejected during construction uses the category <code>snmp_session_address_error</code>. Timeouts, access restrictions, authentication failures, transport errors, and structural collector outcomes retain their established categories even when the project-owned wrapper supplies phase and backend-neutral cause metadata.</p>
+<h2 id="bounded-retry-model">Bounded retry model</h2>
+<p>The established retry budgets are unchanged. Normal adaptive retries are bounded per operation, per collector family, and by the target shared and neighbor-reserve pools. Structural table retries restart the whole affected collector snapshot. Optional delayed neighbor stability retries remain one final pass per failed neighbor protocol.</p>
+<p>Original LLDP local-port collection retains its existing independent one-retry behavior. It does not consume adaptive retry capacity, and persistent failure keeps valid remote-neighbor rows with typed unresolved local-port identifiers.</p>
+<h2 id="direct-standalone-diagnostics">Direct standalone diagnostics</h2>
+<p>The release ships three executable diagnostics under <code>scripts/</code>. All bypass LLDP-Runner's wrapper, coordinator, credential policy, retry accounting, and collectors. Run them in the same Python/uv environment, under the same operating-system account, and on the same Linux host as LLDP-Runner.</p>
+<h3 id="pysnmp-compatibility-diagnostic">PySNMP compatibility diagnostic</h3>
+<p><code>scripts/pysnmp-snmp-diag.py</code> is the direct PySNMP compatibility diagnostic. It uses the maintained <code>pysnmp.hlapi.v3arch.asyncio</code> API directly and can resolve IPv4 or IPv6 literals and hostnames, use SNMPv2c or SNMPv3 authPriv, query multiple numeric OIDs, and repeat each destination with a fresh <code>SnmpEngine</code> and transport target. Every PySNMP target uses <code>retries=0</code>, so <code>--repeat</code> is the only repetition performed by the script. Each engine dispatcher is closed on success and after transport or request failure.</p>
+<p>Credentials come only from <code>SNMPCOMM</code> or <code>SNMPUSER</code>/<code>SNMPAUTH</code>/<code>SNMPPRIV</code>. Configured values are redacted from exceptions and are never printed. The script distinguishes engine construction, transport-target construction, GET, and dispatcher-close failures. It accepts SHA-1, MD5, and SHA-256 authentication plus AES-128, DES, <code>aes256</code> Reeder/Cisco, and <code>aes256-blumenthal</code> privacy so an operator can validate the exact PySNMP route before using it in discovery. In 0.36.3 the diagnostic performs the same fixed-byte local privacy-cipher preflight before DNS or SNMP and prints the installed cryptography version. Missing or unusable crypto support is reported once as a <code>local_crypto_capability</code> configuration failure rather than once per device.</p>
+<p>The diagnostic deliberately does not present the local manager engine ID as the remote authoritative SNMPv3 engine ID. The integrated 0.36.3 backend captures that value from the received response security context instead.</p>
+<p>Safe examples are:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">SNMPCOMM</span><span class="op">=</span><span class="st">&#39;community&#39;</span> <span class="ex">./scripts/pysnmp-snmp-diag.py</span> 192.0.2.10</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">SNMPCOMM</span><span class="op">=</span><span class="st">&#39;community&#39;</span> <span class="ex">./scripts/pysnmp-snmp-diag.py</span> 2001:db8::10</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="va">SNMPCOMM</span><span class="op">=</span><span class="st">&#39;community&#39;</span> <span class="ex">./scripts/pysnmp-snmp-diag.py</span> switch.example.net <span class="at">-6</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="va">SNMPUSER</span><span class="op">=</span><span class="st">&#39;user&#39;</span> <span class="va">SNMPAUTH</span><span class="op">=</span><span class="st">&#39;authpass&#39;</span> <span class="va">SNMPPRIV</span><span class="op">=</span><span class="st">&#39;privpass&#39;</span> <span class="dt">\</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">./scripts/pysnmp-snmp-diag.py</span> switch.example.net <span class="at">--snmp-version</span> 3 <span class="at">-6</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="va">SNMPUSER</span><span class="op">=</span><span class="st">&#39;user&#39;</span> <span class="va">SNMPAUTH</span><span class="op">=</span><span class="st">&#39;authpass&#39;</span> <span class="va">SNMPPRIV</span><span class="op">=</span><span class="st">&#39;privpass&#39;</span> <span class="dt">\</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">./scripts/pysnmp-snmp-diag.py</span> switch.example.net <span class="at">--snmp-version</span> 3 <span class="dt">\</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--auth-protocol</span> sha256 <span class="at">--priv-protocol</span> aes256</span></code></pre></div>
+<p>Exit status 0 means every requested engine/target/GET/close sequence succeeded; 1 means at least one query sequence failed; 2 means usage, resolution, credential, import, or API compatibility failed; and 130 means interruption.</p>
+<h3 id="gufo-diagnostics">Gufo diagnostics</h3>
+<p><code>scripts/gufo-snmp-diag.py</code> is the detailed diagnostic. It can resolve IPv4 or IPv6 literals and hostnames, use SNMPv2c or SNMPv3 authPriv, query multiple numeric OIDs, repeat fresh sessions, and distinguish constructor, open, request, and close failures. It reads credentials only from <code>SNMPCOMM</code> or the documented SNMPv3 environment variables, redacts configured values from diagnostics, and returns zero only when every requested session and GET succeeds.</p>
+<p><code>scripts/gufo-ipv6-test.py</code> is deliberately narrower. It accepts one unbracketed IPv6 literal or a hostname with at least one IPv6 result, rejects IPv4, resolves only <code>AF_INET6</code>, normalizes and deduplicates addresses in resolver order, and reads its SNMPv2c community from <code>SNMPCOMM</code>. For each canonical address it runs an unbracketed probe and then a bracketed probe against the same destination. The brackets exist only at this direct Gufo transport boundary.</p>
+<p>A normal Gufo 0.12.0 compatibility result is an unbracketed constructor failure with <code>invalid address</code> followed by bracketed success. The focused script treats that as a conclusive successful diagnostic and prints <code>brackets required</code> with exit status 0. Two successes produce <code>brackets not required</code>; a failed bracketed probe or inconsistent result returns 1. Usage, IPv6/DNS, credential, and Gufo import/configuration failures return 2, and operator interruption returns 130. Neither script prints credential values.</p>
+<p>Help is available without importing either SNMP package:</p>
+<pre class="text"><code>python scripts/gufo-ipv6-test.py --help
+python scripts/gufo-snmp-diag.py --help
+python scripts/pysnmp-snmp-diag.py --help</code></pre>
+<p>See <code>scripts/gufo-readme.txt</code> for safe invocations. A real focused IPv6 result is host-specific diagnostic evidence; it does not by itself change LLDP-Runner's canonical unbracketed address representation or its narrowly contained Gufo transport compatibility layer.</p>
+</body>
+</html>

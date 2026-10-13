@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/PLAN.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="enterprise-configuration-planning-guide">Enterprise Configuration Planning Guide</h1>
+<p>This guide shows one practical way to configure LLDP-Runner for a large enterprise where Network Operations (NetOps) manages part of the network and customers or other teams manage the rest.</p>
+<p>The example is intentionally policy-oriented. Replace every example hostname, CIDR, environment-variable name, and secret source with values appropriate for your site.</p>
+<p>The main design goal is to keep the configuration understandable over time:</p>
+<pre class="text"><code>classification  decides what a discovered neighbor represents
+query policy    decides whether LLDP-Runner may contact it
+credentials     decide how an allowed managed device authenticates
+tagging         adds operator/reporting labels without changing query behavior</code></pre>
+<p>Do not use credentials to decide ownership. Do not use tags to decide whether a device may be queried. Keeping these jobs separate makes policy easier to audit.</p>
+<p>For the detailed credential execution model, also read <a href="docs-CREDS.html">CREDS.md</a>.</p>
+<h2 id="1-start-with-ownership-boundaries">1. Start with ownership boundaries</h2>
+<p>Before writing TOML, list the enterprise facts that change slowly:</p>
+<ul>
+<li>NetOps infrastructure IPv4 and IPv6 management ranges;</li>
+<li>customer or other-team address ranges that must not be queried;</li>
+<li>dedicated endpoint ranges for phones, wireless, printers, or workstations;</li>
+<li>stable NetOps naming conventions;</li>
+<li>stable unmanaged/customer naming conventions;</li>
+<li>device families that require credentials other than the normal default; and</li>
+<li>the small set of exceptional devices that need host-specific credentials.</li>
+</ul>
+<p>Prefer a subnet or naming convention over a list of individual hosts whenever that convention is trustworthy. Individual-host policy should be the exception.</p>
+<p>This example uses documentation-only networks:</p>
+<pre class="text"><code>192.0.2.0/25          normal NetOps infrastructure
+192.0.2.128/27        NetOps WTI remote consoles
+192.0.2.160/27        NetOps UPS/PDU equipment
+192.0.2.192/27        NetOps Palo Alto firewalls
+198.51.100.0/25       customer/unmanaged phones
+198.51.100.128/25     customer/unmanaged wireless endpoints
+203.0.113.0/25        office printer networks
+203.0.113.128/25      other customer-managed equipment
+2001:db8:100::/48     normal NetOps infrastructure IPv6
+2001:db8:110::/48     NetOps WTI IPv6
+2001:db8:120::/48     NetOps UPS/PDU IPv6
+2001:db8:130::/48     NetOps firewall IPv6
+2001:db8:200::/56     customer/unmanaged phones IPv6
+2001:db8:201::/56     customer/unmanaged wireless IPv6
+2001:db8:300::/48     other customer-managed equipment IPv6</code></pre>
+<p>If one subnet contains mixed ownership, do not classify the entire subnet as managed or unmanaged merely for convenience. Use naming/evidence rules there.</p>
+<h2 id="2-keep-the-seed-inventory-deliberate">2. Keep the seed inventory deliberate</h2>
+<p>Seeds are explicit starting points and are treated as managed devices. Keep the seed list limited to devices NetOps actually intends to contact.</p>
+<p>A good large-site seed list normally includes stable core/distribution devices from each major location plus any exceptional device that must receive a seed-credential overlay.</p>
+<p>For example:</p>
+<pre class="text"><code>core-01.example.net
+core-02.example.net
+dist-east-01.example.net
+dist-west-01.example.net
+exception-device-01.example.net
+exception-device-02.example.net</code></pre>
+<p>Do not add customer devices merely because they are visible in topology. Learned neighbors can still be retained in discovery output without becoming seeds.</p>
+<p>A seed-credential file is an overlay, not another seed list. Therefore <code>exception-device-01.example.net</code> must exist in a normal seed source before a matching seed-credential record can affect it.</p>
+<h2 id="3-use-a-broad-enterprise-boundary-and-a-narrow-query-policy">3. Use a broad enterprise boundary and a narrow query policy</h2>
+<p><code>discovery.boundaries</code> determines recursive discovery scope. It is reasonable to cover the enterprise-routed space that can contain topology neighbors, but a production site should normally avoid the built-in <code>0.0.0.0/0</code> and <code>::/0</code> defaults.</p>
+<p>Query policy should then provide a second, stricter safety layer. For an enterprise with substantial customer-owned equipment, a default-deny query policy is easier to reason about than trying to enumerate every possible unmanaged device.</p>
+<p>Conceptually:</p>
+<pre class="text"><code>inside enterprise boundary
+  + classified managed_device
+  + query policy allows contact
+  = eligible for recursive SNMP</code></pre>
+<p>Known customer/unmanaged networks should be explicit denies. Known NetOps management networks should be allows. Trusted NetOps naming conventions can be allow rules for managed devices that appear outside a known management subnet.</p>
+<p>One-off addresses can use <code>/32</code> IPv4 or <code>/128</code> IPv6 rules. That is preferable to inventing a hostname pattern for a device that is exceptional only by address. A most-specific deny will override a broader address allow.</p>
+<h2 id="4-make-one-credential-the-ordinary-default">4. Make one credential the ordinary default</h2>
+<p>The example enterprise uses these credential families:</p>
+<pre class="text"><code>DefaultV2      SNMPv2c, normal switches/routers, and unknown new NetOps devices
+ConsoleV2  SNMPv2c, WTI DSM remote console appliances
+PowerV2    SNMPv2c, APC/Eaton UPS and PDU devices
+FirewallV3   SNMPv3 authPriv, Palo Alto firewalls
+ExceptionV3 SNMPv3 authPriv, explicit exception seed devices</code></pre>
+<p>Keep DefaultV2 as the configured default profile. Do not create a broad DefaultV2 address rule; the default profile already provides that behavior. Then define only the narrower WTI, power, and firewall exceptions.</p>
+<p>This gives the credential decision a simple shape:</p>
+<pre class="text"><code>specific device-family address rule
+  -&gt; specific device-family name rule
+  -&gt; DefaultV2 default profile</code></pre>
+<p>The special <code>ExceptionV3</code> profile is intentionally not selected by normal credential rules. It is reached only through the seed-credential overlay.</p>
+<h2 id="5-recommended-example-configuration">5. Recommended example configuration</h2>
+<p>The following example is one complete policy-oriented <code>config.toml</code>. It omits unrelated tuning options so the ownership and credential decisions remain easy to see.</p>
+<p>For a mature site, the rule sections can be moved to lexical <code>conf.d</code> files such as <code>10-credentials.toml</code>, <code>20-query-policy.toml</code>, <code>30-classification.toml</code>, and <code>40-tagging.toml</code>. See <a href="docs-PRECEDENCE.html">PRECEDENCE.md</a> before splitting ordered rule lists.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[paths]</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">persistent_root</span> <span class="op">=</span> <span class="st">&quot;/var/lib/lldp-runner&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">scratch_root</span> <span class="op">=</span> <span class="st">&quot;/var/tmp/lldp-runner&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[time]</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="dt">timezone</span> <span class="op">=</span> <span class="st">&quot;America/Denver&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">[discovery]</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="dt">boundaries</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;192.0.2.0/24&quot;</span><span class="op">,</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;198.51.100.0/24&quot;</span><span class="op">,</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;203.0.113.0/24&quot;</span><span class="op">,</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8::/32&quot;</span><span class="op">,</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="dt">seed_files</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;/opt/lldp-runner/seeds.txt&quot;</span><span class="op">]</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="dt">workers</span> <span class="op">=</span> <span class="st">&quot;auto&quot;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="dt">batch_size</span> <span class="op">=</span> <span class="dv">9</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="dt">max_devices</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="dt">max_hosts</span> <span class="op">=</span> <span class="dv">200000</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="dt">address_preference</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;ipv4&quot;</span><span class="op">,</span> <span class="st">&quot;ipv6&quot;</span><span class="op">]</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="dt">resolve_discovered_managed_names</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="kw">[snmp]</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span> <span class="op">=</span> <span class="st">&quot;pysnmp&quot;</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;3&quot;</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="dt">timeout_seconds</span> <span class="op">=</span> <span class="fl">3.0</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="dt">max_repetitions</span> <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="kw">[icmp]</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="dt">enabled</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="dt">probes</span> <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span> <span class="op">=</span> <span class="st">&quot;auto&quot;</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="kw">[logging]</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="dt">level</span> <span class="op">=</span> <span class="st">&quot;INFO&quot;</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="dt">console</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="dt">file</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="dt">filename</span> <span class="op">=</span> <span class="st">&quot;activity.log&quot;</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.default-v2]</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v2c&quot;</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="dt">community_env</span> <span class="op">=</span> <span class="st">&quot;LLDP_SNMP_DEFAULT&quot;</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.console-v2]</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v2c&quot;</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="dt">community_env</span> <span class="op">=</span> <span class="st">&quot;LLDP_SNMP_CONSOLE&quot;</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.power-v2]</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v2c&quot;</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="dt">community_env</span> <span class="op">=</span> <span class="st">&quot;LLDP_SNMP_POWER&quot;</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.firewall-v3]</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v3&quot;</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="dt">username</span> <span class="op">=</span> <span class="st">&quot;snmp-firewall&quot;</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_password_env</span> <span class="op">=</span> <span class="st">&quot;LLDP_SNMP_FIREWALL_AUTH&quot;</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_password_env</span> <span class="op">=</span> <span class="st">&quot;LLDP_SNMP_FIREWALL_PRIV&quot;</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_protocol</span> <span class="op">=</span> <span class="st">&quot;sha1&quot;</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_protocol</span> <span class="op">=</span> <span class="st">&quot;aes128&quot;</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.exception-v3]</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v3&quot;</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a><span class="dt">username</span> <span class="op">=</span> <span class="st">&quot;snmp-exception&quot;</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_password_env</span> <span class="op">=</span> <span class="st">&quot;LLDP_SNMP_EXCEPTION_AUTH&quot;</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_password_env</span> <span class="op">=</span> <span class="st">&quot;LLDP_SNMP_EXCEPTION_PRIV&quot;</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_protocol</span> <span class="op">=</span> <span class="st">&quot;sha1&quot;</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_protocol</span> <span class="op">=</span> <span class="st">&quot;aes128&quot;</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="kw">[credential_profiles.default]</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="dt">primary</span> <span class="op">=</span> <span class="st">&quot;default-v2&quot;</span></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_attempts</span> <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a><span class="kw">[credential_profiles.console]</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a><span class="dt">primary</span> <span class="op">=</span> <span class="st">&quot;console-v2&quot;</span></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_attempts</span> <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a><span class="kw">[credential_profiles.power]</span></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a><span class="dt">primary</span> <span class="op">=</span> <span class="st">&quot;power-v2&quot;</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_attempts</span> <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a><span class="kw">[credential_profiles.firewall]</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a><span class="dt">primary</span> <span class="op">=</span> <span class="st">&quot;firewall-v3&quot;</span></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_attempts</span> <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a><span class="kw">[credential_profiles.exception]</span></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a><span class="dt">primary</span> <span class="op">=</span> <span class="st">&quot;exception-v3&quot;</span></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_attempts</span> <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a><span class="kw">[credential_rules]</span></span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a><span class="dt">default_profile</span> <span class="op">=</span> <span class="st">&quot;default&quot;</span></span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a><span class="kw">[[credential_rules.address]]</span></span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;192.0.2.128/27&quot;</span><span class="op">,</span> <span class="st">&quot;2001:db8:110::/48&quot;</span><span class="op">]</span></span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a><span class="dt">profile</span> <span class="op">=</span> <span class="st">&quot;console&quot;</span></span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a><span class="kw">[[credential_rules.address]]</span></span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;192.0.2.160/27&quot;</span><span class="op">,</span> <span class="st">&quot;2001:db8:120::/48&quot;</span><span class="op">]</span></span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a><span class="dt">profile</span> <span class="op">=</span> <span class="st">&quot;power&quot;</span></span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a><span class="kw">[[credential_rules.address]]</span></span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;192.0.2.192/27&quot;</span><span class="op">,</span> <span class="st">&quot;2001:db8:130::/48&quot;</span><span class="op">]</span></span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a><span class="dt">profile</span> <span class="op">=</span> <span class="st">&quot;firewall&quot;</span></span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a><span class="kw">[[credential_rules.name]]</span></span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a><span class="dt">patterns</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;(?i)^wti-&quot;</span><span class="op">,</span> <span class="st">&quot;(?i)^dsm-&quot;</span><span class="op">]</span></span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a><span class="dt">profile</span> <span class="op">=</span> <span class="st">&quot;console&quot;</span></span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a><span class="kw">[[credential_rules.name]]</span></span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a><span class="dt">patterns</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;(?i)^(ups|pdu)-&quot;</span><span class="op">,</span> <span class="st">&quot;(?i)^(apc|eaton)-&quot;</span><span class="op">]</span></span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a><span class="dt">profile</span> <span class="op">=</span> <span class="st">&quot;power&quot;</span></span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a><span class="kw">[[credential_rules.name]]</span></span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a><span class="dt">patterns</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;(?i)^(pa|palo|fw)-&quot;</span><span class="op">]</span></span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a><span class="dt">profile</span> <span class="op">=</span> <span class="st">&quot;firewall&quot;</span></span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a><span class="kw">[query_policy]</span></span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a><span class="dt">default_action</span> <span class="op">=</span> <span class="st">&quot;deny&quot;</span></span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a><span class="kw">[[query_policy.address_rules]]</span></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;198.51.100.0/24&quot;</span><span class="op">,</span></span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;203.0.113.0/24&quot;</span><span class="op">,</span></span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:200::/56&quot;</span><span class="op">,</span></span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:201::/56&quot;</span><span class="op">,</span></span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:300::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;deny&quot;</span></span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a><span class="kw">[[query_policy.address_rules]]</span></span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;192.0.2.0/24&quot;</span><span class="op">,</span></span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:100::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:110::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:120::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:130::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;allow&quot;</span></span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a><span class="kw">[[query_policy.name_rules]]</span></span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a><span class="dt">patterns</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)^(cust|customer|tenant|dept)-&quot;</span><span class="op">,</span></span>
+<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">.(customer|tenant)</span><span class="sc">\\</span><span class="st">.example$&quot;</span><span class="op">,</span></span>
+<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;deny&quot;</span></span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a><span class="kw">[[query_policy.name_rules]]</span></span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a><span class="dt">patterns</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)^(core|dist|access|edge|rtr|sw)-&quot;</span><span class="op">,</span></span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)^(wti|dsm|ups|pdu|apc|eaton)-&quot;</span><span class="op">,</span></span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)^(pa|palo|fw)-&quot;</span><span class="op">,</span></span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;allow&quot;</span></span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a><span class="kw">[classification]</span></span>
+<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a><span class="dt">managed_manufacturers</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Cisco&quot;</span><span class="op">,</span></span>
+<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Juniper&quot;</span><span class="op">,</span></span>
+<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Arista&quot;</span><span class="op">,</span></span>
+<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Aruba&quot;</span><span class="op">,</span></span>
+<span id="cb7-159"><a href="#cb7-159" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;HPE&quot;</span><span class="op">,</span></span>
+<span id="cb7-160"><a href="#cb7-160" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Palo Alto Networks&quot;</span><span class="op">,</span></span>
+<span id="cb7-161"><a href="#cb7-161" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-162"><a href="#cb7-162" aria-hidden="true" tabindex="-1"></a><span class="dt">managed_endpoint_patterns</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-163"><a href="#cb7-163" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">bCisco</span><span class="sc">\\</span><span class="st">s+(IP</span><span class="sc">\\</span><span class="st">s+)?Phone</span><span class="sc">\\</span><span class="st">b&quot;</span><span class="op">,</span></span>
+<span id="cb7-164"><a href="#cb7-164" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">bSEP[0-9A-F]{12}</span><span class="sc">\\</span><span class="st">b&quot;</span><span class="op">,</span></span>
+<span id="cb7-165"><a href="#cb7-165" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">bAIR-[A-Z0-9-]+</span><span class="sc">\\</span><span class="st">b&quot;</span><span class="op">,</span></span>
+<span id="cb7-166"><a href="#cb7-166" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">b(Cisco|Juniper|Mist).*</span><span class="sc">\\</span><span class="st">bAP</span><span class="sc">\\</span><span class="st">b&quot;</span><span class="op">,</span></span>
+<span id="cb7-167"><a href="#cb7-167" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">bvIPer</span><span class="sc">\\</span><span class="st">b&quot;</span><span class="op">,</span></span>
+<span id="cb7-168"><a href="#cb7-168" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-169"><a href="#cb7-169" aria-hidden="true" tabindex="-1"></a><span class="dt">unmanaged_patterns</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-170"><a href="#cb7-170" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">bprinter</span><span class="sc">\\</span><span class="st">b&quot;</span><span class="op">,</span></span>
+<span id="cb7-171"><a href="#cb7-171" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">bworkstation</span><span class="sc">\\</span><span class="st">b&quot;</span><span class="op">,</span></span>
+<span id="cb7-172"><a href="#cb7-172" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">bWindows</span><span class="sc">\\</span><span class="st">b&quot;</span><span class="op">,</span></span>
+<span id="cb7-173"><a href="#cb7-173" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-174"><a href="#cb7-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-175"><a href="#cb7-175" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.address_rules]]</span></span>
+<span id="cb7-176"><a href="#cb7-176" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-177"><a href="#cb7-177" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;198.51.100.0/25&quot;</span><span class="op">,</span></span>
+<span id="cb7-178"><a href="#cb7-178" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;198.51.100.128/25&quot;</span><span class="op">,</span></span>
+<span id="cb7-179"><a href="#cb7-179" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:200::/56&quot;</span><span class="op">,</span></span>
+<span id="cb7-180"><a href="#cb7-180" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:201::/56&quot;</span><span class="op">,</span></span>
+<span id="cb7-181"><a href="#cb7-181" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-182"><a href="#cb7-182" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb7-183"><a href="#cb7-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-184"><a href="#cb7-184" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.address_rules]]</span></span>
+<span id="cb7-185"><a href="#cb7-185" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;203.0.113.0/25&quot;</span><span class="op">]</span></span>
+<span id="cb7-186"><a href="#cb7-186" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb7-187"><a href="#cb7-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-188"><a href="#cb7-188" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.address_rules]]</span></span>
+<span id="cb7-189"><a href="#cb7-189" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;203.0.113.128/25&quot;</span><span class="op">,</span> <span class="st">&quot;2001:db8:300::/48&quot;</span><span class="op">]</span></span>
+<span id="cb7-190"><a href="#cb7-190" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb7-191"><a href="#cb7-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-192"><a href="#cb7-192" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.address_rules]]</span></span>
+<span id="cb7-193"><a href="#cb7-193" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-194"><a href="#cb7-194" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;192.0.2.0/24&quot;</span><span class="op">,</span></span>
+<span id="cb7-195"><a href="#cb7-195" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:100::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-196"><a href="#cb7-196" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:110::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-197"><a href="#cb7-197" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:120::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-198"><a href="#cb7-198" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2001:db8:130::/48&quot;</span><span class="op">,</span></span>
+<span id="cb7-199"><a href="#cb7-199" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-200"><a href="#cb7-200" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;managed_device&quot;</span></span>
+<span id="cb7-201"><a href="#cb7-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-202"><a href="#cb7-202" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.name_rules]]</span></span>
+<span id="cb7-203"><a href="#cb7-203" aria-hidden="true" tabindex="-1"></a><span class="dt">patterns</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-204"><a href="#cb7-204" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)^(cust|customer|tenant|dept)-&quot;</span><span class="op">,</span></span>
+<span id="cb7-205"><a href="#cb7-205" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)</span><span class="sc">\\</span><span class="st">.(customer|tenant)</span><span class="sc">\\</span><span class="st">.example$&quot;</span><span class="op">,</span></span>
+<span id="cb7-206"><a href="#cb7-206" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-207"><a href="#cb7-207" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb7-208"><a href="#cb7-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-209"><a href="#cb7-209" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.name_rules]]</span></span>
+<span id="cb7-210"><a href="#cb7-210" aria-hidden="true" tabindex="-1"></a><span class="dt">patterns</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb7-211"><a href="#cb7-211" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)^(core|dist|access|edge|rtr|sw)-&quot;</span><span class="op">,</span></span>
+<span id="cb7-212"><a href="#cb7-212" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)^(wti|dsm|ups|pdu|apc|eaton)-&quot;</span><span class="op">,</span></span>
+<span id="cb7-213"><a href="#cb7-213" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)^(pa|palo|fw)-&quot;</span><span class="op">,</span></span>
+<span id="cb7-214"><a href="#cb7-214" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb7-215"><a href="#cb7-215" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;managed_device&quot;</span></span>
+<span id="cb7-216"><a href="#cb7-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-217"><a href="#cb7-217" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.name_rules]]</span></span>
+<span id="cb7-218"><a href="#cb7-218" aria-hidden="true" tabindex="-1"></a><span class="dt">patterns</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;(?i)^SEP[0-9A-F]{12}$&quot;</span><span class="op">,</span> <span class="st">&quot;(?i)^(ap|wap)-&quot;</span><span class="op">]</span></span>
+<span id="cb7-219"><a href="#cb7-219" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;managed_endpoint&quot;</span></span>
+<span id="cb7-220"><a href="#cb7-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-221"><a href="#cb7-221" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.evidence_rules]]</span></span>
+<span id="cb7-222"><a href="#cb7-222" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;windows-workstation&quot;</span></span>
+<span id="cb7-223"><a href="#cb7-223" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb7-224"><a href="#cb7-224" aria-hidden="true" tabindex="-1"></a><span class="dt">field_patterns</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">remote_description</span><span class="op"> =</span> <span class="op">[</span><span class="st">&quot;(?i)Windows&quot;</span><span class="op">] }</span></span>
+<span id="cb7-225"><a href="#cb7-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-226"><a href="#cb7-226" aria-hidden="true" tabindex="-1"></a><span class="kw">[[tagging.rules]]</span></span>
+<span id="cb7-227"><a href="#cb7-227" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;managed-phone-by-name&quot;</span></span>
+<span id="cb7-228"><a href="#cb7-228" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;managed_endpoint&quot;</span></span>
+<span id="cb7-229"><a href="#cb7-229" aria-hidden="true" tabindex="-1"></a><span class="dt">name_patterns</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;(?i)^SEP[0-9A-F]{12}$&quot;</span><span class="op">,</span> <span class="st">&quot;(?i)^VIPER-&quot;</span><span class="op">]</span></span>
+<span id="cb7-230"><a href="#cb7-230" aria-hidden="true" tabindex="-1"></a><span class="dt">tags</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;netops:phone&quot;</span><span class="op">]</span></span>
+<span id="cb7-231"><a href="#cb7-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-232"><a href="#cb7-232" aria-hidden="true" tabindex="-1"></a><span class="kw">[[tagging.rules]]</span></span>
+<span id="cb7-233"><a href="#cb7-233" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;managed-phone-by-capability&quot;</span></span>
+<span id="cb7-234"><a href="#cb7-234" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;managed_endpoint&quot;</span></span>
+<span id="cb7-235"><a href="#cb7-235" aria-hidden="true" tabindex="-1"></a><span class="dt">field_patterns</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">capabilities</span><span class="op"> =</span> <span class="op">[</span><span class="st">&quot;(?i)telephone&quot;</span><span class="op">] }</span></span>
+<span id="cb7-236"><a href="#cb7-236" aria-hidden="true" tabindex="-1"></a><span class="dt">tags</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;netops:phone&quot;</span><span class="op">]</span></span>
+<span id="cb7-237"><a href="#cb7-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-238"><a href="#cb7-238" aria-hidden="true" tabindex="-1"></a><span class="kw">[[tagging.rules]]</span></span>
+<span id="cb7-239"><a href="#cb7-239" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;unmanaged-phone-ranges&quot;</span></span>
+<span id="cb7-240"><a href="#cb7-240" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb7-241"><a href="#cb7-241" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;198.51.100.0/25&quot;</span><span class="op">,</span> <span class="st">&quot;2001:db8:200::/56&quot;</span><span class="op">]</span></span>
+<span id="cb7-242"><a href="#cb7-242" aria-hidden="true" tabindex="-1"></a><span class="dt">tags</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;unmanaged:phone&quot;</span><span class="op">]</span></span>
+<span id="cb7-243"><a href="#cb7-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-244"><a href="#cb7-244" aria-hidden="true" tabindex="-1"></a><span class="kw">[[tagging.rules]]</span></span>
+<span id="cb7-245"><a href="#cb7-245" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;managed-wifi-by-name&quot;</span></span>
+<span id="cb7-246"><a href="#cb7-246" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;managed_endpoint&quot;</span></span>
+<span id="cb7-247"><a href="#cb7-247" aria-hidden="true" tabindex="-1"></a><span class="dt">name_patterns</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;(?i)^(ap|wap)-&quot;</span><span class="op">,</span> <span class="st">&quot;(?i)^AIR-&quot;</span><span class="op">]</span></span>
+<span id="cb7-248"><a href="#cb7-248" aria-hidden="true" tabindex="-1"></a><span class="dt">tags</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;netops:wifi&quot;</span><span class="op">]</span></span>
+<span id="cb7-249"><a href="#cb7-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-250"><a href="#cb7-250" aria-hidden="true" tabindex="-1"></a><span class="kw">[[tagging.rules]]</span></span>
+<span id="cb7-251"><a href="#cb7-251" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;managed-wifi-by-capability&quot;</span></span>
+<span id="cb7-252"><a href="#cb7-252" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;managed_endpoint&quot;</span></span>
+<span id="cb7-253"><a href="#cb7-253" aria-hidden="true" tabindex="-1"></a><span class="dt">field_patterns</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">capabilities</span><span class="op"> =</span> <span class="op">[</span><span class="st">&quot;(?i)wlanAccessPoint&quot;</span><span class="op">] }</span></span>
+<span id="cb7-254"><a href="#cb7-254" aria-hidden="true" tabindex="-1"></a><span class="dt">tags</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;netops:wifi&quot;</span><span class="op">]</span></span>
+<span id="cb7-255"><a href="#cb7-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-256"><a href="#cb7-256" aria-hidden="true" tabindex="-1"></a><span class="kw">[[tagging.rules]]</span></span>
+<span id="cb7-257"><a href="#cb7-257" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;windows-workstation&quot;</span></span>
+<span id="cb7-258"><a href="#cb7-258" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb7-259"><a href="#cb7-259" aria-hidden="true" tabindex="-1"></a><span class="dt">field_patterns</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">remote_description</span><span class="op"> =</span> <span class="op">[</span><span class="st">&quot;(?i)Windows&quot;</span><span class="op">] }</span></span>
+<span id="cb7-260"><a href="#cb7-260" aria-hidden="true" tabindex="-1"></a><span class="dt">tags</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;workstation&quot;</span><span class="op">]</span></span>
+<span id="cb7-261"><a href="#cb7-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-262"><a href="#cb7-262" aria-hidden="true" tabindex="-1"></a><span class="kw">[[tagging.rules]]</span></span>
+<span id="cb7-263"><a href="#cb7-263" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;office-printer-ranges&quot;</span></span>
+<span id="cb7-264"><a href="#cb7-264" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb7-265"><a href="#cb7-265" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;203.0.113.0/25&quot;</span><span class="op">]</span></span>
+<span id="cb7-266"><a href="#cb7-266" aria-hidden="true" tabindex="-1"></a><span class="dt">tags</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;role:office-printer&quot;</span><span class="op">]</span></span></code></pre></div>
+<h2 id="6-why-the-credential-rules-are-deliberately-short">6. Why the credential rules are deliberately short</h2>
+<p>Credential address rules have priority over credential name rules. Name rules have priority over <code>credential_rules.default_profile</code>.</p>
+<p>For this reason the example uses only narrow address exceptions:</p>
+<pre class="text"><code>WTI management range   -&gt; ConsoleV2
+power management range -&gt; PowerV2
+firewall range         -&gt; FirewallV3
+anything else allowed  -&gt; DefaultV2</code></pre>
+<p>Name rules provide the same exception when a device is outside one of those known subnets. DefaultV2 does not need its own catch-all rule because it is already the default profile.</p>
+<p>This scales better than one credential rule per host and gives newly discovered NetOps infrastructure a reasonable first credential without changing policy.</p>
+<p>Do not add a fallback from DefaultV2 to every special credential. That causes every ordinary device to receive unnecessary authentication attempts. Use a specific profile only where address/name policy identifies the device family.</p>
+<h2 id="7-use-seed-credentials-only-for-true-exceptions">7. Use seed credentials only for true exceptions</h2>
+<p>The <code>ExceptionV3</code> devices are a good seed-overlay use case because there are only a few of them and the credential should not become a general site rule.</p>
+<p>Keep the actual credential in the normal credential/profile configuration so its secrets can come from environment variables. Then let the seed-credential file select that profile.</p>
+<p>Example <code>/etc/lldp-runner/seed-credentials.json</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;seed&quot;</span><span class="fu">:</span> <span class="st">&quot;exception-device-01.example.net&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;credential_strategy&quot;</span><span class="fu">:</span> <span class="st">&quot;exclusive&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;credential_label&quot;</span><span class="fu">:</span> <span class="st">&quot;exception-profile&quot;</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;credential_profile&quot;</span><span class="fu">:</span> <span class="st">&quot;exception&quot;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;seed&quot;</span><span class="fu">:</span> <span class="st">&quot;exception-device-02.example.net&quot;</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;credential_strategy&quot;</span><span class="fu">:</span> <span class="st">&quot;exclusive&quot;</span><span class="fu">,</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;credential_label&quot;</span><span class="fu">:</span> <span class="st">&quot;exception-profile&quot;</span><span class="fu">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;credential_profile&quot;</span><span class="fu">:</span> <span class="st">&quot;exception&quot;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+<p>Run with:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run lldp-runner <span class="at">--config</span> /opt/lldp-runner/config.toml <span class="dt">\</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  run <span class="at">--seed-credential-file</span> /etc/lldp-runner/seed-credentials.json</span></code></pre></div>
+<p><code>exclusive</code> means LLDP-Runner will use only the overlay-selected profile for those seeds. It will not fall through to DefaultV2. Use <code>prefer</code> instead when the special credential should be attempted first but ordinary policy is an allowed fallback.</p>
+<p>The same <code>credential_label</code> can be reused on both rows. It is reporting metadata, not an internal identifier.</p>
+<p>Remember that the overlay does not create seeds. If <code>exception-device-01</code> is absent from every normal seed input, its credential row is unmatched and no query is created for it.</p>
+<p>Unmatched records are written to activity logging at WARN level. When a seed-credential file is active, the activity log also contains the INFO summary of matched and unmatched records.</p>
+<h2 id="8-use-classification-to-express-ownership">8. Use classification to express ownership</h2>
+<p>The classification order matters:</p>
+<pre class="text"><code>most-specific address rule
+  -&gt; first matching name rule
+  -&gt; first matching evidence rule
+  -&gt; endpoint/unmanaged/manufacturer heuristics
+  -&gt; unknown</code></pre>
+<p>The example therefore uses address rules only where a subnet has a stable ownership meaning.</p>
+<p>Dedicated customer phone, customer wireless, printer, and customer-device ranges become <code>unmanaged_device</code> immediately. Dedicated NetOps management ranges become <code>managed_device</code>.</p>
+<p>Managed phones and access points do not need a dedicated managed-device address rule. They can be recognized as <code>managed_endpoint</code> from stable names, endpoint patterns, or LLDP capabilities. Because explicit unmanaged address rules run first, customer phone/AP ranges remain unmanaged even when endpoint evidence is present.</p>
+<p>On mixed-use networks, prefer name or evidence rules instead of a broad address classification. A rule that classifies an entire mixed subnet as managed can cause customer equipment to become eligible for recursive polling.</p>
+<h2 id="9-use-evidence-rules-for-facts-learned-from-neighbors">9. Use evidence rules for facts learned from neighbors</h2>
+<p>Evidence rules are useful when ownership cannot be determined from one name or subnet alone. They can combine names, networks, normalized neighbor fields, and protocol-specific details.</p>
+<p>Alternatives within one list are OR conditions. Different condition types are AND conditions.</p>
+<p>For example, if printers share a mixed subnet with other equipment, replace the printer address classification with something more specific:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[classification.evidence_rules]]</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">label</span> <span class="op">=</span> <span class="st">&quot;office-printer-evidence&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">category</span> <span class="op">=</span> <span class="st">&quot;unmanaged_device&quot;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="dt">networks</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;203.0.113.0/25&quot;</span><span class="op">]</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[classification.evidence_rules.field_patterns]</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="dt">remote_description</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)printer&quot;</span><span class="op">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)HP LaserJet&quot;</span><span class="op">,</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;(?i)Lexmark&quot;</span><span class="op">,</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code></pre></div>
+<p>That means both the network and printer evidence must match.</p>
+<p>The Windows rule in the main example similarly classifies a workstation from neighbor system-description evidence before the generic heuristics are needed.</p>
+<p>Do not use an evidence rule merely to duplicate a reliable dedicated subnet or stable naming rule. Extra rules make future troubleshooting harder.</p>
+<h2 id="10-keep-query-policy-stricter-than-classification">10. Keep query policy stricter than classification</h2>
+<p>Classification says what LLDP-Runner thinks a neighbor is. Query policy says whether LLDP-Runner is allowed to contact it.</p>
+<p>A default-deny query policy is recommended for this mixed-ownership example. It provides protection if a classifier is later broadened accidentally.</p>
+<p>Address rules are most-specific-first. A specific customer deny can therefore sit inside a broader permitted enterprise range and still win.</p>
+<p>Name rules are first-match-wins and are evaluated only when no address rule matches. Put specific denies before broader name allows when patterns might overlap.</p>
+<p>A credential match never overrides query policy.</p>
+<h2 id="11-use-tagging-only-for-reporting-and-downstream-workflows">11. Use tagging only for reporting and downstream workflows</h2>
+<p>Tags do not make a host managed and do not authorize a query. They are a safe way to add ownership/service labels after classification.</p>
+<p>This example produces:</p>
+<pre class="text"><code>managed phones           netops:phone
+customer/unmanaged phones unmanaged:phone
+managed wireless APs     netops:wifi
+Windows workstations     workstation
+office printers             role:office-printer</code></pre>
+<p>Multiple matching tag rules accumulate tags and de-duplicate repeated values. That is why a phone can be recognized by either its name or LLDP capability without creating duplicate <code>netops:phone</code> values.</p>
+<h2 id="12-understand-what-is-queried">12. Understand what is queried</h2>
+<p>Explicit seeds are always treated as managed-device candidates, but they still need an address, boundary/query-policy permission, and available guardrail capacity before SNMP is attempted.</p>
+<p>Learned neighbors are different. A learned neighbor is recursively scheduled only when it is positively classified as <code>managed_device</code> and is allowed by the boundary and query policy.</p>
+<p>The normal flow is:</p>
+<pre class="text"><code>seed
+  -&gt; query seed
+  -&gt; collect LLDP/CDP neighbors
+  -&gt; classify each learned neighbor
+  -&gt; retain every neighbor in topology
+  -&gt; query only eligible managed_device neighbors
+  -&gt; repeat</code></pre>
+<p><code>managed_endpoint</code>, <code>unmanaged_device</code>, and <code>unknown_device</code> records remain in output but are not recursively SNMP-polled merely because they were learned.</p>
+<h2 id="13-understand-credential-success-and-failure">13. Understand credential success and failure</h2>
+<p>For an ordinary device, LLDP-Runner selects one profile from address/name/default credential policy. It then tries that profile's primary credential and fallback, when configured, according to the profile attempt counts.</p>
+<p>For a seed overlay with <code>prefer</code>, overlay attempts come first and normal policy is appended. With <code>exclusive</code>, normal policy is not appended.</p>
+<p>The first successful basic SYSTEM-MIB query establishes the credential for that device/address. LLDP-Runner stops trying other credentials and reuses the successful credential for detailed ENTITY/IF/LLDP/CDP collection.</p>
+<p>A failure in an optional detail collector does not cause LLDP-Runner to try a new credential after SYSTEM-MIB already succeeded.</p>
+<p>If all credential attempts fail for one management address, LLDP-Runner can advance to the next permitted candidate address. If every attempt/address is exhausted, the device remains failed and the safe credential provenance/error information is retained without storing secret values.</p>
+<p>See <a href="docs-CREDS.html">CREDS.md</a> for the complete attempt sequence and provenance fields.</p>
+<h2 id="14-stage-the-rollout-instead-of-starting-unlimited">14. Stage the rollout instead of starting unlimited</h2>
+<p>For a large enterprise, do not begin by recursively polling every candidate. Validate policy in stages.</p>
+<p>First validate configuration syntax and representative policy decisions:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run lldp-runner <span class="at">--config</span> /opt/lldp-runner/config.toml validate-config</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run lldp-runner <span class="at">--config</span> /opt/lldp-runner/config.toml <span class="dt">\</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  explain-target core-01.example.net</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run lldp-runner <span class="at">--config</span> /opt/lldp-runner/config.toml <span class="dt">\</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  explain-target customer-switch-01.customer.example</span></code></pre></div>
+<p>Then run seed-only discovery by temporarily using:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[discovery]</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="dt">max_devices</span> <span class="op">=</span> <span class="st">&quot;auto&quot;</span></span></code></pre></div>
+<p>Seed-only mode queries every explicit seed but records learned neighbors without recursively polling them. Review <code>discovery.json</code>, unknown devices, tags, classification reasons, and activity logs.</p>
+<p>Next use a finite recursive limit with:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[discovery]</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="dt">max_devices</span> <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="dt">limit_behavior</span> <span class="op">=</span> <span class="st">&quot;complete&quot;</span></span></code></pre></div>
+<p>Increase only after the managed/unmanaged boundary looks correct. An established site can later use <code>max_devices = 0</code> for unlimited recursive managed-device polling while keeping <code>max_hosts</code> as a safety guardrail.</p>
+<h2 id="15-prefer-explainable-rules-over-clever-rules">15. Prefer explainable rules over clever rules</h2>
+<p>A maintainable enterprise configuration normally has:</p>
+<ul>
+<li>a small number of dedicated address ownership rules;</li>
+<li>a small number of stable naming rules;</li>
+<li>evidence rules only for cases that genuinely need multiple facts;</li>
+<li>one ordinary default credential profile;</li>
+<li>a few device-family credential exceptions;</li>
+<li>seed overlays only for exceptional hosts; and</li>
+<li>tags for reporting rather than policy control.</li>
+</ul>
+<p>Avoid large lists of individual hostnames unless there is no scalable ownership signal. Individual exceptions tend to become stale and are difficult to audit.</p>
+<h2 id="16-suggested-file-layout-after-the-policy-stabilizes">16. Suggested file layout after the policy stabilizes</h2>
+<p>A shared installation can keep policy readable with this structure:</p>
+<pre class="text"><code>/opt/lldp-runner/config.toml
+/opt/lldp-runner/seeds.txt
+/opt/lldp-runner/conf.d/10-credentials.toml
+/opt/lldp-runner/conf.d/20-query-policy.toml
+/opt/lldp-runner/conf.d/30-classification.toml
+/opt/lldp-runner/conf.d/40-tagging.toml
+/etc/lldp-runner/seed-credentials.csv</code></pre>
+<p>The seed-credential file is secret-bearing input when it contains literal credentials. Even when it only names a configured profile, protecting it is a good operational habit because it reveals special device mappings.</p>
+<p>Keep credential secrets in protected environment/service configuration where possible. Do not put communities/auth/privacy passwords into the normal seed list, source control, generated reports, or general-purpose inventory files.</p>
+<h2 id="17-ongoing-maintenance-checklist">17. Ongoing maintenance checklist</h2>
+<p>When adding a new device family or customer network, ask these questions in order:</p>
+<ol type="1">
+<li>Is the device NetOps-managed, a managed endpoint, or unmanaged?</li>
+<li>Is there a stable subnet or naming convention that expresses that ownership?</li>
+<li>Should query policy explicitly allow or deny the range/name?</li>
+<li>Does the device use the default or need one family-specific profile?</li>
+<li>Is this truly a per-seed exception that belongs in a credential overlay?</li>
+<li>Does the device need a reporting tag?</li>
+<li>Can the rule be tested with <code>explain-target</code> before a production run?</li>
+<li>Does a seed-only or bounded run confirm the expected classification?</li>
+</ol>
+<p>When a new customer range appears, it is usually better to add one explicit unmanaged/query-deny network than to add every customer hostname individually. When a new NetOps platform uses the default credential and follows existing naming/range conventions, no credential change should be needed at all.</p>
+</body>
+</html>

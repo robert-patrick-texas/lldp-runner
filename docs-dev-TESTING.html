@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/dev/TESTING.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="testing-guide">Testing Guide</h1>
+<h2 id="test-layers">Test layers</h2>
+<ol type="1">
+<li>Unit tests validate normalization, collectors, identity rules, claims, state, graph construction, diff, and rendering.</li>
+<li>Integration tests validate coordinator lifecycle, output publication, launcher scripts, and archive behavior.</li>
+<li>Production-shaped fixtures reproduce vendor and topology conditions such as Nexus VDCs, strict Cisco endpoints, incomplete tables, reused addresses, transparent protocol forwarding, and virtual workloads.</li>
+<li>Two consecutive live runs validate behavior under real timing, SNMP agents, DNS, and topology variance.</li>
+</ol>
+<h2 id="required-local-checks">Required local checks</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> compileall <span class="at">-q</span> src tests scripts</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">-q</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> scripts <span class="at">-type</span> f <span class="at">-exec</span> sh <span class="at">-c</span> <span class="st">&#39;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="st">  for file do</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="st">    case &quot;$(head -n 1 &quot;$file&quot;)&quot; in</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st">      *bash*) bash -n &quot;$file&quot; ;;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="st">    esac</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="st">  done</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="st">&#39;</span> sh {} +</span></code></pre></div>
+<p>Run the complete static gate when installed:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> check</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> format <span class="at">--check</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">ty</span> check</span></code></pre></div>
+<p>Record unavailable tools as not run; do not report them as passes.</p>
+<h2 id="graph-release-gates">Graph release gates</h2>
+<ul>
+<li>Every immutable advertisement is materialized or explicitly excluded.</li>
+<li>Replaying the same evidence is idempotent.</li>
+<li>Randomized input order produces equivalent semantic output.</li>
+<li>Retiring a provisional host does not erase evidence.</li>
+<li>Same VDC across multiple routes remains one logical entity.</li>
+<li>Sibling VDCs sharing a chassis remain separate logical entities.</li>
+<li>1:1, 1:N, N:1, and N:M correspondence are tested.</li>
+<li>A superseding decision retains history.</li>
+<li>Coverage failure does not become a confirmed removal.</li>
+<li>Run-local IDs and volatile table indexes do not control semantic IDs.</li>
+</ul>
+<h2 id="release-artifact-checks">Release artifact checks</h2>
+<ul>
+<li>Patch applies cleanly to the exact base archive.</li>
+<li>Patched tree matches the staged source tree.</li>
+<li>Archive extracts under one versioned root.</li>
+<li>Extracted tree matches the staged tree.</li>
+<li>Tests and compile checks pass from the fresh archive.</li>
+<li>No <code>.git</code>, virtual environment, cache, bytecode, build, or distribution artifacts are packaged.</li>
+<li>SHA-256 hashes are generated after final artifact creation.</li>
+</ul>
+<h2 id="0325-focused-release-tests">0.32.5 focused release tests</h2>
+<p>The transport suite uses deterministic fake Gufo modules and sessions. It covers IPv4, compressed and expanded IPv6, scoped IPv6, SNMPv2c, SNMPv3, constructor/open/request/close failures, exact fallback activation, unrelated errors, double failure, secret redaction, and unchanged adaptive retry counts.</p>
+<p>State and coordinator tests cover cross-family late recovery, repeated and policy-rejected addresses, restart persistence, host merges, route-error output, and conservative 0.32.4 Gufo error migration. LLDP tests exercise each subtable independently. Diff tests distinguish address evidence, uncertainty, moves, and protocol transitions.</p>
+<p>The release replay regenerates schema-8 output from fresh copies of both supplied SQLite states. A second independent regeneration must match every CSV byte for byte and the JSON documents semantically after removing only the <code>discovery.generated</code> timestamp. Diff schema 9 is then run over the regenerated outputs.</p>
+<h2 id="0326-focused-release-tests">0.32.6 focused release tests</h2>
+<p>Diff tests verify recursive timing normalization and explicit timing inclusion, configuration/CLI positive and negative overrides, subtable-scoped relationship, interface, and management-address authority, and semantic coverage preservation through duplicate compatibility-projection folding.</p>
+<p>Relationship tests keep usable identity conflicts out of evidence-only classification while accepting stable name/raw-evidence drift. Attribute tests carry nested chassis/stack provenance into incidents and graph components. Renderer tests cover compact default output, summary-only output, and expanded incident detail while asserting that JSON remains complete.</p>
+<p>The production gate compares 20260109-01 (A) with 20260109-00 (B) twice and requires byte-identical diff JSON. Default comparison must omit timing-only churn, report no false <code>lldp/interfaces</code> complete incident, retain the one structurally invalid <code>branch-access-3650-stack</code> remote-neighbor incident, and preserve the confirmed move, protocol transition, evidence changes, and one-sided observations. A separate timing-enabled comparison verifies that the diagnostic switch restores collector-duration differences without changing discovery or retry behavior.</p>
+<h2 id="0327-focused-release-tests">0.32.7 focused release tests</h2>
+<p>Graph tests verify that complete LLDP/LLDPv2 <code>remote_neighbor</code> coverage remains authoritative when only management-address collection is partial, while a true remote-neighbor timeout remains coverage-uncertain with exact subtable provenance.</p>
+<p>Reconciliation tests cover observed attachment changes backed by graph halves, protocol-evidence transitions, unavailable graph input, reverse cross-references, unique event keys, and explicit consistency outcomes. Macro tests cover management-health persistence/recovery, graph-native health incidents, and the <code>reported_difference_depends_on_gap</code> boundary. Renderer tests verify the <code>Attachment</code>, graph-backed event, management-health, and incident-dependency summaries.</p>
+<p>The production gate compares 20260109-03 (A) with 20260109-02 (B) repeatedly and from a fresh release archive. It requires 13 non-stable learned observations to reconcile to 13 unique graph-backed events with zero unmatched, ambiguous, conflicting, or graph-only event. Four topology-sensitive collection gaps per side must remain health-only, and management health must report 97 persistent malformed-index cases plus one timeout recovered in A. SNMP collection, Gufo, worker/coordinator, late-recovery, and retry files must remain byte-identical to 0.32.6.</p>
+<h2 id="0328-focused-release-tests">0.32.8 focused release tests</h2>
+<p>Graph tests cover pure protocol transitions and compound relationship groups with simultaneous member-presence and protocol-evidence changes. They assert deterministic <code>change_dimensions</code>, exact A-only/B-only member detail, and exact per-member A/B protocol sets.</p>
+<p>Reconciliation tests reproduce the 20260110 Cisco SEP case, reject generic <code>member_set_changed</code> records as proof of an unrelated protocol transition, keep an unclaimed protocol dimension graph-only, match stable raw-evidence rows inside compound groups, and exercise several simultaneous A-only, B-only, and protocol transitions on one local port. Event tests verify that distinct graph members receive distinct keys while one member can retain reciprocal compatibility references.</p>
+<p>The production gate compares 20260110-01 (A) with 20260110-00 (B) repeatedly and from a fresh release archive. It requires all 89 non-stable learned observations to match 87 graph-backed events with zero unmatched, ambiguous, conflicting, or graph-only result. The one compound relationship must expose both <code>member_presence</code> and <code>protocol_evidence</code>, with exact member-scoped events. Discovery scheduling, Gufo behavior, collector output, and retry budgets remain unchanged from 0.32.7.</p>
+<h2 id="0370-focused-release-tests">0.37.0 focused release tests</h2>
+<p>Backend-selection tests require an omitted <code>snmp.backend</code> setting to resolve to PySNMP while both <code>pysnmp</code> and <code>gufo</code> remain valid explicit values. Generated configuration and active-command help must identify PySNMP as the default. File, environment, <code>--set</code>, and dedicated CLI precedence continue to determine one immutable backend before discovery.</p>
+<p>Resume tests create durable PySNMP and Gufo runs. A PySNMP run started under the implicit default must resume through the same implicit default. A Gufo run must reject an implicit PySNMP resume before discovery or manifest mutation, then resume successfully when Gufo is selected explicitly. Worker binding, backend factory isolation, no-fallback behavior, and read-only command bypass remain required regression gates.</p>
+<p>The default-only release must not alter backend capability maps, credential validation, cryptography preflight, warning handling, internal-retry ownership, collectors, topology, outputs, schemas, or exact dependency versions.</p>
+<h2 id="0363-focused-release-tests">0.36.3 focused release tests</h2>
+<p>0.36.3 retains the complete backend-selection, resume, provider, warning, and cleanup gates. Backend capability tests require Gufo to accept only SHA-1/MD5 with AES-128/DES while PySNMP additionally accepts SHA-256 with <code>aes256</code> Reeder/Cisco or <code>aes256-blumenthal</code>. Configured credentials, direct seed credentials, and both adapter boundaries must reject unknown names and the unsupported <code>aes256-reeder</code> alias before network work.</p>
+<p>Fake-current-PySNMP tests require exact mappings to <code>USM_AUTH_HMAC192_SHA256</code>, <code>USM_PRIV_CFB256_AES</code>, and <code>USM_PRIV_CFB256_AES_BLUMENTHAL</code>. The two AES-256 privacy names remain distinct through configuration, capability preflight, and <code>UsmUserData</code>. Provider tests require a 32-byte AES key and 16-byte CFB IV for both methods, while AES-128 continues to use a 16-byte key. All three AES routes install only the exact known PySNMP warning filter; v2c and DES do not, and unrelated warnings remain visible.</p>
+<p>The standalone diagnostic must accept the same canonical PySNMP names, reject <code>aes256-reeder</code>, retain <code>retries=0</code>, redact all secrets, and close every engine dispatcher. Existing Gufo, retry, read-only-command, schema, documentation, and full repository tests remain release gates.</p>
+<h2 id="0362-focused-release-tests">0.36.2 focused release tests</h2>
+<p>0.36.2 retains the complete 0.36.1 provider and backend gates. New deterministic tests make cryptography deprecations fatal inside the local AES probe and prove that the probe imports <code>cryptography.hazmat.decrepit.ciphers.modes.CFB</code> without touching the former primitives export.</p>
+<p>Warning-filter tests emit the exact PySNMP 7.1.29 warning plus three neighboring variants. Only the warning with the exact <code>CryptographyDeprecationWarning</code> category, complete message, and <code>pysnmp.proto.secmod.rfc3826.priv.aes</code> origin may disappear; a changed message, changed module, and changed category must remain observable. Route-scope tests prove the filter is installed for v3 AES but not SNMPv2c or DES. The standalone diagnostic repeats the same probe-path and warning-boundary assertions.</p>
+<h2 id="0361-focused-release-tests">0.36.1 focused release tests</h2>
+<p>0.36.1 retains all 0.36.0 selection, persistence, lifecycle, and normalization gates and adds PySNMP authPriv provider qualification. Release metadata tests require <code>cryptography&gt;=50.0</code>, <code>pysnmp&gt;=7.1.29</code>, and <code>gufo-snmp&gt;=0.12.0</code> in the broad project dependency set, with <code>cryptography==50.0.1</code>, <code>pysnmp==7.1.29</code>, and <code>gufo-snmp==0.12.0</code> in both exact Linux constraint locations.</p>
+<p>Deterministic preflight tests prove that Gufo and PySNMP v2c skip the crypto probe; only profile-reachable and direct seed SNMPv3 privacy protocols are included; secret accessors are not called; AES-128 and DES are probed once each; missing/old/unusable providers raise a sanitized backend-capability error before manifest/network work; resume mismatch validation precedes the probe; and provider failures consume no adaptive request retry. The installed-package gate must execute both cipher primitives when PySNMP and the exact cryptography dependency are present. The standalone diagnostic has matching local-preflight, classification, and installed-provider tests.</p>
+<h2 id="0360-focused-release-tests">0.36.0 focused release tests</h2>
+<p>Backend-selection tests require Gufo to remain the default while <code>gufo</code> and <code>pysnmp</code> are both valid explicit values. They exercise file, environment, <code>--set</code>, and dedicated-option precedence; reject unknown values; prove the selection cannot change after binding; and prove a selected backend failure never constructs or falls back to the other package.</p>
+<p>Credential tests validate configured credentials and direct seed credentials against the selected backend's explicit authPriv capability map. Direct adapter tests reject unknown credential versions and protocol names, preventing an unsupported value from reaching an implementation-specific fallback branch. Read-only <code>show-neighbors</code> and <code>status</code> tests replace both backend selection and factory entry points with failures and prove those command paths do not enter either boundary.</p>
+<p>Run/resume tests persist backend name and installed version in SQLite and <code>run.json</code>, accept a same-backend resume, and reject a mismatch before discovery or manifest mutation. A real older resumable state without backend metadata is rejected rather than guessed. Serialized diagnostics are checked for absence of credential material.</p>
+<p>Deterministic PySNMP tests inject a fake current <code>pysnmp.hlapi.v3arch.asyncio</code> API. They cover the diagnostic-script v2c and v3 credential mappings, IPv4/IPv6 transport targets, <code>retries=0</code>, GET/GET-MANY/WALK normalization, remote response <code>securityEngineId</code>, timeout, transport, security, PDU, and malformed-response normalization, secret redaction, task cancellation, and dispatcher cleanup after success and every partial/failing setup or request path. Adaptive-layer coverage proves LLDP-Runner still owns the only retry. Existing Gufo and resilience suites remain regression gates.</p>
+<h2 id="0356-focused-release-tests">0.35.6 focused release tests</h2>
+<p>Release metadata tests require <code>pysnmp&gt;=7.1.29</code> in the broad project dependency set and <code>pysnmp==7.1.29</code> in both exact Linux constraint locations. Operator script tests require <code>scripts/pysnmp-snmp-diag.py</code> to be present with mode <code>0755</code>, compile, and display help without importing PySNMP.</p>
+<p>Deterministic diagnostic tests inject a fake current PySNMP asyncio API and cover IPv4/IPv6 transport selection, <code>CommunityData(..., mpModel=1)</code>, SNMPv3 authentication/privacy mappings, <code>lookupMib=False</code>, transport <code>retries=0</code>, engine and PDU errors, exact failure phases, secret redaction, and dispatcher closure. A separate API-shape test imports the real package when available and skips when release dependencies are not installed. Live-network compatibility remains an operator validation step and is not represented as an offline pass.</p>
+<h2 id="0355-focused-release-tests">0.35.5 focused release tests</h2>
+<p>Custom-CSV validation must reject <code>unknown-devices.manufacturer</code> and <code>unknown-devices.model</code> as unknown fixed fields. A separate positive regression must prove that <code>json.host.system.manufacturer</code> and <code>json.host.system.model</code> still render canonical system values for an unknown host. The unknown-device fixed-field registry and row projection must contain only the fields emitted by <code>unknown-devices.csv</code>; no compatibility-only system keys may remain.</p>
+<h2 id="0354-focused-release-tests">0.35.4 focused release tests</h2>
+<p>Output tests require the fixed <code>unknown-devices.csv</code> field list to omit <code>manufacturer</code> and <code>model</code>. Preferred-name tests cover the guarded MAC-address fallback independently of the custom fixed-field namespace.</p>
+<p>Preferred-name tests build an <code>unknown</code> host with no inbound name or description and one MAC-address-typed chassis value. The canonical colon-separated MAC must appear identically in <code>discovery.json</code>, <code>hosts.csv</code>, <code>unknown-devices.csv</code>, and fixed/JSON custom projections while persisted state remains <code>unknown</code>. Guard cases retain <code>unknown</code> for nonblank name/description evidence, mixed subtypes, malformed MACs, or more than one canonical chassis candidate.</p>
+<h2 id="0353-focused-release-tests">0.35.3 focused release tests</h2>
+<p>The release gate scans every shipped UTF-8 file for fingerprints of removed operation-derived identifiers. It also checks alternate MAC representations, compact operation-date run IDs, and documentation IP/DNS namespaces. The sanitized topology fixtures must continue to pass their original resolver, graph, collection, and diff assertions.</p>
+<h2 id="0352-focused-release-tests">0.35.2 focused release tests</h2>
+<p>Operator-script tests require <code>scripts/lrun-bundle-diff</code> to be executable, exercise its automatic and explicit run-selection paths, and assert that the former <code>lrun-prepare-bundle</code> path and stray <code>lrun-prepare-diff</code> spelling are absent. Documentation and examples must use the new command name; historical changelog entries remain unchanged.</p>
+<p>Documentation tests require one source-maintained reference containing Mermaid diagrams for collection flow, resolver flow, and graph rematerialization. The reference must name the coordinator, worker, immutable evidence, compatibility resolver, graph builder, decision-history, and current projection anchors that exist in source. The developer entry point and concise architecture map must link to it, and the ROADMAP objective must be complete.</p>
+<h2 id="0351-focused-release-tests">0.35.1 focused release tests</h2>
+<p>Scoreboard tests require active text/JSON publication below the stable <code>&lt;scratch_root&gt;/scoreboard/</code> directory and exact terminal-snapshot archival in persistent run state. Completed-run integration verifies that automatic per-run scratch cleanup leaves the live scoreboard in place, that disabling cleanup adds a per-run scratch copy, and that successful finalization removes durable <code>run.json.draft</code>. Run-ID tests reserve the live <code>scoreboard</code> directory name.</p>
+<p>Status and Watch tests use the stable source without a <code>current</code> symlink. Watch layout regressions require six-space Started/Elapsed/Plan gaps when width allows, a second title-to-summary blank row only when more than ten footer rows remain, and a bright-red source error below the worker table with blank rows above and below. Small-screen degradation remains bounded and non-wrapping.</p>
+<p>Cleanup tests require both normal and dry-run scratch maintenance to select the reserved live scoreboard directory without treating it as a historical run or following a symlink. Documentation tests require every unfinished ROADMAP item to include remaining work, operational benefit, and estimated effort.</p>
+<h2 id="0350-focused-release-tests">0.35.0 focused release tests</h2>
+<p>Runtime-path tests require both persistent <code>latest</code> locations to be storage-preflighted, reject a real file/directory occupying either alias, and verify that the shared publisher atomically replaces a relative symlink. Resume tests ensure <code>runs/latest</code> is never returned as a run ID. Cleanup tests require the alias target to be protected independently from <code>outputs/latest</code>.</p>
+<p>Completed-run tests assert that <code>COMPLETED_LIMIT</code> follows the same successful post-close sequence as an ordinary completion: coordinator resources close, <code>runs/latest</code> is published, and enabled scratch cleanup runs. Scratch tests remove arbitrary nested transient artifacts and the exact matching <code>current</code> link, preserve a newer run's <code>current</code> link, and reject any path overlap with persistent run/output storage. Configuration tests require the new setting to default true and accept only a boolean.</p>
+<p>Output tests build anonymous local-chassis and placeholder MAC-chassis records plus a Nexus-style decorated name. They require one canonical <code>preferred_name</code> across <code>discovery.json</code>, <code>hosts.csv</code>, <code>unknown-devices.csv</code>, fixed-field custom CSV selection, and <code>json.host.preferred_name</code>, while persisted state and raw name/description/chassis evidence remain unchanged. Production-output replay counts the same three rule populations in the supplied 20260112-00 data and checks that no unrelated preferred names change.</p>
+<h2 id="0329-focused-release-tests">0.32.9 focused release tests</h2>
+<p>Identity tests assert that locally assigned chassis subtype 7 never enters the global alias registry. Strict MAC normalization accepts only complete compact, colon, hyphen, or dotted forms. Typed Port-ID selection requires an explicit MAC-address subtype and rejects conflicting LLDP/LLDPv2 representations.</p>
+<p>State and claim tests reproduce the production <code>hex:a1:00:00:00:00:00</code> condition. Distinct typed Port-ID MACs must create distinct anonymous hosts, repeated observations of the same MAC must return the same host, the local chassis value must remain a weak edge-scoped claim, and a named endpoint must continue to use its name instead of acquiring per-interface MAC identity.</p>
+<p>Public-output tests require separate <code>hosts[]</code> and <code>unknown-devices.csv</code> rows for the anonymous endpoints, matching <code>endpoint:mac:&lt;value&gt;</code> graph entities, and no compatibility-projection warning for newly corrected state. A graph-only fixture simulates legacy aggregate state and requires one explicit diagnostic plus an append-only component decision without changing advertisement accounting.</p>
+<p>The production gate extracts the repeated local-chassis group from runs 20260111-00 and 20260111-01 and reprojects it through fresh 0.32.9 state. The 44 and 49 distinct typed Port-ID MACs must produce 44 and 49 distinct compatibility hosts, respectively, with zero subtype-7 chassis aliases. Diff replay of the immutable discovery pair must retain 68 graph-backed events, zero unmatched, ambiguous, conflicting, or graph-only records, and a <code>consistent</code> cross-view status. SNMP collection, Gufo handling, and retry budgets remain unchanged from 0.32.8.</p>
+<h2 id="0341-focused-release-tests">0.34.1 focused release tests</h2>
+<p>Watch title tests require the Run ID span to use the same <code>muted</code> semantic role as visible footer text. Layout tests verify one blank row after a displayed Started/Elapsed summary and one row around the aggregate worker summary on a normal 120x44 screen. The production-shaped 223x69 fixture requires two rows in all three locations after ordinary layout leaves more than ten rows above the footer. A direct spacing-policy test verifies that ten remaining rows do not trigger the extra spacing and eleven do.</p>
+<p>Documentation tests load the five implementation constants and compare them with the current-version table in <a href="docs-dev-SCHEMA.html"><code>SCHEMA.md</code></a>. The normal Markdown width and existence gate includes the new quick reference.</p>
+<h2 id="0340-focused-release-tests">0.34.0 focused release tests</h2>
+<p>Watch tests assert a blank top row, one-cell side borders, and one title line containing application name/version, Run ID, STATE, and total-minute update age. Wide title-gap tests allow at most one column of difference among the three gaps. Narrow tests require cosmetic spacing and the version to yield before state, run ID, age, and worker status.</p>
+<p>Metric tests verify wider geometry-based columns, deterministic column starts, separate count/delta budgets, and blank rows between metric rows on tall screens. The aggregate worker summary must be centered independently with a blank row above and below when height permits. Existing worker-cell strings, fixed numeric budgets, view density, complete-row centering, partial-row alignment, source/stale roles, color behavior, modal controls, footer clearing, and terminal restoration remain covered. Responsive fixtures include 20x4, 30x8, 42x10, 63x24, 64x24, 80x24, 100x30, 120x44, 126x55, and the production 223x69 shape.</p>
+<p>Shared neighbor-table tests pass long IPv6 management addresses through the width planner and both public output paths. Every IPv6 character must remain visible in the rightmost <code>Mgmt</code> column, with no trailing ellipsis, even when the resulting plain-text table exceeds the detected terminal width. IPv4 behavior and existing Local/Remote Port width rules remain covered.</p>
+<p>The 0.33.0 Linux-constraint and Gufo diagnostic tests remain active.</p>
+<h2 id="sanitized-example-regression">Sanitized-example regression</h2>
+<p><code>tests/test_sanitized_examples.py</code> scans every shipped UTF-8 file for previously removed operation-derived identifiers. The deny set is stored as digests, so the test does not preserve readable customer values. It also verifies that operator documentation uses approved example DNS and IP namespaces.</p>
+<p>When adding a production-shaped regression, rematerialize it with synthetic names, addresses, serials, endpoint identifiers, run IDs, credentials, and tag labels before committing it. Preserve the relationships and conflict behavior that make the fixture useful, not the originating environment's identifiers.</p>
+</body>
+</html>

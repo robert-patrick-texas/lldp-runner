@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/dev/SCHEMA.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="schema-quick-reference">Schema Quick Reference</h1>
+<p>This page lists the current machine-readable contracts shipped by LLDP-Runner 0.37.0. It is a quick index for developers, test authors, and external consumers. See <a href="docs-dev-STATE-AND-SCHEMAS.html"><code>STATE-AND-SCHEMAS.md</code></a> for durable-state, migration, and evidence-history details.</p>
+<h2 id="current-versions">Current versions</h2>
+<table>
+<thead>
+<tr>
+<th>Contract</th>
+<th>Version field</th>
+<th style="text-align: right;">Current version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>discovery.json</code></td>
+<td><code>schema_version</code></td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td>Embedded topology graph</td>
+<td><code>topology_graph.schema_version</code></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Diff JSON</td>
+<td><code>schema_version</code></td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td><code>run.json</code></td>
+<td><code>schema_version</code></td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>Active-run <code>scoreboard.json</code></td>
+<td><code>scoreboard_schema</code></td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p>The application release version is independent of these contracts. A display, documentation, or packaging release does not advance a schema unless a consumer must distinguish a changed structure or meaning.</p>
+<h2 id="discoveryjson-schema-8"><code>discovery.json</code> schema 8</h2>
+<p>Purpose: canonical completed discovery output and compatibility inventory.</p>
+<p>Top-level sections:</p>
+<pre class="text"><code>schema_version
+discovery
+topology_graph
+hosts
+errors</code></pre>
+<p><code>discovery</code> contains run metadata, configured limits, boundaries, counts, and completion context. <code>hosts</code> contains the compatibility host projection, classification, identity evidence, collected system details, and learned and <code>observed_by</code> neighbors. <code>errors</code> contains structured collection and run errors. The embedded graph is described separately below.</p>
+<p>The current reader requires schema 8. It does not silently translate older <code>discovery.json</code> formats.</p>
+<p>Implementation constant: <code>lldp_runner.outputs.DISCOVERY_JSON_SCHEMA_VERSION</code>.</p>
+<h2 id="topology-graph-schema-2">Topology graph schema 2</h2>
+<p>Purpose: claims-driven entity, interface, advertisement, membership, and relationship projection embedded under <code>discovery.json.topology_graph</code>.</p>
+<p>Important sections include:</p>
+<pre class="text"><code>schema_version
+authority
+directness_policy
+entities
+interfaces
+advertisements
+memberships
+relationships
+relationship_groups
+advertisement_exclusions
+collection_coverage
+projection_fingerprint
+summary</code></pre>
+<p>The graph reports observation, entity-resolution, directness, physical-topology, and compatibility-projection authority separately. Its deterministic fingerprint excludes run-local compatibility references that are not stable graph identity.</p>
+<p>Implementation constant: <code>lldp_runner.topology_graph.TOPOLOGY_GRAPH_SCHEMA_VERSION</code>.</p>
+<h2 id="diff-json-schema-12">Diff JSON schema 12</h2>
+<p>Purpose: machine-readable comparison of two supported discovery documents.</p>
+<p>Top-level sections:</p>
+<pre class="text"><code>schema_version
+result
+mode
+sources
+warnings
+comparison</code></pre>
+<p><code>comparison</code> contains host, learned-neighbor, graph relationship, collection coverage, health, change-event, and cross-view reconciliation results selected by the requested diff mode. Schema 12 includes member-scoped graph event keys and orthogonal relationship-change dimensions.</p>
+<p>Implementation constant: <code>lldp_runner.discovery_diff.DIFF_JSON_SCHEMA_VERSION</code>.</p>
+<h2 id="runjson-schema-3"><code>run.json</code> schema 3</h2>
+<p>Purpose: sanitized invocation provenance and lifecycle timing for one logical run, including resume invocations.</p>
+<p>The document begins with <code>schema_version</code>, <code>app_name</code>, and <code>app_version</code>, then records run identity, the selected SNMP backend name and installed package version, state, timestamps, duration fields, launch identity, configuration provenance, and an append-only <code>invocations</code> array. Each invocation also records its installed version of the run's fixed backend. Credential and password values are redacted before persistence.</p>
+<p>The backend fields use the existing schema-3 diagnostic/provenance extension points. Discovery, topology, diff, run, and scoreboard schema numbers therefore remain unchanged in 0.37.0.</p>
+<p>Implementation constant: <code>lldp_runner.run_manifest.RUN_JSON_SCHEMA_VERSION</code>.</p>
+<h2 id="scoreboardjson-schema-1"><code>scoreboard.json</code> schema 1</h2>
+<p>Purpose: compact, atomically published live status consumed by <code>lldp-runner status --json</code> and <code>lldp-runner watch</code>.</p>
+<p>It records run identity, start/update times, state, elapsed time, discovery counters, worker status, and the effective execution plan when available. The live file remains as the terminal snapshot after completion, and an identical copy is archived with durable completed-run state. It remains a status contract, not a canonical completed discovery artifact.</p>
+<p>Implementation constant: <code>lldp_runner.scoreboard.SCOREBOARD_SCHEMA</code>.</p>
+<h2 id="version-change-checklist">Version-change checklist</h2>
+<p>When a schema changes:</p>
+<ol type="1">
+<li>Advance only the affected implementation constant.</li>
+<li>Update its writer, reader validation, fixtures, and public documentation.</li>
+<li>Add positive coverage for the new form and rejection coverage for unsupported forms.</li>
+<li>Update this page and add one schema-change note to <a href="CHANGELOG.html"><code>CHANGELOG.md</code></a>.</li>
+<li>Do not repeat unchanged schema numbers in later changelog entries.</li>
+</ol>
+</body>
+</html>

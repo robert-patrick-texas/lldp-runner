@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/RUN.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="lldp-runner-run-lifecycle">LLDP-Runner Run Lifecycle</h1>
+<h2 id="1-summary">1. Summary</h2>
+<p>A discovery run has an initialization phase before any worker sends ICMP or SNMP traffic. LLDP-Runner announces that phase explicitly so a large seed set or slow DNS service does not look like a stalled process.</p>
+<p>The standard console vocabulary follows this direction of flow:</p>
+<pre class="text"><code>Run started
+    |
+    v
+Configuration loaded
+    |
+    v
+Seeds loaded
+    |
+    v
+Seed resolution started
+    |
+    +---- every 30 seconds when still running ----+
+    |                                              |
+    |     Seed resolution in progress              |
+    |                                              |
+    +----------------------------------------------+
+    |
+    v
+Seed resolution complete
+    |
+    v
+Discovery starting
+    |
+    v
+Worker scheduling / ICMP / SNMP / topology discovery
+    |
+    v
+Raw advertisements and table coverage finalized
+    |
+    v
+Claims-driven topology graph materialized
+    |
+    v
+Run completed, paused, limited, interrupted, or failed</code></pre>
+<p><code>activity.log</code> records the same major transitions and adds machine-friendly counts and phase details at INFO level. Console output intentionally stays shorter.</p>
+<p>See <a href="docs-DNS.html">DNS.md</a> for seed DNS modes and resolver considerations.</p>
+<h2 id="2-discovery-operating-modes">2. Discovery operating modes</h2>
+<p>LLDP-Runner has two discovery operating modes. Seed DNS policy is independent of these modes.</p>
+<h3 id="21-recursive-discovery">2.1 Recursive discovery</h3>
+<p>Recursive discovery is used when <code>discovery.max_devices</code> is an integer.</p>
+<p>A positive value is a managed-device query guardrail. Zero means unlimited recursive managed-device discovery. Managed neighbors learned from queried seeds can become later query work when boundary, classification, query policy, and credentials permit them.</p>
+<p>A typical first console line is:</p>
+<pre class="text"><code>LLDP-Runner run 20260106-00 started: recursive discovery</code></pre>
+<h3 id="22-seed-only-discovery">2.2 Seed-only discovery</h3>
+<p><code>discovery.max_devices = "auto"</code> enables seed-only discovery.</p>
+<p>Every unique queryable seed can be queried. Learned neighbors are still recorded, classified, and emitted in topology output, but learned non-seed managed devices are not recursively scheduled for SNMP.</p>
+<p>A typical first console line is:</p>
+<pre class="text"><code>LLDP-Runner run 20260106-01 started: seed-only discovery (max_devices=auto)</code></pre>
+<p>Because the complete query population is known after seed initialization, LLDP-Runner can reduce effective workers and batch size for small seed-only runs without increasing configured limits.</p>
+<h2 id="3-initialization-sequence">3. Initialization sequence</h2>
+<h3 id="31-run-and-logging-resources">3.1 Run and logging resources</h3>
+<p>LLDP-Runner allocates or resumes the run and opens state. It then resolves the effective <code>snmp.backend</code>, binds exactly one backend to the logical run, and validates any persisted resume value before preparing <code>run.json</code> provenance or starting discovery. Configured logging destinations are opened before seed DNS resolution begins.</p>
+<p>The backend name and installed package version are retained in SQLite state, the top-level <code>run.json</code> diagnostic object, and each invocation record. These records contain no credential values. A selected backend import, construction, or request failure is reported as that backend's failure; LLDP-Runner does not try the other backend.</p>
+<p><code>run.json</code> uses timezone-aware ISO timestamps for <code>started</code> and <code>completed</code> and stores <code>duration</code> as their elapsed difference in seconds. The invocation-level runtime printed at shutdown remains separate so a resumed process can report its own execution time without changing the logical run start.</p>
+<p>Schema 3 additionally records <code>discovery_duration</code>, <code>graph_resolution_duration</code>, <code>graph_serialization_duration</code>, <code>output_publication_duration</code>, <code>finalization_duration</code>, and <code>total_wall_clock_duration</code>. These are nonnegative wall-clock measurements for the current invocation. The graph/publication values are subphases of finalization; they are not added again when computing total wall clock.</p>
+<p>This lets <code>activity.log</code> explain initialization failures that happen before any worker starts.</p>
+<h3 id="32-configuration-loaded">3.2 Configuration loaded</h3>
+<p>The console identifies the primary configuration source:</p>
+<pre class="text"><code>Configuration loaded: /opt/lldp-runner/config.toml</code></pre>
+<p>The activity log additionally records the number of assembled configuration files and lists assembled source paths when files are present. Includes and <code>conf.d</code> fragments therefore remain visible without filling the console.</p>
+<h3 id="33-seeds-loaded">3.3 Seeds loaded</h3>
+<p>LLDP-Runner first reads configured, CLI, environment, directory, file, and optional standard-input seed sources.</p>
+<p>The console reports the number of accepted raw records before textual seed identity de-duplication:</p>
+<pre class="text"><code>Seeds loaded: 12842 raw seeds</code></pre>
+<p>The activity log also reports how many input identities remain after the first textual de-duplication stage:</p>
+<pre class="text"><code>seed input loaded: raw=12842 input_identities=12690</code></pre>
+<h3 id="34-seed-resolution">3.4 Seed resolution</h3>
+<p>Seed resolution performs the authoritative initialization work that can merge aliases into unique seed hosts. With the default DNS mode this can perform many resolver operations.</p>
+<p>Default mode announces:</p>
+<pre class="text"><code>Seed resolution started: resolving names, addresses, and duplicate identities</code></pre>
+<p>With <code>seed_dns_mode = "skip-addressed"</code> it announces that eligible addressed seeds may bypass DNS. See <a href="docs-DNS.html">DNS.md</a>.</p>
+<h3 id="35-thirty-second-progress-heartbeat">3.5 Thirty-second progress heartbeat</h3>
+<p>If seed resolution continues for at least 30 seconds, LLDP-Runner writes a progress heartbeat every 30 seconds:</p>
+<pre class="text"><code>Seed resolution in progress: 4821/12690 input identities processed (1m 00s)
+Seed resolution in progress: 9617/12690 input identities processed (2m 00s)</code></pre>
+<p>The heartbeat uses a lightweight timer that does not access SQLite. It can therefore remain visible while the initialization thread is blocked in a slow resolver call.</p>
+<p>The activity log includes the raw count and DNS-mode counters:</p>
+<pre class="text"><code>seed resolution progress: processed=4821 total=12690 raw=12842 \
+  dns_resolved=480 dns_skipped=4341 elapsed=60.0s</code></pre>
+<p>The example is wrapped for documentation. One activity-log event is one line.</p>
+<h3 id="36-seed-resolution-complete">3.6 Seed resolution complete</h3>
+<p>When resolution finishes, the console reports authoritative seed counts:</p>
+<pre class="text"><code>Seed resolution complete: 12842 raw seeds -&gt; 12604 unique seeds; \
+  12598 queryable, 6 unresolved (2m 47s)</code></pre>
+<p>The example is wrapped for documentation. Console logging emits one event.</p>
+<p>The activity log adds state and DNS details, including policy outcomes:</p>
+<pre class="text"><code>seed resolution completed: raw=12842 input_identities=12690 processed=12690 \
+  unique=12604 queryable=12598 unresolved=6 no_query=0 out_of_scope=0 \
+  complete=0 failed=0 dns_resolved=531 dns_skipped=12159 elapsed=167.2s</code></pre>
+<h3 id="37-discovery-scheduling">3.7 Discovery scheduling</h3>
+<p>After initialization validation and execution-plan calculation, workers start. Recursive discovery uses:</p>
+<pre class="text"><code>Discovery starting: proceeding with 12604 unique seeds</code></pre>
+<p>Seed-only discovery uses:</p>
+<pre class="text"><code>Seed-only discovery starting: proceeding with 12604 unique seeds</code></pre>
+<p>The activity log additionally records READY seeds, effective workers, and effective batch size.</p>
+<h2 id="4-count-definitions">4. Count definitions</h2>
+<p><code>raw seeds</code> : Accepted seed records before textual seed-string de-duplication.</p>
+<p><code>input identities</code> : Seed inputs remaining after the first textual de-duplication stage and before DNS/alias correlation.</p>
+<p><code>unique seeds</code> : Authoritative managed seed hosts after seed name/address identity consolidation in state.</p>
+<p><code>queryable</code> : Seed hosts in READY state after address, boundary, and query-policy checks.</p>
+<p><code>unresolved</code> : Managed seed hosts with no usable IPv4 or IPv6 alias after seed resolution.</p>
+<p>A resolved seed that is outside configured boundaries or denied by query policy is not labeled unresolved. Those states are reported separately in <code>activity.log</code>.</p>
+<h2 id="5-recursive-discovery-console-example">5. Recursive discovery console example</h2>
+<pre class="text"><code>LLDP-Runner run 20260106-00 started: recursive discovery
+Configuration loaded: /opt/lldp-runner/config.toml
+Seeds loaded: 12842 raw seeds
+Seed resolution started: resolving names, addresses, and duplicate identities
+Seed resolution in progress: 4821/12690 input identities processed (1m 00s)
+Seed resolution in progress: 9617/12690 input identities processed (2m 00s)
+Seed resolution complete: 12842 raw seeds -&gt; 12604 unique seeds; \
+  12598 queryable, 6 unresolved (2m 47s)
+Discovery starting: proceeding with 12604 unique seeds</code></pre>
+<h2 id="6-seed-only-discovery-console-example">6. Seed-only discovery console example</h2>
+<pre class="text"><code>LLDP-Runner run 20260106-01 started: seed-only discovery (max_devices=auto)
+Configuration loaded: /opt/lldp-runner/config.toml
+Seeds loaded: 12842 raw seeds
+Seed resolution started: resolving identities; DNS may be skipped for eligible \
+  addressed seeds
+Seed resolution complete: 12842 raw seeds -&gt; 12604 unique seeds; \
+  12598 queryable, 6 unresolved (8s)
+Seed-only discovery starting: proceeding with 12604 unique seeds</code></pre>
+<p>The examples wrap long events for readability. Actual log records are emitted as single events.</p>
+<h2 id="7-activity-log-example">7. Activity-log example</h2>
+<p>The activity log includes standard timestamp, level, process, and logger prefixes. The message portion for one initialization may include:</p>
+<pre class="text"><code>run initialization: run_id=20260106-01 action=started mode=seed_only
+configuration loaded: primary=/opt/lldp-runner/config.toml sources=4
+seed input loaded: raw=12842 input_identities=12690
+seed resolution started: raw=12842 input_identities=12690 \
+  dns_mode=skip-addressed
+seed resolution progress: processed=4821 total=12690 raw=12842 \
+  dns_resolved=480 dns_skipped=4341 elapsed=60.0s
+seed resolution completed: raw=12842 input_identities=12690 processed=12690 \
+  unique=12604 queryable=12598 unresolved=6 no_query=0 out_of_scope=0 \
+  complete=0 failed=0 dns_resolved=531 dns_skipped=12159 elapsed=167.2s
+seed-only execution plan: 12598 READY seeds; workers 64 -&gt; 64; \
+  batch_size 9 -&gt; 9; max_outstanding_devices_per_worker=24
+discovery scheduling started: mode=seed_only seeds=12604 ready=12598 \
+  workers=64 batch_size=9</code></pre>
+<h2 id="8-initialization-failures">8. Initialization failures</h2>
+<p>Seed resolution occurs before worker startup. A finite <code>max_devices</code> guardrail can therefore reject the run after DNS and identity consolidation have already completed.</p>
+<p>Example console sequence:</p>
+<pre class="text"><code>LLDP-Runner run 20260106-03 started: recursive discovery
+Configuration loaded: /opt/lldp-runner/config.toml
+Seeds loaded: 1842 raw seeds
+Seed resolution started: resolving names, addresses, and duplicate identities
+Seed resolution complete: 1842 raw seeds -&gt; 1796 unique seeds; \
+  1794 queryable, 2 unresolved (19s)
+Run initialization failed: 1796 unique managed seed devices were supplied, \
+  but discovery.max_devices is 1000. No discovery queries were started. ...</code></pre>
+<p>The activity log records the run ID, discovery mode, exception type, and full reason. No worker ICMP or SNMP query has started when this seed-count validation fails.</p>
+<h2 id="9-resume-behavior">9. Resume behavior</h2>
+<p>A resumed run announces <code>resuming</code> rather than <code>started</code>. Active claims are reset, newly supplied seeds are resolved, seed order is normalized, and the current runtime guardrails and execution plan are recalculated.</p>
+<p>The effective backend name must exactly match the name persisted for the logical run. A different requested backend, or a real pre-0.36 run with no backend metadata, is rejected before discovery and before run-provenance mutation. The installed package version may differ between invocations and is recorded per invocation, but the backend implementation cannot change.</p>
+<p>The logical run retains its original persisted start time. The final <code>Runtime:</code> summary continues to describe the current invocation duration.</p>
+<h2 id="10-live-watch-dashboard">10. Live watch dashboard</h2>
+<p><code>lldp-runner watch</code> follows the structured live file at <code>&lt;scratch_root&gt;/scoreboard/scoreboard.json</code>. The stable file remains readable after a completed run even when its per-run scratch tree is removed. Watch does not perform network discovery, invoke the credential subsystem, or write-probe run storage. At normal widths the screen starts with a blank row, keeps one blank cell at both side edges, and uses this justified title:</p>
+<pre class="text"><code>LLDP-Runner 0.37.0  Run ID = 20260111-04  STATE = RUNNING  updated 00:03 ago</code></pre>
+<p>The update age uses total minutes and seconds, including values such as <code>67:09</code>. Spare width is divided approximately equally among the four title sections. When width is reduced, cosmetic gaps and then the application version are cropped before run ID, state, age, or worker information. The Run ID segment uses the same muted semantic color as the footer.</p>
+<p>The <code>Started ... Elapsed ... Plan ...</code> line is centered independently and has one blank row after it when height permits. When width permits, its two gaps use six spaces rather than the compact three-space form. Metrics use broad geometry-based columns with stable count/delta fields, and roomy terminals add a blank row between metric rows. After ordinary spacing is allocated, more than ten blank rows remaining immediately above the footer adds one blank row between the title and Started line and a second row after the Started line. The aggregate worker summary is centered with a blank row above and below when height permits; the same roomy condition adds a second row on each side. The worker grid is centered after full/compact/heatmap capacity is selected, so complete rows have balanced outer whitespace and a partial final row stays aligned with the first worker column. Worker-cell content and density are unchanged. A live-source error is rendered in bright red when color is enabled, below the worker table and above the footer, with a blank row on each side.</p>
+<p>When width or height is constrained, the dashboard degrades deliberately through <code>full -&gt; compact -&gt; heatmap -&gt; summary</code>. It preserves state, run ID, age, aggregate BUSY/IDLE/DEAD worker counts, an explicit <code>SMALL</code> or <code>ABBREVIATED</code> indication, and <code>q</code>/Ctrl-C guidance before optional metrics. No rendered line wraps, and very short terminals do not collapse to a title-only screen. Press <code>m</code> to change worker view, <code>h</code> for help, and <code>q</code> or Ctrl-C to exit.</p>
+<p>Active <code>RUNNING</code> and <code>PAUSING</code> scoreboards retain the prominent <code>*** STALE ***</code> indicator when publication age crosses the configured stale boundary. Final states do not become stale merely because the producer has stopped.</p>
+<h2 id="11-related-references">11. Related references</h2>
+<ul>
+<li><a href="docs-DNS.html">DNS.md</a> describes resolver behavior and <code>seed_dns_mode</code>.</li>
+<li><a href="docs-NAMES.html">NAMES.md</a> describes name/address identity consolidation.</li>
+<li><a href="docs-PRECEDENCE.html">PRECEDENCE.md</a> describes configuration and CLI precedence.</li>
+<li><a href="docs-ARCHITECTURE.html">ARCHITECTURE.md</a> describes coordinator/state scheduling.</li>
+<li><a href="docs-PRIMER.html">PRIMER.md</a> explains adaptive table collection and evidence terms.</li>
+</ul>
+<h2 id="12-adaptive-snmp-timeout-pacing-and-access-restrictions">12. Adaptive SNMP timeout, pacing, and access restrictions</h2>
+<p><code>snmp.backend</code> selects <code>pysnmp</code> (the default) or <code>gufo</code>. Configuration-file, environment, <code>--set</code>, and dedicated CLI precedence is resolved once before the run starts. The bound selection is copied into every worker and checked again at the backend factory boundary, so one run cannot use mixed transports.</p>
+<p>A run started with Gufo remains a Gufo run. After upgrading to 0.37.0, keep an explicit <code>snmp.backend = "gufo"</code> setting when resuming it. An omitted backend now resolves to PySNMP, and the durable mismatch check rejects that resume before discovery rather than changing the run's transport implementation.</p>
+<p>PySNMP transport targets always use <code>retries=0</code>. Gufo behavior is unchanged. For either backend, the retry policy described below remains wholly owned by LLDP-Runner.</p>
+<p>LLDP-Runner creates one adaptive transport state for each target address and credential route. The same state follows a successful target from basic SYSTEM-MIB collection into detail collection.</p>
+<p>Retry policy has three normal boundaries:</p>
+<ul>
+<li>each logical operation/table receives its own bounded retry allowance;</li>
+<li>each collector family receives a bounded fair-share allowance; and</li>
+<li>retries consume either the shared target pool or, for LLDP-family and CDP, a protected neighbor reserve.</li>
+</ul>
+<p>LLDP and LLDPv2 share the <code>lldp</code> normal-retry family because they are alternate MIB generations of the same protocol. CDP has its own family. SYSTEM-MIB, ENTITY-MIB, IF-MIB, and other collectors cannot consume the protected neighbor reserve. With the defaults, general work can consume at most three shared retries, while LLDP-family and CDP can consume up to two protected retries in addition. The per-collector default of one prevents a multi-walk collector from monopolizing either pool.</p>
+<p>The first eligible timeout or structural table failure enters one persistent degraded profile:</p>
+<pre class="text"><code>timeout_after = timeout_before * retry_timeout_multiplier
+max_repetitions_after = ceil(
+    max_repetitions_before * retry_max_repetitions_multiplier
+)
+max_repetitions_after &gt;= retry_min_max_repetitions
+inter_pdu_delay_after += retry_inter_pdu_delay_ms</code></pre>
+<p>The defaults increase timeout by 50 percent, halve GETBULK work, halve GET-MANY OID batch size, and add 100 milliseconds of pacing. Later operations on the same target route reuse the slower profile. A new target or credential route starts with normal configured values and fresh counters.</p>
+<p>A failed table attempt is not a partial success. Rows returned before failure are discarded, the backend session is reopened with the degraded profile, and the table starts again at its root. LLDP/LLDPv2 require complete mandatory chassis-ID and Port-ID columns. CDP requires a usable device ID and remote port for every materialized row plus consistent cache indexes.</p>
+<p>An optional second resilience layer handles short-lived packet loss or an agent table that is changing while it is walked. After all enabled LLDP, LLDPv2, and CDP first passes finish, the worker identifies only final <code>timeout</code> and <code>structurally_invalid</code> outcomes. When at least one is eligible, it waits once for <code>neighbor_stability_retry_delay_seconds</code>, reopens a fresh backend session for each failed protocol, and performs exactly one complete retry from that protocol's root. The normal operation/collector retry machinery is suppressed during this final pass, so one stability retry cannot expand into nested transport or structural attempts. Each protocol can receive at most one stability retry per target.</p>
+<p>Authentication failures, access/view restrictions, unsupported OIDs, ordinary transport errors, and other definitive exceptions do not enter the stability pass. Set <code>neighbor_stability_retry = false</code> to disable it or set the delay to <code>0</code> for an immediate final pass.</p>
+<p>The relevant configuration is:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[snmp]</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span> <span class="op">=</span> <span class="st">&quot;pysnmp&quot;</span> <span class="co"># default; use &quot;gufo&quot; for an explicit Gufo run</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="dt">timeout_seconds</span> <span class="op">=</span> <span class="fl">3.0</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="dt">max_repetitions</span> <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="dt">per_device_rps</span> <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="dt">retry_per_operation</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="dt">retry_per_collector</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="dt">retry_total_cap</span> <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="dt">retry_neighbor_reserve</span> <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="dt">structural_table_retry</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="dt">retry_timeout_multiplier</span> <span class="op">=</span> <span class="fl">1.5</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="dt">retry_max_repetitions_multiplier</span> <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="dt">retry_min_max_repetitions</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="dt">retry_inter_pdu_delay_ms</span> <span class="op">=</span> <span class="fl">100.0</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="dt">neighbor_stability_retry</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="dt">neighbor_stability_retry_delay_seconds</span> <span class="op">=</span> <span class="fl">2.0</span></span></code></pre></div>
+<p>Operational SNMP message bodies use a stable field order:</p>
+<pre class="text"><code>SNMP target=&lt;address-or-name&gt; &lt;message&gt;</code></pre>
+<p>The normal logging formatter supplies timestamp, level, worker, and logger. A retry or exhaustion record includes collector, collector family, logical operation, table, root OID, credential route/profile, collection phase, retry pool, attempt, per-operation/collector/target counters, before/after transport values, discarded partial rows, and final outcome. Stability records also carry the configured quiet-period delay. The target remains the first message-body field so concurrent worker logs are machine-searchable.</p>
+<p>Adaptive telemetry is retained with immutable SNMP-result evidence and in the host SNMP section of <code>discovery.json</code> when present. It records initial and effective transport values, shared/reserved/stability counters, operation and collector counts, retry outcomes, exhaustion reasons, and whether partial results were discarded. <code>total_retries_used</code> includes normal and stability retries; the pool-specific counters explain how that total was allocated. Collection coverage <code>attempts</code> counts allowed retry attempts, including the final stability pass, but not unavailable retry decisions.</p>
+<p>An authenticated agent that explicitly returns <code>noAccess</code>, <code>authorizationError</code>, or an equivalent VACM/ACL/view denial is recorded as <code>snmp_access_restricted</code>. Access denial is not retried as a performance problem. It remains distinct from bad credentials, transport timeout, unsupported OID, and a successful empty optional table.</p>
+<h2 id="13-evidence-finalization-and-graph-publication">13. Evidence finalization and graph publication</h2>
+<p>A completed schema-7 run publishes its topology in two related forms:</p>
+<pre class="text"><code>immutable protocol advertisements and claims
+    -&gt; supersedable graph decisions
+    -&gt; observation-complete topology_graph
+    -&gt; flat hosts/learned_neighbors compatibility projection</code></pre>
+<p>CDP, LLDP, and LLDPv2 rows are recorded before cross-protocol merging. The materializer can therefore reconsider an earlier grouping when stronger or conflicting evidence appears. An unchanged replay produces the same projection fingerprint. A changed conclusion appends a decision that supersedes the prior one and transactionally replaces the current graph without deleting history. Every durable protocol advertisement is present in the graph or in an explicit exclusion record. Entity resolution remains provisional, and physical topology and directness remain uninferred unless later evidence supports them.</p>
+<p>A local interface containing several learned systems is not automatically a physical fan-out. The graph keeps every advertisement, flags the interface for review, and leaves directness unresolved. Network Operations can then determine whether the evidence represents shared Nexus management, virtual/overlay behavior, or frames forwarded through a transparent device.</p>
+<p>Collection coverage remains independent from topology. A table status of <code>complete</code> can support an authoritative absence. Timeout, access restriction, unsupported data, structural failure, or not-attempted means the value was not observed and cannot by itself prove removal.</p>
+<p>Finalized files are published below the effective canonical <code>outputs/&lt;run-id&gt;/</code> directory. An installation may retain an older filesystem symlink for administrative transition, but completion logs and returned paths resolve that alias and consistently show <code>outputs/</code>. The persisted logical <code>duration</code> ends at discovery completion; the schema-3 finalization and total wall-clock fields make graph generation and publication visible separately.</p>
+<p>For <code>COMPLETED</code> and <code>COMPLETED_LIMIT</code>, successful finalization ends in this order:</p>
+<pre class="text"><code>write final discovery/run/CSV files
+  -&gt; publish outputs/&lt;run-id&gt; and outputs/latest
+  -&gt; publish the terminal live scoreboard
+  -&gt; checkpoint final SQLite state and finish final run provenance
+  -&gt; close SQLite, activity log, workers, and coordinator queues
+  -&gt; archive final scoreboards in runs/&lt;run-id&gt;
+  -&gt; optionally archive scoreboards in scratch/&lt;run-id&gt;
+  -&gt; remove durable run.json.draft
+  -&gt; publish runs/latest -&gt; &lt;run-id&gt;
+  -&gt; optionally remove completed per-run scratch</code></pre>
+<p><code>runs/latest</code> and <code>outputs/latest</code> are relative sibling symlinks. Startup preflights both aliases so a conflicting real file/directory or unsupported symlink operation fails before SNMP work begins. Automatic resume scans only real run-ID directories and never returns the <code>runs/latest</code> alias as a run ID.</p>
+<p><code>[paths].clean_scratch_when_completed</code> defaults to <code>true</code>. When enabled, the post-close step recursively removes <code>&lt;scratch_root&gt;/&lt;run-id&gt;/</code>, including JSON/CSV snapshots, drafts, and any future per-run transient files. It unlinks <code>&lt;scratch_root&gt;/current</code> only if that link still resolves to the same run; a newer run's alias is preserved. The live files below <code>&lt;scratch_root&gt;/scoreboard/</code> remain available after completion. Final text and JSON scoreboards are always archived below the durable run directory; when the option is false, they are also copied to the retained scratch run directory. The completed durable <code>run.json.draft</code> is removed after final <code>run.json</code> publication. Non-success terminal states retain per-run scratch state for resume and diagnostics.</p>
+<h2 id="14-preparing-consecutive-runs-for-review">14. Preparing consecutive runs for review</h2>
+<p>After two completed runs, create a portable review archive with:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/lrun-bundle-diff</span></span></code></pre></div>
+<p>To select the comparison explicitly:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/lrun-bundle-diff</span> RUNID_A RUNID_B</span></code></pre></div>
+<p>The helper validates matching output and runtime-state trees, generates a changes-only JSON diff, creates coherent compact SQLite backups, excludes WAL/SHM sidecars, and packages both runs plus the diff. See <a href="docs-CLI.html#17-preparing-a-two-run-review-bundle">CLI.md</a> for the archive layout and environment overrides.</p>
+<h2 id="failed-hosts-and-later-addresses">Failed hosts and later addresses</h2>
+<p>A failed managed host is not automatically retried when it is observed again. Workers persist every attempted address and non-secret credential route. The coordinator considers a late recovery only when a later direct observation adds a policy-permitted identity address that is absent from that history.</p>
+<p><code>discovery.late_address_recovery_attempts</code> controls the admission count. The default is <code>1</code>; <code>0</code> disables it. Admission changes the host from <code>FAILED</code> to <code>READY</code>, records a <code>late_address_recovery_admitted</code> scheduler event, and limits the new task to the admitted addresses. The consumed count and scheduler event survive restart. Duplicate host reconciliation keeps the maximum consumed count so a merge cannot create more attempts.</p>
+<p>Activity logging states the host, evidence source, newly admitted addresses, and allowance use. Older route errors remain in output and become recovery evidence when a later basic route succeeds.</p>
+</body>
+</html>

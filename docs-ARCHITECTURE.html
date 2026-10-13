@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/ARCHITECTURE.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="lldp-runner-concept-of-operations-and-architecture">LLDP-Runner concept of operations and architecture</h1>
+<p>This document explains what LLDP-Runner does, how its major components work, and why the current architecture is structured the way it is. It is intended for Network Operations staff, package maintainers, and future developers.</p>
+<p>The document starts with the general concept of operations, then moves into implementation detail. Current source code is authoritative when this document and code disagree.</p>
+<p>Source-maintained diagrams for collection, compatibility identity resolution, and graph rematerialization are in <a href="docs-dev-FLOW-DIAGRAMS.html"><code>dev/FLOW-DIAGRAMS.md</code></a>.</p>
+<h2 id="1-purpose-and-operating-model">1. Purpose and operating model</h2>
+<p>LLDP-Runner is an SNMP-based network topology discovery tool. It starts from one or more operator-supplied seed devices, queries those devices, learns CDP, LLDP, and LLDPv2 neighbors, classifies the learned identities, and optionally recurses into neighbors that policy identifies as managed network devices.</p>
+<p>Its primary goals are:</p>
+<ol type="1">
+<li>Discover network topology without requiring an external state service.</li>
+<li>Keep identity, scheduling, and duplicate prevention centrally controlled.</li>
+<li>Query many devices concurrently without overwhelming one SNMP agent.</li>
+<li>Preserve partial information when some devices or collectors fail.</li>
+<li>Make pause, resume, sampling, and bounded discovery operationally safe.</li>
+<li>Produce JSON and CSV outputs that are useful outside LLDP-Runner.</li>
+<li>Reuse the same probing components for quick single-device inspection.</li>
+</ol>
+<p>A simplified view is:</p>
+<pre class="text"><code>operator seeds
+     |
+     v
++----------------+
+| configuration  |
+| policy/defaults|
++-------+--------+
+        |
+        v
++----------------+
+| coordinator    |
+| identity/state |
+| scheduling     |
++-------+--------+
+        |
+        +-------------------------------+
+        |                               |
+        v                               v
++---------------+               +---------------+
+| worker 0      |      ...      | worker N      |
+| asyncio SNMP  |               | asyncio SNMP  |
++-------+-------+               +-------+-------+
+        |                               |
+        +---------------+---------------+
+                        |
+                        v
+                device results
+                        |
+                        v
+                +---------------+
+                | coordinator   |
+                | merge/classify|
+                +-------+-------+
+                        |
+                        v
+                more managed work
+                        |
+                        v
+                 JSON / CSV / state</code></pre>
+<h2 id="2-discovery-is-graph-traversal-not-a-strict-tree-walk">2. Discovery is graph traversal, not a strict tree walk</h2>
+<p>LLDP-Runner treats the environment as a graph.</p>
+<p>A queried switch may report several neighbors. Two different switches may report the same neighboring device. A device may be reached through multiple names, management addresses, or chassis identifiers.</p>
+<p>For that reason, discovery is not implemented as simple recursion such as:</p>
+<pre class="text"><code>query A
+  query B
+    query C
+      query D</code></pre>
+<p>Instead, workers discover candidate observations while the coordinator owns canonical run state, scheduling, and graph materialization and decides what is eligible for future work.</p>
+<p>The traversal has breadth/wavefront characteristics, but it is not strict BFS. Concurrency, cohort assignment, seed ranking, work stealing, and device response time mean results can arrive in a different order from graph depth.</p>
+<p>The important invariant is not traversal order. It is:</p>
+<pre class="text"><code>one current schedulable identity -&gt; at most one schedulable host record</code></pre>
+<h2 id="3-major-execution-modes">3. Major execution modes</h2>
+<p>LLDP-Runner currently has two execution models.</p>
+<h3 id="31-recursive-or-seed-only-discovery">3.1 Recursive or seed-only discovery</h3>
+<p><code>lldp-runner run</code> creates persistent run state, starts worker processes, writes scoreboards and snapshots, and may recurse through learned managed neighbors.</p>
+<p>The run can operate in:</p>
+<pre class="text"><code>finite recursive mode
+unlimited recursive mode
+seed-only mode</code></pre>
+<p>The selected <code>discovery.max_devices</code> value controls the mode.</p>
+<h3 id="32-single-device-inspection">3.2 Single-device inspection</h3>
+<p><code>lldp-runner get-neighbors SEED</code> and <code>get-neighbors SEED</code> query one target and print the result to stdout.</p>
+<p>Inspection intentionally does not create:</p>
+<pre class="text"><code>SQLite run state
+run/output directories
+scoreboards
+snapshots
+worker processes
+recursive neighbor work</code></pre>
+<p>It normally reuses the same DNS, policy, credential, ICMP, SNMP, system, interface, ENTITY-MIB, LLDP, LLDPv2, CDP, sanitation, and neighbor-merge components used by normal discovery workers.</p>
+<p><code>--system-only</code> (alias <code>--no-neighbors</code>) deliberately exits the shared worker primitive after the successful SYSTEM-MIB probe. It does not open the detail SNMP session, so ENTITY-MIB, IF-MIB, LLDP, LLDPv2, and CDP cannot influence a baseline response-time comparison.</p>
+<p>This makes <code>get-neighbors</code> useful as a preflight tool before a larger discovery.</p>
+<h2 id="4-configuration-model">4. Configuration model</h2>
+<h3 id="41-built-in-defaults">4.1 Built-in defaults</h3>
+<p>Built-in operational defaults live in:</p>
+<pre class="text"><code>src/lldp_runner/defaults.py</code></pre>
+<p>The file is normal Python package source on purpose. Distribution maintainers or site-local support teams may patch those defaults as part of maintaining a site build.</p>
+<p>A configuration file may be partial. Omitted values inherit built-in defaults.</p>
+<h3 id="42-runtime-precedence">4.2 Runtime precedence</h3>
+<p>The effective precedence is:</p>
+<pre class="text"><code>defaults.py
+  |
+  v
+primary TOML + @include + conf.d
+  |
+  v
+LLDP_RUNNER_* environment overrides
+  |
+  v
+--set overrides
+  |
+  v
+dedicated command-line options</code></pre>
+<p>Higher layers override lower layers for scalar values. The authoritative operator-facing description, including credentials and seed exceptions, is maintained in <a href="docs-PRECEDENCE.html">PRECEDENCE.md</a>.</p>
+<h3 id="43-primary-config-discovery">4.3 Primary config discovery</h3>
+<p>When neither <code>--config</code> nor <code>LLDP_RUNNER_CONFIG</code> supplies a path, LLDP-Runner checks:</p>
+<pre class="text"><code>~/lldp-runner-config.toml
+~/lldp-runner/config.toml
+/opt/lldp-runner/config.toml
+/etc/lldp-runner/config.toml</code></pre>
+<p>The first existing file is used. If none exists, built-in defaults are used.</p>
+<p>An explicitly supplied path is authoritative. A missing explicit file is an error rather than a reason to search elsewhere.</p>
+<h3 id="44-include">4.4 <code>@include</code></h3>
+<p><code>@include</code> is an LLDP-Runner preprocessing directive, not TOML syntax.</p>
+<p>Examples:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="er">@</span><span class="dt">include</span> <span class="dt">&quot;siteone/query-policy.toml&quot;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="er">@</span><span class="dt">include</span> <span class="er">/</span><span class="dt">opt</span><span class="er">/</span><span class="dt">lldp-runner</span><span class="er">/</span><span class="dt">shared-credentials.toml</span></span></code></pre></div>
+<p>Relative includes are resolved relative to the file containing the directive. Absolute paths remain absolute.</p>
+<p>Nested includes are supported. Include cycles are rejected.</p>
+<h3 id="45-automatic-confd">4.5 Automatic <code>conf.d</code></h3>
+<p>When a real primary config file is selected, LLDP-Runner automatically scans a <code>conf.d</code> directory adjacent to that primary file.</p>
+<p>If the primary file is:</p>
+<pre class="text"><code>/opt/lldp-runner/config.toml</code></pre>
+<p>then the automatic fragment directory is:</p>
+<pre class="text"><code>/opt/lldp-runner/conf.d/</code></pre>
+<p>It is not the package's <code>configs/conf.d/</code> example directory unless the primary config itself is inside <code>configs/</code>.</p>
+<p>Only files ending exactly in <code>.toml</code> are active. Traversal is recursive and files are ordered lexically by relative path.</p>
+<pre class="text"><code>conf.d/
+  10-site/
+    10-credentials.toml
+    20-query-policy.toml
+  20-classification.toml
+  z-local.toml</code></pre>
+<p>The ordering above is the processing order.</p>
+<h3 id="46-include-and-confd-de-duplication">4.6 Include and <code>conf.d</code> de-duplication</h3>
+<p>Every resolved configuration file is loaded at most once per complete config load.</p>
+<p>If <code>a.toml</code> includes <code>z.toml</code>, and <code>z.toml</code> would later be found by the <code>conf.d</code> scan, the later scan skips it.</p>
+<p>A shared loaded-file set prevents duplicate policy rules. A separate include stack is retained so true include cycles are still errors.</p>
+<h3 id="47-merge-behavior">4.7 Merge behavior</h3>
+<p>Included/config-fragment tables merge recursively.</p>
+<p>Most lists concatenate so policy can be split across files while retaining first-match ordering.</p>
+<p>Two lists intentionally replace earlier values:</p>
+<pre class="text"><code>discovery.boundaries
+discovery.address_preference</code></pre>
+<p>This prevents an unlimited default boundary from remaining active beside a later site-specific restricted boundary.</p>
+<h2 id="5-dynamic-runtime-defaults">5. Dynamic runtime defaults</h2>
+<p>Some defaults cannot be fully resolved until the program is running.</p>
+<h3 id="51-worker-count">5.1 Worker count</h3>
+<p><code>workers = "auto"</code> resolves to:</p>
+<pre class="text"><code>(os.cpu_count() or 1) * 4</code></pre>
+<p>Workers are processes. Each worker then runs asyncio internally.</p>
+<h3 id="52-persistent-root">5.2 Persistent root</h3>
+<p><code>persistent_root = "auto"</code> checks existing directories in this order:</p>
+<pre class="text"><code>~/lldp-runner
+/opt/lldp-runner
+/var/lib/lldp-runner</code></pre>
+<p>The first existing candidate is authoritative. If it exists but is not writable, LLDP-Runner fails rather than silently moving durable state elsewhere.</p>
+<p>If none exists, the current working directory is used when writable.</p>
+<h3 id="53-scratch-root">5.3 Scratch root</h3>
+<p><code>scratch_root = "auto"</code> tries:</p>
+<pre class="text"><code>/dev/shm/lldp-runner
+/tmp/lldp-runner
+/var/tmp/lldp-runner
+&lt;persistent_root&gt;/tmp</code></pre>
+<p>Scratch locations may fall through because scratch data is intentionally relocatable.</p>
+<p>Every run uses <code>&lt;scratch_root&gt;/&lt;run-id&gt;/</code> plus an atomic relative <code>&lt;scratch_root&gt;/current</code> symlink while active. Live status is published separately below <code>&lt;scratch_root&gt;/scoreboard/</code>, so removal of a completed per-run scratch tree does not remove the terminal Watch/status snapshot. For successful terminal states, <code>paths.clean_scratch_when_completed = true</code> removes the run tree only after durable output/state publication, scoreboard archival, and coordinator resource closure. The current link is removed only if it still points to the completed run, preserving a newer concurrent owner. Overlap checks prohibit recursive cleanup when scratch resolves inside or above the persistent run/output directories.</p>
+<p>Inspection skips persistent/scratch probing because it produces stdout only.</p>
+<h2 id="6-seed-ingestion">6. Seed ingestion</h2>
+<h3 id="61-additive-sources">6.1 Additive sources</h3>
+<p>A discovery run may receive seeds from:</p>
+<pre class="text"><code>configuration discovery.seeds
+configuration discovery.seed_files
+configuration discovery.seed_dirs
+--seed
+--seed-file
+--seed-dir
+LLDP_RUNNER_SEEDS
+LLDP_RUNNER_SEED_FILES
+LLDP_RUNNER_SEED_DIRS
+stdin when --stdin is present</code></pre>
+<p>The sources are consolidated before discovery initialization.</p>
+<h3 id="62-plain-text-input">6.2 Plain-text input</h3>
+<p>Plain-text files contain one target per line.</p>
+<p>Blank lines and lines beginning with <code>#</code> or <code>;</code> after whitespace are ignored. For active lines, the first comma, semicolon, or hash starts trailing annotation.</p>
+<pre class="text"><code>core1.example.net, inventory comment
+192.0.2.10 ; temporary seed
+2001:db8::10 # IPv6 management</code></pre>
+<h3 id="63-seed-directories">6.3 Seed directories</h3>
+<p>Seed directories are recursive and deterministic.</p>
+<p>LLDP-Runner skips:</p>
+<pre class="text"><code>hidden files
+files below hidden directories
+names beginning with README
+names ending in .disabled
+names ending in .note</code></pre>
+<p>Files ending in <code>.csv</code> use the current <code>seeds.csv</code> field set through the shared dynamic-position CSV reader. Other files use the plain-text parser.</p>
+<h3 id="64-supported-seed-csv">6.4 Supported seed CSV</h3>
+<p>Only the current seed inventory schema is supported:</p>
+<pre class="text"><code>preferred_name,queried_as,ipv4,ipv6,credential_profile,credential_result,
+origin,state,last_seen,notes</code></pre>
+<p>The field names are required, but columns may appear in any order. Header matching is case-insensitive and extra columns are ignored. Legacy seed input field names are intentionally not guessed or accepted.</p>
+<p>A current seed row can carry a previous successful query target plus known IPv4 and IPv6 aliases. That allows a later run to retain useful management-address hints even when DNS is temporarily unavailable.</p>
+<p><code>discovery.seed_dns_mode</code> controls whether initial seed resolution always uses the resolver (<code>resolve</code>, the default) or can reuse a conservative combination of logical name + prior <code>queried_as</code> (<code>skip-addressed</code>). A successful/complete prior state is required when state metadata is present. IP-only and failed or mixed-state inputs still use normal DNS. This setting does not change learned managed-neighbor DNS enrichment. See <a href="docs-DNS.html">DNS.md</a>.</p>
+<h2 id="7-seed-identity-and-ordering">7. Seed identity and ordering</h2>
+<h3 id="71-first-stage-consolidation">7.1 First-stage consolidation</h3>
+<p>Repeated logical seed strings are merged while retaining useful address hints.</p>
+<h3 id="72-dns-and-authoritative-identity-correlation">7.2 DNS and authoritative identity correlation</h3>
+<p>During coordinator initialization, seeds are resolved and inserted into the central state store. Aliases can cause records to merge when evidence shows they refer to the same host.</p>
+<p>The final unique seed identities are known only after this stage.</p>
+<p>The initialization phase is explicitly logged before workers start. The console announces run type, configuration, raw seed count, seed-resolution start, a 30-second progress heartbeat for long resolution, completion counts, and the transition to discovery. <code>activity.log</code> receives additional structured counts and policy-state detail. See <a href="docs-RUN.html">RUN.md</a>.</p>
+<h3 id="73-seed-ordering">7.3 Seed ordering</h3>
+<p>Ordering is applied to the de-duplicated seed identities.</p>
+<p><code>input</code> keeps first-seen order.</p>
+<p><code>sorted</code> sorts case-insensitively by resolved preferred presentation name.</p>
+<p><code>random</code> computes a stable BLAKE2-based ordering from:</p>
+<pre class="text"><code>shuffle key + normalized preferred identity</code></pre>
+<p>If no shuffle key is supplied, one is generated for a new run and persisted. That means pause/resume does not reshuffle the remaining seeds.</p>
+<p>Seed rank is stored in SQLite and seed work is prioritized globally by rank. This prevents per-worker cohort ordering from defeating the requested seed order.</p>
+<h2 id="8-identity-and-duplicate-prevention">8. Identity and duplicate prevention</h2>
+<p>The SQLite <code>hosts</code> table remains the authoritative compatibility projection used by the current scheduler and external discovery output. Beginning with 0.31.5, immutable <code>observations</code> and typed <code>claims</code> preserve the factual input that produced that projection, while append-only <code>resolution_decisions</code> retain why an observation was assigned to a host and which later decision superseded it.</p>
+<p>Host evidence may include:</p>
+<pre class="text"><code>directly observed names
+IPv4 address claims
+IPv6 address claims
+chassis identity aliases
+SNMP sysName
+query target</code></pre>
+<p><code>StateStore.upsert_candidate()</code> looks for aliases and address claims that already map to hosts. Names and accepted chassis/MAC identities use globally owned alias rows. IPv4 and IPv6 values use a many-to-many claim table: a unique value can locate one host, while a repeated value becomes contested and cannot merge all claimants. This prevents processing order from assigning a common default, overlapping private, anycast, or vendor-bug address to whichever host appeared first.</p>
+<p>Subtype-aware chassis evidence includes its subtype, and binary MAC/network values must decode as the advertised type before participating in correlation. Malformed values remain observation evidence only. Device-local chassis subtypes such as interface name/alias and port/chassis component are not global host aliases. Beginning with 0.31.5, a network-address chassis value is a weak, edge-scoped claim and cannot independently select or merge hosts across links. A separately advertised management address remains an address claim. Address claims also pass a host-eligibility boundary: unspecified, loopback, multicast, IPv4 this-network/reserved, and limited-broadcast values are excluded. Private, CGNAT, benchmark, and link-local unicast values remain eligible.</p>
+<p>Before reusing an existing host, the state store normally rejects contradictory trusted chassis identities. A matching normalized name plus at least one shared management address is strong logical corroboration and can override a differing chassis ID; this supports platforms such as Nexus VDCs that advertise link-specific LLDP chassis MACs. A chassis-only match is still rejected when both sides have non-empty, disjoint names and management-address sets. When multiple compatible host records are proven to represent one identity, <code>StateStore._merge_hosts()</code> combines them.</p>
+<p>A merge must preserve important evidence, including:</p>
+<pre class="text"><code>seed provenance
+classification
+tags
+neighbor edges
+errors
+successful query/credential metadata when available</code></pre>
+<p>The coordinator, rather than workers, performs authoritative insertion and merging. This is a major duplicate-prevention design decision.</p>
+<p>Learned-neighbor DNS resolution is enrichment, not equivalent to a directly advertised identity claim. Resolver results can affect classification, presentation, query policy, and task construction, but only the direct protocol name is admitted to global name identity on that path. This prevents unrelated devices whose names resolve through the same frontend from merging.</p>
+<p>The 0.31.5 claim ledger classifies evidence independently along two axes: strength (<code>strong</code>, <code>moderate</code>, <code>weak</code>, or <code>diagnostic</code>) and scope (<code>global</code>, <code>physical_container</code>, <code>snmp_agent</code>, <code>observer</code>, <code>edge</code>, or <code>diagnostic</code>). Strict Cisco <code>SEP&lt;12-hex&gt;</code> and Cisco AP MAC-encoded names are strong derived hardware claims. DNS enrichment and repeated/default chassis addresses remain weak or diagnostic. Fingerprints exclude collection time, so replaying an identical normalized observation does not duplicate evidence. The current compatibility projection still performs some immediate merges; <a href="docs-CLAIMS.html">CLAIMS.md</a> describes this staged migration and its explicit limits.</p>
+<p>See <a href="docs-NAMES.html">NAMES.md</a> for detailed name/address normalization, presentation, identity-folding use cases, and duplicate-name collision guidance.</p>
+<h2 id="9-host-provenance">9. Host provenance</h2>
+<p>Each host has an internal <code>is_seed</code> flag.</p>
+<p><code>hosts.csv</code> exposes this as the grep-friendly <code>origin</code> field:</p>
+<pre class="text"><code>seed
+learned</code></pre>
+<p><code>seed</code> means the identity was explicitly presented as input.</p>
+<p><code>learned</code> means LLDP-Runner first obtained the identity from topology discovery.</p>
+<p>Origin is provenance, not current query state. A learned switch remains <code>learned</code> after recursive polling later succeeds.</p>
+<h2 id="10-classification-model">10. Classification model</h2>
+<p>Classification determines what LLDP-Runner believes a candidate represents.</p>
+<p>Current categories are:</p>
+<pre class="text"><code>managed_device
+managed_endpoint
+unmanaged_device
+unknown_device</code></pre>
+<p>Only positively classified managed devices are normally eligible for recursive SNMP work.</p>
+<p>Unknown hosts are retained as evidence but are not queried merely because they exist.</p>
+<h3 id="101-classification-precedence">10.1 Classification precedence</h3>
+<p>The current classification flow is conceptually:</p>
+<pre class="text"><code>explicit address rules
+  -&gt; explicit name rules
+  -&gt; composite evidence rules
+  -&gt; managed-endpoint patterns
+  -&gt; capability-based phone/AP inference
+  -&gt; unmanaged patterns
+  -&gt; LLDP station-only evidence
+  -&gt; managed manufacturer + network capability
+  -&gt; unknown</code></pre>
+<p>Earlier explicit rules are intended to override later heuristics.</p>
+<h3 id="102-dns-enriched-reclassification">10.2 DNS-enriched reclassification</h3>
+<p>A neighbor may initially be reported with a short name or only an address. When enabled, LLDP-Runner may resolve additional managed names before final state insertion and scheduling.</p>
+<p>The enriched candidate is classified again before recursive polling.</p>
+<p>This matters when site ownership policy depends on FQDN/domain naming.</p>
+<h3 id="103-evidence-rules">10.3 Evidence rules</h3>
+<p>Composite evidence rules can combine conditions such as:</p>
+<pre class="text"><code>name patterns
+address networks
+normalized neighbor fields
+protocol-specific detail fields</code></pre>
+<p>Alternatives within a list use OR semantics. Distinct configured condition kinds use AND semantics.</p>
+<p>Classification rules are first-match-wins.</p>
+<h3 id="104-tags">10.4 Tags</h3>
+<p>Tag rules use similar evidence but accumulate rather than stop at the first match. Tags are de-duplicated while retaining configuration order.</p>
+<h2 id="11-query-policy-and-discovery-boundaries">11. Query policy and discovery boundaries</h2>
+<p>Classification answers:</p>
+<pre class="text"><code>what kind of host is this?</code></pre>
+<p>Query policy answers:</p>
+<pre class="text"><code>may LLDP-Runner send queries to this host?</code></pre>
+<p>Discovery boundary answers:</p>
+<pre class="text"><code>is this address inside recursive discovery scope?</code></pre>
+<p>These are intentionally separate concepts.</p>
+<p>A host may be classified as a managed device but still be denied by query policy or outside the configured boundary.</p>
+<h3 id="111-boundary-rules">11.1 Boundary rules</h3>
+<p>Recursive discovery requires candidate query addresses to be in configured IPv4/IPv6 boundaries.</p>
+<p>An explicit <code>get-neighbors</code> target is allowed outside those boundaries for troubleshooting. The inspection result reports the boundary status.</p>
+<p>Inspect does not bypass explicit query-policy denies.</p>
+<h3 id="112-query-policy-matching">11.2 Query-policy matching</h3>
+<p>Query policy supports address and name rules. Explicit rules are evaluated according to their configured ordering and action.</p>
+<p>The default action is configurable and is <code>allow</code> in built-in defaults.</p>
+<h2 id="12-credential-selection">12. Credential selection</h2>
+<h3 id="121-explicit-site-credentials">12.1 Explicit site credentials</h3>
+<p>Configuration can define SNMPv2c and SNMPv3 authPriv credentials, named profiles, and address/name rules selecting those profiles.</p>
+<p>SNMPv3 supports configurable authentication/privacy protocol names while the built-in optional-field defaults favor SHA-1 and AES-128.</p>
+<h3 id="122-runtime-default-credentials">12.2 Runtime default credentials</h3>
+<p>For simple runs, LLDP-Runner can synthesize a lowest-priority runtime profile from:</p>
+<pre class="text"><code>SNMPCOMM
+SNMPUSER
+SNMPAUTH
+SNMPPRIV</code></pre>
+<p>The command-line credential options provide the same capability.</p>
+<p>If both v2c and v3 are available, <code>snmp.version</code> selects primary and the other version becomes fallback.</p>
+<p>If only one version is available, the same credential is allowed two attempts. LLDP-Runner does not create a fake second credential name for the same secret.</p>
+<p>Explicit configured credentials/profiles suppress the synthesized runtime profile.</p>
+<h3 id="123-cli-secret-indirection">12.3 CLI secret indirection</h3>
+<p>A CLI credential token is first interpreted as an environment-variable name. If that variable exists, its contents are used. Otherwise the token is literal.</p>
+<p>This permits:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SITE_COMM</span><span class="op">=</span><span class="st">&#39;example-community&#39;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> <span class="at">--community</span> SITE_COMM core1.example.net</span></code></pre></div>
+<p>without placing the secret directly in shell history.</p>
+<h2 id="13-device-task-construction">13. Device task construction</h2>
+<p>The coordinator builds a <code>DeviceTask</code> only for a host that is eligible to query.</p>
+<p>A task carries:</p>
+<pre class="text"><code>host ID
+preferred name
+known names
+ordered candidate addresses
+credential-profile attempts
+cohort assignment</code></pre>
+<p>Addresses are ordered according to <code>discovery.address_preference</code>.</p>
+<p>Each address is checked against recursive boundary and query policy before it is placed in the task attempt list.</p>
+<p>In seed-only mode, non-seed learned neighbors are deliberately not made READY.</p>
+<h2 id="14-multiprocessing-architecture">14. Multiprocessing architecture</h2>
+<h3 id="141-why-processes">14.1 Why processes</h3>
+<p>Worker processes isolate blocking/vendor-library behavior and let LLDP-Runner use multiple CPU/process contexts while the coordinator remains a single state owner.</p>
+<p>The process start method is <code>spawn</code>.</p>
+<p>Each worker has:</p>
+<pre class="text"><code>one work queue
+access to the shared result queue
+access to the shared log queue
+a shared pause event</code></pre>
+<h3 id="142-why-asyncio-inside-workers">14.2 Why asyncio inside workers</h3>
+<p>SNMP and ICMP are primarily I/O-bound. A worker can therefore keep multiple devices in flight without requiring one process per target.</p>
+<p>The architecture is:</p>
+<pre class="text"><code>multiprocessing across workers
+        +
+asyncio concurrency inside each worker</code></pre>
+<p>This provides horizontal concurrency while retaining per-worker limits.</p>
+<h2 id="15-cohorts-and-work-stealing">15. Cohorts and work stealing</h2>
+<p>Hosts receive deterministic cohort assignments. The coordinator claims READY work for idle workers in batches according to <code>discovery.batch_size</code>.</p>
+<p>Before a READY row is claimed, the state owner conservatively reconciles inactive duplicate managed-host projections that have compatible direct logical names, at least one shared identity-eligible management address, and no hard identity conflict. Compatibility permits exact names or one short name with the same left-most FQDN component; two FQDNs are never matched by suffix removal. A direct SNMP <code>sysName</code> is authoritative for this narrow reconciliation even when one temporary row carries a different shadow presentation alias. Different per-link chassis IDs may be tolerated only when that direct logical name and a management address agree; they remain conflicting for transitive rows that do not share an address. Serial, SNMP-engine, strict-MAC, and logical-name conflicts always block the merge. A READY row is not dispatched while an equivalent projection is already in an active worker state. After all workers stop, the coordinator runs the same reconciliation once more before materializing final output. This boundary prevents redundant polling without allowing a shared Nexus chassis serial, a weak reused address, or a transitive identity-poor bridge to merge distinct logical systems. Completed results outrank failed duplicates, while a READY alternate outranks a failed projection so an untried route is not silently discarded. Seed status and rank are merged independently and do not require the seed row to win.</p>
+<p>The state store can allow work stealing when configured, so idle workers are not permanently blocked by uneven cohort response times.</p>
+<p>Seed ranks take priority over normal cohort ordering for pending seed work.</p>
+<h2 id="16-worker-wavefront-behavior">16. Worker wavefront behavior</h2>
+<p>A worker batch has two broad phases.</p>
+<h3 id="161-basic-wavefront">16.1 Basic wavefront</h3>
+<p>For every unresolved device in the cohort, the worker performs one logical credential/query attempt per wave.</p>
+<p>Conceptually:</p>
+<pre class="text"><code>for each unresolved device:
+    if this address has not been pinged:
+        send configured ICMP wake-up probes
+
+wait configured inter-wave delay
+
+concurrently attempt one basic SNMP query per unresolved device
+
+for each failure:
+    advance retry, fallback credential, or alternate address
+
+repeat until success, exhaustion, or pause</code></pre>
+<p>The basic SNMP collection obtains system identity data needed to establish that SNMP works and to guide later collection/classification.</p>
+<h3 id="162-icmp-behavior">16.2 ICMP behavior</h3>
+<p>Each newly selected address receives its own configured probes before its first SNMP attempt.</p>
+<p>Retries or fallback credentials on the same address do not trigger another pair of wake-up probes.</p>
+<p>ICMP is not an SNMP gate. A ping failure does not prevent SNMP from being tried.</p>
+<h3 id="163-detailed-collection">16.3 Detailed collection</h3>
+<p>After basic success, each successful device runs a per-device collector chain. Multiple successful devices can be active concurrently, bounded by <code>snmp.max_outstanding_devices_per_worker</code>.</p>
+<p>Within one device's chain, collection is deliberately narrow/serial enough to avoid excessive simultaneous requests to one SNMP agent.</p>
+<p>The detail path currently includes:</p>
+<pre class="text"><code>optional ENTITY-MIB enrichment
+IF-MIB interface collection
+LLDP-MIB collection
+LLDP-V2-MIB collection
+CISCO-CDP-MIB collection when applicable
+one shared-delay stability pass for eligible failed neighbor protocols
+neighbor observation merge</code></pre>
+<p>LLDP, LLDPv2, CDP, IF-MIB, and other table operations share one degraded transport profile for the target address and credential route. Normal retry accounting has operation and collector-family limits plus two pools. SYSTEM-MIB, ENTITY-MIB, IF-MIB, and other general collectors consume the shared target pool. LLDP-family and CDP collectors first consume a protected neighbor reserve that general work cannot use, then may fall back to the shared pool. LLDP and LLDPv2 share one normal fair-share family; CDP has its own. This prevents early identity/interface collection or several walks inside one collector from starving later topology protocols while keeping all normal retries bounded.</p>
+<p>LLDP and LLDPv2 validate that every remote row contains mandatory chassis-ID and Port-ID subtype/value pairs. CDP validates the complete cache snapshot before materialization: every usable row requires device ID and remote port, all cache-indexed columns must agree, and a partial new row caused by mid-table mutation invalidates the snapshot. A structurally invalid snapshot is discarded and restarted from its root with the persistent degraded profile. Repeated CDP failure records <code>structurally_invalid</code> coverage and cannot create an identity-empty host or edge.</p>
+<p>A management-address subtable exception is not converted into a successfully empty LLDP table, preserving the difference between "no management address advertised" and "management-address collection failed." Every interrupted table discards partial rows before restart.</p>
+<p>After all enabled neighbor collectors finish their first pass, the worker can perform one delayed stability phase. Final timeout and structurally invalid LLDP, LLDPv2, or CDP outcomes share one target-local quiet-period delay. Each eligible protocol then gets one fresh session and one full collection from its root. Normal transport and structural retries are suppressed inside that final pass, so it cannot multiply into another retry tree. Stability accounting is separate from the normal shared/reserved pools, and each protocol can consume it only once. A recovered protocol replaces its failed first-pass outcome; a persistent failure remains explicit coverage loss without affecting protocols that completed successfully.</p>
+<h2 id="17-snmp-client-abstraction">17. SNMP client abstraction</h2>
+<p>Collectors depend on the project-owned SNMP client interface rather than on the coordinator knowing Gufo- or PySNMP-specific details.</p>
+<p>Version 0.37.0 resolves <code>snmp.backend</code> to <code>gufo</code> or <code>pysnmp</code> after the complete configuration precedence chain. PySNMP is the default; Gufo remains available through explicit selection. Runtime-only selection fields bind the name and installed distribution version once, survive the worker spawn boundary, and reject later mutation. The factory imports only the selected adapter and contains no exception-driven fallback.</p>
+<p>The shared credential model is checked against an explicit capability record for the selected adapter. Gufo accepts SHA-1/MD5 authentication and AES-128/DES privacy. PySNMP accepts that common subset plus SHA-256 authentication, <code>aes256</code> as the Reeder/Cisco <code>USM_PRIV_CFB256_AES</code> mapping, and <code>aes256-blumenthal</code> as <code>USM_PRIV_CFB256_AES_BLUMENTHAL</code>. Neither adapter uses an <code>else</code> branch to turn an unknown name into a different algorithm, and Gufo rejects PySNMP-only names before secret or network work.</p>
+<p>Before manifest mutation or discovery, the coordinator compares the effective backend with SQLite run metadata. A real resume with no backend metadata, or a resume selecting a different backend, fails. <code>run.json</code> stores the logical-run backend plus the backend/version used by each invocation. This preserves one transport interpretation throughout the run without changing discovery, graph, or diff schemas.</p>
+<p>The default change does not migrate durable state. A Gufo run must continue to resolve explicitly to Gufo when resumed. An omitted setting now resolves to PySNMP and is rejected against Gufo run metadata before workers or network work.</p>
+<p>After that durable resume check, 0.37.0 derives the set of PySNMP SNMPv3 privacy algorithms reachable through configured profiles and direct seed credentials. Only protocol names are inspected; secret accessors are never called. If authPriv is reachable, a local preflight verifies PySNMP's supported 7.1 asyncio API, <code>cryptography&gt;=50.0</code>, and fixed-byte AES-128/AES-256/DES cipher operations before manifest creation, seed resolution, workers, or network I/O. Both AES-256 localization variants use a 32-byte AES key in this provider probe; PySNMP owns the distinct localization algorithms used for the real USM request. Gufo and PySNMP v2c-only paths skip this preflight. A mixed run may probe authPriv once for another reachable route, but the v2c transport does not use cryptography. A local capability failure cannot spend transport retry budget or be mistaken for remote authentication failure.</p>
+<p>The 0.37.0 AES probe imports CFB from cryptography's decrepit modes namespace. For PySNMP 7.1.29's remaining old-namespace access during a real AES request, the adapter installs one process-level filter restricted to the exact cryptography deprecation category, complete message, and PySNMP AES module. It is installed only for a v3 AES-128 or AES-256 route and deliberately leaves all neighboring warnings visible.</p>
+<p>The PySNMP adapter owns one asynchronous <code>SnmpEngine</code> per opened route session, uses family-specific IPv4/IPv6 targets with <code>retries=0</code>, normalizes native varbinds and failures at the adapter boundary, and closes the dispatcher on all exit paths. Its remote SNMPv3 engine ID is captured from the received response security context. The local manager engine ID is never device identity.</p>
+<p>Important SNMP controls include:</p>
+<pre class="text"><code>snmp.backend
+snmp.timeout_seconds
+snmp.max_repetitions
+snmp.per_device_rps
+snmp.retry_per_operation
+snmp.retry_per_collector
+snmp.retry_total_cap
+snmp.retry_neighbor_reserve
+snmp.structural_table_retry
+snmp.retry_timeout_multiplier
+snmp.retry_max_repetitions_multiplier
+snmp.retry_min_max_repetitions
+snmp.retry_inter_pdu_delay_ms
+snmp.neighbor_stability_retry
+snmp.neighbor_stability_retry_delay_seconds
+snmp.max_outstanding_devices_per_worker
+snmp.inter_wave_delay_seconds
+snmp.report_metrics</code></pre>
+<p><code>timeout_seconds</code> applies to one SNMP request/response operation, not the total time required to query a device or walk several tables. One adaptive state belongs to one target address and credential route and follows a successful target from basic into detail collection.</p>
+<p>The first retry-eligible timeout or structural table failure degrades the transport profile. The default profile multiplies timeout by <code>1.5</code>, multiplies GETBULK <code>max_repetitions</code> and GET-MANY batch size by <code>0.5</code> with upward rounding, and adds <code>100</code> milliseconds of pacing. The backend session is reopened using the new values. Later operations on the same route start with that slower profile. Each operation and collector family can retry once by default. General collectors share three target retries; LLDP-family and CDP also share two protected neighbor retries. A separate optional final pass waits two seconds once per affected target and retries each eligible failed neighbor protocol exactly once. The profile and counters reset for the next target or credential route.</p>
+<p>Every retry and exhaustion event records target, collector/family, logical operation, table, root OID, credential route/profile, collection phase, pool, attempt and retry counts, before/after timeout and work size, pacing, discarded partial rows, and final outcome. Stability events also record the quiet-period delay. Authentication, access restriction, unsupported OIDs, and other definitive non-performance failures do not consume adaptive retry capacity.</p>
+<p>Explicit <code>noAccess</code>, <code>authorizationError</code>, VACM, or equivalent access/view denials are normalized as <code>snmp_access_restricted</code>, written to the activity log, and retained in structured errors. Optional IF-MIB, LLDP local-port, and ENTITY-MIB fallback paths re-raise this category rather than silently treating it as an empty or unsupported table. An empty table or <code>noSuchObject</code> alone is not labeled an ACL/view failure because those results can also mean the MIB is not implemented.</p>
+<p>Collection telemetry is backend-neutral. A wrapper around the project-owned SNMP client counts returned varbinds from scalar, multi-get, and walk operations before collectors filter/group them. Timers measure the complete collector call. <code>get-neighbors</code> always keeps these metrics in memory. Full discovery collects and persists them only when <code>snmp.report_metrics=true</code>. This avoids Gufo-specific request hooks and makes the telemetry reusable with a future backend.</p>
+<p>Single-device tracing follows the complete get-neighbors network path. Resolver helpers report the logical OS resolver calls/results, the ICMP pinger reports concrete raw/system backend attempts and replies/timeouts, and an SNMP tracing wrapper records each logical scalar/multi-get/walk request and every varbind returned to LLDP-Runner. The SNMP trace deliberately does not depend on Gufo's internal GETNEXT/GETBULK packet strategy, so diagnostics remain meaningful if the backend changes. Resolver tracing similarly describes calls/results rather than claiming packet-level DNS visibility through NSS.</p>
+<h2 id="18-neighbor-collection-and-normalization">18. Neighbor collection and normalization</h2>
+<p>A <code>NeighborObservation</code> captures normalized edge evidence such as:</p>
+<pre class="text"><code>protocol
+local interface
+remote name
+remote interface
+management addresses
+remote description/platform
+capabilities
+chassis ID
+chassis ID subtype
+remote Port ID and Port ID subtype evidence
+protocol-specific details</code></pre>
+<p>LLDP and LLDPv2 preserve both textual chassis subtype and numeric subtype ID. They also preserve decoded remote <code>port_id</code>, textual <code>port_id_subtype</code>, numeric <code>port_id_subtype_id</code>, and <code>port_description</code> values in protocol/edge details. Port ID subtype numbering is intentionally decoded separately from chassis-ID numbering.</p>
+<p>Local interface identity is also typed. CDP and LLDPv2 table rows use IF-MIB <code>ifIndex</code>; original LLDP uses <code>lldpRemLocalPortNum</code>, which indexes <code>lldpLocPortTable</code> and is not assumed to be the same numeric namespace. A resolved row retains its operator-facing interface name and protocol index. An unresolved row is rendered as <code>ifIndex:&lt;n&gt;</code> or <code>lldpLocalPort:&lt;n&gt;</code> rather than a bare number that could be mistaken for a stable name.</p>
+<p>IF-MIB interface-name collection uses the same target-level adaptive retry policy as other SNMP operations. If the final map is unavailable, or a protocol row cannot be mapped, the worker persists collection-coverage errors such as <code>cdp_interface_resolution</code> or <code>lldp_interface_resolution</code>. Discovery preserves the row instead of discarding useful topology. An identical typed unresolved edge in two runs is stable topology; the coverage gap remains visible without manufacturing a change.</p>
+<p>Some Cisco IOS agents provide an IF-MIB mapping for CDP while the original LLDP local-port table does not provide a usable name. One such unresolved LLDP row can attach to one resolved CDP edge when exactly one candidate has the same protocol-local numeric index, exact remote port, and corroborating endpoint identity. The resolved CDP interface is used for the edge projection, while the raw <code>lldpLocalPort:&lt;n&gt;</code> value remains in <code>lldp.*</code> evidence. This is a one-edge inference and never establishes a device-wide numeric namespace equivalence.</p>
+<p>Remote-table rows are assembled with their complete MIB index context rather than by local/remote port alone. Original LLDP retains <code>timeMark</code>, local-port number, and remote index in its row key. LLDPv2 also retains the local destination-MAC index context. <code>time_mark</code> is exposed diagnostically but diff treats it as volatile table location rather than logical topology identity.</p>
+<p>Multiple observations that represent the same relationship can be merged while retaining protocol provenance such as:</p>
+<pre class="text"><code>cdp
+lldp
+lldpv2
+cdp,lldp</code></pre>
+<p>The strict same-link reconciliation path first requires matching normalized local and remote interfaces. Exact logical names can reconcile across protocols even when their advertised address sets differ. A plausible trailing <code>name(serial)</code> advertisement is separated into raw advertisement, logical base name, and serial hint. The base can compare with an undecorated protocol name and can be used for DNS lookup. The serial hint becomes a moderate, non-merging physical-container claim until direct serial evidence corroborates it. This allows separately named/addressed Nexus VDCs to share physical-chassis evidence without collapsing their logical identities.</p>
+<p>A second corroborated path handles endpoints for which CDP and LLDP use different remote-port representations. For ordinary names it requires the same normalized local switch interface, compatible names, and at least one shared usable address. A protocol management address normally supplies that evidence; an LLDP chassis ID explicitly typed as <code>network_address</code> can corroborate the same address without being relabeled as a management-address TLV.</p>
+<p>Ordinary compatible names can be exact, or one side can be a single-label short name while the other is that exact host label followed by a domain suffix. This is an edge-scoped rule only: two FQDNs are not matched just because their first labels agree, and no suffix-derived global alias is created.</p>
+<p>Cisco phones and video endpoints have a separate strict identity rule beginning with 0.31.2. A left-most host component matching <code>SEP</code> plus exactly twelve hexadecimal characters contributes the embedded endpoint MAC as durable identity. For example:</p>
+<pre class="text"><code>CDP   SEP001234560004                  / Port 1
+LLDP  SEP001234560004.voice-a.example.com  / 001234560004:P1
+MAC   00:12:34:56:00:04</code></pre>
+<p>The same MAC is also derived from <code>SEP001234560004.voice-b.example.net</code>. This is intentionally not a generic suffix rule. Names that do not match the exact <code>SEP&lt;12-hex&gt;</code> host-component pattern do not gain MAC identity from their text.</p>
+<p>On the same local switch interface, equal strict SEP identity can reconcile the CDP/LLDP rows even if one collection lacks the LLDP management-address row. The normalized edge prefers the richer LLDP typed Port ID while protocol-specific names, ports, addresses, descriptions, capabilities, and chassis evidence remain under <code>cdp.*</code> and <code>lldp.*</code> details. Because reconciliation occurs before state insertion, the same decision feeds both the observer's <code>learned_neighbors</code> and the remote host's reciprocal <code>observed_by_neighbors</code> list.</p>
+<p>Beginning with 0.31.3, disjoint strict SEP-derived MAC identities are also an explicit state-layer conflict. This check occurs before generic shared-address correlation. It prevents a repeated endpoint address or <code>network_address</code> chassis value from transitively folding unrelated phones into the first host that claimed that address. Equal SEP MAC identity remains a strong positive signal; different SEP MAC identity is a strong negative signal.</p>
+<p>CDP <code>cdpCacheAddress</code> is explicitly preserved as entry-address evidence. When a CDP observation reconciles with LLDP, the normalized edge keeps LLDP management addresses first for human display while retaining all unique addresses and both protocols' raw evidence.</p>
+<h2 id="19-text-and-binary-snmp-sanitation">19. Text and binary SNMP sanitation</h2>
+<p>SNMP OCTET STRING values are normalized centrally before entering formal output.</p>
+<p>The sanitation path aims to:</p>
+<pre class="text"><code>preserve valid printable Unicode
+normalize embedded tab/newline separators
+remove dangerous control characters
+render binary/invalid UTF-8 values as printable hex
+normalize binary LLDP MAC/network chassis IDs by subtype
+normalize binary LLDP/LLDPv2 MAC/network Port IDs by the Port ID subtype</code></pre>
+<p>CSV and JSON output also apply a final safety boundary so resumed/older state or a future collector mistake does not write raw control bytes into formal output.</p>
+<h2 id="20-neighbor-candidate-processing">20. Neighbor candidate processing</h2>
+<p>When a worker returns a neighbor, the coordinator:</p>
+<pre class="text"><code>1. converts the observation into a candidate identity;
+2. resolves/enriches managed names when configured;
+3. classifies the enriched candidate;
+4. computes applicable tags;
+5. upserts or merges the candidate into central state;
+6. records the topology edge from source to remote host;
+7. decides whether the remote host may become queryable work.</code></pre>
+<p>Workers do not independently recurse.</p>
+<p>That design avoids two workers discovering the same switch and both deciding to query it before a central duplicate check occurs.</p>
+<h2 id="21-topology-edge-direction">21. Topology edge direction</h2>
+<p>LLDP-Runner stores an edge from the device that reported the neighbor toward the reported remote identity.</p>
+<p>Outputs deliberately expose two perspectives on every host.</p>
+<h3 id="211-learned_neighbors">21.1 <code>learned_neighbors</code></h3>
+<p>These are relationships learned directly by querying the current host.</p>
+<pre class="text"><code>current host --reported--&gt; neighbor</code></pre>
+<h3 id="212-observed_by_neighbors">21.2 <code>observed_by_neighbors</code></h3>
+<p>These are inbound observations where some other queried device reported the current host.</p>
+<pre class="text"><code>observer --reported--&gt; current host</code></pre>
+<p>Keeping the two directions separate is important for failed or intentionally unpolled hosts. Such a host may have no learned neighbors of its own but can still have strong inbound evidence showing where it was observed.</p>
+<h2 id="22-state-store">22. State store</h2>
+<p>SQLite is the authoritative run/checkpoint store.</p>
+<p>The coordinator is the only process that mutates discovery state.</p>
+<p>Key tables include:</p>
+<pre class="text"><code>meta                  run status and operational metadata
+observations          immutable normalized collection inputs
+claims                immutable typed evidence with provenance/scope/strength
+resolution_decisions  append-only projection history with supersession links
+decision_claims       supporting/conflicting evidence for each decision
+hosts                 current compatibility projection and scheduling state
+aliases               globally owned names, MACs, accepted chassis identities
+host_addresses        many-to-many IPv4/IPv6 compatibility claims
+host_tags             accumulated operator tags
+neighbors             directed topology edges and protocol evidence
+errors                structured operational/device errors</code></pre>
+<p>SQLite triggers reject UPDATE and DELETE operations against observations, claims, resolution decisions, and their claim links. A materially different conclusion appends a decision whose <code>supersedes_decision_id</code> points to the prior conclusion. This makes the evidence and reasoning history reversible for audit and future replay. The 0.31 maintenance projection does not yet rebuild every current host/edge exclusively from the ledger.</p>
+<p>The host projection also retains adaptive SNMP session telemetry and audit-only local-interface observation groups. These additive records describe collection behavior and complex many-neighbor ports; they do not replace the current <code>neighbors</code> table or make direct/indirect graph decisions.</p>
+<p>SQLite uses WAL behavior during normal operation and performs an explicit full checkpoint on controlled pause/finalization.</p>
+<p>This avoids an external Redis/database dependency while still supporting pause and resume.</p>
+<h2 id="23-host-state-lifecycle">23. Host state lifecycle</h2>
+<p>Exact transitions depend on policy and outcomes, but the conceptual flow is:</p>
+<pre class="text"><code>DISCOVERED
+   |
+   +-- policy/boundary deny ------&gt; NO_QUERY / OUT_OF_SCOPE style state
+   |
+   v
+READY
+   |
+   v
+CLAIMED
+   |
+   +-- successful worker result --&gt; COMPLETE
+   |
+   +-- exhausted worker result ---&gt; FAILED
+   |
+   +-- pause/defer ---------------&gt; READY/deferred path</code></pre>
+<p><code>CLAIMED</code> is a transient worker ownership state. It is normal for a CLAIMED host to have no successful <code>query_target</code> yet.</p>
+<p>A COMPLETE managed device without a query target is an integrity error because a successful basic SNMP query necessarily used an address.</p>
+<h2 id="24-seed-inventory-validation">24. Seed inventory validation</h2>
+<p>Periodic/final output generation checks seed inventory consistency.</p>
+<p>Transient states such as READY or CLAIMED do not create permanent <code>missing_query_target</code> errors merely because no successful address has been established yet.</p>
+<p>If an older/stale transient error exists and the host later gains a valid query target, the stale error is removed.</p>
+<p>Terminal inconsistencies, especially COMPLETE with no query target, remain reportable.</p>
+<h2 id="25-discovery-guardrails">25. Discovery guardrails</h2>
+<h3 id="251-finite-max_devices">25.1 Finite <code>max_devices</code></h3>
+<p>A positive value is a recursive managed-device guardrail.</p>
+<p>After seed DNS/identity de-duplication and before workers start, LLDP-Runner checks whether the unique managed seed inventory already exceeds the limit.</p>
+<p>If it does, initialization fails fast with <code>SEED_LIMIT_EXCEEDED</code> rather than querying an arbitrary subset.</p>
+<h3 id="252-max_devices--0">25.2 <code>max_devices = 0</code></h3>
+<p>Zero disables the managed-device count guardrail. Recursive discovery may continue without a device-count ceiling, subject to other policy and limits.</p>
+<h3 id="253-max_devices--auto">25.3 <code>max_devices = "auto"</code></h3>
+<p><code>auto</code> is not just a numeric substitution. It is seed-only scheduling mode.</p>
+<pre class="text"><code>query every unique seed
+collect its CDP/LLDP neighbors
+record/classify/output those neighbors
+do not schedule learned non-seed neighbors for SNMP</code></pre>
+<p>The effective numeric count is recorded as the unique seed-device count for metadata, but recursion is prevented by scheduler admission logic.</p>
+<p>After non-seed work is suppressed, the coordinator also knows the complete remaining SNMP workload. It derives an effective seed-only execution plan from:</p>
+<pre class="text"><code>READY seed count
+configured workers
+configured batch_size
+snmp.max_outstanding_devices_per_worker</code></pre>
+<p>Per-worker first-wave capacity is the smaller of configured batch size and the per-worker asynchronous-device limit. The coordinator launches no more workers than are needed to cover that known first wave and can reduce batch size to balance a small seed population across those workers. It never increases a configured limit.</p>
+<p>For example, 10 READY seeds with 64 configured workers, batch size 9, and an outstanding-device limit of 24 resolve to two effective workers with batch size five. Nine READY seeds under the same settings resolve to one worker with batch size nine.</p>
+<p>On resume, pending non-seed work left by a prior recursive mode is suppressed before the execution plan is recalculated from the remaining READY seeds.</p>
+<h3 id="254-max_hosts">25.4 <code>max_hosts</code></h3>
+<p>A positive <code>max_hosts</code> limits host identification.</p>
+<p>Zero disables the host guardrail.</p>
+<p>In recursive mode, the guardrail counts all host identities.</p>
+<p>In seed-only mode, explicit seeds are sampling points and do not consume the host threshold. Learned non-seed identities do.</p>
+<p>Because workers are concurrent, the final number can exceed the threshold when results already in flight discover additional hosts.</p>
+<p><code>max_hosts</code> is therefore a stopping threshold, not an exact sample-size feature.</p>
+<h2 id="26-limit-completion-behavior">26. Limit completion behavior</h2>
+<p><code>limit_behavior = "pause"</code> treats a reached guardrail as a resumable stop.</p>
+<p>The final status is:</p>
+<pre class="text"><code>LIMIT_REACHED</code></pre>
+<p><code>limit_behavior = "complete"</code> treats the threshold as an intentional endpoint.</p>
+<p>The final status is:</p>
+<pre class="text"><code>COMPLETED_LIMIT</code></pre>
+<p>Normal final outputs are produced and the completion reason is recorded.</p>
+<p>This mode is useful for bounded/randomized topology sampling.</p>
+<h2 id="27-pause-and-resume">27. Pause and resume</h2>
+<p>A run can be asked to pause through:</p>
+<pre class="text"><code>lldp-runner pause
+pause.request indicator file
+SIGINT
+SIGTERM
+SIGUSR1</code></pre>
+<p>On pause request:</p>
+<pre class="text"><code>stop dispatching new work
+allow/defer bounded in-flight activity
+stop workers
+write/checkpoint state
+write draft output and scoreboard
+mark run PAUSED</code></pre>
+<p>A later invocation can find a resumable run when resume is enabled.</p>
+<p>Active CLAIMED work is reset so it can be attempted again safely.</p>
+<p>Worker-process death causes affected batch hosts to be deferred and the run to move toward a controlled pause rather than silently losing the work.</p>
+<h2 id="28-coordinator-loop">28. Coordinator loop</h2>
+<p>The central loop is conceptually:</p>
+<pre class="text"><code>start workers
+while run is active:
+    check pause indicator
+    check worker health
+    check limits
+    dispatch READY work to idle workers
+    consume returned worker batches
+    process results and discovered neighbors
+    periodically write scoreboard
+    periodically write draft outputs
+
+    if pausing and all workers are idle:
+        stop
+
+    if no READY/active work and workers are idle:
+        complete
+
+stop workers
+checkpoint SQLite
+finalize or retain draft output according to final status</code></pre>
+<p>Successful finalization also maintains two atomic relative aliases. Output publication sets <code>&lt;persistent_root&gt;/&lt;output_dirname&gt;/latest</code> to the completed output directory. After the state database and log listener have closed, post-completion handling sets <code>&lt;persistent_root&gt;/&lt;runs_dirname&gt;/latest</code> to the durable run directory and then performs optional completed-scratch cleanup. Both alias operations are preflighted during initialization. Resume enumeration ignores symlink entries so <code>runs/latest</code> can never be mistaken for a resumable run ID.</p>
+<p>The current workers return a completed batch to the coordinator rather than streaming each individual device result as soon as that device finishes.</p>
+<p>This is simple and deterministic, but a slow cohort member can delay visibility of faster results from the same batch.</p>
+<h2 id="29-timezone-policy-and-run-id-allocation">29. Timezone policy and run-ID allocation</h2>
+<p><code>[time].timezone</code> defines one process-wide wall-clock policy for logs, terminal summaries, persisted state/observation timestamps, scoreboards, and run-ID <code>strftime</code> expansion. <code>eastern</code> remains the compatibility default; <code>utc</code>, <code>local</code>, and IANA names such as <code>America/Denver</code> are supported. Because workers use multiprocessing <code>spawn</code>, each worker initializes the configured timezone before logging or collecting timestamped observations.</p>
+<p><code>paths.run_id_format</code> defaults to <code>%Y%m%d-%H%M%S-%Z</code>, preserving historical names. The formatter accepts safe literal filename characters, documented <code>strftime</code> directives, and at most one <code>{counter}</code> token. Counter allocation is stateless: LLDP-Runner scans run/state, final-output, and scratch namespaces, uses the highest matching integer plus one, and renders <code>00</code> through <code>99</code>. A next value above <code>99</code> fails before discovery and directs the operator to review <code>paths.runs_dirname</code>/<code>paths.run_id_format</code> or use a higher-precision timestamp.</p>
+<p>Two-digit padding preserves lexical numeric order within one counter namespace, so the existing reverse lexical automatic-resume scan works for names such as <code>run-09</code> and <code>run-10</code>. The same shortcut cannot infer chronology across mixed historical naming schemes; sites should keep an incomplete resumable namespace lexically ordered when changing formats.</p>
+<h2 id="30-scoreboards-and-activity-logging">30. Scoreboards and activity logging</h2>
+<p>Workers send log records to a central log queue. The coordinator owns the listener and independently enables console and file destinations.</p>
+<p>The defaults are:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[logging]</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="dt">level</span> <span class="op">=</span> <span class="st">&quot;INFO&quot;</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="dt">console</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="dt">file</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="dt">filename</span> <span class="op">=</span> <span class="st">&quot;activity.log&quot;</span></span></code></pre></div>
+<p>A relative <code>filename</code> is resolved beneath the current run-ID directory. An absolute pathname is used directly so an operator can centralize logs, for example under <code>/var/log</code>. <code>~</code> is expanded before the relative versus absolute decision. Relative paths containing <code>..</code> are rejected so a relative name cannot silently escape the run directory. Enabled file logs are opened explicitly in append mode; an existing centralized file is never truncated. An append-open failure is raised during coordinator construction, before workers start, and is reported by the CLI on standard error.</p>
+<p>When <code>file=false</code>, no file handler or file parent directory is created and the terminal summary reports <code>Activity log: disabled</code>. When both <code>console=false</code> and <code>file=false</code>, the logging queue is still drained safely but records have no external destination.</p>
+<p>The live scoreboard is written below <code>&lt;scratch_root&gt;/scoreboard/</code> in text and JSON forms. The scoreboard includes configured/effective worker and batch values for the current execution plan; seed-only runs also show the READY seed count used to right-size the plan. This shared publication survives successful per-run scratch cleanup.</p>
+<p><code>lldp-runner status</code> reads the stable text scoreboard.</p>
+<p><code>lldp-runner status --json</code> reads the stable JSON scoreboard.</p>
+<p><code>lldp-runner watch</code> reopens the JSON scoreboard on each source refresh and renders a no-scroll interactive terminal dashboard. Reopening is important because scoreboards are atomically published with <code>os.replace</code>; a changed run ID lets the monitor follow a new run without relying on the <code>current</code> symlink. The watcher compares structured snapshots rather than terminal text, so metric and worker changes can be emphasized semantically.</p>
+<p>After <code>COMPLETED</code> or <code>COMPLETED_LIMIT</code>, the exact in-memory terminal snapshot is atomically archived as <code>scoreboard.txt</code> and <code>scoreboard.json</code> below the durable run directory. When automatic completed-scratch cleanup is disabled, the same snapshot is also archived below the per-run scratch directory. Retaining the rendered snapshot avoids a race in which a later run replaces the shared live files before archival.</p>
+<p>Beginning in v0.25.0 the live JSON scoreboard declares <code>scoreboard_schema = 1</code>. This version is independent from the canonical <code>discovery.json</code> schema. The first watch schema contains run/start/state/timing, aggregate counters, execution-plan data, and per-worker state/batch/size data.</p>
+<p><code>status</code> and <code>watch</code> validate applicable configuration with the credential subsystem disabled entirely and resolve scratch storage without write-probing it. That mode also stops before runtime SNMP backend selection; read-only commands never construct or initialize either transport adapter. <code>clean</code> and <code>purge</code> use the same disabled configuration mode for local retention maintenance. <code>clean</code> removes durable/scratch run history below <code>&lt;persistent_root&gt;/&lt;runs_dirname&gt;/</code> and recognized historical scratch run directories directly below <code>&lt;scratch_root&gt;/</code>. It also removes the dedicated <code>&lt;scratch_root&gt;/scoreboard/</code> publication directory. Historical cleanup preserves the newest run plus the runs selected by scratch <code>current</code> and durable-output <code>latest</code>. Finalized output directories are not removed by <code>clean</code>. <code>purge</code> acts only on finalized output directories and preserves <code>latest</code> plus the configured/CLI additional retention count. <code>pause</code> does not require currently available SNMP secrets but remains a run-control operation rather than a read-only viewer.</p>
+<h2 id="31-draft-and-final-output">31. Draft and final output</h2>
+<p>During a running discovery, LLDP-Runner periodically writes draft files, normally in scratch storage.</p>
+<p>On successful completion or intentional completed-limit termination, final files are copied/moved into the run-ID persistent output directory and the <code>latest</code> symlink is updated.</p>
+<p>Paused/limit/interrupted runs retain state and draft material suitable for review and, where applicable, resume.</p>
+<p>Coordinator construction performs a narrow storage preflight before discovery. It verifies atomic file output in the exact scratch run directory and the final run-ID persistent-output directory, then verifies temporary symlink publication in the output root. A newly created final-output directory is removed after a successful probe so preflight does not create a false completed run. SQLite state creation and the activity-log append-open provide their own early exercised path checks. Preflight reduces predictable end-of-run failures but cannot guarantee later capacity, quota, or remote-filesystem availability.</p>
+<h2 id="32-formal-output-files">32. Formal output files</h2>
+<h3 id="320-runjson">32.0 <code>run.json</code></h3>
+<p>Completed discovery runs publish schema-versioned <code>run.json</code> launch provenance beside <code>discovery.json</code>. The first keys are <code>schema_version</code>, <code>app_name</code>, and <code>app_version</code>; application identity comes from the package runtime constants. The document records logical run ID/status, timezone-aware <code>started</code> and <code>completed</code> timestamps, elapsed <code>duration</code> in seconds, the OS account that started the run, and a resume-aware <code>invocations[]</code> history. Schema 3 also records these nonnegative wall-clock phase metrics:</p>
+<pre class="text"><code>discovery_duration
+graph_resolution_duration
+graph_serialization_duration
+output_publication_duration
+finalization_duration
+total_wall_clock_duration</code></pre>
+<p><code>duration</code> retains the established persisted logical boundary from <code>started</code> to discovery-complete <code>completed</code>. <code>discovery_duration</code> measures the active invocation to worker shutdown. <code>finalization_duration</code> measures from that boundary through graph/output generation, publication, checkpointing, and final scoreboard work. <code>total_wall_clock_duration</code> is their combined invocation interval. The graph and publication fields are measured subphases of finalization rather than additional time.</p>
+<p>Each invocation retains sanitized raw and parsed command-line input, resolved seed inputs, stdin seed values, recognized non-secret LLDP-Runner environment inputs, and the resolved primary/include/conf.d configuration path chain when <code>output.run_json_config_log=true</code> (the default).</p>
+<p>Credential communities plus SNMP authentication/privacy password values are replaced with the literal <code>&lt;redacted&gt;</code> before provenance is persisted. The durable in-progress form lives with run state as <code>run.json.draft</code>; draft output can carry the same filename suffix. A completed run publishes <code>run.json</code> into the final output directory, then removes the durable <code>run.json.draft</code> during post-close finalization. Paused, interrupted, failed, and resumable-limit runs retain their drafts. <code>run --dry-run</code> allocates no run ID and creates no <code>run.json</code>. <code>run.json</code> has its own schema version independent of discovery JSON.</p>
+<h3 id="321-discoveryjson">32.1 <code>discovery.json</code></h3>
+<p>This is the canonical structured discovery result and is always generated.</p>
+<p>The top-level structure is versioned. The current writer publishes schema 8:</p>
+<pre class="text"><code>schema_version
+discovery
+topology_graph
+hosts
+errors</code></pre>
+<p><code>schema_version</code> identifies the external document contract. Schema 8 places a claims-driven graph beside the flat host/neighbor compatibility projection. The graph has its own internal schema version and contains physical chassis, logical and observed systems, canonical interface occurrences, protocol advertisements, logical membership, observed relationship groups, collection coverage, explicit advertisement exclusions, and a deterministic projection fingerprint. It can also carry compatibility-projection diagnostics when a legacy flat host spans several distinct anonymous graph endpoint MACs; these diagnostics do not change graph authority or relationship materialization.</p>
+<p>Raw CDP, LLDP, and LLDPv2 advertisements are recorded before cross-protocol reconciliation. Every durable advertisement appears in the graph or in an explicit exclusion record. Graph conclusions are append-only decisions; a changed conclusion supersedes the earlier decision and transactionally replaces the current projection without deleting evidence or history. Authority is reported by dimension. The observation projection can be complete while entity resolution remains provisional and physical topology/directness remain uninferred.</p>
+<p>A schema version changes when consumers must distinguish an incompatible document structure or value representation. The current reader intentionally does not convert discovery files from earlier releases.</p>
+<p><code>discovery</code> contains run and sampling metadata such as boundaries, seed order, shuffle key, effective device mode, configured thresholds, limit behavior, counts, and completion reason.</p>
+<p>Each host record contains identity, classification, tags, state, seed provenance, names/addresses, ICMP results, complete collected system detail, credential outcome, learned neighbors, and inbound observations. Raw structured values are retained rather than flattened into CSV strings. When <code>snmp.report_metrics=true</code>, queried hosts can additionally include <code>snmp.collection_metrics</code>, keyed by <code>sys</code>, <code>entity</code>, <code>interfaces</code>, <code>lldp</code>, <code>lldpv2</code>, and <code>cdp</code> only when those sections were attempted. <code>sys</code> represents the initial SYSTEM-MIB collector, while the human <code>Timing ms: basic=...</code> field represents the broader ICMP/session/system-probe phase. Each metric contains <code>objects</code> and <code>duration_ms</code>.</p>
+<p><code>errors</code> contains the structured per-host and global error stream. Host-bound errors use <code>host_ref</code> to associate them with a host record. Worker errors retain the exact <code>attempted_target</code>, address family, transport phase, exception type and OS fields, non-secret credential route, operation, collector, attempt, message, recovery metadata, and lowercase final host state. The host-level <code>query_target</code> remains separate successful-route context.</p>
+<p>Schema version 3 is the direct source for all fixed and custom CSV views. After LLDP-Runner assembles and sanitizes the canonical discovery document, fixed CSV rendering receives only that document and configuration; it does not query SQLite again. Host <code>state</code> is canonical lowercase output, and direct CSV projections use the same leaf key names as JSON. A JSON-only replay regression test verifies all five fixed CSV files can be reproduced after StateStore is closed. Custom CSV reports use the same canonical document and never reopen SQLite state.</p>
+<h3 id="322-hostscsv">32.2 <code>hosts.csv</code></h3>
+<p>This is a compact, fixed-schema host inventory. Direct projections use JSON field names such as <code>preferred_name</code>, <code>queried_as</code>, and <code>state</code>. <code>state</code> is lowercase in both JSON and CSV, and the former duplicate <code>snmp_status</code> column is removed.</p>
+<p>The <code>origin</code> column contains <code>seed</code> or <code>learned</code> and is a deliberate transform of JSON <code>is_seed</code>. Two topology-summary columns remain separate:</p>
+<pre class="text"><code>learned_neighbors
+observed_by_neighbors</code></pre>
+<p>Beginning with v0.12.0, <code>hardware_revision</code> and <code>firmware_revision</code> are omitted from this convenience view. They remain under the host <code>system</code> object in <code>discovery.json</code> when collected.</p>
+<h3 id="323-stack-memberscsv">32.3 <code>stack-members.csv</code></h3>
+<p>This fixed-schema physical inventory emits one switch-stack member per row. Logical-device context such as <code>preferred_name</code>, <code>queried_as</code>, classification, tags, state, management addresses, credential outcome, and topology summaries is intentionally repeated so each row remains useful without a join.</p>
+<p>Member-specific direct projections use JSON key names including <code>member_number</code>, <code>entity_index</code>, <code>name</code>, and <code>description</code>. Other member columns include manufacturer, model, software version, serial number, hardware revision, firmware revision, and <code>uptime_seconds</code>. The redundant <code>snmp_status</code> column is removed; logical host <code>state</code> remains available on every member row. The serial number is the preferred durable physical identity; stack position and ENTITY index are observations that can change after replacement, renumbering, or reboot.</p>
+<p>ENTITY-MIB does not define a portable per-member uptime object. LLDP-Runner therefore leaves <code>uptime_seconds</code> empty unless a true member-specific value is available; it never copies the logical stack's SYSTEM-MIB uptime into every physical row.</p>
+<h3 id="324-seedscsv">32.4 <code>seeds.csv</code></h3>
+<p>Despite its historical filename, this file is a reusable managed-device seed inventory rather than a record limited only to original input seeds.</p>
+<p>The schema is:</p>
+<pre class="text"><code>preferred_name,queried_as,ipv4,ipv6,credential_profile,credential_result,
+origin,state,last_seen,notes</code></pre>
+<p>The <code>origin</code> column uses the same <code>seed</code> or <code>learned</code> values as <code>hosts.csv</code>. It describes provenance for the run that wrote the inventory; it is not imported as authoritative state. If a <code>learned</code> row is supplied to a later run, that row is an explicit seed in the new run and is therefore exported as <code>origin=seed</code>.</p>
+<p>The file can also carry successful management-address hints into later runs.</p>
+<h3 id="325-unknown-devicescsv">32.5 <code>unknown-devices.csv</code></h3>
+<p>This report concentrates evidence for identities that could not be positively classified.</p>
+<p>Its fixed schema is:</p>
+<pre class="text"><code>preferred_name,ipv4,ipv6,last_seen,protocols,observed_names,
+remote_platforms,remote_descriptions,capabilities,observed_chassis_ids,
+observed_chassis_id_subtypes,observed_chassis_id_subtype_ids,
+observed_by_neighbors,classification_reason</code></pre>
+<p>It includes protocols, observed names, remote platform/description, capabilities, observed chassis ID/subtype aggregates, inbound connections, and classification reasoning. The consistently blank <code>manufacturer</code> and <code>model</code> columns are not part of this review view. The same-source custom fields are not part of the supported fixed-field namespace. Any such values present in a canonical host remain available through explicit <code>json.host.system.*</code> custom projections.</p>
+<p>The flattened inbound topology field is named <code>observed_by_neighbors</code>, matching <code>hosts.csv</code> and the JSON key. The aggregate columns are named <code>observed_chassis_ids</code>, <code>observed_chassis_id_subtypes</code>, and <code>observed_chassis_id_subtype_ids</code> so they cannot be confused with the canonical host-level <code>chassis_id</code>. Protocol aggregation is derived from <code>observed_by_neighbors[].protocols[]</code> in the discovery document.</p>
+<h3 id="326-errorscsv">32.6 <code>errors.csv</code></h3>
+<p>This fixed report contains structured per-host and global errors. The <code>category</code> header directly matches <code>errors[].category</code>; <code>final_state</code> directly matches the lowercase JSON key when a terminal disposition is known. Other columns include operation, credential stage/attempt when applicable, and recoverability. The same underlying error data is also present in <code>discovery.json</code>.</p>
+<h3 id="327-json-first-fixed-csv-projection">32.7 JSON-first fixed CSV projection</h3>
+<p>The output boundary is intentionally one-way:</p>
+<pre class="text"><code>SQLite discovery state
+         |
+         v
+canonical discovery document
+         |
+         +--&gt; discovery.json
+         +--&gt; hosts.csv
+         +--&gt; stack-members.csv
+         +--&gt; seeds.csv
+         +--&gt; unknown-devices.csv
+         +--&gt; errors.csv
+         +--&gt; configured custom CSV reports</code></pre>
+<p>SQLite supplies the collected state needed to assemble the canonical document. After that document exists, CSV projection helpers operate only on the JSON-compatible host/error structures. Derived fields such as <code>origin</code>, uptime seconds, flattened neighbors, seed notes, and unknown-device evidence are presentation transforms over those structures rather than parallel database queries. The custom CSV registry reuses this same one-way boundary.</p>
+<h3 id="328-csv-enablesuppress-controls">32.8 CSV enable/suppress controls</h3>
+<p>The standard CSV schemas remain owned by LLDP-Runner. Operators may suppress an unneeded view without redefining its columns:</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[output]</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="dt">write_hosts_csv</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="dt">write_stack_members_csv</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="dt">write_seeds_csv</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="dt">write_unknown_devices_csv</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a><span class="dt">write_errors_csv</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a><span class="dt">write_empty_csv</span> <span class="op">=</span> <span class="cn">false</span></span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a><span class="dt">log_alert_on_empty_csv</span> <span class="op">=</span> <span class="cn">false</span></span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a><span class="dt">run_json_config_log</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a><span class="dt">purge_keep</span> <span class="op">=</span> <span class="dv">0</span></span></code></pre></div>
+<p><code>run_json_config_log</code> controls whether resolved config pathnames are retained in run provenance. <code>purge_keep</code> is the default number of additional finalized output directories kept beyond <code>latest</code> when <code>purge --keep</code> is omitted.</p>
+<p><code>discovery.json</code> is unconditional and cannot be disabled by these settings. Each fixed-schema CSV remains individually enabled by default. Custom reports use their own <code>enabled</code> value. With the default <code>write_empty_csv=false</code>, an enabled report with zero data rows is omitted rather than written as a header-only file. <code>write_empty_csv=true</code> forces enabled empty fixed or custom reports to be created with their configured headers.</p>
+<p>When <code>log_alert_on_empty_csv=true</code>, terminal snapshot generation emits one INFO record listing all enabled CSV reports omitted because they had zero rows. Periodic <code>RUNNING</code> draft snapshots deliberately suppress that notice so a long discovery does not repeat the same empty-report message every snapshot cycle. An individually disabled report is not considered an empty suppressed report and therefore is not included in the alert.</p>
+<h3 id="329-finalized-output-retention">32.9 Finalized-output retention</h3>
+<p><code>lldp-runner purge</code> only considers real child directories below <code>&lt;persistent_root&gt;/&lt;output_dirname&gt;/</code>; it never deletes SQLite run state or scratch data. The <code>latest</code> symlink target is always protected, and <code>--keep N</code> protects N additional timestamp-ranked directories. Without <code>--keep</code>, <code>output.purge_keep</code> supplies that number and defaults to 0. If <code>latest</code> is absent, the newest ranked output is preserved as a safe equivalent. An existing malformed, non-symlink, or external <code>latest</code> path is an error rather than a condition to guess through.</p>
+<p>Ordering first attempts <code>run.json</code> completion time, then <code>discovery.completed</code>, then <code>discovery.generated</code>. If metadata is absent or malformed, the fallback is the oldest available filesystem modification time among <code>run.json</code>, <code>discovery.json</code>, and the output run directory. Equal timestamps use the run ID as a deterministic tie-breaker. <code>purge --dry-run</code> computes this exact retention set without deleting directories.</p>
+<h3 id="3210-custom-csv-projection-framework">32.10 Custom CSV projection framework</h3>
+<p>Named custom reports live below <code>output.custom_csv</code>. Each report declares one row source so row cardinality remains explicit: <code>hosts</code>, <code>stack-members</code>, <code>seeds</code>, <code>unknown-devices</code>, or <code>errors</code>. Columns may select fields from the matching fixed presentation namespace or from approved canonical JSON contexts.</p>
+<pre class="text"><code>hosts.&lt;fixed-field&gt;
+stack-members.&lt;fixed-field&gt;
+seeds.&lt;fixed-field&gt;
+unknown-devices.&lt;fixed-field&gt;
+errors.&lt;fixed-field&gt;
+
+json.host.&lt;path&gt;
+json.member.&lt;path&gt;
+json.error.&lt;path&gt;
+json.discovery.&lt;path&gt;</code></pre>
+<p>Structured JSON arrays/objects require a controlled transform such as compact JSON or an approved join operation. Arbitrary Python expressions, templates, or <code>eval()</code> are intentionally unsupported. Column order follows configuration order, custom headers are optional, and duplicate headers are rejected.</p>
+<p>Custom filenames are single relative <code>.csv</code> names within the run output directory. They cannot collide with standard LLDP-Runner output names. Custom reports participate in atomic writes, draft/final publication, empty-file suppression, and empty-file INFO reporting. See <a href="docs-CUSTOM-CSV.html">CUSTOM-CSV.md</a> for the operator-facing field registry and examples.</p>
+<h2 id="33-single-device-inspect-architecture">33. Single-device inspect architecture</h2>
+<p>Inspection is implemented in memory.</p>
+<p>Conceptually:</p>
+<pre class="text"><code>input target
+   |
+   v
+DNS resolution + reverse-DNS display enrichment
+   |
+   v
+boundary reporting + query-policy decision
+   |
+   v
+credential selection
+   |
+   +---- --dry-run ----&gt; render policy/DNS result
+   |
+   v
+build one DeviceTask
+   |
+   v
+process_single_device()
+   |
+   +--&gt; ICMP wake-up
+   +--&gt; basic SNMP
+   +--&gt; detail collectors
+   +--&gt; merged neighbors
+   |
+   v
+classify neighbor evidence for presentation
+   |
+   v
+render table/detail/CSV/JSON to stdout</code></pre>
+<p>The same <code>process_single_device()</code> primitive normally uses the worker basic and detail paths. This reduces the chance that <code>get-neighbors</code> succeeds under behavior that differs materially from a full discovery worker. In <code>system_only</code> mode, the primitive intentionally returns after the basic phase and never invokes the detail collector chain.</p>
+<h2 id="34-inspect-output-contract">34. Inspect output contract</h2>
+<p>Four formats are supported.</p>
+<h3 id="341-table">34.1 Table</h3>
+<p>The default human view is compact and terminal-width aware.</p>
+<p>It shows basic target/system information, DNS, ping RTTs, query timing, a single <code>SNMP obj/ms:</code> collector-metrics line, and normally a neighbor table. Metric pairs are rendered as <code>section=objects/duration_ms</code>; numeric values receive terminal color emphasis when color is active. System-only mode omits the neighbor table because no neighbor collectors were attempted.</p>
+<p>The title line also includes a right-aligned <code>(collected YYYY-MM-DD HH:MM:SS)</code> value. Successful SNMP collection uses the worker's most recent SNMP <code>last_seen</code>; results without successful SNMP access use one finalization timestamp captured by the inspection result. The timestamp is converted through the configured wall-clock timezone before presentation.</p>
+<h3 id="342-detail">34.2 Detail</h3>
+<p>The detail view is a scrolling, semi-structured neighbor-by-neighbor report inspired by common network CLI neighbor-detail commands. System-only mode keeps the target/system section but omits ENTITY-derived revision fields and all neighbor sections.</p>
+<h3 id="343-csv">34.3 CSV</h3>
+<p>CSV begins with <code>#</code> metadata lines followed by a compact fixed neighbor table. Machine-readable values are not truncated based on terminal width. The first line uses <code>state</code> for the inspection state and appends a display <code>timestamp</code> using the same collection/finalization provenance as human output.</p>
+<h3 id="344-json">34.4 JSON</h3>
+<p>JSON is the richest inspect form and deliberately follows <code>discovery.json</code> concepts where practical.</p>
+<p>Top-level keys are:</p>
+<pre class="text"><code>inspection
+host
+errors</code></pre>
+<p>Timing remains under <code>timings_ms</code>, and individual ping probes use <code>rtt_ms</code>. <code>inspection.collection_mode</code> is <code>full</code> or <code>system_only</code>. The host <code>snmp</code> object always includes <code>collection_metrics</code> when an inspection actually performed SNMP collector work. CSV intentionally omits this telemetry.</p>
+<h2 id="35-terminal-color-and-stream-behavior">35. Terminal color and stream behavior</h2>
+<p>Human <code>get-neighbors</code>, <code>show-neighbors</code>, and <code>lldp-runner diff</code> output uses ANSI color only when stdout is a TTY.</p>
+<p><code>NO_COLOR</code> disables color.</p>
+<p>Redirected human output is automatically plain text.</p>
+<p>CSV and JSON never contain ANSI color escapes.</p>
+<p>One shared terminal-style module resolves semantic color roles from the <code>[terminal]</code> configuration table. The defaults preserve the former hard-coded palette: cyan headings/learned sections, green success/metrics, yellow warnings, red failures, and magenta observed/inspection-neighbor emphasis. Only validated named colors are accepted; raw ANSI strings are not config data.</p>
+<p>Inspect diagnostics/logging go to stderr so redirected stdout remains parseable.</p>
+<h2 id="36-finalized-discovery-viewer">36. Finalized discovery viewer</h2>
+<p><code>show-neighbors</code> and <code>lldp-runner show-neighbors</code> are intentionally separate from the active discovery and single-device inspection paths. They read only finalized <code>discovery.json</code> data and do not open SQLite, create run directories, or send network traffic. Configuration loading uses <code>CredentialMode.DISABLED</code>, so the viewer does not build credential/profile/rule objects, synthesize runtime credentials, resolve credential secrets, or validate credential policy. This mode is reusable by future stored-data commands that have no network role.</p>
+<p>The viewer has two internal responsibilities. <code>discovery_query.py</code> locates and validates the current JSON contract, compiles name/key/address criteria, and returns zero, one, or multiple host records. <code>discovery_view_output.py</code> renders one selected record as a compact table, detailed terminal text, CSV, or standalone JSON.</p>
+<p>Table/detail output right-aligns the selected document's <code>discovery.generated</code> value as <code>(json YYYY-MM-DD HH:MM:SS)</code> after converting the instant through <code>[time].timezone</code>. Missing, malformed, or timezone-naive source timestamps are rendered as <code>(json unknown-time)</code>. CSV uses <code>timestamp=unknown</code> in that case. The viewer never substitutes file mtime or the current clock because those would invent provenance not present in JSON.</p>
+<p>Name matching uses case-insensitive Python regex with <code>re.match()</code> semantics. Key filters use regex <code>search()</code> semantics after deterministic JSON-value flattening. IPv4/IPv6 criteria use literal textual prefix matching unless CIDR notation is present, in which case Python <code>ipaddress</code> network membership is used. Every non-ID criterion is AND-combined; exact ID selection is deliberately exclusive so an operator cannot believe an ignored filter was applied.</p>
+<p>Topology direction is preserved from <code>discovery.json</code>. The normal display uses learned neighbors when present and falls back to <code>observed_by</code> only for a host without learned evidence. An explicit direction never falls back. When both directions are requested, learned is always rendered first. Observed_by management addresses are looked up through the neighbor <code>host_ref</code> so the viewer reports the observer's management address rather than reusing an address that the observer reported for the selected host.</p>
+<p>Read-only path resolution deliberately does not call the runtime writable path resolver. The default source is <code>outputs/latest/discovery.json</code>; <code>--runid</code> selects <code>outputs/&lt;run-id&gt;/discovery.json</code>, while <code>--file</code> resolves an operator pathname independently of persistent storage. An operator only needs read access to the selected finalized JSON, even when that account could not start a new run.</p>
+<h3 id="361-finalized-discovery-comparison">36.1 Finalized discovery comparison</h3>
+<p><code>lldp-runner diff</code> extends the read-only discovery path to compare two finalized discovery data sets. It also loads configuration with <code>CredentialMode.DISABLED</code> and performs no network activity. The comparison implementation is split between <code>discovery_diff.py</code>, which resolves sources, pairs cross-run host identities, normalizes records, and computes deltas, and <code>discovery_diff_output.py</code>, which renders human or machine-readable results.</p>
+<p>Run-history aliases are ordered by timezone-aware completion metadata. The resolver prefers the small <code>run.json</code> file in each finalized run directory and uses only the leading discovery metadata as a fallback, avoiding full loads of large historical discovery files merely to rank history. Once two sources are selected, the comparison itself loads their supported discovery documents.</p>
+<p>Host IDs are run-local. Graph diff therefore performs component correspondence before consulting the flat compatibility projection. Entity components can be one-to-one, one-to-many, many-to-one, or many-to-many and can report <code>cluster_split</code>, <code>cluster_merge</code>, <code>cluster_reassociated</code>, <code>duplicate_projection_introduced</code>, or <code>absorbed_duplicate</code>. These resolver outcomes do not by themselves assert physical-link churn.</p>
+<p>Relationship groups compare canonical multisets of observed members. A change in protocol evidence, duplicate projection count, or resolver membership is separate from physical topology. Since directness remains unresolved, diff uses <code>physical_topology_assessment=not_inferred</code> when observed member sets change. The flat schema-4-style host and neighbor comparison remains in the same output as a compatibility diagnostic and for detailed host attributes.</p>
+<p>Volatile timing fields and collection-route choices are normalized away. All collector <code>duration_ms</code> leaves are ignored by default while remaining intact in the source discovery documents. An explicit timing-comparison option includes them for diagnostics. A lower uptime on the chronologically later record remains a possible reboot.</p>
+<p>Diff derives protocol/table coverage from durable host state, graph coverage, and structured collector errors. If one run observes an entity or relationship through protocol P on observer S, while paired observer S failed to collect P in the other run, the one-sided result is coverage-uncertain rather than a definite addition or removal. The same incident propagates through recursive discovery provenance so downstream entities do not become false confirmed changes. Raw error message text is not compared.</p>
+<p>Graph entity and relationship correspondence carries one semantic qualification: <code>confirmed</code>, <code>coverage_uncertain</code>, <code>presentation_only</code>, <code>evidence_only</code>, or <code>ambiguous</code>. <code>evidence_only</code> means the relationship itself is stable while non-authoritative name or raw protocol evidence changed. Collection incidents aggregate the originating observer/protocol/table and their direct, recursive, and attribute effects. Intentional <code>no_query</code> and <code>out_of_scope</code> populations remain separate from actively queried partial/failed devices.</p>
+<p>Typed unresolved interface-map coverage has the same conservative effect. When one uniquely paired endpoint changes between two resolved local ports, diff reports <code>moved</code>. When one run has a resolved interface name and the other has a typed unresolved LLDP representation that is uniquely corroborated by remote identity and remote port, the relationship remains <code>same</code>; the resolution loss is <code>presentation_only</code>. This edge-scoped rule never creates a global LLDP-local-port-number-to-ifIndex mapping.</p>
+<p>Diff JSON schema 12 exposes graph correspondence, relationship-group outcomes, subtable-scoped coverage authority, timing-comparison policy, semantic qualifications, incident aggregation, compatibility pairing confidence, canonical compatibility-projection groups, independent host dimensions, attribute provenance, evidence changes, candidate moves, graph-backed change events, explicit cross-view consistency, orthogonal relationship-change dimensions, and graph-member-scoped event identity.</p>
+<p>Compatibility macro diff performs an additional in-memory fold of duplicate complete managed-host rows before one-to-one pairing. It requires compatible direct logical names plus a shared host-eligible management address and rejects hard identity conflicts. Exact names are compatible; one short name may match the same left-most FQDN component, but two FQDNs are never matched by suffix removal. Neighbor host references are remapped and duplicate rows are deduplicated only in that diagnostic projection; graph advertisements remain immutable and observation-complete.</p>
+<p>Weak MAC-only cross-port correspondence is represented as an ambiguous <code>candidate_move</code>. The graph does not convert a low-entropy, multicast, locally administered, malformed, or otherwise weak identifier into proof of endpoint or cable movement. Likewise, a successful zero-row optional ENTITY-MIB snapshot does not prove chassis/member removal; diff reports attribute coverage uncertainty instead of a confirmed managed-host change.</p>
+<p>When a remote host cannot be globally paired, a same-local-port fallback can use unique MAC evidence to correlate the edge. An exact IPv6 modified-EUI-64 IID can be reversed to its MAC for this edge-local purpose; the derived value is not promoted into the global discovery alias namespace.</p>
+<p><code>run.json</code> metadata can also warn when config-file path order or seed inputs differ. Discovery metadata supplies effective scope details such as boundaries and limits. These warnings provide context but do not prove whether a file at the same pathname had identical content across runs. See <a href="docs-DIFF.html">DIFF.md</a> for the operator contract.</p>
+<h2 id="37-error-philosophy">37. Error philosophy</h2>
+<p>LLDP-Runner tries to preserve useful partial data rather than turning every optional collector failure into a failed device.</p>
+<p>Examples:</p>
+<pre class="text"><code>DNS fails but a carried-forward seed IP exists -&gt; query can still proceed
+ICMP fails but SNMP responds                  -&gt; device can still succeed
+ENTITY-MIB enrichment fails                  -&gt; basic discovery can continue
+LLDP times out once, retry succeeds      -&gt; recovered without coverage loss
+LLDP fails after retry but CDP works     -&gt; CDP neighbors are retained
+SNMP basic exhausts all attempts              -&gt; device is FAILED</code></pre>
+<p>Errors are structured whenever practical so operators can distinguish timeout, authentication, access/view restriction, transport, unsupported OID, and other categories.</p>
+<p>Secrets are redacted from worker exception messages before they reach output.</p>
+<h2 id="38-performance-model">38. Performance model</h2>
+<p>LLDP-Runner is primarily network-I/O bound, so low CPU utilization does not by itself mean the tool is underutilizing the host.</p>
+<p>Important throughput controls include:</p>
+<pre class="text"><code>workers
+batch_size
+max_outstanding_devices_per_worker
+per_device_rps
+SNMP timeout and adaptive retry
+max_repetitions
+ENTITY-MIB enablement
+snapshot interval</code></pre>
+<p>More workers are not always faster. Device response time, SNMP rate limits, network latency, cohort stragglers, and the central output/state workload can be the dominant factors.</p>
+<p>In seed-only mode, each worker can process its assigned batch asynchronously. Starting one process per seed is therefore usually wasteful when a smaller worker set can place the same seeds in flight. LLDP-Runner right-sizes this known workload after initialization, using the smaller of batch size and the per-worker outstanding-device limit as first-wave capacity. Recursive discovery keeps configured scheduler limits because its future work is not known yet.</p>
+<p>Starting a later run with a reusable <code>seeds.csv</code> can improve ramp-up because many known managed devices become initial seeds rather than having to be rediscovered serially from one edge of the graph.</p>
+<h2 id="39-why-the-coordinator-is-intentionally-topology-specific">39. Why the coordinator is intentionally topology-specific</h2>
+<p>The current coordinator is designed around:</p>
+<pre class="text"><code>host identity
+neighbor edges
+classification
+recursive scheduling
+seed ordering
+run checkpoints</code></pre>
+<p>Low-level components such as the SNMP client and collectors are more reusable.</p>
+<p>Future non-topology SNMP projects should avoid forcing unrelated concepts such as route tables or interface counters into neighbor-recursion abstractions.</p>
+<p>A likely future reuse boundary is below the topology coordinator:</p>
+<pre class="text"><code>             shared SNMP/session components
+               /                    \
+              /                      \
+     LLDP-Runner topology       future collectors</code></pre>
+<p>The single-device inspect refactor is already a step in that direction because it exposes worker collection behavior without requiring recursive state.</p>
+<h2 id="40-module-map">40. Module map</h2>
+<p>The most important package modules are:</p>
+<pre class="text"><code>cli.py
+  command parsing and command dispatch
+
+config.py
+  config discovery, include/conf.d loading, precedence, validation
+
+defaults.py
+  built-in operator-maintainable defaults
+
+configgen.py
+  commented generated configuration
+
+csv_input.py
+  shared dynamic-position CSV parsing and structural validation
+
+seeds.py
+  seed files, directories, seed CSV semantics, text parsing
+
+identity.py
+  seed/discovered-name DNS and identity helpers
+
+policy.py
+  boundary, query-policy, and credential-policy decisions
+
+classify.py
+  host classification and tagging logic
+
+coordinator.py
+  single-owner graph state, scheduling, run lifecycle
+
+state.py
+  SQLite schema, host/alias/edge/error persistence and merges
+
+worker.py
+  multiprocessing worker and async device collection flow
+
+snmp/
+  project-owned SNMP abstraction, active Gufo backend, and telemetry
+
+collectors/
+  SYSTEM, IF, ENTITY, LLDP/LLDPv2, and CDP collection
+
+icmp.py
+  asynchronous ICMP probes
+
+textutil.py
+  SNMP/output text sanitation
+
+outputs.py
+  discovery JSON/CSV generation and finalization
+
+scoreboard.py
+  live run status output
+
+inspection.py
+  one-device in-memory inspection orchestration
+
+inspection_output.py
+  table, detail, CSV, and JSON inspect renderers
+
+discovery_query.py
+  read-only discovery.json loading, validation, and host filtering
+
+discovery_view_output.py
+  stored-discovery table, detail, CSV, and JSON renderers
+
+discovery_diff.py
+  source resolution, cross-run identity pairing, normalization, and deltas
+
+discovery_diff_output.py
+  terminal and machine-readable discovery comparison rendering</code></pre>
+<h2 id="41-core-invariants-for-maintainers">41. Core invariants for maintainers</h2>
+<p>Future changes should preserve these principles unless a deliberate design change is documented.</p>
+<h3 id="401-one-authoritative-state-owner">40.1 One authoritative state owner</h3>
+<p>Workers should return observations. The coordinator should decide identity, state transitions, edge insertion, and recursive scheduling.</p>
+<h3 id="402-unknown-is-not-permission-to-query">40.2 Unknown is not permission to query</h3>
+<p>A newly observed host is not recursively queried merely because it exists. Classification and query policy must positively permit that work.</p>
+<h3 id="403-boundary-and-query-policy-are-different-controls">40.3 Boundary and query policy are different controls</h3>
+<p>Recursive scope and explicit query prohibition must not be conflated.</p>
+<h3 id="404-max_devices--auto-is-a-scheduling-mode">40.4 <code>max_devices = "auto"</code> is a scheduling mode</h3>
+<p>Do not reduce it to a numeric comparison. Non-seed neighbors must remain recordable without becoming worker work.</p>
+<h3 id="405-zero-means-unlimited-for-hostdevice-guardrails">40.5 Zero means unlimited for host/device guardrails</h3>
+<p>Guardrail checks must explicitly ignore zero rather than interpreting it as a limit of zero objects.</p>
+<h3 id="406-seed-origin-is-provenance">40.6 Seed origin is provenance</h3>
+<p>A learned device does not become <code>origin=seed</code> because it was later queried.</p>
+<h3 id="407-complete-implies-a-successful-query-target">40.7 COMPLETE implies a successful query target</h3>
+<p>A COMPLETE managed device with no query target indicates inconsistent state. Transient READY/CLAIMED states do not have this invariant.</p>
+<h3 id="408-machine-readable-output-must-remain-clean">40.8 Machine-readable output must remain clean</h3>
+<p>CSV/JSON should never depend on terminal width or contain ANSI color escapes.</p>
+<h3 id="409-do-not-silently-add-legacy-input-compatibility">40.9 Do not silently add legacy input compatibility</h3>
+<p>Current documented input formats are the supported formats. If a future change would require accepting an older/legacy input format, that compatibility should be an explicit design decision rather than an automatic extension.</p>
+<h3 id="4010-selective-entity-mib-queries-must-discover-indexes">40.10 Selective ENTITY-MIB queries must discover indexes</h3>
+<p><code>entPhysicalIndex</code> is agent-assigned and must not be assumed to be <code>1</code> or contiguous. <code>auto</code> and <code>brief</code> therefore walk only <code>entPhysicalClass</code>, select chassis/stack/module candidates, and use targeted instance GETs after an index is known. If multiple candidates exist, <code>entPhysicalContainedIn</code> is requested only for those candidates so a root physical entity can be preferred.</p>
+<p><code>full</code> remains the compatibility/default path and continues to walk the entire <code>entPhysicalEntry</code> subtree. <code>collect_entity_mib=false</code> bypasses all three modes.</p>
+<h2 id="42-high-level-discovery-pseudocode">42. High-level discovery pseudocode</h2>
+<pre class="text"><code>config = load_defaults_and_operator_overrides()
+seeds = collect_all_seed_sources()
+
+state = open_or_resume_sqlite_run()
+for seed in seeds:
+    resolve_identity(seed)
+    upsert_seed_into_state()
+
+order_unique_seeds()
+resolve_max_device_mode()
+fail_fast_if_finite_limit_is_smaller_than_seed_inventory()
+
+start_worker_processes()
+
+while not finished:
+    check_pause_worker_health_and_limits()
+
+    for idle_worker in workers:
+        batch = claim_ready_hosts()
+        tasks = build_policy_permitted_tasks(batch)
+        send_to_worker(tasks)
+
+    for returned_batch in result_queue:
+        for device_result in returned_batch:
+            persist_device_result()
+            for neighbor in device_result.neighbors:
+                candidate = enrich_and_classify(neighbor)
+                remote_id = upsert_or_merge(candidate)
+                persist_edge(device_result.host_id, remote_id)
+                schedule_if_queryable(remote_id)
+
+    periodically_write_scoreboard_and_draft_output()
+
+stop_workers()
+checkpoint_state()
+finalize_or_preserve_draft_output()</code></pre>
+<h2 id="43-high-level-worker-pseudocode">43. High-level worker pseudocode</h2>
+<pre class="text"><code>async process_batch(tasks):
+    results = create_deferred_results(tasks)
+
+    unresolved = tasks
+    while unresolved:
+        ping_newly_selected_addresses(unresolved)
+        await one_basic_snmp_attempt_for_each(unresolved)
+        advance_retry_fallback_or_address_on_failure()
+        remove_successes_and_exhausted_tasks()
+
+    concurrently for each successful device:
+        optionally_collect_entity_mib(full|auto|brief)
+        collect_interfaces()
+        collect_lldp()
+        collect_lldpv2()
+        collect_cdp_when_applicable()
+        merge_neighbor_observations()
+
+    return complete_batch_results</code></pre>
+<h3 id="421-entity-mib-detail-collection">42.1 ENTITY-MIB detail collection</h3>
+<p>The basic SYSTEM-MIB phase completes before detail collection. That ordering is important for <code>auto</code>: manufacturer and <code>sysDescr</code> are already available, so the collector can choose a device-aware query plan without another identity probe.</p>
+<p><code>full</code> performs the historical <code>entPhysicalEntry</code> walk and applies the same logical chassis/stack/module ranking used in v0.13.1. Stack-member inventory is parsed from that already-returned table, so enabling v0.15.0 member reporting does not add SNMP requests to full mode.</p>
+<p><code>brief</code> and <code>auto</code> first walk the single <code>entPhysicalClass</code> column. Candidate structure is then retrieved with targeted <code>entPhysicalContainedIn</code>, <code>entPhysicalParentRelPos</code>, <code>entPhysicalName</code>, and <code>entPhysicalDescr</code> GETs as needed. A standards-conforming <code>stack(11)</code> containing <code>chassis(3)</code> rows is preferred. Multiple sibling chassis rows are a conservative fallback for agents that expose physical members but omit an explicit stack container.</p>
+<p>The brief identity field set is <code>entPhysicalSerialNum</code>, <code>entPhysicalMfgName</code>, and <code>entPhysicalModelName</code>. The auto network-device profile adds <code>entPhysicalHardwareRev</code>, <code>entPhysicalFirmwareRev</code>, and <code>entPhysicalSoftwareRev</code>. Identity GETs cover the selected logical physical entity and every detected member index. Unknown and virtual identities stay on the brief profile so auto mode is conservative when device type cannot be established.</p>
+<p>Member numbering prefers non-negative <code>entPhysicalParentRelPos</code>. When a switch agent does not provide useful relative positions, LLDP-Runner conservatively recognizes common labels such as switch/member/chassis/FPC/slot followed by a number. This fallback supports real-world variation without binding the core algorithm to Cisco StackWise, Aruba CX VSF, Juniper EX Virtual Chassis, or any other proprietary stack MIB. Conforming ENTITY-MIB implementations from other manufacturers receive the same standards-first treatment. Expected auto-rich platform regression coverage includes Cisco Catalyst 9200/9300/9500/3650/3850, Aruba/HPE CX 6200/6300, and Juniper EX 4100/4300/4400/4600/4650 families.</p>
+<p><code>entPhysicalIndex</code> and stack-member position are observations, not durable physical identities. The per-member chassis serial is retained so inventory consumers can distinguish a stable logical management IP/hostname from the set of physical switches currently composing that stack. ENTITY-MIB provides no portable per-member uptime, so output leaves it unknown unless a future/profile collector obtains a genuine member-specific value.</p>
+<p>The collector consumes the project-owned SNMP client protocol, so <code>CountingSnmpClient</code> measures class walks and targeted GETs without backend- specific instrumentation. This makes <code>get-neighbors</code> and optional discovery metrics useful for comparing object counts and elapsed time among the three modes.</p>
+<h2 id="44-operational-reasoning-behind-the-architecture">44. Operational reasoning behind the architecture</h2>
+<p>The architecture intentionally trades some implementation simplicity for operational predictability.</p>
+<p>A single state owner reduces duplicate polling and race-prone graph decisions.</p>
+<p>SQLite provides durable checkpoints without requiring another service.</p>
+<p>Multiprocessing isolates workers, while asyncio makes each worker efficient for network I/O.</p>
+<p>Policy is evaluated centrally so recursive behavior remains explainable.</p>
+<p>Outputs preserve inbound topology evidence even when a remote device is not queried or fails.</p>
+<p>Seed-only mode and randomized ordering support bounded sampling without turning learned neighbors into accidental recursive work.</p>
+<p>Single-device inspection reuses real worker collection code so troubleshooting also exercises code used by full discovery.</p>
+<p>These decisions are intended to make LLDP-Runner understandable and safe for Network Operations while leaving lower-level collection components available for future reuse.</p>
+<h2 id="0325-transport-and-recovery-boundaries">0.32.5 transport and recovery boundaries</h2>
+<p>The Gufo adapter owns destination syntax. Identity and coordinator layers pass canonical unbracketed IP text. For the exact Gufo 0.12.0 raw-IPv6 constructor failure, the adapter alone performs one bracketed construction attempt. This is not visible as a second coordinator route or adaptive SNMP retry.</p>
+<p>Worker failures cross the process boundary as structured values rather than as messages that later code must parse. SQLite stores route errors separately from the host's successful query presentation and maintains durable route-attempt history.</p>
+<p>Late-address recovery is a coordinator/state transaction. It never modifies worker retry budgets. The state store verifies the current failed state, consumed allowance, and unattempted addresses before it atomically records an admission and returns the host to <code>READY</code>.</p>
+<p>LLDP collection coverage has two levels. The aggregate protocol record answers whether the protocol observation is complete enough for broad comparison. Nested subtable records preserve the independent remote-neighbor, remote-management-address, and original-LLDP local-port outcomes needed for precise uncertainty and address-evidence decisions.</p>
+<h2 id="0326-comparison-authority-boundaries">0.32.6 comparison authority boundaries</h2>
+<p>Comparison authority follows the smallest collection unit that can answer the question. LLDP/LLDPv2 <code>remote_neighbor</code> coverage decides relationship presence; original-LLDP <code>local_port</code> coverage and row-level resolution decide whether a local interface is authoritative; and <code>remote_management_address</code> coverage decides whether an address removal is authoritative. Aggregate protocol status remains useful health telemetry but cannot override a complete semantic subtable.</p>
+<p>Compatibility-projection folding preserves these dimensions. A duplicate host projection can contribute complete neighbor coverage while another contributes a partial management-address result; the merged view retains both facts rather than reducing all LLDP authority to the worst aggregate status.</p>
+<p>Attribute differences can be derived from neighbor evidence rather than a local ENTITY-MIB table. Field comparison therefore carries provenance and exact coverage sources. Graph comparison receives the same source map so a missing identity-derived component is coverage-uncertain when its observer failed, instead of becoming a confirmed one-sided entity.</p>
+<p>Human rendering is a view over the complete comparison. Default output collapses derivative uncertain rows beneath collection incidents, summary-only output omits row detail, and expanded output restores it. None of these options removes structured JSON evidence or changes comparison status.</p>
+<h2 id="0327-cross-view-reconciliation-boundaries">0.32.7 cross-view reconciliation boundaries</h2>
+<p>The compatibility projection and topology graph remain separate semantic views. Compatibility rows are observer-directional; graph relationship records group immutable protocol observations by local interface. After both views complete their conservative comparison, the reconciliation layer joins them without creating new identity or topology evidence.</p>
+<p>Every non-stable compatibility learned-neighbor row is matched to graph members using observer host references, typed local interface, paired remote host references, remote port, strict MAC evidence, names, and protocol set. Unique change events preserve all contributing compatibility and graph references. Unmatched, ambiguous, conflicting, and graph-only records are reported as cross-view inconsistency instead of being forced into agreement.</p>
+<p>Graph LLDP authority is read from <code>remote_neighbor</code> when schema-8 subtable coverage exists. A management-address-only partial result remains aggregate health but cannot downgrade a complete relationship snapshot. A true remote-neighbor failure remains coverage-uncertain with exact <code>lldp.remote_neighbor</code> or <code>lldpv2.remote_neighbor</code> provenance.</p>
+<p>Collection incidents include graph-native sources and state whether any reported difference depends on the gap. Health-only gaps remain visible without making a stable relationship look changed. Management-address health is compared in a separate persistence/new/recovery dimension.</p>
+<p>A local-interface transition is an observed attachment change. LLDP-Runner can confirm continuity of the observed endpoint identity and the changed observer port, but it retains unresolved directness and does not infer physical cable movement, intermediate devices, or layer-1 topology.</p>
+<h2 id="0328-compound-relationship-change-dimensions">0.32.8 compound relationship-change dimensions</h2>
+<p>A graph relationship is still assigned one concise primary <code>status</code>, but that status is no longer the only description of change. Schema 12 adds <code>change_dimensions</code>, <code>member_presence_change</code>, and <code>member_protocol_changes</code> to each relationship comparison. A local-interface group can therefore record a new or missing member and a protocol-set transition for another stable member at the same time.</p>
+<p>Member evidence is keyed by the remote correspondence component and normalized remote port. Reconciliation of a protocol transition inside a primary <code>member_set_changed</code> record requires that exact key and the exact A/B protocol sets. Management-address and relationship-evidence rows likewise require one exact member present on both sides with an unchanged protocol set. This avoids using unrelated membership churn as generic proof for an evidence change.</p>
+<p>Change-event fingerprints include <code>graph_member_keys</code>. Distinct remote members inside one relationship group remain distinct events, while repeated or reciprocal compatibility observations for the same member can share one event. Dimension claims are tracked independently. If compatibility rows explain only member presence, an unrepresented protocol-evidence dimension remains a <code>graph_only</code> event and keeps cross-view status at <code>attention_required</code>.</p>
+<h2 id="0329-locally-assigned-chassis-and-anonymous-endpoint-identity">0.32.9 locally assigned chassis and anonymous endpoint identity</h2>
+<p>LLDP chassis subtype 7 is locally assigned. Its syntax can be valid and its text can be useful to an operator without being unique outside the advertising agent's local context. The compatibility resolver therefore retains subtype-7 values in raw neighbor evidence and as weak edge-scoped claims, but no longer registers them in the global <code>chassis_id</code> alias namespace.</p>
+<p>An otherwise anonymous LLDP or LLDPv2 endpoint can still receive stable bounded identity when its Port ID is explicitly typed as a MAC address. The value must be a complete conventional MAC representation, and every retained typed LLDP/LLDPv2 representation must agree. The compatibility host receives that canonical <code>mac</code> alias and the claim ledger records a strong derived <code>anonymous_lldp_port_mac</code> claim. A usable direct name, management address, or trusted chassis identity takes precedence; per-interface Port IDs do not split a named or addressed multi-interface device.</p>
+<p>The topology graph already creates separate <code>endpoint:mac:&lt;value&gt;</code> observed entities for these anonymous typed Port IDs. Graph materialization now compares that authoritative endpoint set with the merged host/neighbor compatibility projection. If one legacy compatibility host refers to several distinct anonymous endpoint MAC entities under locally assigned chassis evidence, the graph publishes <code>compatibility_projection_diagnostics</code> and appends a component decision. The warning records the compatibility host reference, endpoint MACs, graph entity keys, observer references, and edge count, while declaring <code>authoritative_graph_impact=none</code>.</p>
+<p>This maintenance rule does not rewrite archived 0.32.8 discovery files or split an already-persisted compatibility host in place. It applies while new observations are projected during a 0.32.9 scan. Replaying an older state can surface the diagnostic so operators can distinguish a legacy flat-host aggregate from the unchanged authoritative graph.</p>
+</body>
+</html>

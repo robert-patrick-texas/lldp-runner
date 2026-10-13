@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/ERRORS.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="error-provenance-and-recovery">Error provenance and recovery</h1>
+<h2 id="route-errors-are-not-host-presentation">Route errors are not host presentation</h2>
+<p>A host can have several permitted addresses and credential routes. Every worker-originated failed attempt is therefore stored as its own error record. The failed destination is <code>attempted_target</code>; it is not reconstructed from the host's successful <code>query_target</code>.</p>
+<p>A structured error can contain:</p>
+<ul>
+<li><code>attempted_target</code> and <code>address_family</code>;</li>
+<li><code>phase</code>, <code>operation</code>, and <code>collector</code>;</li>
+<li>module-qualified <code>exception_type</code>, <code>exception_errno</code>, <code>exception_strerror</code>, and redacted <code>exception_args</code>;</li>
+<li>credential profile, stage, source, and non-secret label;</li>
+<li>attempt number, category, message, and recoverability;</li>
+<li>the host's current <code>final_state</code> when output is generated.</li>
+</ul>
+<p>Fields remain null when evidence is unavailable. LLDP-Runner does not parse a generic message or copy a host-level target merely to fill them.</p>
+<h2 id="secret-handling">Secret handling</h2>
+<p>Communities, usernames, authentication passwords, and privacy passwords are removed before exception text or arguments cross the worker boundary. Direct seed credentials remain in memory only. Route history persists non-secret profile, stage, source, and label information, never credential material.</p>
+<p>Both supported SNMP backends normalize their native failures at the project boundary. Timeout, UDP/address transport, authentication, authorization, local backend capability, engine/security indication, PDU-status, and malformed-response failures retain stable project types beneath <code>SnmpBackendError</code>. PySNMP cancellation remains an <code>asyncio.CancelledError</code> so task cancellation is never mistaken for an agent or network failure. Its dispatcher is still closed on the cancellation path.</p>
+<p><code>snmp_backend_capability</code> means the selected library cannot perform required work in the local runtime. In 0.37.0, PySNMP authPriv startup verifies the installed <code>cryptography&gt;=50.0</code> provider with fixed non-secret AES-128/AES-256/DES operations. A missing, old, or unusable provider fails before network discovery. The adapter also maps PySNMP's runtime <code>Ciphering services not available</code> indication to this category. It is not a timeout, does not consume an adaptive request retry, and is not misreported as bad device credentials. Error text is sanitized before persistence.</p>
+<h2 id="late-address-recovery">Late-address recovery</h2>
+<p>A managed host that reaches <code>FAILED</code> can later receive a new direct, identity-eligible management address from another observation. The coordinator may admit a bounded recovery task when the address is:</p>
+<ul>
+<li>permitted by discovery boundaries and query policy;</li>
+<li>not present in durable route-attempt history; and</li>
+<li>allowed by <code>discovery.late_address_recovery_attempts</code>.</li>
+</ul>
+<p>The default allowance is one and <code>0</code> disables the behavior. Admission is an atomic SQLite event. The counter survives restart, and merging duplicate host projections keeps the maximum consumed count rather than adding allowances. Repeated advertisements of an attempted address do not requeue the host.</p>
+<p>The recovery task contains only the newly admitted addresses. Existing failed errors remain durable. If a later basic route succeeds, output marks the older basic-route error with <code>recovered=true</code> and <code>recovered_by_target</code>. Detail-table warnings are not relabeled as route recovery.</p>
+<h2 id="legacy-gufo-ipv6-migration">Legacy Gufo IPv6 migration</h2>
+<p>Opening a 0.32.4 run database under 0.32.5 can enrich only the exact historical Gufo constructor signature <code>OSError: invalid address</code>. A target is assigned only when persisted SNMP session telemetry supplies one unique IPv6 route whose credential profile and stage agree with the error. Ambiguous rows remain unstructured. The host's presentation <code>query_target</code> is never used as a guess.</p>
+<h2 id="operator-use">Operator use</h2>
+<p>Start with <code>category</code>, <code>phase</code>, <code>attempted_target</code>, and <code>exception_type</code> in <code>errors.csv</code>. Use <code>discovery.json</code> when exception arguments, recovery metadata, or nested collection coverage are needed. Run diagnostics and activity logs identify the selected backend and installed package version plus the same canonical route and phase without exposing secrets.</p>
+</body>
+</html>

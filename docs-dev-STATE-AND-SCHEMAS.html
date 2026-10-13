@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/dev/STATE-AND-SCHEMAS.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="state-and-schema-reference">State and Schema Reference</h1>
+<p>For the compact list of current JSON contract versions and top-level sections, start with <a href="docs-dev-SCHEMA.html"><code>SCHEMA.md</code></a>. This document focuses on durable state, evidence history, migrations, and the reasoning behind those contracts.</p>
+<h2 id="current-external-contracts">Current external contracts</h2>
+<p>The current LLDP-Runner release publishes independently versioned contracts:</p>
+<ul>
+<li><code>run.json</code> schema 3 for invocation provenance and lifecycle timing;</li>
+<li><code>discovery.json</code> schema 8 for completed discovery and compatibility views;</li>
+<li>topology graph schema 2 embedded in <code>discovery.json</code>;</li>
+<li>diff JSON schema 12 for cross-run comparison; and</li>
+<li>the separately versioned active-run scoreboard.</li>
+</ul>
+<p>Advancing one contract does not require changing every other contract. A version changes when consumers must distinguish an incompatible structure or meaning. LLDP-Runner validates supported discovery schemas strictly and does not silently convert older discovery JSON.</p>
+<h2 id="sqlite-responsibilities">SQLite responsibilities</h2>
+<p>SQLite is the durable run/checkpoint store. Major families include:</p>
+<ul>
+<li>compatibility hosts, many-to-many addresses, aliases, and neighbors;</li>
+<li>immutable observations, typed claims, and protocol advertisements;</li>
+<li>collection metrics, adaptive-session telemetry, and table coverage;</li>
+<li>append-only resolution and graph-component decisions;</li>
+<li>the compact current graph projection;</li>
+<li>route-attempt history; and</li>
+<li>scheduler admission events.</li>
+</ul>
+<p>Immutable evidence and decision history must not be updated or deleted. A new interpretation appends a superseding decision.</p>
+<h2 id="route-attempts-and-late-recovery">Route attempts and late recovery</h2>
+<p><code>route_attempts</code> records the normalized destination, family, non-secret credential source/profile/label/stage, attempt, outcome, category, and time for each basic SNMP route. It never contains community, authentication, or privacy material.</p>
+<p><code>hosts.late_recovery_used</code> persists the bounded admission count. A <code>scheduler_events</code> row records each accepted late-address recovery with the new address, evidence source, prior state, and remaining allowance. Host merges move route history and events to the winner and retain the maximum consumed allowance; they do not add allowances or recreate attempted routes.</p>
+<h2 id="structured-errors">Structured errors</h2>
+<p>The <code>errors</code> table stores host context separately from exact worker-route provenance. New columns include <code>attempted_target</code>, <code>address_family</code>, <code>phase</code>, module-qualified exception type, OS error fields, redacted exception arguments, collector, and existing credential-route labels. Output derives <code>final_state</code> from the current host row at snapshot time, so a historical failure remains present without claiming that a later-recovered host is still failed.</p>
+<h2 id="lldp-coverage">LLDP coverage</h2>
+<p>Schema 8 retains aggregate <code>lldp</code> and <code>lldpv2</code> coverage and adds nested subtables. Original LLDP exposes <code>local_port</code>, <code>remote_neighbor</code>, and <code>remote_management_address</code>; LLDPv2 exposes <code>remote_neighbor</code> and <code>remote_management_address</code>. Each record contains status, attempts, object and row counts, duration, and message. Management-address coverage also records valid, rejected, malformed, IPv4, and IPv6 counts.</p>
+<p>A complete zero-row management table is authoritative empty evidence. Timeout, access restriction, malformed-index degradation, interruption, and other incomplete outcomes are not equivalent to an empty table.</p>
+<h2 id="graph-authority-dimensions">Graph authority dimensions</h2>
+<p>Do not use one Boolean to imply more certainty than the data supports. Current graph output reports:</p>
+<ul>
+<li>observation completeness;</li>
+<li>observation projection status;</li>
+<li>entity-resolution maturity;</li>
+<li>physical-topology inference status;</li>
+<li>directness status; and</li>
+<li>compatibility-projection role.</li>
+</ul>
+<p>An observation-complete graph may still have provisional entity resolution and unresolved directness.</p>
+<h2 id="0329-compatibility-identity-projection">0.32.9 compatibility identity projection</h2>
+<p>Schema versions remain unchanged. New candidate projection no longer admits LLDP/LLDPv2 locally assigned chassis subtype 7 into the global <code>chassis_id</code> alias namespace. The raw value remains in protocol advertisements, neighbor details, and a weak edge-scoped claim.</p>
+<p>When no usable direct name, host-eligible management address, or trusted chassis alias exists, one unambiguous typed MAC-address Port ID can create a canonical <code>mac</code> alias and a strong derived <code>anonymous_lldp_port_mac</code> claim. The fallback is deliberately unavailable to named or addressed candidates so a multi-interface device is not split by its interface Port IDs.</p>
+<p>Topology graph schema 2 adds optional <code>compatibility_projection_diagnostics</code> and the corresponding summary count. These records diagnose legacy flat hosts that span several distinct anonymous <code>endpoint:mac:</code> graph entities under locally assigned chassis evidence. They are derived diagnostics, not graph-materialization input, and explicitly carry <code>authoritative_graph_impact=none</code>.</p>
+<h2 id="diff-schema-10">Diff schema 10</h2>
+<p>Diff schema 10 leaves discovery state unchanged. It records whether collection <code>duration_ms</code> was included, separates aggregate protocol health from relationship/interface/management-address authority, adds <code>relationship_evidence_changed</code> and <code>evidence_only</code>, and retains field-level attribute provenance and coverage sources. Human-render controls do not remove data: JSON always serializes the complete comparison.</p>
+<h2 id="diff-schema-11">Diff schema 11</h2>
+<p>Diff schema 11 leaves discovery schema 8, topology graph schema 2, and run schema 3 unchanged. It adds stable compatibility-observation, graph-relationship, and change-event references; explicit cross-view consistency; graph-native and health-only collection incidents; observed-attachment semantics; and compact management-address health transitions.</p>
+<p>The graph uses LLDP/LLDPv2 <code>remote_neighbor</code> subtable status as relationship coverage authority. Aggregate partial status caused only by <code>remote_management_address</code> cannot make a complete graph relationship uncertain. A true remote-neighbor failure retains exact subtable provenance.</p>
+<p><code>change_events[]</code> is the unique event inventory. Compatibility rows remain observer-directional diagnostics and graph relationship groups retain immutable member evidence. The reconciliation layer does not modify discovery state or promote weak evidence into identity.</p>
+<h2 id="diff-schema-12">Diff schema 12</h2>
+<p>Diff schema 12 leaves discovery schema 8, topology graph schema 2, and run schema 3 unchanged. Relationship comparisons add <code>change_dimensions</code>, <code>member_presence_change</code>, and <code>member_protocol_changes</code>. These fields preserve simultaneous membership and protocol-evidence transitions that one primary relationship <code>status</code> cannot express alone.</p>
+<p>Change events add <code>graph_member_keys</code> and <code>graph_change_dimensions</code>. Event keys are scoped by both the graph relationship and exact remote graph member, so distinct neighbors on one local interface do not collapse. Reconciliation of compound records requires exact remote component, remote port, and protocol-set corroboration. Unclaimed reportable dimensions remain explicit graph-only events rather than being hidden by another matched dimension.</p>
+<h2 id="migration-practice">Migration practice</h2>
+<p>State migrations are additive. Opening a 0.32.4 database creates the new route, scheduler, error-provenance, and late-recovery structures without deleting prior evidence. Historical Gufo IPv6 errors are enriched only when one unique persisted session route corroborates the exact constructor signature; ambiguous records remain null rather than borrowing the host presentation target.</p>
+<p>Tests cover fresh creation, immediate-predecessor migration, restart, merges, and deterministic state-to-output regeneration. Production replay regenerates schema-8 output from copied state databases; it does not claim legacy discovery JSON compatibility.</p>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/dev/FLOW-DIAGRAMS.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="runtime-flow-diagrams">Runtime Flow Diagrams</h1>
+<p>This reference gives contributors a source-maintained view of three paths that are easy to misunderstand from individual functions alone:</p>
+<ul>
+<li>device collection and recursive scheduling;</li>
+<li>candidate identity resolution into the compatibility projection; and</li>
+<li>deterministic graph rematerialization from durable evidence.</li>
+</ul>
+<p>The Mermaid source in this file is authoritative. No separately edited image is required. When one of the named functions or persistence boundaries changes, update the diagram and its notes in the same change.</p>
+<p>These diagrams describe current behavior, not planned resolver work. In particular, the compatibility <code>hosts</code> projection still supports scheduling and operator reports, while the topology graph is rebuilt from retained evidence.</p>
+<h2 id="collection-flow">Collection flow</h2>
+<pre class="mermaid"><code>flowchart TD
+    CLI[&quot;cli.main&lt;br/&gt;configuration, seeds, run paths&quot;]
+    INIT[&quot;Coordinator.initialize&lt;br/&gt;resolve and project seeds&quot;]
+    DB[(&quot;StateStore&lt;br/&gt;SQLite run state&quot;)]
+    LOOP{&quot;Coordinator.run&lt;br/&gt;queryable work remains?&quot;}
+    CLAIM[&quot;StateStore.claim_batch&lt;br/&gt;lease READY hosts&quot;]
+    WQ[[&quot;multiprocessing&lt;br/&gt;work queue&quot;]]
+    WORK[&quot;worker_main&lt;br/&gt;process_batch&quot;]
+    BASIC{&quot;ICMP and SYSTEM-MIB&lt;br/&gt;route succeeds?&quot;}
+    FAIL[&quot;failed DeviceResult&lt;br/&gt;route errors and coverage&quot;]
+    DETAIL[&quot;worker._collect_detail&quot;]
+    TABLES[&quot;IF-MIB and ENTITY-MIB&lt;br/&gt;CDP, LLDP, and LLDPv2&quot;]
+    COMPLETE{&quot;table structurally&lt;br/&gt;complete?&quot;}
+    RETRY[&quot;bounded collector retry&lt;br/&gt;retain attempt outcome&quot;]
+    RESULT[&quot;DeviceResult&lt;br/&gt;raw facts, coverage, neighbors&quot;]
+    RQ[[&quot;multiprocessing&lt;br/&gt;result queue&quot;]]
+    APPLY[&quot;Coordinator._process_result&quot;]
+    FACTS[&quot;StateStore.apply_device_result&lt;br/&gt;facts, claims, coverage&quot;]
+    NEIGHBOR[&quot;Coordinator._process_neighbor&lt;br/&gt;classify and enrich&quot;]
+    POLICY{&quot;managed, in boundary,&lt;br/&gt;and query permitted?&quot;}
+    READY[&quot;StateStore.set_host_ready&quot;]
+    SNAP[&quot;periodic scoreboard&lt;br/&gt;and draft write_outputs&quot;]
+    STOP{&quot;terminal condition&quot;}
+    HOLD[&quot;checkpoint and draft&lt;br/&gt;for pause or interruption&quot;]
+    REPAIR[&quot;stop workers and reconcile&lt;br/&gt;duplicate query projections&quot;]
+    FINAL[&quot;final write_outputs&lt;br/&gt;graph, JSON, and CSV&quot;]
+    PUBLISH[&quot;publish outputs and run state&lt;br/&gt;archive final scoreboard&quot;]
+
+    CLI --&gt; INIT --&gt; DB --&gt; LOOP
+    LOOP --&gt;|yes| CLAIM --&gt; WQ --&gt; WORK --&gt; BASIC
+    BASIC --&gt;|no| FAIL --&gt; RQ
+    BASIC --&gt;|yes| DETAIL --&gt; TABLES --&gt; COMPLETE
+    COMPLETE --&gt;|retryable gap| RETRY --&gt; TABLES
+    COMPLETE --&gt;|complete or final gap| RESULT --&gt; RQ
+    RQ --&gt; APPLY --&gt; FACTS --&gt; DB
+    APPLY --&gt; NEIGHBOR --&gt; POLICY
+    POLICY --&gt;|yes| READY --&gt; DB
+    POLICY --&gt;|no| DB
+    DB --&gt; LOOP
+    LOOP -. interval .-&gt; SNAP --&gt; DB
+    LOOP --&gt;|no| STOP
+    STOP --&gt;|paused, resumable limit, or error| HOLD
+    STOP --&gt;|completed or completed-limit| REPAIR
+    REPAIR --&gt; FINAL --&gt; PUBLISH</code></pre>
+<h3 id="collection-ownership-and-failure-rules">Collection ownership and failure rules</h3>
+<p><code>Coordinator</code> is the only process that mutates canonical SQLite state. A worker receives immutable <code>DeviceTask</code> batches, performs network I/O, and returns one <code>DeviceResult</code> per task. It never writes the state database or canonical output files directly.</p>
+<p><code>process_batch</code> first runs the basic route wavefront. A route must establish the SYSTEM-MIB identity before detail collection begins. Failure across all permitted address and credential routes returns a failed result with structured route errors and failed SYSTEM-MIB coverage.</p>
+<p>For a successful basic route, <code>_collect_detail</code> runs the per-device detail chain. Interface and entity data support neighbor interpretation; CDP, LLDP, and LLDPv2 produce raw protocol observations. A timeout, transport error, or structurally incomplete neighbor table is not converted to an authoritative empty table. Bounded retries update coverage and error records before the final result is returned.</p>
+<p><code>StateStore.apply_device_result</code> persists the SNMP result observation, typed claims, raw protocol advertisements, route history, table coverage, and host state. The coordinator then processes successful neighbor observations. A newly observed managed device becomes <code>READY</code> only after classification, boundary policy, and query policy allow recursive polling.</p>
+<p>Periodic snapshots call <code>write_outputs</code>, so graph rematerialization occurs for running drafts as well as final output. Pause, configured limits that remain resumable, and unexpected interruption retain checkpoint and draft state. A successful terminal path stops workers, reconciles safe duplicate query projections, writes final output, and publishes durable run artifacts.</p>
+<h3 id="collection-source-map">Collection source map</h3>
+<table>
+<thead>
+<tr>
+<th>Diagram step</th>
+<th>Primary implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLI and initialization</td>
+<td><code>cli.main</code>, <code>Coordinator.initialize</code></td>
+</tr>
+<tr>
+<td>Scheduling and leases</td>
+<td><code>Coordinator._dispatch</code>, <code>StateStore.claim_batch</code></td>
+</tr>
+<tr>
+<td>Worker queue loop</td>
+<td><code>worker_main</code>, <code>process_batch</code></td>
+</tr>
+<tr>
+<td>Basic route selection</td>
+<td><code>worker._basic_wavefront</code></td>
+</tr>
+<tr>
+<td>Detail collection</td>
+<td><code>worker._collect_detail</code>, <code>collectors/</code></td>
+</tr>
+<tr>
+<td>Result persistence</td>
+<td><code>StateStore.apply_device_result</code></td>
+</tr>
+<tr>
+<td>Recursive neighbor admission</td>
+<td><code>Coordinator._process_neighbor</code></td>
+</tr>
+<tr>
+<td>Draft and final output</td>
+<td><code>outputs.write_outputs</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="resolver-flow">Resolver flow</h2>
+<p>This diagram follows one seed or learned-neighbor candidate through the incremental compatibility resolver. SNMP self-observations and raw protocol advertisements enter the same immutable evidence ledger through a parallel path.</p>
+<pre class="mermaid"><code>flowchart TD
+    INPUT[&quot;seed Candidate or&lt;br/&gt;learned-neighbor Candidate&quot;]
+    NORMAL[&quot;identity normalization&lt;br/&gt;typed alias candidates&quot;]
+    PAYLOAD[&quot;candidate_observation_payload&quot;]
+    CLAIMGEN[&quot;candidate_claims&lt;br/&gt;scope, strength, provenance&quot;]
+    OBS[(&quot;immutable observations&quot;)]
+    CLAIMS[(&quot;immutable claims&quot;)]
+    LOOKUP[&quot;alias lookup and guarded&lt;br/&gt;logical reconciliation&quot;]
+    MATCH{&quot;candidate projections&lt;br/&gt;found?&quot;}
+    CONFLICT{&quot;hard identity or&lt;br/&gt;scope conflict?&quot;}
+    REJECT[&quot;reject conflicting match&lt;br/&gt;retain evidence&quot;]
+    ACTIVE{&quot;matching host owned&lt;br/&gt;by an active worker?&quot;}
+    SELECT[&quot;select active projection&lt;br/&gt;without merging host IDs&quot;]
+    MERGE[&quot;choose stable winner&lt;br/&gt;merge compatible inactive rows&quot;]
+    CREATE[&quot;create DISCOVERED&lt;br/&gt;compatibility host&quot;]
+    UPDATE[&quot;update aliases, addresses,&lt;br/&gt;tags, class, presentation&quot;]
+    DECIDE[(&quot;resolution_decisions&lt;br/&gt;append semantic outcome&quot;)]
+    COMMIT[&quot;commit compatibility&lt;br/&gt;projection transaction&quot;]
+    RESULT[&quot;DeviceResult&quot;]
+    SELF[&quot;device_result_claims&lt;br/&gt;SNMP self evidence&quot;]
+    RAW[&quot;raw protocol advertisements&lt;br/&gt;and neighbor claims&quot;]
+    GRAPH[(&quot;durable graph input&quot;)]
+
+    INPUT --&gt; NORMAL
+    NORMAL --&gt; PAYLOAD --&gt; OBS
+    NORMAL --&gt; CLAIMGEN --&gt; CLAIMS
+    OBS --&gt; LOOKUP
+    CLAIMS --&gt; LOOKUP
+    LOOKUP --&gt; MATCH
+    MATCH --&gt;|no| CREATE
+    MATCH --&gt;|yes| CONFLICT
+    CONFLICT --&gt;|all rejected| REJECT --&gt; CREATE
+    CONFLICT --&gt;|compatible remain| ACTIVE
+    ACTIVE --&gt;|yes| SELECT
+    ACTIVE --&gt;|no| MERGE
+    CREATE --&gt; UPDATE
+    SELECT --&gt; UPDATE
+    MERGE --&gt; UPDATE
+    UPDATE --&gt; DECIDE --&gt; COMMIT
+
+    RESULT --&gt; SELF --&gt; OBS
+    RESULT --&gt; RAW --&gt; OBS
+    RAW --&gt; CLAIMS
+    RAW --&gt; GRAPH</code></pre>
+<h3 id="resolver-decision-rules">Resolver decision rules</h3>
+<p><code>StateStore.upsert_candidate</code> wraps candidate evidence and compatibility-host updates in one immediate SQLite transaction. Exact replay is idempotent because observations and claims use stable fingerprints.</p>
+<p>Claims describe what a source reported; they do not by themselves assert that two devices are equal. Each claim carries a type, subtype, normalized value, provenance, scope, strength, and identity-eligibility flag. Examples include a direct protocol name, a DNS-enriched diagnostic name, a host-eligible address, a strict Cisco SEP MAC, and an edge-scoped locally assigned chassis value.</p>
+<p>Alias lookup and guarded logical reconciliation produce possible host rows. Strong conflicts can reject those rows even when one value matches. Locally scoped or diagnostic evidence cannot become unrestricted global identity. When a compatible host is active, the resolver preserves its host ID rather than invalidating work already leased to a worker. Compatible inactive rows may be consolidated under a deterministic winner; otherwise a new <code>DISCOVERED</code> compatibility row is created.</p>
+<p>The selected compatibility row receives aliases, identity-eligible addresses, tags, classification, and presentation updates. A resolution decision records supporting and conflicting claim IDs plus the projected host. Repeating the same semantic outcome can reuse the latest decision; a changed outcome appends a superseding decision instead of rewriting evidence.</p>
+<p><code>StateStore.apply_device_result</code> separately records one immutable SNMP result observation and its self claims. Before compatibility neighbor rows can merge protocol views, <code>_record_protocol_advertisements_uncommitted</code> retains each raw CDP, LLDP, or LLDPv2 occurrence and its typed neighbor claims. Those durable rows are the preferred graph-rematerialization input.</p>
+<p>The compatibility host projection is still used for scheduling, inventory, and legacy neighbor output. It is not a substitute for immutable observations and claims, and its current merge behavior should not be described as a fully reversible resolver.</p>
+<h3 id="resolver-source-map">Resolver source map</h3>
+<table>
+<thead>
+<tr>
+<th>Diagram step</th>
+<th>Primary implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Candidate normalization</td>
+<td><code>identity.py</code>, <code>state.alias_tuples</code></td>
+</tr>
+<tr>
+<td>Factual candidate payload</td>
+<td><code>claims.candidate_observation_payload</code></td>
+</tr>
+<tr>
+<td>Typed candidate claims</td>
+<td><code>claims.candidate_claims</code></td>
+</tr>
+<tr>
+<td>Durable evidence insertion</td>
+<td><code>StateStore._record_observation_uncommitted</code></td>
+</tr>
+<tr>
+<td>Durable claim insertion</td>
+<td><code>StateStore._record_claims_uncommitted</code></td>
+</tr>
+<tr>
+<td>Compatibility resolution</td>
+<td><code>StateStore.upsert_candidate</code></td>
+</tr>
+<tr>
+<td>Compatible host merge</td>
+<td><code>StateStore._merge_hosts</code></td>
+</tr>
+<tr>
+<td>Decision history</td>
+<td><code>StateStore._record_resolution_decision_uncommitted</code></td>
+</tr>
+<tr>
+<td>SNMP and protocol facts</td>
+<td><code>StateStore.apply_device_result</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="graph-rematerialization-flow">Graph rematerialization flow</h2>
+<p><code>write_outputs</code> rebuilds the graph before serializing every draft or final <code>discovery.json</code>. The graph is not incrementally patched from the prior graph payload.</p>
+<pre class="mermaid"><code>flowchart TD
+    TRIGGER[&quot;outputs._build_discovery_document&lt;br/&gt;draft or final snapshot&quot;]
+    MATERIAL[&quot;StateStore.materialize_topology_graph&quot;]
+    HOSTS[(&quot;hosts, aliases, addresses,&lt;br/&gt;coverage&quot;)]
+    RESULTS[(&quot;SNMP result observations&quot;)]
+    ADS[(&quot;protocol_advertisements&quot;)]
+    LEGACY[(&quot;neighbors compatibility rows&quot;)]
+    CONTEXT[&quot;rebuild factual source context&quot;]
+    RAW[&quot;canonical raw advertisement set&quot;]
+    MISSING{&quot;source has retained&lt;br/&gt;raw advertisements?&quot;}
+    FALLBACK[&quot;compatibility fallback&lt;br/&gt;marked as migration source&quot;]
+    BUILD[&quot;topology_graph.build_topology_graph&quot;]
+    RESOLVE[&quot;cluster logical systems;&lt;br/&gt;resolve remotes and interfaces&quot;]
+    RELATE[&quot;build memberships, edges,&lt;br/&gt;and relationship groups&quot;]
+    ACCOUNT[&quot;account advertisements,&lt;br/&gt;coverage, exclusions, diagnostics&quot;]
+    FINGER[&quot;sort deterministically and&lt;br/&gt;compute projection_fingerprint&quot;]
+    OUTPUT[&quot;GraphBuildResult&lt;br/&gt;document and decisions&quot;]
+    TXN{&quot;BEGIN IMMEDIATE&quot;}
+    SAME{&quot;latest component outcome&lt;br/&gt;is semantically equal?&quot;}
+    REUSE[&quot;reuse latest decision&quot;]
+    APPEND[&quot;append superseding&lt;br/&gt;component decision&quot;]
+    LINEAGE[&quot;append or reuse graph-level&lt;br/&gt;projection lineage&quot;]
+    STORE[&quot;compress JSON and upsert&lt;br/&gt;graph_projection singleton&quot;]
+    COMMIT[&quot;COMMIT current projection&quot;]
+    ROLLBACK[&quot;ROLLBACK&lt;br/&gt;prior projection remains&quot;]
+    SERIALIZE[&quot;embed graph in discovery.json&lt;br/&gt;render fixed and custom CSV&quot;]
+
+    TRIGGER --&gt; MATERIAL
+    HOSTS --&gt; MATERIAL
+    RESULTS --&gt; CONTEXT --&gt; RAW
+    ADS --&gt; RAW
+    LEGACY --&gt; FALLBACK
+    MATERIAL --&gt; MISSING
+    MISSING --&gt;|yes| RAW
+    MISSING --&gt;|no| FALLBACK --&gt; RAW
+    RAW --&gt; BUILD --&gt; RESOLVE --&gt; RELATE --&gt; ACCOUNT --&gt; FINGER
+    FINGER --&gt; OUTPUT --&gt; TXN --&gt; SAME
+    SAME --&gt;|yes| REUSE --&gt; LINEAGE
+    SAME --&gt;|no| APPEND --&gt; LINEAGE
+    LINEAGE --&gt; STORE --&gt; COMMIT --&gt; SERIALIZE
+    TXN -. persistence failure .-&gt; ROLLBACK</code></pre>
+<h3 id="rematerialization-guarantees">Rematerialization guarantees</h3>
+<p><code>materialize_topology_graph</code> reads the complete current host projection, identity aliases, host addresses, collection coverage, immutable SNMP result observations, and raw protocol advertisements. Source context is reconstructed from the exact SNMP observation referenced by each protocol row when available.</p>
+<p>For state that lacks retained raw rows, compatibility advertisements are built from <code>neighbors</code>. They are admitted only for source hosts without preferred raw advertisements and are marked as compatibility or migration evidence. This fallback prevents older resumable state from producing no graph while keeping its lower authority visible.</p>
+<p><code>build_topology_graph</code> performs deterministic logical-host clustering, remote entity resolution, interface construction, memberships, relationships, and relationship-group analysis. Every input advertisement must be materialized or explicitly excluded. Duplicate advertisement keys fail the build rather than publishing an ambiguous graph. Canonical ordering feeds one stable projection fingerprint.</p>
+<p>The graph document is built before the publication transaction. During the transaction, each changed component appends a decision that supersedes its previous semantic outcome. An unchanged component reuses its latest decision. A graph-level lineage decision is also recorded because a split or merge can replace all prior component keys.</p>
+<p>Only after decisions are recorded is the canonical graph compressed and the singleton <code>graph_projection</code> row replaced. A persistence exception rolls back both decisions and the replacement, leaving the previous current projection intact. A successful commit returns the same graph document to <code>write_outputs</code>, which embeds it in <code>discovery.json</code> and derives CSV output from that canonical in-memory document.</p>
+<h3 id="graph-source-map">Graph source map</h3>
+<table>
+<thead>
+<tr>
+<th>Diagram step</th>
+<th>Primary implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Snapshot trigger</td>
+<td><code>outputs._build_discovery_document</code></td>
+</tr>
+<tr>
+<td>Evidence assembly</td>
+<td><code>StateStore.materialize_topology_graph</code></td>
+</tr>
+<tr>
+<td>Canonical raw records</td>
+<td><code>topology_graph.canonical_raw_advertisements</code></td>
+</tr>
+<tr>
+<td>Graph construction</td>
+<td><code>topology_graph.build_topology_graph</code></td>
+</tr>
+<tr>
+<td>Component history</td>
+<td><code>_record_graph_component_decision_uncommitted</code></td>
+</tr>
+<tr>
+<td>Current projection</td>
+<td>SQLite <code>graph_projection</code></td>
+</tr>
+<tr>
+<td>Output serialization</td>
+<td><code>outputs.write_outputs</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="maintenance-checklist-for-these-diagrams">Maintenance checklist for these diagrams</h2>
+<p>Update this reference when a change does any of the following:</p>
+<ul>
+<li>moves ownership of canonical state across a process boundary;</li>
+<li>adds or removes a collection phase, retry, or table-completeness decision;</li>
+<li>changes candidate alias eligibility, hard conflicts, active-host protection, or host-merge selection;</li>
+<li>adds a durable evidence or decision table used by graph construction;</li>
+<li>changes compatibility-fallback conditions;</li>
+<li>changes graph component lineage, transaction ordering, or rollback behavior; or</li>
+<li>changes which graph document feeds <code>discovery.json</code> and CSV output.</li>
+</ul>
+<p>Do not add a rendered image without keeping the Mermaid source here. Tests check that all three diagrams and their named implementation anchors remain present; they do not prove that the arrows are semantically correct. Code review must still compare a behavior change against this file.</p>
+</body>
+</html>

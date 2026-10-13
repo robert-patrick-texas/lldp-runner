@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/PRECEDENCE.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="configuration-and-credential-precedence">Configuration and Credential Precedence</h1>
+<p>This document describes how LLDP-Runner selects, assembles, and prioritizes configuration inputs. It also documents the separate credential fallback model because credentials intentionally do not follow the ordinary scalar-setting precedence chain.</p>
+<h2 id="1-primary-configuration-selection">1. Primary configuration selection</h2>
+<p>Primary-file selection happens before configuration values are merged. LLDP-Runner uses the first applicable source in this order:</p>
+<pre class="text"><code>--config FILE
+  -&gt; LLDP_RUNNER_CONFIG
+  -&gt; ~/lldp-runner-config.toml
+  -&gt; ~/lldp-runner/config.toml
+  -&gt; /opt/lldp-runner/config.toml
+  -&gt; /etc/lldp-runner/config.toml
+  -&gt; no primary file; use built-in defaults</code></pre>
+<p>An explicitly selected file is authoritative. If <code>--config</code> names a missing file, LLDP-Runner reports an error instead of searching another location. The same rule applies when <code>LLDP_RUNNER_CONFIG</code> names a missing file.</p>
+<h2 id="2-assembling-the-selected-configuration-bundle">2. Assembling the selected configuration bundle</h2>
+<p>When a primary file exists, LLDP-Runner builds one site configuration bundle before applying environment or command-line overrides.</p>
+<p>The bundle is assembled in this order:</p>
+<pre class="text"><code>primary-file @include entries, in written order
+  -&gt; remaining conf.d/**/*.toml files, in lexical relative-path order
+  -&gt; primary TOML contents</code></pre>
+<p>The automatic <code>conf.d</code> directory is adjacent to the selected primary file. For example:</p>
+<pre class="text"><code>/opt/lldp-runner/config.toml
+/opt/lldp-runner/conf.d/10-site.toml
+/opt/lldp-runner/conf.d/20-policy.toml</code></pre>
+<p><code>conf.d</code> traversal is recursive. Only filenames ending exactly in <code>.toml</code> are active. Files such as <code>site.toml.example</code>, <code>site.toml.disabled</code>, or <code>SITE.TOML</code> are not loaded automatically.</p>
+<p>A primary-file <code>@include</code> may use a relative or absolute path. Relative paths are resolved from the including file's directory. Included files can include other files.</p>
+<p>For every individual file, its own includes are merged before that file's TOML content. Therefore the including file wins for conflicting scalar values.</p>
+<p>Each resolved configuration file is loaded only once during one configuration load. Include cycles are rejected.</p>
+<h2 id="3-scalar-configuration-precedence">3. Scalar configuration precedence</h2>
+<p>After the file bundle is assembled, ordinary configuration values use this precedence from lowest to highest:</p>
+<pre class="text"><code>built-in defaults.py
+  -&gt; assembled primary-file configuration bundle
+  -&gt; supported LLDP_RUNNER_* environment overrides
+  -&gt; repeatable --set SECTION.OPTION=TOML_VALUE overrides
+  -&gt; dedicated command-line options
+  -&gt; effective runtime configuration</code></pre>
+<p>For scalar values, a later source wins. This includes <code>time.timezone</code>, <code>paths.run_id_format</code>, and <code>snmp.backend</code>; they can be supplied through TOML or <code>--set</code> like other ordinary configuration values.</p>
+<p>For example, if the following inputs are all present:</p>
+<pre class="text"><code>config.toml:                   snmp.timeout_seconds = 1.0
+LLDP_RUNNER_SNMP_TIMEOUT:      2.0
+--set snmp.timeout_seconds=3.0
+--snmp-timeout:                4.0</code></pre>
+<p>then the effective value is <code>4.0</code>.</p>
+<p>Backend selection follows the same chain:</p>
+<pre class="text"><code>built-in default:               pysnmp
+config.toml:                   snmp.backend = &quot;gufo&quot;
+LLDP_RUNNER_SNMP_BACKEND:      pysnmp
+--set &#39;snmp.backend=&quot;gufo&quot;&#39;
+--snmp-backend:                pysnmp</code></pre>
+<p>The effective value is <code>pysnmp</code>. It is bound before discovery and persisted for the logical run. Later worker construction cannot change it, and a resume that resolves to a different backend fails before discovery. This precedence model does not imply fallback: only the final selected backend is imported or used.</p>
+<p><code>--set</code> values use TOML value syntax. Strings should therefore be quoted:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="dt">\</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;snmp.entity_mib_mode=&quot;brief&quot;&#39;</span> <span class="dt">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;logging.level=&quot;DEBUG&quot;&#39;</span> <span class="dt">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p>Repeated <code>--set</code> expressions are processed in order. If a dotted path is set more than once, the last assignment wins.</p>
+<p>Only supported <code>LLDP_RUNNER_*</code> variables are translated into ordinary config settings. LLDP-Runner does not infer arbitrary configuration paths from unknown environment-variable names.</p>
+<h2 id="4-tables-and-lists-inside-the-file-bundle">4. Tables and lists inside the file bundle</h2>
+<p>TOML tables merge recursively.</p>
+<p>Most lists concatenate while <code>@include</code> and <code>conf.d</code> fragments are assembled. This behavior allows ordered rule sets to be split across files without losing earlier rules.</p>
+<p>Examples include classification, tagging, query-policy, and credential-policy rule lists. Where a policy is first-match-wins, earlier list entries retain higher evaluation priority even though later files override scalar settings.</p>
+<p>The following lists are replacement exceptions within the site bundle:</p>
+<pre class="text"><code>discovery.boundaries
+discovery.address_preference
+output.custom_csv.&lt;name&gt;.columns</code></pre>
+<p>A custom CSV column list is one complete ordered schema. A later primary or fragment definition replaces the earlier list instead of appending columns.</p>
+<p>Also, an explicitly configured list replaces the corresponding list from <code>defaults.py</code>. Site boundaries therefore do not accidentally retain the built-in unrestricted boundary list.</p>
+<h2 id="5-dedicated-command-line-options">5. Dedicated command-line options</h2>
+<p>A dedicated CLI option has the highest ordinary setting priority when it maps to the same configuration value.</p>
+<p>Examples include:</p>
+<pre class="text"><code>--workers
+--batch-size
+--seed-order
+--seed-dns-mode
+--shuffle-key
+--limit-behavior
+--persistent-root
+--scratch-root
+--boundary
+--max-devices
+--max-hosts
+--snmp-backend
+--snmp-timeout
+--per-device-rps
+--max-outstanding
+--log-level
+--snmp-version</code></pre>
+<p>A useful operator model is:</p>
+<blockquote>
+<p>Files establish site policy, environment adapts the process, <code>--set</code> makes arbitrary invocation-specific changes, and dedicated CLI options have final say for the settings they expose.</p>
+</blockquote>
+<h2 id="6-credential-precedence-is-separate">6. Credential precedence is separate</h2>
+<p>SNMP credentials intentionally use a different model from ordinary scalar configuration.</p>
+<p>For the operator-focused device/credential decision flow, see <a href="docs-CREDS.html">CREDS.md</a>.</p>
+<p>Explicit credential policy is defined through TOML tables such as:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.site-v3]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v3&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">username_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_USER&quot;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_password_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_AUTH&quot;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_password_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_PRIV&quot;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[credential_profiles.default]</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="dt">primary</span> <span class="op">=</span> <span class="st">&quot;site-v3&quot;</span></span></code></pre></div>
+<p>If any explicit credentials or credential profiles are configured, LLDP-Runner does not synthesize its generic <code>runtime-default</code> profile from the runtime credential environment variables or credential CLI options.</p>
+<p>This makes explicit site credential policy authoritative.</p>
+<h2 id="7-runtime-credential-fallback">7. Runtime credential fallback</h2>
+<p>When no explicit credential/profile policy exists, LLDP-Runner may synthesize runtime credentials from these generic environment variables:</p>
+<pre class="text"><code>SNMPCOMM
+SNMPUSER
+SNMPAUTH
+SNMPPRIV</code></pre>
+<p>The corresponding runtime CLI options are:</p>
+<pre class="text"><code>--community / --snmp.community
+--snmp-user / --snmp.user
+--snmp-auth / --snmp.auth
+--snmp-priv / --snmp.priv</code></pre>
+<p>For a corresponding runtime credential value, the CLI token has priority over the generic environment variable.</p>
+<p>A CLI credential token is first treated as an environment-variable name. For example:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SITE_COMMUNITY</span><span class="op">=</span><span class="st">&#39;example-secret&#39;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--community</span> SITE_COMMUNITY run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p>uses the value of <code>SITE_COMMUNITY</code>. If no environment variable with that name exists, the token itself is treated as the literal credential value.</p>
+<p>When both complete SNMPv3 and SNMPv2c runtime credentials exist, <code>snmp.version</code> or <code>--snmp-version</code> determines which version is primary. The other version is used as fallback. The default preference is SNMPv3.</p>
+<p>If only one complete runtime credential type is available, it is used as the primary runtime credential.</p>
+<h2 id="8-explicit-credential-secret-indirection">8. Explicit credential secret indirection</h2>
+<p>Explicit credential definitions can independently use environment-backed secret fields such as:</p>
+<pre class="text"><code>community_env
+username_env
+auth_password_env
+priv_password_env</code></pre>
+<p>Those environment variables supply secret values to the selected credential. They are not ordinary <code>LLDP_RUNNER_*</code> configuration overlays and do not change the configuration precedence described in Section 3.</p>
+<h2 id="9-non-network-commands-can-disable-credentials-entirely">9. Non-network commands can disable credentials entirely</h2>
+<p>Credential-aware commands use one of two normal modes. Network-capable commands require usable credentials, while credential-aware dry runs can validate policy without requiring live secrets. Stored-data and local-maintenance commands can use a third, disabled mode when credentials have no role in the operation.</p>
+<p><code>show-neighbors</code>, <code>lldp-runner show-neighbors</code>, <code>lldp-runner diff</code>, <code>lldp-runner status</code>, <code>lldp-runner watch</code>, <code>lldp-runner clean</code>, and <code>lldp-runner purge</code> use disabled credential mode. In that mode LLDP-Runner does not build credential/profile/rule objects, synthesize runtime credentials from <code>SNMPCOMM</code> or <code>SNMPUSER</code>/<code>SNMPAUTH</code>/<code>SNMPPRIV</code>, resolve secret environment variables, or validate credential policy. Other applicable configuration is still assembled and validated normally.</p>
+<p>This separation is intentional so read-only viewers and local filesystem maintenance can reuse the same credential-free configuration path without weakening credential enforcement for commands that contact devices.</p>
+<h2 id="10-seeds-are-additive-runtime-inputs">10. Seeds are additive runtime inputs</h2>
+<p>Seed inputs are collected rather than treated as scalar overrides. Discovery can combine configured seeds, CLI seed options, seed-related environment variables, and stdin when requested.</p>
+<p>After collection, logical seed identities are de-duplicated while preserving the first occurrence's ordering and source attribution. A CLI seed therefore does not replace configured seeds.</p>
+<h2 id="11-generate-config-is-intentionally-different">11. generate-config is intentionally different</h2>
+<p><code>lldp-runner generate-config</code> does not load an automatically discovered site configuration and does not apply the normal environment overlay.</p>
+<p>Its effective generation model is:</p>
+<pre class="text"><code>built-in defaults
+  -&gt; --set generation overrides
+  -&gt; applicable dedicated generation options</code></pre>
+<p>This prevents the current production configuration from silently becoming the basis of a supposedly clean generated configuration.</p>
+<h2 id="12-condensed-operational-model">12. Condensed operational model</h2>
+<p>For normal runtime commands, remember these three separate decisions:</p>
+<pre class="text"><code>SELECT PRIMARY FILE
+  --config
+    &gt; LLDP_RUNNER_CONFIG
+    &gt; first existing search-path file
+    &gt; no file
+
+ASSEMBLE SITE FILES
+  @include files
+    -&gt; conf.d files
+    -&gt; primary file contents
+
+BUILD EFFECTIVE SETTINGS
+  defaults
+    -&gt; assembled site files
+    -&gt; supported LLDP_RUNNER_* environment overrides
+    -&gt; --set overrides
+    -&gt; dedicated CLI overrides</code></pre>
+<p>Network-capable commands then apply the distinct explicit-policy or runtime-fallback credential model before validation and network activity. Stored-data/local commands such as <code>show-neighbors</code>, <code>diff</code>, <code>status</code>, <code>watch</code>, and <code>clean</code> explicitly disable the credential subsystem instead. <code>version</code> exits before configuration loading at all.</p>
+<h2 id="per-seed-credential-overlay-precedence">Per-seed credential overlay precedence</h2>
+<p><code>run --seed-credential-file</code> is separate from configuration assembly. Normal seed sources determine which hosts are seeds; credential files only modify the credential attempt chain for matching explicit seeds.</p>
+<p>For a matched seed with <code>credential_strategy=prefer</code>, the order is:</p>
+<pre class="text"><code>seed-credential rows, in file/record order
+  -&gt; each credential_profile row&#39;s configured primary/fallback attempts
+     or the row&#39;s one direct credential attempt
+  -&gt; ordinary address/name/default credential-profile policy</code></pre>
+<p>For <code>exclusive</code>, the ordinary policy step is omitted. An unmatched credential record is never promoted into the seed set. JSON array order and CSV row order are authoritative; <code>credential_label</code> and JSON <code>source_line</code> do not participate in precedence or identity.</p>
+</body>
+</html>

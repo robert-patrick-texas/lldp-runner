@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/CSV-INPUT.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="csv-input">CSV Input</h1>
+<h2 id="1-summary">1. Summary</h2>
+<p>LLDP-Runner uses one shared CSV input layer for reusable seed inventories, seed-credential overlays, and future operator-supplied CSV inputs.</p>
+<p>The reader resolves fields by header name rather than physical column position. Operators may therefore reorder supported columns without changing how the file is interpreted.</p>
+<p>The shared layer owns CSV syntax, source filtering, structural limits, field selection, and source-line diagnostics. Individual callers still decide what a blank value means and whether a parsed value is valid for that feature.</p>
+<p>CSV output is separate. Fixed output files keep their documented column order. This document describes CSV files read by LLDP-Runner.</p>
+<h2 id="2-standard-csv-behavior">2. Standard CSV behavior</h2>
+<p>Parsing uses Python's standard-library <code>csv</code> module.</p>
+<p>The default delimiter is a comma. A caller may select another single-character delimiter such as a semicolon or pipe. Multi-character delimiters are not supported.</p>
+<p>Standard CSV quoting and quote escaping apply. For example:</p>
+<pre class="csv"><code>name,notes
+switch1,&quot;Distribution switch, Building A&quot;
+switch2,&quot;He said &quot;&quot;hello&quot;&quot;&quot;</code></pre>
+<p>The parsed <code>notes</code> values are:</p>
+<pre class="text"><code>Distribution switch, Building A
+He said &quot;hello&quot;</code></pre>
+<p>An apostrophe in an ordinary value has no special meaning.</p>
+<h2 id="3-physical-records">3. Physical records</h2>
+<p>One physical input line is one CSV record.</p>
+<p>Multiline quoted fields are not supported and generate an error.</p>
+<p>Blank physical lines are skipped. By default, a line is also skipped when its first non-whitespace character is <code>#</code>. A caller may configure additional comment prefixes where an existing input format requires them.</p>
+<p>The reader accepts strict UTF-8 input and removes an optional UTF-8 BOM. It does not use replacement decoding for invalid UTF-8.</p>
+<p>An optional ASCII-only mode rejects non-ASCII parsed values. It does not transliterate or silently rewrite them.</p>
+<p>NUL input is rejected.</p>
+<h2 id="4-header-processing">4. Header processing</h2>
+<p>The first nonblank, noncomment record is the header.</p>
+<p>Header matching is case-insensitive by default. For example, these names match the same requested field:</p>
+<pre class="text"><code>preferred_name
+PREFERRED_NAME
+Preferred_Name</code></pre>
+<p>A caller may require case-sensitive matching.</p>
+<p>A blank header field is always an error:</p>
+<pre class="text"><code>name,,ipv4</code></pre>
+<p>A duplicate header field is also an error. Duplicate detection follows the active case policy. With the default case-insensitive policy, this is invalid:</p>
+<pre class="text"><code>name,ipv4,NAME</code></pre>
+<p>A caller may provide an ordered selector list. Only selected fields are returned, and returned dictionary insertion order follows the selector order. Unselected columns are discarded.</p>
+<p>If no selector list is supplied, all header fields are returned in header order.</p>
+<p>A caller controls whether a requested field missing from the header is an error. When missing fields are permitted, the requested dictionary key is returned with a blank string value.</p>
+<h2 id="5-data-rows-and-blank-values">5. Data rows and blank values</h2>
+<p>Blank parsed field values are always accepted by the common reader. The caller must decide whether a blank field is meaningful, optional, or invalid.</p>
+<p>When <code>error_on_column_mismatch</code> is false, a data row may contain fewer columns than the header. Missing header positions are returned as blank strings.</p>
+<p>For example:</p>
+<pre class="csv"><code>name,ipv4,notes
+switch1,198.18.0.1</code></pre>
+<p>produces the equivalent of:</p>
+<pre class="text"><code>name  = switch1
+ipv4  = 198.18.0.1
+notes = &lt;blank&gt;</code></pre>
+<p>When <code>error_on_column_mismatch</code> is true, any data-row width different from the header width is an error.</p>
+<p>Extra data columns are silently discarded by default. Selector use also drops all unselected columns.</p>
+<h2 id="6-field-count-controls">6. Field-count controls</h2>
+<p>Callers may set an absolute minimum and/or maximum number of parsed fields per record.</p>
+<p>A caller also controls whether violating those bounds raises an error. When maximum-field violations are not errors and extra-field dropping is enabled, fields beyond the maximum are discarded.</p>
+<p>These limits are structural checks. They do not decide whether a particular named field may be blank.</p>
+<h2 id="7-physical-line-length-controls">7. Physical line-length controls</h2>
+<p>The default maximum physical line length is 65,535 characters.</p>
+<p>An overlong line normally raises an error with the pathname and physical source line number. A caller may instead request lossy cropping at the configured length.</p>
+<p>Cropping occurs before CSV parsing. If cropping cuts a quoted field and leaves invalid CSV syntax, parsing still fails. LLDP-Runner does not attempt to repair a damaged or truncated CSV record.</p>
+<h2 id="8-source-line-information">8. Source-line information</h2>
+<p>Every returned record retains its original physical source line number. Blank and comment lines do not renumber later records.</p>
+<p>This permits callers such as seed-credential processing to report an exact pathname and source line when semantic validation fails.</p>
+<h2 id="9-current-seedscsv-input">9. Current <code>seeds.csv</code> input</h2>
+<p>Reusable seed input requires the current field set:</p>
+<pre class="text"><code>preferred_name
+queried_as
+ipv4
+ipv6
+credential_profile
+credential_result
+origin
+state
+last_seen
+notes</code></pre>
+<p>The fields may appear in any order and header matching is case-insensitive. Additional unrelated columns are ignored.</p>
+<p>The generated <code>seeds.csv</code> output remains in its fixed documented order. An operator may reorder those columns before using the file as input to a later run.</p>
+<p>The reusable <code>state</code> and <code>queried_as</code> values can participate in the optional <code>discovery.seed_dns_mode = "skip-addressed"</code> startup fast path. The shared CSV reader only returns those named values; DNS eligibility and prior-state semantics remain responsibilities of seed resolution. See <a href="docs-DNS.html">DNS.md</a>.</p>
+<p>Legacy field names are not inferred. For example, old <code>seed</code>, <code>query_target</code>, or <code>status</code> names do not substitute for the current <code>preferred_name</code>, <code>queried_as</code>, and <code>state</code> fields.</p>
+<h2 id="10-current-seed-credential-csv-input">10. Current seed-credential CSV input</h2>
+<p>Seed-credential CSV requires the current field set:</p>
+<pre class="text"><code>seed
+credential_strategy
+credential_label
+credential_profile
+snmp_version
+community
+username
+auth_password
+priv_password
+auth_protocol
+priv_protocol</code></pre>
+<p>These fields may also appear in any order and use case-insensitive header matching. Additional unrelated columns are ignored.</p>
+<p>The seed-credential caller continues to accept both <code>#</code> and <code>;</code> comment lines. Record order, after comments and blank lines are skipped, remains credential attempt order.</p>
+<p>Credential-specific validation remains outside the CSV reader. For example, profile names, strategy values, v2c/v3 requirements, backend-specific algorithm names, and secret-file permission checks are still enforced by the credential subsystem. Gufo accepts SHA-1/MD5 with AES-128/DES; PySNMP additionally accepts SHA-256, <code>aes256</code> for Reeder/Cisco localization, and <code>aes256-blumenthal</code>. No AES-256 alias or automatic localization fallback is inferred by the CSV layer.</p>
+<h2 id="11-future-csv-inputs">11. Future CSV inputs</h2>
+<p>Future LLDP-Runner CSV readers should use this shared layer rather than parsing column positions independently.</p>
+<p>A new caller should specify only the structural behavior it needs, including:</p>
+<ul>
+<li>selected fields;</li>
+<li>delimiter;</li>
+<li>case-sensitive or case-insensitive header matching;</li>
+<li>minimum and maximum field counts;</li>
+<li>whether field-count violations are errors;</li>
+<li>maximum physical line length;</li>
+<li>whether overlong lines may be cropped;</li>
+<li>whether extra fields may be dropped;</li>
+<li>whether missing requested header fields are errors; and</li>
+<li>whether data-row width must match the header.</li>
+</ul>
+<p>Feature-specific meaning and validation should stay with the feature that owns the data.</p>
+</body>
+</html>

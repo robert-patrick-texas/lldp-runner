@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/PRIMER.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="lldp-runner-technical-primer">LLDP-Runner technical primer</h1>
+<p>This primer explains the ideas behind LLDP-Runner's collection and identity work. It is written for Network Operations staff who understand enterprise routing, switching, addressing, and SNMP but may not work with Python or data science every day.</p>
+<p>The detailed implementation is described in <a href="docs-ARCHITECTURE.html">ARCHITECTURE.md</a>. The durable evidence model is described in <a href="docs-CLAIMS.html">CLAIMS.md</a>.</p>
+<h2 id="1-why-network-discovery-is-an-evidence-problem">1. Why network discovery is an evidence problem</h2>
+<p>A switch, router, phone, access point, hypervisor, or appliance can describe itself in several ways:</p>
+<ul>
+<li>SNMP <code>sysName</code></li>
+<li>CDP Device ID</li>
+<li>LLDP System Name</li>
+<li>LLDP Chassis ID</li>
+<li>CDP or LLDP management addresses</li>
+<li>IF-MIB interface names and indexes</li>
+<li>ENTITY-MIB serial numbers</li>
+<li>SNMP engine ID</li>
+<li>DNS names and addresses</li>
+<li>Neighbor Port ID values</li>
+</ul>
+<p>These values are not guaranteed to be complete, current, unique, or formatted the same way. One physical chassis can host several logical systems, such as Cisco Nexus virtual device contexts (VDCs). One physical link can carry several protocol advertisements. A low-end bridge can forward discovery frames rather than consume them. A phone can advertise a default address while its name and Port ID identify a different endpoint.</p>
+<p>LLDP-Runner therefore treats collected values as <strong>evidence</strong>, not immediate proof that two rows are the same host.</p>
+<h2 id="2-snmp-table-collection-and-getbulk">2. SNMP table collection and GETBULK</h2>
+<p>An SNMP table is normally collected through several protocol exchanges. With SNMPv2c and SNMPv3, GETBULK asks the agent to return several table values in one response.</p>
+<p><code>max_repetitions</code> controls how much repeated table data is requested in one GETBULK operation:</p>
+<ul>
+<li>A larger value can finish a table with fewer network exchanges.</li>
+<li>A larger value asks the device to assemble and transmit a larger response.</li>
+<li>A smaller value lowers the work and response size of each exchange.</li>
+<li>A smaller value can require more exchanges to finish the same table.</li>
+</ul>
+<p>A device may time out because it is busy, has a slow control plane, must search a large MIB view, is protecting itself with rate limits, or cannot produce a large response before the manager's timeout expires.</p>
+<p>LLDP-Runner uses a per-target adaptive profile. The first retry-eligible failure uses the configured policy to:</p>
+<ol type="1">
+<li>Increase the active timeout.</li>
+<li>Reduce GETBULK <code>max_repetitions</code>.</li>
+<li>Reduce GET-MANY OID batch size by the same work factor.</li>
+<li>Add request pacing.</li>
+<li>Restart an incomplete table from its root.</li>
+<li>Keep the slower profile for later operations on that target.</li>
+<li>Reset to normal defaults for the next target.</li>
+</ol>
+<p>The default transition is:</p>
+<pre class="text"><code>timeout:             2.0 seconds -&gt; 3.0 seconds
+max_repetitions:     25          -&gt; 13
+inter-PDU delay:     0 ms        -&gt; 100 ms
+normal retry limit:  1 per operation and collector family
+general retry pool:  3 shared tokens for the target route
+neighbor reserve:    2 protected LLDP-family/CDP tokens</code></pre>
+<p>Odd repetition counts round upward so <code>25 * 0.5</code> becomes <code>13</code>. The configured minimum prevents the value from falling below an operator-approved floor.</p>
+<h3 id="why-retry-allocation-must-be-bounded-and-fair">Why retry allocation must be bounded and fair</h3>
+<p>A request wrapper and a protocol collector can both be tempted to retry the same failure. Without shared state, one apparent retry can become several network attempts. LLDP-Runner keeps the decision in one per-target object so session setup, GET, GET-MANY, WALK, and structural table validation cannot independently multiply retries.</p>
+<p>A single undifferentiated target cap can create the opposite problem: early SYSTEM-MIB, ENTITY-MIB, or IF-MIB failures can consume every retry before LLDP or CDP is reached. LLDP-Runner therefore combines a shared general pool with a protected neighbor reserve and a per-collector fair-share limit. Original LLDP and LLDPv2 share the LLDP family; CDP has a separate family. Earlier collectors cannot spend the protected reserve.</p>
+<h3 id="why-the-final-stability-retry-is-delayed-and-separate">Why the final stability retry is delayed and separate</h3>
+<p>Packet loss can outlast an immediate retry, and a live LLDP/CDP table can change while several columns are being walked. When enabled, LLDP-Runner waits until all first-pass neighbor collectors finish, pauses once for the target, and gives each timed-out or structurally invalid protocol one fresh full-protocol attempt. This stability pass has separate accounting so a depleted normal pool cannot block it. Nested transport and structural retries are disabled inside the pass, which makes the extra work exactly bounded at one attempt per eligible protocol.</p>
+<p>Access restrictions, authentication failures, unsupported objects, and other definitive errors are not stability-retry candidates.</p>
+<h3 id="why-partial-table-rows-are-discarded">Why partial table rows are discarded</h3>
+<p>A timeout in the middle of a table does not prove that the rows already returned form a complete snapshot. Accepting them would make missing rows look like real network removals. LLDP-Runner discards the failed attempt and restarts the table from its first requested OID with the degraded profile.</p>
+<h3 id="access-restrictions-are-not-performance-failures">Access restrictions are not performance failures</h3>
+<p>Successful authentication does not guarantee access to every OID. VACM views, ACLs, and device policy can return errors such as <code>noAccess</code> or <code>authorizationError</code>.</p>
+<p>LLDP-Runner records these as <code>snmp_access_restricted</code>. It does not retry them as though the agent were merely slow. Operators can then distinguish:</p>
+<pre class="text"><code>bad credentials
+transport timeout
+access/view restriction
+unsupported OID
+empty but successful table
+structurally incomplete table</code></pre>
+<h2 id="3-observation-claim-cluster-and-decision">3. Observation, claim, cluster, and decision</h2>
+<p>These terms have distinct meanings.</p>
+<h3 id="observation">Observation</h3>
+<p>An <strong>observation</strong> is a factual record of what one collection operation returned. Examples:</p>
+<pre class="text"><code>CDP advertised device ID hq-vdc2-7nx1.example.com(SERIAL000001)
+LLDP local-port index 13 advertised remote port Te1/0/47
+SNMP query to 198.18.0.10 returned sysName switch1.example.com</code></pre>
+<p>Observations are immutable. New information does not rewrite old evidence.</p>
+<h3 id="claim">Claim</h3>
+<p>A <strong>claim</strong> is a typed interpretation derived from an observation. It retains its source and scope. Examples:</p>
+<pre class="text"><code>name claim:               hq-vdc2-7nx1.example.com
+serial-hint claim:        SERIAL000001
+endpoint-MAC claim:       00:12:34:56:00:04
+edge-scoped address:      198.51.100.3
+SNMP-agent engine ID:     8000000903...</code></pre>
+<p>A claim records whether it is strong or weak and whether its scope is global, physical-chassis, logical-agent, edge, or diagnostic.</p>
+<h3 id="candidate-cluster">Candidate cluster</h3>
+<p>A <strong>candidate cluster</strong> is a group of observations that may describe the same physical or logical entity. Clustering is a question for analysis, not a fact reported directly by a protocol.</p>
+<h3 id="resolution-decision">Resolution decision</h3>
+<p>A <strong>resolution decision</strong> records the current conclusion, the supporting claims, and any conflicting claims. Decisions are append-only. A newer decision can supersede an older one when stronger evidence arrives.</p>
+<p>This gives LLDP-Runner a reversible reasoning path:</p>
+<pre class="text"><code>immutable observations
+        |
+        v
+typed claims
+        |
+        v
+candidate cluster
+        |
+        v
+resolution decision A
+        |
+        +---- new contradictory evidence
+        v
+resolution decision B, superseding A</code></pre>
+<h2 id="4-strong-and-weak-evidence">4. Strong and weak evidence</h2>
+<p>Evidence strength depends on both its value and its scope.</p>
+<h3 id="examples-of-strong-evidence">Examples of strong evidence</h3>
+<ul>
+<li>A strict Cisco phone name <code>SEP</code> plus exactly 12 hexadecimal characters</li>
+<li>A strict Cisco AP name whose dotted or compact value encodes a MAC address</li>
+<li>A directly collected SNMP engine ID within its administrative scope</li>
+<li>A trustworthy physical serial number</li>
+<li>An exact typed endpoint MAC on one physical edge</li>
+</ul>
+<p>Strong evidence can still conflict. Two different strict SEP MACs must not merge because they advertise the same default IP address.</p>
+<h3 id="examples-of-weak-or-scoped-evidence">Examples of weak or scoped evidence</h3>
+<ul>
+<li>A common or repeated IP address</li>
+<li>An LLDP <code>network_address</code> chassis value</li>
+<li>An LLDP interface-name chassis value such as <code>vmnic2</code></li>
+<li>A DNS address reached through a load balancer or shared frontend</li>
+<li>A short name without address or topology corroboration</li>
+<li>A numeric LLDP local-port index with no MIB mapping</li>
+</ul>
+<p>Weak evidence remains valuable for display, troubleshooting, and candidate selection. It simply cannot override contradictory strong evidence.</p>
+<h2 id="5-physical-chassis-logical-agents-and-protocol-advertisements">5. Physical chassis, logical agents, and protocol advertisements</h2>
+<p>A flat <code>host</code> row is not enough to describe every network system.</p>
+<p>Consider a Cisco Nexus chassis with several VDCs:</p>
+<pre class="text"><code>physical Nexus chassis
+    |
+    +-- logical VDC A
+    +-- logical VDC B
+    +-- logical VDC C</code></pre>
+<p>The VDCs can share a physical serial and management attachment while retaining separate logical names, addresses, SNMP agents, and topology roles. Sharing the serial should associate them with one chassis, not merge the VDCs into one logical host.</p>
+<p>A local interface can also receive several advertisements:</p>
+<pre class="text"><code>local interface observation group
+    |
+    +-- direct LLDP advertisement
+    +-- direct CDP advertisement
+    +-- advertisement from another logical agent on the same chassis
+    +-- indirect CDP/LLDP frame forwarded by an intermediate bridge</code></pre>
+<p>A protocol advertisement is evidence about a relationship. It is not always a complete statement of one direct physical cable.</p>
+<p>LLDP-Runner records each raw protocol advertisement before cross-protocol reasoning. The graph accounts for every durable advertisement or gives an explicit exclusion reason. Complex ports retain all members in a deterministic interface observation group. Entity resolution remains provisional, relationship scope is <code>observed</code>, and directness remains <code>unresolved</code>; the resolver does not guess whether an advertisement is a direct cable, a logical member, a passed-through frame, or an overlay relationship.</p>
+<h2 id="6-decorated-system-names">6. Decorated system names</h2>
+<p>Some devices advertise a name followed by a serial-like token:</p>
+<pre class="text"><code>hq-vdc2-7nx1.example.com(SERIAL000001)</code></pre>
+<p>LLDP-Runner retains three facts:</p>
+<pre class="text"><code>raw advertisement:  hq-vdc2-7nx1.example.com(SERIAL000001)
+logical base name:   hq-vdc2-7nx1.example.com
+serial hint:         SERIAL000001</code></pre>
+<p>The logical base is used for guarded CDP/LLDP comparison and DNS lookup. The serial hint is stored separately and does not merge physical chassis by itself. A direct ENTITY-MIB serial or other reliable source can later corroborate it.</p>
+<p>Generic parenthesized text is not automatically stripped. A suffix must be a plausible terminal alphanumeric serial token, and the remaining base must still be a usable identity name.</p>
+<h2 id="7-interface-namespaces">7. Interface namespaces</h2>
+<p>The same integer can mean different things in different MIB tables.</p>
+<p>Examples:</p>
+<pre class="text"><code>IF-MIB ifIndex:             13
+LLDP lldpRemLocalPortNum:   13</code></pre>
+<p>Equal integers do not establish that these are the same namespace. LLDP-Runner therefore preserves unresolved values with a type:</p>
+<pre class="text"><code>ifIndex:13
+lldpLocalPort:13</code></pre>
+<p>When protocol rows already contain the same resolved name, such as <code>Gi0/0/3</code>, the graph uses one interface occurrence and preserves the original IF-MIB or LLDP namespace as evidence. When CDP and LLDP identify one unique endpoint, exact remote port, and matching protocol-local numeric index, LLDP-Runner can also attach the unresolved LLDP row to the resolved CDP edge. This is an edge-scoped conclusion. It does not create a device-wide rule that all LLDP local-port numbers equal IF-MIB indexes.</p>
+<h2 id="8-deterministic-sets-and-multisets">8. Deterministic sets and multisets</h2>
+<p>SNMP agents do not have to return table rows in the same order on every run. Order must therefore not decide identity or topology.</p>
+<p>LLDP-Runner compares canonical keys and emits a stable sort order. Conceptually:</p>
+<pre class="text"><code>directness or scope
+logical base name
+physical or logical identity
+remote port
+protocol set
+strong endpoint identity
+immutable fingerprint</code></pre>
+<p>A <strong>set</strong> records unique members. A <strong>multiset</strong> also records how many times a member occurs. Multisets matter when duplicate advertisements are materially separate evidence. Sorting is for stable display and serialization; matching is based on keys and evidence, not list position.</p>
+<p>A critical regression property is <strong>order invariance</strong>:</p>
+<blockquote>
+<p>The same observations must produce the same normalized collection, claims, groups, and decisions regardless of ingestion order.</p>
+</blockquote>
+<h2 id="9-deferred-reasoning-and-reversible-outcomes">9. Deferred reasoning and reversible outcomes</h2>
+<p>Immediate merging is attractive because it is simple, but it can make an early weak assumption difficult to undo. Deferred reasoning stores observations first and decides after more context is available.</p>
+<p>Examples of information that may change a decision:</p>
+<ul>
+<li>A later SNMP query returns a conflicting engine ID.</li>
+<li>ENTITY-MIB returns a physical serial.</li>
+<li>Another switch observes the same endpoint MAC on an incompatible location.</li>
+<li>A repeated address becomes contested by several devices.</li>
+<li>A logical VDC is associated with a known physical chassis.</li>
+<li>A direct LLDP adjacency explains why downstream CDP frames were observed.</li>
+</ul>
+<p>A reversible resolver does not delete the earlier conclusion. It appends a new decision, records why it supersedes the old decision, and rematerializes the current host and edge view from the latest valid decisions.</p>
+<h2 id="10-confidence-is-multi-dimensional">10. Confidence is multi-dimensional</h2>
+<p>One number cannot explain every uncertainty. Useful dimensions include:</p>
+<pre class="text"><code>identity-match confidence
+cluster integrity
+physical-edge confidence
+local-port resolution confidence
+collection coverage</code></pre>
+<p>For example, two runs can show the same typed <code>lldpLocalPort:13</code> edge with high physical continuity while the friendly interface-name resolution remains incomplete. The topology can be stable even though one display attribute is unresolved.</p>
+<p>Likewise, a cross-run pair can have a high match score while one side contains a conflicted cluster. The cluster conflict should prevent an ordinary field-by- field host comparison.</p>
+<h2 id="11-operational-reading-of-current-output">11. Operational reading of current output</h2>
+<p>When a target enters adaptive slowdown, logs use this field order:</p>
+<pre class="text"><code>SNMP target=&lt;address-or-name&gt; &lt;message&gt;</code></pre>
+<p>A representative retry event is:</p>
+<pre class="text"><code>SNMP target=198.18.0.10 adaptive retry operation=WALK \
+category=timeout attempt=2 timeout=2.000-&gt;3.000 \
+max_repetitions=25-&gt;13 inter_pdu_delay_ms=0.000-&gt;100.000 \
+per_device_rps=5.000-&gt;3.333 partial_result_discarded=true</code></pre>
+<p>The same facts are retained in adaptive session telemetry in SQLite and <code>discovery.json</code> when a retry occurs. The host SNMP section retains the compact interface-group audit view, while the top-level schema-7 <code>topology_graph</code> provides the observation projection and reports separate authority dimensions for completeness, entity resolution, physical topology, and directness.</p>
+<p>These records explain collection behavior; they are not themselves proof of a physical topology change. A graph relationship is an observed advertisement until independent evidence establishes a stronger physical interpretation.</p>
+</body>
+</html>

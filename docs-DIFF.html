@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/DIFF.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="comparing-discovery-runs">Comparing Discovery Runs</h1>
+<h2 id="1-summary">1. Summary</h2>
+<p><code>lldp-runner diff</code> compares finalized LLDP-Runner discovery results without contacting network devices. It is a read-only command and disables the credential subsystem.</p>
+<p>The command has two operating modes:</p>
+<ol type="1">
+<li>With no host selector, it performs a macro comparison of the host inventory and each host's authoritative <code>learned_neighbors</code> records.</li>
+<li>With a host selector, it selects exactly one host from data set A, identifies the same logical host in data set B, and reports changed host details plus learned and <code>observed_by</code> neighbor changes for that host.</li>
+</ol>
+<p>The default comparison is the latest finalized run against the finalized run immediately before it. If no prior run is available, LLDP-Runner exits without attempting a comparison and reports:</p>
+<pre class="text"><code>Result: No comparison possible: no prior finalized discovery run is available.</code></pre>
+<p>A successful comparison uses these exit codes:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Exit</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>0</code></td>
+<td>Comparison completed and no differences were found.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>1</code></td>
+<td>Comparison completed and differences were found.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>2</code></td>
+<td>Usage, configuration, source, or schema error.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>3</code></td>
+<td>Host selection or B-side matching returned multiple records.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>4</code></td>
+<td>A valid comparison could not be made.</td>
+</tr>
+</tbody>
+</table>
+<p>Human output always includes a <code>Result: &lt;status message&gt;</code> line. This gives scripts a stable text marker in addition to the exit status. <code>--json</code> instead places the same state under the JSON <code>result</code> object so the output remains valid JSON.</p>
+<h2 id="2-data-set-a-and-data-set-b">2. Data set A and data set B</h2>
+<p>The comparison is directional. LLDP-Runner labels the first data set A and the second data set B. A and B do not have to be in chronological order when the operator explicitly identifies both sources.</p>
+<p>Source selection follows this table:</p>
+<table>
+<thead>
+<tr>
+<th>Operator input</th>
+<th>Data set A and data set B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>no source</td>
+<td>A = latest; B = previous</td>
+</tr>
+<tr>
+<td><code>--previous</code></td>
+<td>A = latest; B = previous</td>
+</tr>
+<tr>
+<td><code>--prior</code></td>
+<td>A = latest; B = previous</td>
+</tr>
+<tr>
+<td><code>--oldest</code></td>
+<td>A = latest; B = oldest</td>
+</tr>
+<tr>
+<td>one <code>--runid R</code></td>
+<td>A = latest; B = run R</td>
+</tr>
+<tr>
+<td>one <code>--file F</code></td>
+<td>A = latest; B = file F</td>
+</tr>
+<tr>
+<td><code>--latest</code> only</td>
+<td>error; a second source is required</td>
+</tr>
+<tr>
+<td>two source options</td>
+<td>first is A; second is B</td>
+</tr>
+</tbody>
+</table>
+<p>The source options are:</p>
+<pre class="text"><code>--latest
+--previous
+--prior
+--oldest
+--runid RUNID
+--file FILENAME</code></pre>
+<p><code>--prior</code> is an alias for <code>--previous</code>. There is intentionally no <code>--last</code> alias because <code>last</code> can be interpreted as either newest or oldest.</p>
+<p><code>--runid</code> and <code>--file</code> are repeatable. They can also be mixed. For example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--runid</span> 20260105-120000-EDT <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--runid</span> 20260104-120000-EDT</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--file</span> ./after/discovery.json <span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--file</span> /srv/archive/before/discovery.json</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--runid</span> 20260105-120000-EDT <span class="dt">\</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--file</span> /srv/archive/reference.json</span></code></pre></div>
+<p>When two source options are supplied, command-line order is authoritative. Two references that resolve to the same discovery file are rejected.</p>
+<h2 id="3-how-run-history-is-ordered">3. How run history is ordered</h2>
+<p>Run IDs are configurable and are not used as timestamps for history ordering. <code>--latest</code>, <code>--previous</code>/<code>--prior</code>, and <code>--oldest</code> are resolved by a timezone-aware completed timestamp.</p>
+<p>For each finalized <code>&lt;persistent_root&gt;/&lt;output_dirname&gt;/&lt;RUNID&gt;/</code> directory, LLDP-Runner first reads the small <code>run.json</code> file and uses its <code>completed</code> value. Current completed runs are expected to publish this file beside <code>discovery.json</code>.</p>
+<p>If <code>run.json</code> is unavailable or does not contain a usable aware completion time, LLDP-Runner reads only the leading <code>discovery</code> metadata object from <code>discovery.json</code> as a compatibility fallback. It does not load the entire historical discovery document merely to decide which run is latest or oldest. This matters when a discovery file is hundreds of megabytes or several gigabytes.</p>
+<p>A finalized directory that has no timezone-aware completion timestamp cannot be safely placed in <code>--latest</code>, <code>--previous</code>, or <code>--oldest</code> chronology and is not used by those aliases. It can still be selected explicitly by <code>--runid</code>.</p>
+<h2 id="4-arbitrary-files">4. Arbitrary files</h2>
+<p><code>--file FILENAME</code> allows a discovery document outside the normal run-history directory.</p>
+<p>An absolute pathname is used directly. A relative pathname starts from the operator's current working directory. Human source headings and ambiguity messages always show the resolved absolute pathname, for example:</p>
+<pre class="text"><code>A: --file /srv/archive/site-a/discovery.json
+   /srv/archive/site-a/discovery.json</code></pre>
+<p>If a <code>run.json</code> file is beside an explicitly selected discovery file, LLDP-Runner uses its available completion and scope/provenance metadata. The source remains labeled <code>--file &lt;absolute-path&gt;</code> rather than being rewritten to a run-ID source.</p>
+<h2 id="5-schema-requirements">5. Schema requirements</h2>
+<p>Both selected files must use the discovery JSON schema supported by the installed LLDP-Runner release, and the schema versions must match.</p>
+<p>The current implementation compares discovery schema version 8 documents. The command does not add legacy schema conversion or silently normalize older discovery formats.</p>
+<p>The machine-readable diff has an independent schema version. The current writer emits diff JSON schema version 12. Schema 12 retains schema-11 graph-backed events and consistency semantics and adds orthogonal relationship-change dimensions, exact per-member presence and protocol transitions, and <code>graph_member_keys</code> on change events. The flat host and neighbor result remains a compatibility diagnostic inside the same document.</p>
+<h2 id="6-why-host-ids-cannot-be-compared-directly">6. Why host IDs cannot be compared directly</h2>
+<p><code>hosts[].id</code> is an unambiguous reference inside one <code>discovery.json</code>, but it is run-local. Host 17 in one run is not assumed to be host 17 in another run.</p>
+<p><code>preferred_name</code> also cannot be treated as a unique cross-run key. It is a presentation field and is not guaranteed to be unique. See <a href="docs-NAMES.html">NAMES.md</a> for the complete name and alias model.</p>
+<p>For those reasons, graph diff builds correspondence components that can contain one or several entities from either run. The flat compatibility comparison still builds a one-to-one host map for its diagnostic host and neighbor tables.</p>
+<h2 id="7-cross-run-host-matching">7. Cross-run host matching</h2>
+<p>Host matching uses the strongest shared evidence available. The evidence tiers are evaluated in this order:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Evidence used</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Physical</td>
+<td>serial, SNMP engine ID, chassis ID, stack-member serials</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>shared normalized management IPv4 or IPv6 address</td>
+</tr>
+<tr>
+<td>Name</td>
+<td>names, <code>preferred_name</code>, <code>snmp_sysname</code>, system <code>sys_name</code></td>
+</tr>
+<tr>
+<td>Edge context</td>
+<td>paired observer + same typed local port + exact endpoint MAC</td>
+</tr>
+</tbody>
+</table>
+<p>Names are normalized case-insensitively and without a trailing dot for this matching step. IP addresses are normalized to canonical host-eligible address text. Sentinel/group values such as <code>0.0.0.0</code>, <code>::</code>, <code>255.255.255.255</code>, loopback, multicast, IPv4 this-network, and reserved IPv4 values are ignored as cross-run address keys even when an older discovery file contains them. Placeholder physical values such as <code>unknown</code>, <code>none</code>, <code>n/a</code>, and <code>-</code> are not used as durable identity evidence.</p>
+<p>Automatic pairing is one-to-one. A host is paired only when the strongest remaining candidate is unique from both directions. This prevents an early weak name match from consuming a B-side record that has stronger physical evidence for another A-side host.</p>
+<p>Address evidence is not assumed to be globally unique. When one address maps to several candidates, an exact normalized name can narrow the set; otherwise the association remains uncertain. This mirrors discovery 0.31.4, which preserves repeated addresses as contested claims instead of assigning them to whichever host happened to be processed first.</p>
+<p>A physical token is not always a logical-host key. When one physical candidate set contains several records sharing the same chassis/container evidence, LLDP-Runner can narrow that set only when a candidate also shares both a normalized logical name and at least one normalized management address. This allows logical devices such as Cisco Nexus VDCs to remain separate even though they share one physical chassis serial. If name-plus-address corroboration is still non-unique, diff keeps the match uncertain rather than selecting one.</p>
+<p>Beginning with 0.30.1, LLDP-Runner normalizes each host's identity evidence once and builds reverse indexes for physical tokens, management addresses, and names. Candidate lookup uses those indexes rather than testing every host in A against every host in B. This preserves reciprocal uniqueness and conflict rules while avoiding the quadratic CPU behavior present in 0.30.0 on large inventories. A selected-host diff still indexes both host inventories once so run-local neighbor references can be mapped safely across the two data sets.</p>
+<p>Beginning with 0.31.4, a second conservative pass can pair a host that has no globally useful physical, address, or name token. The same already-paired observer must report the remote endpoint on the same <strong>typed</strong> local port and with the same exact MAC-derived endpoint token, and the candidate must be unique from both directions. This <code>edge_context</code> evidence is deliberately local to the topology relationship. It is not promoted to a global alias and cannot pair an endpoint seen on a different switch port merely because a MAC-like value appears somewhere else.</p>
+<h3 id="71-physical-conflicts-and-logical-corroboration">7.1 Physical conflicts and logical corroboration</h3>
+<p>LLDP-Runner deliberately prefers <code>identity uncertain</code> over a false assertion that two records represent the same device.</p>
+<p>Different non-empty serial numbers or SNMP engine IDs remain hard conflicts. A matching address or name cannot override either conflict.</p>
+<p>Chassis IDs need more context. Some platforms, notably Cisco Nexus VDCs, can advertise different valid LLDP chassis MACs on different links to the same logical device. A chassis-ID disagreement can therefore be overridden only when both a normalized logical name and at least one normalized management address also agree. Name-only or address-only agreement is insufficient.</p>
+<p>The same logical corroboration is used when a physical serial maps to several cross-run candidates. For example, one Nexus chassis serial can belong to VDCs <code>vdc1</code>, <code>vdc2</code>, and <code>vdc3</code>. The shared serial establishes a physical-container relationship, while the matching VDC name plus management address identifies which logical host should be paired. Different VDC names/addresses remain separate even though the chassis serial is identical.</p>
+<p>This mirrors the discovery-time consolidation rule documented in <a href="docs-NAMES.html">NAMES.md</a>: logical corroboration can tolerate link-specific chassis variation, but it does not make shared physical-container evidence sufficient for merging discrete logical hosts.</p>
+<p>This does not reverse identity folding that already occurred during discovery. If two real devices using one duplicate name were already consolidated into a single host record, the diff command only has the canonical JSON evidence to work with. It cannot reconstruct identities that were lost before output.</p>
+<p>Operators should continue to use unique device names throughout the network and should correct devices that advertise duplicate, non-unique names.</p>
+<h3 id="72-pairing-confidence">7.2 Pairing confidence</h3>
+<p>Every successful host pair records its evidence tier, exact normalized evidence tokens, and one categorical confidence value:</p>
+<table>
+<thead>
+<tr>
+<th>Confidence</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>verified</code></td>
+<td>Exact serial, SNMP engine ID, or strict SEP-derived MAC</td>
+</tr>
+<tr>
+<td><code>high</code></td>
+<td>Other physical identity, or reciprocal unique edge-context evidence</td>
+</tr>
+<tr>
+<td><code>medium</code></td>
+<td>Unique shared management address without exact-name corroboration</td>
+</tr>
+<tr>
+<td><code>low</code></td>
+<td>Name-only reciprocal unique pairing</td>
+</tr>
+</tbody>
+</table>
+<p>An address pair narrowed by an exact normalized name is <code>high</code>. Ambiguous hosts remain <code>uncertain</code>; they are not assigned a confidence value merely to force a decision.</p>
+<p>These labels are explainable engineering categories, not calibrated probabilities. A value such as <code>high</code> means that the current resolver used a strong, conservative rule. It does not mean that a statistically measured percentage of all such pairs is correct. Calibrated probabilities require a labeled reference corpus and reliability testing outside the comparison itself.</p>
+<p>Macro JSON publishes counts under <code>summary.host_pairing_confidence</code>, while every paired host contains <code>match.tier</code>, <code>match.confidence</code>, and <code>match.evidence</code>.</p>
+<h3 id="73-graph-correspondence">7.3 Graph correspondence</h3>
+<p>Discovery schema 8 contains <code>topology_graph</code>. Diff compares graph entities as connected correspondence components instead of forcing every record into a one-to-one row.</p>
+<p>The graph carries independent authority dimensions. An observation-complete projection can still have provisional entity resolution, uninferred physical topology, and unresolved directness. Diff preserves those distinctions rather than treating the graph as one all-or-nothing truth value.</p>
+<p>Possible component outcomes include:</p>
+<pre class="text"><code>same
+same_ambiguous
+cluster_split
+cluster_merge
+cluster_reassociated
+absorbed_duplicate
+duplicate_projection_introduced
+candidate_move
+a_only
+b_only
+changed</code></pre>
+<p>A split or merge describes how resolver projections correspond across runs. It is not automatically a physical-link change. For example, one prior projection of a Nexus VDC may become two duplicate projections in the current run while both contain the same learned relationships. Diff reports the cluster split and duplicate relationship projection without claiming that dozens of cables were added.</p>
+<p>Relationship groups compare a canonical local-interface occurrence and a multiset of learned members. SNMP table row order does not participate in the comparison. Several equal projected groups are counted as duplicate projection, not as additional physical relationships.</p>
+<p>Graph output separates these questions:</p>
+<pre class="text"><code>has_resolution_differences
+has_observed_relationship_differences
+physical_topology_assessment</code></pre>
+<p><code>physical_topology_assessment</code> remains <code>not_inferred</code> when observed members change because graph relationships intentionally retain <code>directness=unresolved</code>. It becomes <code>no_change_indicated</code> when only resolver or duplicate-projection correspondence changed.</p>
+<p>The graph preserves physical chassis and logical systems separately. Several Nexus VDC logical systems can therefore be members of one chassis without being merged into one logical host.</p>
+<p>When the same weak MAC-only observed system appears uniquely on different local ports, graph diff emits one <code>candidate_move</code> relationship correspondence with <code>semantic_qualification=ambiguous</code>. Low-entropy, multicast, locally administered, malformed, and otherwise weak MAC values can be repeated by virtual appliances or vendor defaults, so this correspondence records a review candidate rather than two confirmed one-sided relationships or proof of a physical endpoint move.</p>
+<h2 id="8-macro-comparison">8. Macro comparison</h2>
+<p>With no host selector, <code>lldp-runner diff</code> performs a macro comparison.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--previous</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--oldest</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--runid</span> 20260104-120000-EDT</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--changes-only</span></span></code></pre></div>
+<p>The macro comparison uses the same cross-run host map as selected-host diff. In particular, shared-serial Nexus VDCs are paired by logical name plus management address before learned-neighbor host references are translated. This prevents an unchanged VDC topology from appearing as matching <code>a_only</code> and <code>b_only</code> rows merely because run-local host IDs changed. A genuinely changed representative chassis ID can still appear as a host-field difference.</p>
+<p>Before one-to-one compatibility pairing, macro diff folds duplicate complete managed-host rows only when they share one exact normalized logical system name, at least one host-eligible management address, and no contradictory durable identity evidence. Learned and observed-by references are remapped to the canonical row and duplicate neighbor projections are removed. This step changes only the diagnostic compatibility view; immutable advertisements and graph evidence remain untouched. Shared physical serial evidence alone never folds different Nexus VDC names.</p>
+<p>The macro comparison evaluates:</p>
+<ul>
+<li>hosts present in both data sets;</li>
+<li>host-record detail differences;</li>
+<li>hosts present only in A;</li>
+<li>hosts present only in B;</li>
+<li>hosts whose cross-run identity is uncertain; and</li>
+<li>authoritative learned-neighbor topology for paired hosts.</li>
+</ul>
+<p>It does not compare error message text as topology. It does use host state and neighbor-collector errors to determine whether one side had complete topology coverage. See <a href="#collection-completeness-and-uncertainty">section 14</a>.</p>
+<p>The terminal output begins with source and result information, then a count summary. A representative summary is:</p>
+<pre class="text"><code>A: --runid 20260105-160000-EDT
+   /var/lib/lldp-runner/outputs/20260105-160000-EDT/discovery.json
+B: --runid 20260105-120000-EDT
+   /var/lib/lldp-runner/outputs/20260105-120000-EDT/discovery.json
+Result: Differences found
+
+Summary
+Category           Same  Changed  Moved  Protocol  A only  B only  Uncertain
+-----------------  ----  -------  -----  --------  ------  ------  ---------
+Hosts               418        2      0         0       1       0          1
+Learned neighbors  3021        1      1         3       2       0          4</code></pre>
+<p>The host table then identifies which logical hosts are the same, changed, present on only one side, or uncertain. <code>Host D</code> is the count of normalized host-detail differences. <code>Nbr D</code> counts all non-<code>same</code> learned-neighbor rows, including ordinary changes, protocol-set changes, one-sided rows, and uncertain rows.</p>
+<pre class="text"><code>Status     Confidence  A ID  A name      B ID  B name      Host D  Nbr D
+---------  ----------  ----  ----------  ----  ----------  ------  -----
+same       verified      14  core-rtr1     11  core-rtr1        0      0
+changed    high          18  access-sw1    15  access-sw1       2      1
+A only     -             27  new-sw3        -  -                -      4
+uncertain  ambiguous     31  phone-01       ?  28:phone-01      ?      ?</code></pre>
+<p>When learned topology differs for a paired host, a second table shows the changed connection. A uniquely identified endpoint that changes resolved local switch ports is reported as <code>moved</code> rather than as unrelated A-only and B-only rows. Remote-port and other attribute changes remain visible as field differences.</p>
+<p>Color supplements the textual status when standard output is an interactive terminal. The existing LLDP-Runner terminal color policy, <code>terminal.color</code>, and <code>NO_COLOR</code> behavior are reused. Redirected and JSON output contains no ANSI escape sequences.</p>
+<h2 id="9-why-macro-topology-uses-learned-neighbors-only">9. Why macro topology uses learned neighbors only</h2>
+<p><code>learned_neighbors</code> is the authoritative direction reported by the queried host. <code>observed_by_neighbors</code> is the reciprocal presentation of that same stored topology evidence.</p>
+<p>Walking both arrays for every host would count many physical observations twice. Macro topology comparison therefore uses only <code>learned_neighbors</code>.</p>
+<p>Host-specific comparison is different: both learned and <code>observed_by</code> directions are useful when investigating one device, so both are displayed there.</p>
+<h2 id="10-neighbor-matching">10. Neighbor matching</h2>
+<p>Neighbor <code>host_ref</code> values are run-local host IDs and are never compared numerically across runs. They are translated through the cross-run host map.</p>
+<p>For a paired local host, the normal edge identity is:</p>
+<pre class="text"><code>local interface + paired remote host identity</code></pre>
+<p>This allows a change in the remote port to appear as a changed field on the same connection.</p>
+<p>Beginning with 0.31.4, diff also has a conservative cross-local-port path. The remote host must already be paired, each side must contain exactly one row for that relationship, and the remote Port ID or another strong endpoint MAC token must agree. When both local interfaces are resolved names and differ, the row is reported as <code>moved</code>. If either side is an unresolved numeric identifier, the row is <code>uncertain</code> instead because collection did not prove a physical move.</p>
+<p>Where several parallel records have the same local/remote identity, LLDP-Runner first uses an exact remote-interface match to avoid arbitrary pairing. It does not invent a match when the remaining evidence is not unique.</p>
+<p>If the remote host itself could not be paired across runs, diff has one narrow same-edge fallback. The local interface must agree and the two records must share a unique strong MAC token. A MAC can come directly from the remote Port ID/chassis/remote-interface evidence, or from the exact reversible IPv6 modified-EUI-64 encoding containing the inserted <code>ff:fe</code> octets. This fallback does not create a global host alias and cannot match an arbitrary IPv6 suffix.</p>
+<p>The rule is useful for endpoints that alternate between a MAC Port ID and a link-local modified-EUI-64 address. The records become one comparable edge rather than an unrelated A-only/B-only pair; any other changed advertised fields remain visible as normal field differences.</p>
+<p>Protocols, addresses, capabilities, and other set-like values are compared in stable order so list ordering by itself is not treated as a network change.</p>
+<h3 id="101-typed-local-port-evidence">10.1 Typed local-port evidence</h3>
+<p>SNMP exposes several local-port namespaces. In particular, original LLDP's <code>lldpRemLocalPortNum</code> indexes <code>lldpLocPortTable</code>; it is not automatically an IF-MIB <code>ifIndex</code>. LLDP-Runner therefore compares typed forms:</p>
+<pre class="text"><code>name:Gi1/0/10
+ifIndex:17
+lldpLocalPort:14</code></pre>
+<p>A resolved row can carry its display name together with the applicable typed indexes, allowing a healthy collection to explain a later unresolved row. Diff never equates <code>ifIndex:14</code> with <code>lldpLocalPort:14</code> merely because the integers match.</p>
+<p>Discovery writes unresolved values explicitly as <code>ifIndex:&lt;n&gt;</code> or <code>lldpLocalPort:&lt;n&gt;</code> and persists per-protocol interface-resolution coverage. A bare numeric representation is usable only when protocol detail supplies its namespace.</p>
+<p>Two rows with the same typed unresolved local-port token and otherwise identical normalized edge evidence are the same observed relationship. A resolved and a typed-unresolved row can also correspond when one edge-scoped match is uniquely corroborated by all of the following:</p>
+<ul>
+<li>the same paired observing entity;</li>
+<li>the same typed LLDP local-port number;</li>
+<li>the same strong remote identity and remote port; and</li>
+<li>no competing relationship match.</li>
+</ul>
+<p>That result uses <code>semantic_qualification: "presentation_only"</code>. The relationship status remains <code>same</code>; <code>port_resolution</code> identifies the degraded side; and the raw display change remains under <code>presentation_differences</code>. This rule does not create a device-wide equivalence between LLDP local-port numbers and IF-MIB ifIndex values.</p>
+<p>A changed relationship remains uncertain when an unresolved port prevents a unique edge-level conclusion.</p>
+<h3 id="102-protocol-set-changes">10.2 Protocol-set changes</h3>
+<p>Beginning with 0.31.2, diff separates a change in discovery-protocol evidence from an ordinary topology change when the physical relationship is otherwise the same. <code>compare_neighbors</code> has already paired the same remote host on the normalized local interface before this classification is considered.</p>
+<p>Examples include:</p>
+<pre class="text"><code>cdp -&gt; cdp,lldp
+cdp,lldp -&gt; cdp
+lldp -&gt; cdp,lldp
+cdp -&gt; lldp</code></pre>
+<p>A paired row receives status <code>protocol_changed</code> when the protocol sets differ and the remaining field differences are protocol/representation evidence, such as the preferred remote name/Port ID, observed address set, capabilities, or protocol-specific <code>details</code>. The full field differences remain present for review; the status says the edge itself was not interpreted as moved or replaced.</p>
+<p>This is especially useful for Cisco phones. CDP may report:</p>
+<pre class="text"><code>SEP001234560004 / Port 1</code></pre>
+<p>while LLDP reports:</p>
+<pre class="text"><code>SEP001234560004.voice-a.example.com / 001234560004:P1</code></pre>
+<p>If a later run gains or loses one protocol while the endpoint and local switch port remain paired, macro and host-specific diff report the protocol transition explicitly instead of counting it as an ordinary <code>changed</code> topology row. The macro summary places these rows in the <code>Protocol</code> column.</p>
+<p>Collection uncertainty has higher priority. If the missing protocol is also recorded as a failed collector on that side, the row remains <code>uncertain</code> because diff cannot assert that the protocol evidence actually disappeared from the network.</p>
+<p>Diff JSON represents a protocol-set transition with a structured object on the paired compatibility neighbor row:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;protocol_change&quot;</span><span class="er">:</span> <span class="fu">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;a&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;cdp&quot;</span><span class="ot">,</span> <span class="st">&quot;lldp&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;b&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;cdp&quot;</span><span class="ot">]</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>The macro summary also exposes <code>learned_neighbors.protocol_changed</code>.</p>
+<h2 id="11-host-specific-comparison">11. Host-specific comparison</h2>
+<p>A host selector changes the command from macro mode to host mode. The selector syntax intentionally matches <code>show-neighbors</code>:</p>
+<pre class="text"><code>PATTERN
+--name PATTERN
+--id NUM
+--key KEY:PATTERN
+--ipv4 PREFIX|CIDR
+--ipv6 PREFIX|CIDR</code></pre>
+<p>The positional pattern and <code>--name</code> are alternate forms. Name matching is a case-insensitive Python regular expression matched from the beginning of <code>preferred_name</code>.</p>
+<p><code>--key</code>, <code>--ipv4</code>, and <code>--ipv6</code> are repeatable and AND-combined. <code>--id</code> is mutually exclusive with the other filters.</p>
+<p>Examples:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff access-sw1</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--name</span> <span class="st">&#39;^access-sw1(\.|$)&#39;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--id</span> 127</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--key</span> <span class="st">&#39;system.model:^C9300&#39;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--ipv4</span> 198.51.100.0/24 <span class="at">--key</span> <span class="st">&#39;tags:site:west&#39;</span></span></code></pre></div>
+<h3 id="111-selection-always-starts-in-a">11.1 Selection always starts in A</h3>
+<p>The operator selector is applied only to data set A. It must identify exactly one A-side host.</p>
+<p>If the selector matches more than one A record, LLDP-Runner follows the <code>show-neighbors</code> ambiguity style:</p>
+<pre class="text"><code>Multiple records matched:
+ ID  Preferred name
+---  ----------------------------------------
+ 17  access-sw1.example.com
+ 31  access-sw1</code></pre>
+<p>If no A record matches, the result states that no match in the first data set was found to compare and exits with status 4.</p>
+<h3 id="112-finding-the-b-side-host">11.2 Finding the B-side host</h3>
+<p>After one A host is selected, LLDP-Runner does not blindly reuse its numeric ID or repeat a possibly changed selector against B. It uses the same cross-run identity matcher as macro mode.</p>
+<p>This is important for cases such as:</p>
+<ul>
+<li><code>--id 17</code>, because IDs can change between runs;</li>
+<li><code>--key 'system.version:^17\.9'</code>, when maintenance upgraded the device;</li>
+<li>a hostname selector when the device was renamed; and</li>
+<li>a management-address selector when the device address changed.</li>
+</ul>
+<p>If several B records remain plausible, the message contains the resolved B source rather than the alias originally typed by the operator:</p>
+<pre class="text"><code>Multiple records matched in --runid 20260105-120000-EDT:
+ ID  Preferred name
+---  ----------------------------------------
+ 28  access-sw1.example.com
+ 41  access-sw1</code></pre>
+<p>For <code>--file</code>, that heading uses the complete resolved absolute pathname.</p>
+<p>A single B candidate with conflicting physical identity is reported as <code>Identity uncertain</code> rather than as a successful match. If there is no B-side candidate, LLDP-Runner reports that no match in the second data set was found to compare and exits with status 4.</p>
+<h2 id="12-host-specific-output">12. Host-specific output</h2>
+<p>Once the selected host is paired, the terminal view displays only changed host fields and neighbor changes. A representative result is:</p>
+<pre class="text"><code>A: --runid 20260105-160000-EDT
+   /var/lib/lldp-runner/outputs/20260105-160000-EDT/discovery.json
+B: --runid 20260105-120000-EDT
+   /var/lib/lldp-runner/outputs/20260105-120000-EDT/discovery.json
+Result: Differences found
+
+Host: A 18 access-sw1  &lt;-&gt;  B 15 access-sw1
+
+Host detail changes
+Field                                      A             B
+-----------------------------------------  ------------  ------------
+system.version                             17.12         17.9
+system.sys_uptime_ticks (possible reboot)  120000        9000000
+
+Learned neighbor changes
+...
+
+Observed_by neighbor changes
+...</code></pre>
+<p>A host with no changed details and no changed neighbors produces <code>Result: No differences</code> and exit status 0.</p>
+<h2 id="13-normalization-and-intentionally-ignored-differences">13. Normalization and intentionally ignored differences</h2>
+<p>A useful run comparison must suppress values that naturally change every run. The default comparison policy is summarized here:</p>
+<table>
+<thead>
+<tr>
+<th>Data element</th>
+<th>Treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hosts[].id</code></td>
+<td>ignored; run-local identity</td>
+</tr>
+<tr>
+<td><code>first_seen</code>, <code>last_seen</code></td>
+<td>ignored</td>
+</tr>
+<tr>
+<td>neighbor <code>host_ref</code></td>
+<td>translated through host pairing</td>
+</tr>
+<tr>
+<td>neighbor <code>last_seen</code></td>
+<td>ignored</td>
+</tr>
+<tr>
+<td>ICMP <code>timestamp</code></td>
+<td>ignored</td>
+</tr>
+<tr>
+<td>ICMP <code>rtt_ms</code></td>
+<td>ignored as volatile measurement</td>
+</tr>
+<tr>
+<td>ICMP address/status/error</td>
+<td>compared</td>
+</tr>
+<tr>
+<td>system uptime</td>
+<td>only reports a possible reboot</td>
+</tr>
+<tr>
+<td>SNMP metrics, row counts, retries</td>
+<td>collection dimension only</td>
+</tr>
+<tr>
+<td>collector <code>duration_ms</code></td>
+<td>ignored by default; opt-in diagnostic</td>
+</tr>
+<tr>
+<td>query route, ICMP path, credential route</td>
+<td>collection dimension only</td>
+</tr>
+<tr>
+<td>names, addresses, preferred presentation</td>
+<td>presentation dimension only</td>
+</tr>
+<tr>
+<td>neighbor <code>protocol_tag</code></td>
+<td>ignored as derived text</td>
+</tr>
+<tr>
+<td>SNMP neighbor table indexes</td>
+<td>ignored as volatile row locators</td>
+</tr>
+<tr>
+<td>protocols and tags</td>
+<td>compared without list-order noise</td>
+</tr>
+<tr>
+<td>IPv4/IPv6 address lists</td>
+<td>presentation comparison without list-order noise</td>
+</tr>
+<tr>
+<td>stack members</td>
+<td>keyed by durable member evidence</td>
+</tr>
+<tr>
+<td><code>errors[]</code></td>
+<td>message text ignored; collection coverage derived from errors</td>
+</tr>
+</tbody>
+</table>
+<p>Exact collector durations remain in both input discovery documents. Diff recursively omits every <code>duration_ms</code> leaf by default because ordinary elapsed jitter is not a semantic host, topology, or coverage change. Use <code>--include-collection-timing</code> or <code>diff.include_collection_timing=true</code> only when collector timing itself is under review. The negative command-line form can explicitly override a true configuration value.</p>
+<p>Neighbor collectors preserve some SNMP table-location evidence in <code>details</code> for troubleshooting. These values identify an agent's table row at collection time rather than durable topology. Diff therefore ignores generic and protocol-prefixed copies of LLDP/LLDPv2 <code>remote_index</code>, LLDP/LLDPv2 <code>time_mark</code>, LLDP <code>local_port_num</code>, LLDPv2 <code>local_ifindex</code>, and CDP <code>ifindex</code>/<code>device_index</code>. A change in one of these values alone does not make a neighbor <code>changed</code>. Semantic identifiers such as <code>port_id_subtype_id</code>, <code>chassis_id_subtype_id</code>, and LLDPv2 destination-MAC context remain comparable.</p>
+<p>A raw uptime increase is expected and is not a difference. If both data sets have usable completion times and the chronologically later run reports a lower uptime than the older run, LLDP-Runner emits a <code>possible reboot</code> difference. This rule also applies to stack-member uptime when the same durable member can be identified.</p>
+<p>Stack members are keyed first by serial number, then member number, then entity index, with weaker fallbacks only when those values are absent. A member replacement can therefore appear as removed/added physical-member information instead of a misleading list-position change.</p>
+<h2 id="14-collection-completeness-and-uncertainty">14. Collection completeness and uncertainty</h2>
+<p>Diff separates a network observation from the ability to collect it. A successful basic SNMP query does not prove that every CDP, LLDP, LLDPv2, IF-MIB, or ENTITY-MIB table completed.</p>
+<p>Schema-8 discoveries retain structured table coverage and durable errors. Diff uses structured coverage first and errors only as a compatibility fallback. Relevant incomplete conditions include:</p>
+<ul>
+<li>an actively queried source host that is partial or failed;</li>
+<li>a failed, timed-out, access-restricted, unsupported, or structurally invalid protocol/table collection;</li>
+<li>incomplete local-interface resolution; and</li>
+<li>a recursively hidden observer or descendant that was not reachable because an upstream discovery observation was unavailable.</li>
+</ul>
+<p>For a one-sided entity or relationship E observed through protocol P on observer S, diff asks whether paired observer S collected P in the other run. If that collection failed, E is not a confirmed addition or removal. It is emitted with:</p>
+<pre class="text"><code>presence_status: uncertain
+presence_confidence: coverage_uncertain
+semantic_qualification: coverage_uncertain
+coverage_source: observer/protocol/table/incident</code></pre>
+<p>The same rule is propagated through discovery provenance. For example, if A could discover managed switch B through LLDP but the paired A-side observer lost LLDP in the other run, B and endpoints visible only below B remain coverage-uncertain. The original observation is retained; uncertainty does not erase evidence.</p>
+<p>A genuinely absent endpoint remains confirmed one-sided when the paired observer and required protocol/table coverage are complete. Intentional <code>no_query</code> endpoints and <code>out_of_scope</code> entities do not count as queried-device collection failures. Coverage summaries separate protocol health from topology authority:</p>
+<pre class="text"><code>actively_queried_count
+aggregate_complete_queried_count
+aggregate_partial_or_failed_queried_count
+topology_complete_queried_count
+topology_affected_queried_count
+management_address_only_incomplete_count
+other_health_only_incomplete_count
+no_query_count
+out_of_scope_count
+obscured_downstream_count</code></pre>
+<p>For LLDP and LLDPv2, <code>remote_neighbor</code> is authoritative for relationship presence. Original LLDP <code>local_port</code> plus row-level resolution is authoritative for the local interface. <code>remote_management_address</code> is authoritative only for management-address additions and removals. An aggregate <code>partial</code> result caused solely by the management-address table remains an operator-visible health issue, but it does not make complete remote-neighbor or local-port evidence uncertain. When duplicate compatibility projections are folded, each semantic coverage dimension is merged independently; one complete contributing path is not erased by an unrelated aggregate partial result.</p>
+<p>Collection incidents aggregate derivative impact beneath one originating observer/protocol/table failure. Each incident records direct and recursive relationship effects, affected remote entities, affected attributes, and stable incident context. Top-level warnings are populated when those incidents materially limit interpretation.</p>
+<p>Terminal output prints aggregate-health and topology-authority denominators, graph semantic-qualification counts, and the twelve highest-impact collection incidents. Default human output collapses derivative coverage-uncertain rows beneath those incidents. JSON output retains every incident and all derivative entity, relationship, attribute, and recursive-path details.</p>
+<p>CDP snapshots are structurally valid only when every materialized row has a usable device ID and remote port and all cache-indexed columns agree. A failed snapshot is discarded and restarted from its root. Repeated failure records <code>structurally_invalid</code> coverage and does not create an identity-empty shell host or relationship. LLDP and LLDPv2 retain their mandatory chassis-ID and Port-ID snapshot boundary.</p>
+<p>Protocol transitions are also coverage-aware. With complete collection, <code>cdp,lldp -&gt; lldp</code> is a protocol-evidence change with <code>physical_topology_effect: "none"</code>. If CDP failed on the side missing CDP, the transition is coverage-uncertain instead of a confirmed protocol removal.</p>
+<p>ENTITY-MIB and stack attributes follow the same rule. Missing optional hardware rows are confirmed removed only when corresponding table coverage is complete and the successful snapshot contains at least one row. A complete zero-row ENTITY-MIB walk is not authoritative negative evidence because supported platforms can intermittently return an empty optional table without a transport error. The field result is <code>not_observed</code>, and the paired host contributes to the attribute-uncertain dimension rather than the confirmed host-change count.</p>
+<p>Diff JSON schema 12 retains this context under paths including:</p>
+<pre class="text"><code>comparison.presence_uncertain[]
+comparison.collection_incidents[]
+comparison.collection_incidents[].reported_difference_depends_on_gap
+comparison.change_events[]
+comparison.cross_view_consistency
+comparison.management_address_health
+comparison.hosts[].collection_coverage
+comparison.hosts[].learned_neighbors[].uncertainty_reasons
+comparison.hosts[].learned_neighbors[].graph_relationship_refs
+comparison.topology_graph.entity_correspondence[].semantic_qualification
+comparison.topology_graph.relationship_groups[].semantic_qualification
+comparison.topology_graph.relationship_groups[].compatibility_observation_refs
+comparison.topology_graph.relationship_groups[].change_dimensions
+comparison.topology_graph.relationship_groups[].member_presence_change
+comparison.topology_graph.relationship_groups[].member_protocol_changes
+comparison.change_events[].graph_member_keys
+comparison.change_events[].graph_change_dimensions
+comparison.summary.collection_coverage
+comparison.summary.collection_incidents
+comparison.summary.change_events
+comparison.summary.cross_view_consistency
+comparison.summary.management_address_health
+comparison.summary.topology_graph.entity_qualifications
+comparison.summary.topology_graph.relationship_qualifications
+comparison.summary.compatibility_projection
+comparison.summary.host_dimensions
+comparison.projection_reconciliation</code></pre>
+<p>An uncertain result remains a difference for exit-status purposes because the operator still needs to repeat or investigate collection. The qualification prevents the report from claiming that physical topology definitely changed.</p>
+<h2 id="15-scope-and-provenance-warnings">15. Scope and provenance warnings</h2>
+<p>Two discovery outputs can differ because the network changed, because discovery coverage changed, or both. The diff command therefore compares available scope metadata and emits a warning when important context differs.</p>
+<p>Warnings appear immediately after the <code>Result:</code> line. They do not stop the comparison or change the exit code by themselves. One warning reports discovery scope/provenance differences. Collection warnings distinguish a gap that qualifies a reported difference from a health-only topology gap that remains operationally relevant but does not affect any reported change.</p>
+<p>From <code>discovery.json</code>, the command considers fields including:</p>
+<pre class="text"><code>status
+boundaries
+discovery_mode
+effective_max_devices
+configured_max_devices
+configured_max_hosts
+seed_order
+limit_behavior
+limit_reason
+completion_reason</code></pre>
+<p>When <code>run.json</code> is available for both sources, LLDP-Runner also compares the recorded ordered configuration-file path list and the consolidated sequence of recorded seed inputs.</p>
+<p>A warning can therefore look like:</p>
+<pre class="text"><code>Result: Differences found
+Warning: Compared runs used different discovery scope/provenance metadata (...).</code></pre>
+<p>The comparison still proceeds because the operator may intentionally be comparing unlike discovery scopes.</p>
+<p><code>run.json</code> records configuration pathnames, not an immutable historical copy of every config file. If <code>/etc/lldp-runner/config.toml</code> changed in place between runs, identical pathnames do not prove identical contents. Similarly, not every collector-related setting is represented as a dedicated discovery metadata field. Scope warnings are useful evidence, not proof that two runs used exactly identical runtime policy.</p>
+<h2 id="16---changes-only">16. <code>--changes-only</code></h2>
+<p>Macro mode normally includes paired hosts that compare as <code>same</code>. This gives an operator positive confirmation that devices remained present and unchanged.</p>
+<p><code>--changes-only</code> suppresses unchanged host rows and unchanged neighbor details:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--changes-only</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--id</span> 127 <span class="at">--changes-only</span></span></code></pre></div>
+<p>By default, derivative coverage-uncertain compatibility and graph rows are collapsed beneath the originating collection incident. The final note reports how many rows were collapsed. Use <code>--expand-collection-incidents</code> to restore those rows. Use <code>--summary-only</code> when only source/result context, summaries, warnings, and collection incidents are needed:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--changes-only</span> <span class="at">--summary-only</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--changes-only</span> <span class="at">--expand-collection-incidents</span></span></code></pre></div>
+<p>These are human-rendering controls only. <code>--json</code> always contains the complete structured comparison, and summary counts always describe the complete comparison rather than only visible rows.</p>
+<h2 id="17-machine-readable---json">17. Machine-readable <code>--json</code></h2>
+<p><code>--json</code> replaces terminal tables with one valid JSON object:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--json</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--id</span> 127 <span class="at">--json</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--changes-only</span> <span class="at">--json</span></span></code></pre></div>
+<p>The top-level structure is:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;schema_version&quot;</span><span class="fu">:</span> <span class="dv">12</span><span class="fu">,</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;result&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;differences_found&quot;</span><span class="fu">,</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Differences found&quot;</span><span class="fu">,</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;exit_code&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;mode&quot;</span><span class="fu">:</span> <span class="st">&quot;macro&quot;</span><span class="fu">,</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sources&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;a&quot;</span><span class="fu">:</span> <span class="fu">{},</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;b&quot;</span><span class="fu">:</span> <span class="fu">{}</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;warnings&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;comparison&quot;</span><span class="fu">:</span> <span class="fu">{}</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p><code>result.status</code> is the stable machine status. <code>result.message</code> corresponds to the human <code>Result:</code> message, and <code>result.exit_code</code> mirrors process status.</p>
+<p>Source objects contain the resolved label, absolute discovery pathname, run ID when known, and completion timestamp when available. Comparison detail uses run-local IDs only as labels inside each A/B record; cross-run association is represented explicitly by correspondence records.</p>
+<p>Schema 12 keeps these result dimensions separate instead of collapsing them into one physical change count:</p>
+<ol type="1">
+<li>entity identity;</li>
+<li>observed relationship;</li>
+<li>protocol-evidence set;</li>
+<li>device or endpoint attributes;</li>
+<li>presentation-only differences; and</li>
+<li>collection coverage.</li>
+</ol>
+<p>Each graph entity/relationship correspondence carries <code>presence_confidence</code>, <code>semantic_qualification</code>, optional <code>coverage_sources</code>, and <code>physical_topology_effect</code>. Schema 10 introduced <code>evidence_only</code>; schema 11 added stable references joining compatibility rows to graph relationships and unique change events. Schema 12 adds relationship <code>change_dimensions</code>, exact member-presence and protocol details, and event <code>graph_member_keys</code>. Field-level attribute uncertainty retains <code>provenance</code> and exact <code>coverage_sources</code>. The graph-level <code>physical_topology_assessment</code> remains <code>not_inferred</code>.</p>
+<p>For a local-port transition, schema 11 and later use <code>event_type=observed_attachment_changed</code>. The event records identity continuity, movement confidence, <code>relationship_scope=observed</code>, <code>directness=unresolved</code>, and <code>physical_topology=not_inferred</code>. It does not claim that a physical cable moved.</p>
+<p><code>comparison.cross_view_consistency</code> counts matched, unmatched, ambiguous, conflicting, and graph-only results. A confirmed compatibility change cannot be silently reconciled to an ambiguous or coverage-uncertain graph record. The operator receives <code>attention_required</code> instead.</p>
+<p>Diff JSON versioning is independent of discovery JSON versioning. Scripts should check both the process result and diff <code>schema_version</code>.</p>
+<h2 id="18-large-discovery-files">18. Large discovery files</h2>
+<p>History alias resolution is intentionally lightweight: it uses <code>run.json</code> or a small leading discovery metadata read rather than loading every historical <code>discovery.json</code>.</p>
+<p>The actual comparison is different. Host and neighbor records from the two selected discovery documents must be available for cross-run pairing and one-to-one topology comparison. Versions 0.30.1 and later use indexed in-memory host identity matching, but still use the standard Python JSON loader for the two selected files. Very large discovery documents can therefore require more memory than their on-disk size while the comparison is running.</p>
+<p>Operators comparing multi-gigabyte discovery files should run the command on a system with sufficient memory. A future streaming/indexed comparison design can reduce this requirement without changing the operator-facing diff contract.</p>
+<h2 id="19-recommended-maintenance-workflow">19. Recommended maintenance workflow</h2>
+<p>For shared installations, <code>scripts/lrun-diff</code> supplies the deployed primary configuration and forwards all diff options. Unlike most <code>lrun-*</code> launchers, it preserves the operator's current working directory so relative <code>--file</code> sources resolve exactly as documented for <code>lldp-runner diff</code>.</p>
+<p>A typical post-maintenance check is:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Before maintenance</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run ...</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform maintenance, then run discovery again.</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run ...</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare the latest finalized run with the prior finalized run.</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Focus on changes when the full inventory is large.</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--changes-only</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Investigate one affected device.</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff access-sw1</span></code></pre></div>
+<p>A no-difference result is useful evidence that the recorded host and learned neighbor topology remained stable. It is not a proof that every network path or service was healthy: the result is limited to what the two discovery runs collected and to the scope under which they ran.</p>
+<h2 id="relationship-evidence-changes">Relationship-evidence changes</h2>
+<p>Diff schema 10 adds <code>relationship_evidence_changed</code> for a relationship that is already paired to the same observer and remote entity on the same local and remote ports with the same protocol set, but whose remaining differences are limited to non-authoritative presentation or raw protocol evidence. Examples include a short endpoint name becoming an FQDN, a protocol sentinel being replaced by a usable advertised address, or a peer display name gaining a serial-number suffix.</p>
+<p>The row is counted in the <code>Evidence</code> column rather than generic <code>Changed</code>. Its semantic qualification is <code>evidence_only</code>, relationship presence remains confirmed and the same, and <code>physical_topology_effect</code> is <code>none</code>. Complete field differences remain available in JSON and human detail.</p>
+<p>The rule is intentionally conservative. Two conflicting usable chassis identifiers, a different durable endpoint identity, a changed resolved local port, or a protocol-set transition is not reduced to evidence drift. Collection uncertainty, physical movement, and protocol transition retain precedence.</p>
+<h2 id="management-address-evidence-changes">Management-address evidence changes</h2>
+<p>Diff schema 10 separates a management-address observation change from a physical relationship change. The status is <code>management_address_changed</code> only when the paired learned relationship remains stable after host and edge matching and no higher-priority condition applies.</p>
+<p>The record includes the A and B address sets plus explicit <code>before</code> (B) and <code>after</code> (A) sets. <code>added</code> means present in A but not B; <code>removed</code> means present in B but not A. Additions and removals are also grouped by IPv4 and IPv6. The record includes confidence, rationale, collection provenance for each participating protocol's remote-management-address subtable, and <code>physical_topology_effect = "none"</code>.</p>
+<p>Precedence is conservative:</p>
+<ol type="1">
+<li>Collection failure or incomplete required coverage can make the row <code>uncertain</code>.</li>
+<li>A confirmed move remains a move.</li>
+<li>A protocol-set transition remains <code>protocol_changed</code>.</li>
+<li>Only then can an address-only evidence change receive its own status.</li>
+</ol>
+<p>A successful empty management-address walk is authoritative empty evidence. An access restriction, timeout, malformed index set, partial result, or failed walk is not an authoritative empty table and must not be rendered as ordinary address churn.</p>
+<p>The 0.32.6 production replay of 20260109-01 against 20260109-00 produced one credible endpoint local-port move, one protocol transition, seven relationship-evidence changes, nineteen confirmed one-sided learned observations, and no generic learned-neighbor <code>changed</code> rows. One structurally invalid LLDP remote-neighbor snapshot remains a collection incident and makes its direct and recursive effects uncertain. Management-only partial walks remain visible in health counts but do not contaminate complete relationship coverage.</p>
+<h2 id="0327-graph-backed-reconciliation-and-production-replay">0.32.7 graph-backed reconciliation and production replay</h2>
+<p>Schema 11 treats the compatibility projection and topology graph as two views of the same immutable observations. Every non-stable learned-neighbor row receives <code>compatibility_observation_key</code>, <code>graph_relationship_refs</code>, <code>graph_event_ref</code>, and <code>cross_view_consistency</code>. Graph relationship records carry the reverse compatibility-observation and change-event references.</p>
+<p><code>comparison.change_events[]</code> is the unique audit unit. Directional compatibility rows remain available for familiar troubleshooting, but reciprocal or graph-half records can be grouped into one event when they represent the same observed change. Event records preserve all backing graph and compatibility references.</p>
+<p>Collection incidents include graph-native relationship/entity references and <code>reported_difference_depends_on_gap</code>. Health-only incidents remain visible even when no changed row relies on the missing table. Management-address health is reported separately as persistent, new in A, recovered in A, or changed, with cause counts and transition detail.</p>
+<p>The 0.32.7 production replay of 20260109-03 against 20260109-02 reconciles all 13 non-stable learned observations to 13 graph-backed events: two observed attachment changes, two protocol-evidence changes, two A-only observations, and seven B-only observations. There are no unmatched, ambiguous, conflicting, or graph-only events. Four genuine topology-sensitive collection gaps on each side remain health warnings, but no reported difference depends on them. The management-address health comparison records 97 persistent malformed-index cases and one timeout recovered in A.</p>
+<h2 id="0328-compound-relationship-reconciliation-and-production-replay">0.32.8 compound relationship reconciliation and production replay</h2>
+<p>Schema 12 preserves the relationship group's concise primary status while also serializing every independently detected change dimension. A primary <code>member_set_changed</code> row can therefore contain both <code>member_presence</code> and <code>protocol_evidence</code>. <code>member_presence_change</code> identifies A-only and B-only graph members. <code>member_protocol_changes</code> identifies stable members whose protocol sets differ between runs.</p>
+<p>Protocol reconciliation inside such a compound relationship is deliberately strict. Both compatibility sides must select the same remote correspondence component and normalized remote port, and the compatibility protocol sets must match the graph member on each side. The exact transition must also appear in <code>member_protocol_changes</code>. Stable management-address and raw-evidence changes may use the same paired-member path only when their protocol sets are unchanged.</p>
+<p>Each change event carries <code>graph_member_keys</code>. Two neighbors changing in one local-interface group cannot collapse merely because they share a graph relationship record and event type. The same graph member can still aggregate multiple directional compatibility observations. Unclaimed member-presence, protocol-evidence, or candidate-attachment dimensions remain graph-only events.</p>
+<p>The 0.32.8 production replay of 20260110-01 against 20260110-00 reconciles all 89 non-stable learned observations to 87 graph-backed events. All 89 observations are matched, and there are zero unmatched, ambiguous, conflicting, or graph-only events. One relationship on <code>Gi1/0/6</code> carries both <code>member_presence</code> and <code>protocol_evidence</code>: the existing Cisco SEP endpoint changes from <code>cdp,lldp</code> in B to <code>lldp</code> in A while another LLDP member is newly observed in A. The two dimensions produce separate, exact member-scoped events.</p>
+<h2 id="0329-compatibility-identity-maintenance">0.32.9 compatibility identity maintenance</h2>
+<p>Version 0.32.9 does not change diff schema 12 or any graph relationship/change event rule. It changes how new scans project otherwise anonymous LLDP/LLDPv2 observations into flat compatibility hosts: locally assigned chassis subtype 7 is no longer a global alias. One exact typed MAC-address Port ID can identify that anonymous endpoint.</p>
+<p>Consequently, a comparison between two newly collected 0.32.9 scans can show more precise <code>hosts</code> and <code>unknown-devices</code> counts than equivalent 0.32.8 scans. Several distinct anonymous endpoint MACs that formerly appeared as attachments on one aggregate host now appear as separate compatibility hosts. This is an identity-projection correction, not topology churn. The authoritative graph already represented those distinct endpoint MAC entities and relationships.</p>
+<p>Replaying the immutable 20260111-01 and 20260111-00 discovery documents keeps their 68 graph-backed change events, matches all compatibility observations, and retains <code>cross_view_consistency.status=consistent</code>. The input documents still contain the flat host projection produced by 0.32.8; <code>diff</code> never rewrites an archived discovery. Replaying copied 0.32.8 SQLite state under 0.32.9 can publish a compatibility-projection diagnostic that identifies legacy aggregate hosts while leaving graph authority unchanged.</p>
+</body>
+</html>

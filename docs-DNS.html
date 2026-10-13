@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/DNS.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="lldp-runner-dns-behavior">LLDP-Runner DNS Behavior</h1>
+<h2 id="1-summary">1. Summary</h2>
+<p>DNS is part of LLDP-Runner identity enrichment and can occur both before worker startup and while discovery is in flight. Large seed inventories and large recursive discoveries can therefore generate substantial resolver traffic.</p>
+<p>The default seed policy remains fresh resolution:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[discovery]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">seed_dns_mode</span> <span class="op">=</span> <span class="st">&quot;resolve&quot;</span></span></code></pre></div>
+<p>Operators that reuse a current <code>seeds.csv</code> inventory can optionally use the conservative addressed-seed fast path:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[discovery]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">seed_dns_mode</span> <span class="op">=</span> <span class="st">&quot;skip-addressed&quot;</span></span></code></pre></div>
+<p>or:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="at">--seed-dns-mode</span> skip-addressed <span class="at">--seed-file</span> seeds.csv</span></code></pre></div>
+<p>This option affects initial seed resolution only. It is not a global no-DNS mode and does not disable learned managed-neighbor DNS enrichment.</p>
+<h2 id="2-where-dns-can-occur">2. Where DNS can occur</h2>
+<h3 id="21-seed-initialization">2.1 Seed initialization</h3>
+<p>The normal <code>resolve</code> mode resolves every seed during coordinator initialization. Hostname seeds can cause forward/canonical-name resolution. IP-address seeds can cause reverse resolution for presentation and identity enrichment.</p>
+<p>This phase happens before discovery workers start. With thousands of seeds, resolver latency can make startup take minutes. See <a href="docs-RUN.html">RUN.md</a> for the 30-second seed-resolution progress heartbeat.</p>
+<h3 id="22-learned-managed-neighbors">2.2 Learned managed neighbors</h3>
+<p>When <code>discovery.resolve_discovered_managed_names = true</code>, a learned neighbor classified as a managed device can receive DNS enrichment before final classification and scheduling.</p>
+<p>That behavior is independent of <code>seed_dns_mode</code>.</p>
+<h3 id="23-diagnostic-commands">2.3 Diagnostic commands</h3>
+<p>Commands such as <code>get-neighbors --dry-run</code> and tracing can also exercise the operating-system resolver as part of target explanation and collection.</p>
+<h2 id="3-resolver-implementation">3. Resolver implementation</h2>
+<p>LLDP-Runner uses operating-system resolver interfaces such as <code>getaddrinfo</code>, <code>getfqdn</code>, and reverse lookup. The effective answer can therefore come from DNS, <code>/etc/hosts</code>, NSS modules, a local stub resolver, or another configured name service.</p>
+<p>LLDP-Runner should not claim that every resolver operation emitted a literal DNS packet.</p>
+<h2 id="4-seed_dns_mode--resolve">4. <code>seed_dns_mode = "resolve"</code></h2>
+<p><code>resolve</code> is the default and preserves normal fresh resolver behavior.</p>
+<p>A reusable seed row can contain a prior <code>queried_as</code> and known IPv4/IPv6 aliases. LLDP-Runner keeps those supplied addresses and combines them with fresh resolver results.</p>
+<p>Advantages include:</p>
+<ul>
+<li>detecting new DNS addresses at startup;</li>
+<li>refreshing canonical/reverse names;</li>
+<li>obtaining names useful to name-based policy or credential rules;</li>
+<li>adding DNS evidence that can help identity consolidation.</li>
+</ul>
+<p>Costs include resolver load and startup latency on large inventories.</p>
+<h2 id="5-seed_dns_mode--skip-addressed">5. <code>seed_dns_mode = "skip-addressed"</code></h2>
+<p><code>skip-addressed</code> is a selective optimization. A seed bypasses DNS only when all applicable conservative eligibility conditions are satisfied.</p>
+<h3 id="51-eligibility">5.1 Eligibility</h3>
+<p>An eligible seed must have:</p>
+<ol type="1">
+<li>a non-IP logical seed/preferred name;</li>
+<li>a valid <code>queried_as</code> IPv4 or IPv6 address from input; and</li>
+<li>when prior state is available, a successful state (<code>complete</code> or <code>success</code>).</li>
+</ol>
+<p>If prior state is absent, the name plus valid <code>queried_as</code> evidence is accepted. If merged seed sources carry conflicting prior states, LLDP-Runner treats the state as mixed and performs DNS normally.</p>
+<p>A failed, blocked, or otherwise non-successful prior state does not authorize the fast path.</p>
+<h3 id="52-what-is-reused">5.2 What is reused</h3>
+<p>The eligible seed keeps:</p>
+<ul>
+<li>its supplied logical name;</li>
+<li><code>queried_as</code> as the first known address hint;</li>
+<li>supplied IPv4 aliases; and</li>
+<li>supplied IPv6 aliases.</li>
+</ul>
+<p>The scheduler can still try other supplied addresses according to normal address preference and policy. Skipping DNS does not mean that only <code>queried_as</code> may be queried.</p>
+<h3 id="53-what-is-not-refreshed">5.3 What is not refreshed</h3>
+<p>For an eligible skipped seed, startup does not independently discover:</p>
+<ul>
+<li>a changed forward-DNS address;</li>
+<li>a changed canonical name;</li>
+<li>reverse-DNS names; or</li>
+<li>additional resolver aliases not already in the seed inventory.</li>
+</ul>
+<p>Operators should understand that the mode favors inventory reuse and startup speed over fresh DNS validation.</p>
+<h2 id="6-inputs-that-still-use-dns">6. Inputs that still use DNS</h2>
+<p>Even in <code>skip-addressed</code> mode, normal resolution is retained when:</p>
+<ul>
+<li><code>queried_as</code> is missing;</li>
+<li>the seed itself is only an IP address;</li>
+<li>the carried prior state is failed or otherwise non-successful;</li>
+<li>conflicting prior states were merged from multiple seed sources; or</li>
+<li>the input does not satisfy the conservative fast-path checks.</li>
+</ul>
+<p>IP-only rows intentionally keep reverse/canonical resolution because a learned name can affect presentation, identity matching, query policy, and credential selection.</p>
+<h2 id="7-policy-and-credential-implications">7. Policy and credential implications</h2>
+<p>Skipping seed DNS does not bypass boundary or query policy. LLDP-Runner still evaluates the supplied addresses and known names normally.</p>
+<p>A stale seed inventory can nevertheless have operational consequences. For example, DNS may already point to a renumbered address that is not present in the reused inventory, or a newly resolved name might have selected a different name-based policy or credential rule.</p>
+<p>Use <code>skip-addressed</code> when the supplied inventory is sufficiently current for the intended run.</p>
+<h2 id="8-seedscsv-provenance">8. <code>seeds.csv</code> provenance</h2>
+<p>Current reusable <code>seeds.csv</code> input includes fields such as:</p>
+<pre class="text"><code>preferred_name
+queried_as
+ipv4
+ipv6
+state</code></pre>
+<p><code>queried_as</code> has strong provenance after a successful run because it is the address that answered the device query. For unsuccessful rows it can instead be an attempted address. That is why a non-successful <code>state</code> forces fresh DNS in <code>skip-addressed</code> mode.</p>
+<p>See <a href="docs-CSV-INPUT.html">CSV-INPUT.md</a> for position-independent seed CSV parsing.</p>
+<h2 id="9-resolver-volume-and-local-caching">9. Resolver volume and local caching</h2>
+<p>A discovery scan can generate high resolver volume:</p>
+<ul>
+<li>during startup while seed identities are resolved; and</li>
+<li>during in-flight recursive discovery as new managed names are learned.</li>
+</ul>
+<p>Use a local caching stub resolver on the LLDP-Runner host for large scans. A local cache can reduce repeated upstream DNS traffic and improve response latency without changing LLDP-Runner's resolver semantics.</p>
+<p>Examples of local caching approaches vary by operating system and site policy; LLDP-Runner intentionally relies on the host resolver configuration rather than requiring one specific caching product.</p>
+<h2 id="10-future-consideration-lldp-runner-dns-cache">10. Future consideration: LLDP-Runner DNS cache</h2>
+<p>A future release should consider a run-scoped internal DNS cache so repeated forward, reverse, and canonical-name lookups can be reused within one discovery without depending entirely on external resolver caching.</p>
+<p>Such a cache would need explicit rules for positive and negative lifetimes, address/name normalization, concurrency, trace visibility, and behavior across pause/resume. It is intentionally not part of the current release.</p>
+<p>Until then, large deployments should strongly consider a local caching stub resolver and can use <code>skip-addressed</code> for current reusable seed inventories.</p>
+<h2 id="11-related-references">11. Related references</h2>
+<ul>
+<li><a href="docs-RUN.html">RUN.md</a> describes startup phases and progress reporting.</li>
+<li><a href="docs-NAMES.html">NAMES.md</a> describes name/address identity correlation.</li>
+<li><a href="docs-CREDS.html">CREDS.md</a> describes name/address credential selection.</li>
+<li><a href="docs-PRECEDENCE.html">PRECEDENCE.md</a> describes configuration override order.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/ENVIRONMENT.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="lldp-runner-environment-variable-reference">LLDP-Runner environment-variable reference</h1>
+<p>This document lists environment variables currently recognized by LLDP-Runner. It separates configuration overrides, seed inputs, credentials, and terminal behavior because they have different precedence and scope.</p>
+<h2 id="1-precedence">1. Precedence</h2>
+<p>For normal configuration values, precedence is:</p>
+<pre class="text"><code>defaults.py
+  -&gt; primary TOML, @include, and conf.d
+  -&gt; LLDP_RUNNER_* environment overrides
+  -&gt; repeatable --set overrides
+  -&gt; dedicated command-line options</code></pre>
+<p>Runtime SNMP credential variables are used only when explicit credential profiles are not already defined by configuration.</p>
+<h2 id="2-primary-configuration-selection">2. Primary configuration selection</h2>
+<h3 id="lldp_runner_config"><code>LLDP_RUNNER_CONFIG</code></h3>
+<p>Select the primary TOML configuration when <code>--config</code> is not supplied.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_CONFIG</span><span class="op">=</span>/opt/lldp-runner/config.toml</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> validate-config</span></code></pre></div>
+<p>An explicit <code>--config</code> takes precedence. An explicit path from either source is authoritative and must exist.</p>
+<p>This variable applies to commands that load runtime configuration, including <code>run</code>, <code>get-neighbors</code>, <code>validate-config</code>, <code>explain-target</code>, <code>status</code>, <code>watch</code>, <code>clean</code>, and <code>pause</code>. The <code>version</code> subcommand and <code>--version</code> do not load runtime configuration.</p>
+<p><code>generate-config</code> does not use an existing primary configuration as its input; it starts from built-in defaults plus supported generation overrides.</p>
+<h2 id="3-discovery-and-filesystem-overrides">3. Discovery and filesystem overrides</h2>
+<p>These variables overlay the matching configuration settings.</p>
+<h3 id="lldp_runner_root"><code>LLDP_RUNNER_ROOT</code></h3>
+<p>Override <code>paths.persistent_root</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_ROOT</span><span class="op">=</span>/srv/lldp-runner</span></code></pre></div>
+<p>Operational effect is primarily on full discovery and commands that resolve run storage. Single-device inspect deliberately skips persistent-path probing.</p>
+<h3 id="lldp_runner_scratch_root"><code>LLDP_RUNNER_SCRATCH_ROOT</code></h3>
+<p>Override <code>paths.scratch_root</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SCRATCH_ROOT</span><span class="op">=</span>/dev/shm/lldp-runner</span></code></pre></div>
+<p><code>run</code>, <code>status</code>, <code>watch</code>, <code>clean</code>, and <code>pause</code> use the scratch root. Inspect does not create or probe discovery scratch storage. <code>clean</code> resolves the configured scratch namespace without credential processing and removes only recognized LLDP-Runner historical scratch artifacts.</p>
+<h3 id="lldp_runner_workers"><code>LLDP_RUNNER_WORKERS</code></h3>
+<p>Override <code>discovery.workers</code>.</p>
+<p>Accepted values are a positive integer or <code>auto</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_WORKERS</span><span class="op">=</span>auto</span></code></pre></div>
+<p><code>auto</code> resolves to <code>(os.cpu_count() or 1) * 4</code> on the running host.</p>
+<h3 id="lldp_runner_batch_size"><code>LLDP_RUNNER_BATCH_SIZE</code></h3>
+<p>Override <code>discovery.batch_size</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_BATCH_SIZE</span><span class="op">=</span>9</span></code></pre></div>
+<h3 id="lldp_runner_seed_order"><code>LLDP_RUNNER_SEED_ORDER</code></h3>
+<p>Override <code>discovery.seed_order</code>.</p>
+<p>Accepted values are <code>input</code>, <code>sorted</code>, and <code>random</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SEED_ORDER</span><span class="op">=</span>random</span></code></pre></div>
+<h3 id="lldp_runner_seed_dns_mode"><code>LLDP_RUNNER_SEED_DNS_MODE</code></h3>
+<p>Override <code>discovery.seed_dns_mode</code>.</p>
+<p>Accepted values are <code>resolve</code> and <code>skip-addressed</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SEED_DNS_MODE</span><span class="op">=</span>skip-addressed</span></code></pre></div>
+<p><code>skip-addressed</code> applies only to eligible startup seeds. It does not disable DNS enrichment for learned managed neighbors. See <a href="docs-DNS.html">DNS.md</a>.</p>
+<h3 id="lldp_runner_shuffle_key"><code>LLDP_RUNNER_SHUFFLE_KEY</code></h3>
+<p>Set the reproducible key used by random seed ordering.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SHUFFLE_KEY</span><span class="op">=</span>20260821</span></code></pre></div>
+<p>When random ordering is selected and this value is absent, a new key is generated for a new run and persisted for resume.</p>
+<h3 id="lldp_runner_limit_behavior"><code>LLDP_RUNNER_LIMIT_BEHAVIOR</code></h3>
+<p>Override <code>discovery.limit_behavior</code>.</p>
+<p>Accepted values are <code>pause</code> and <code>complete</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_LIMIT_BEHAVIOR</span><span class="op">=</span>complete</span></code></pre></div>
+<h3 id="lldp_runner_boundaries"><code>LLDP_RUNNER_BOUNDARIES</code></h3>
+<p>Replace <code>discovery.boundaries</code> with a comma-separated CIDR list.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_BOUNDARIES</span><span class="op">=</span><span class="st">&#39;192.0.2.0/24,2001:db8:1::/48&#39;</span></span></code></pre></div>
+<p>For recursive <code>run</code>, these boundaries control which addresses may be queried. For <code>get-neighbors</code>, the explicit target may be outside the boundary, but the result reports the boundary decision.</p>
+<h3 id="lldp_runner_max_devices"><code>LLDP_RUNNER_MAX_DEVICES</code></h3>
+<p>Override <code>discovery.max_devices</code>.</p>
+<p>Accepted values are a non-negative integer or <code>auto</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_MAX_DEVICES</span><span class="op">=</span>20</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_MAX_DEVICES</span><span class="op">=</span>0</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_MAX_DEVICES</span><span class="op">=</span>auto</span></code></pre></div>
+<p>A positive value is a recursive managed-device guardrail. <code>0</code> is unlimited. <code>auto</code> enables seed-only polling and suppresses recursive neighbor queries.</p>
+<h3 id="lldp_runner_max_hosts"><code>LLDP_RUNNER_MAX_HOSTS</code></h3>
+<p>Override <code>discovery.max_hosts</code>.</p>
+<h3 id="lldp_runner_late_address_recovery_attempts"><code>LLDP_RUNNER_LATE_ADDRESS_RECOVERY_ATTEMPTS</code></h3>
+<p>Override <code>discovery.late_address_recovery_attempts</code>. The value is an integer from <code>0</code> through <code>3</code>. The default is <code>1</code>; <code>0</code> disables failed-host admission from later direct, policy-permitted, previously unattempted management addresses. This setting does not change SNMP retry budgets.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_MAX_HOSTS</span><span class="op">=</span>1000</span></code></pre></div>
+<p><code>0</code> disables the identified-host count guardrail.</p>
+<h2 id="4-snmp-and-icmp-runtime-overrides">4. SNMP and ICMP runtime overrides</h2>
+<h3 id="lldp_runner_snmp_backend"><code>LLDP_RUNNER_SNMP_BACKEND</code></h3>
+<p>Override <code>snmp.backend</code>. Accepted values are <code>gufo</code> and <code>pysnmp</code>; PySNMP is the built-in default. Existing Gufo runs still require an explicit effective Gufo selection when resumed.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SNMP_BACKEND</span><span class="op">=</span>pysnmp</span></code></pre></div>
+<p><code>--set</code> can override this environment value, and the dedicated <code>--snmp-backend</code> option has final ordinary-setting precedence. The effective backend is fixed before discovery and persisted for resume. This variable never requests automatic fallback or mixed-backend operation.</p>
+<h3 id="lldp_runner_snmp_timeout"><code>LLDP_RUNNER_SNMP_TIMEOUT</code></h3>
+<p>Override <code>snmp.timeout_seconds</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SNMP_TIMEOUT</span><span class="op">=</span>2.0</span></code></pre></div>
+<p>This is a per-request SNMP timeout, not a whole-device timeout.</p>
+<h3 id="lldp_runner_snmp_rps"><code>LLDP_RUNNER_SNMP_RPS</code></h3>
+<p>Override <code>snmp.per_device_rps</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SNMP_RPS</span><span class="op">=</span>5.0</span></code></pre></div>
+<h3 id="lldp_runner_snmp_max_outstanding"><code>LLDP_RUNNER_SNMP_MAX_OUTSTANDING</code></h3>
+<p>Override <code>snmp.max_outstanding_devices_per_worker</code>.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SNMP_MAX_OUTSTANDING</span><span class="op">=</span>24</span></code></pre></div>
+<p>This primarily affects full discovery worker concurrency. The inspect path uses the same worker primitives but only supplies one device.</p>
+<h3 id="lldp_runner_icmp_timeout"><code>LLDP_RUNNER_ICMP_TIMEOUT</code></h3>
+<p>Override <code>icmp.timeout_seconds</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_ICMP_TIMEOUT</span><span class="op">=</span>1.0</span></code></pre></div>
+<p>This affects normal discovery and real single-device inspection when ICMP is enabled.</p>
+<h2 id="5-output-and-logging-overrides">5. Output and logging overrides</h2>
+<h3 id="lldp_runner_log_level"><code>LLDP_RUNNER_LOG_LEVEL</code></h3>
+<p>Override <code>logging.level</code>.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_LOG_LEVEL</span><span class="op">=</span>DEBUG</span></code></pre></div>
+<p>For <code>get-neighbors</code>, diagnostics are written to stderr so stdout remains usable for redirected table, detail, CSV, or JSON data.</p>
+<h3 id="lldp_runner_snapshot_interval"><code>LLDP_RUNNER_SNAPSHOT_INTERVAL</code></h3>
+<p>Override <code>output.snapshot_interval_seconds</code>.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SNAPSHOT_INTERVAL</span><span class="op">=</span>120</span></code></pre></div>
+<p>This applies to full discovery snapshots.</p>
+<h3 id="lldp_runner_scoreboard_interval"><code>LLDP_RUNNER_SCOREBOARD_INTERVAL</code></h3>
+<p>Override <code>output.scoreboard_interval_seconds</code>.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SCOREBOARD_INTERVAL</span><span class="op">=</span>3</span></code></pre></div>
+<p>This applies to full discovery scoreboard refreshes.</p>
+<h2 id="6-seed-input-variables">6. Seed input variables</h2>
+<p>The following variables are additive seed sources for <code>lldp-runner run</code>. They do not apply to <code>get-neighbors</code>, which accepts one explicit target.</p>
+<h3 id="lldp_runner_seeds"><code>LLDP_RUNNER_SEEDS</code></h3>
+<p>Provide inline seeds separated by commas and/or newlines.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SEEDS</span><span class="op">=</span><span class="st">&#39;core1.example.net,core2.example.net&#39;</span></span></code></pre></div>
+<h3 id="lldp_runner_seed_files"><code>LLDP_RUNNER_SEED_FILES</code></h3>
+<p>Provide a platform path-list of seed files. On Linux, entries are separated by <code>:</code> because the parser uses <code>os.pathsep</code>.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SEED_FILES</span><span class="op">=</span><span class="st">&#39;/srv/seeds/core.txt:/srv/seeds/edge.csv&#39;</span></span></code></pre></div>
+<p>CSV files must use the current strict <code>seeds.csv</code> schema. Other files use the plain-text seed parser.</p>
+<h3 id="lldp_runner_seed_dirs"><code>LLDP_RUNNER_SEED_DIRS</code></h3>
+<p>Provide a platform path-list of recursively scanned seed directories.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_SEED_DIRS</span><span class="op">=</span><span class="st">&#39;/opt/lldp-runner/seeds.d:/srv/extra-seeds&#39;</span></span></code></pre></div>
+<p>Seed-directory skip and parsing rules are described in <a href="docs-CLI.html">CLI.md</a>.</p>
+<h2 id="7-default-runtime-snmp-credentials">7. Default runtime SNMP credentials</h2>
+<p>These variables provide the lowest-priority default credentials for small or simple runs that do not define explicit credential profiles.</p>
+<h3 id="snmpcomm"><code>SNMPCOMM</code></h3>
+<p>Provide the default SNMPv2c community string.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SNMPCOMM</span><span class="op">=</span><span class="st">&#39;example-community&#39;</span></span></code></pre></div>
+<h3 id="snmpuser"><code>SNMPUSER</code></h3>
+<p>Provide the SNMPv3 authPriv username.</p>
+<h3 id="snmpauth"><code>SNMPAUTH</code></h3>
+<p>Provide the SNMPv3 authentication password.</p>
+<h3 id="snmppriv"><code>SNMPPRIV</code></h3>
+<p>Provide the SNMPv3 privacy password.</p>
+<p>All three v3 variables are required together.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SNMPUSER</span><span class="op">=</span><span class="st">&#39;snmp-user&#39;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SNMPAUTH</span><span class="op">=</span><span class="st">&#39;authentication-password&#39;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SNMPPRIV</span><span class="op">=</span><span class="st">&#39;privacy-password&#39;</span></span></code></pre></div>
+<p>When both v2c and v3 credentials are present, <code>snmp.version</code> determines the primary version and the other becomes fallback. When only one version is available, LLDP-Runner uses that credential for two attempts rather than creating a duplicate fallback credential.</p>
+<p>Explicit TOML credentials and credential profiles take precedence and suppress synthesis of the runtime-default credential profile.</p>
+<h2 id="8-credential-table-secret-variables">8. Credential-table secret variables</h2>
+<p>Explicit TOML credential entries may refer to site-defined environment-variable names rather than embedding secrets in the file.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.site-v3]</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v3&quot;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="dt">username_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_USER&quot;</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_password_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_AUTH&quot;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_password_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_PRIV&quot;</span></span></code></pre></div>
+<p>The names <code>SITE_SNMP_USER</code>, <code>SITE_SNMP_AUTH</code>, and <code>SITE_SNMP_PRIV</code> are examples; any environment-variable names may be configured in these fields.</p>
+<p>The same concept applies to an SNMPv2c <code>community_env</code> field.</p>
+<h2 id="9-environment-indirection-for-credential-cli-arguments">9. Environment indirection for credential CLI arguments</h2>
+<p>Credential command-line arguments use an environment-name-first rule.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SITE_COMM</span><span class="op">=</span><span class="st">&#39;example-community&#39;</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> <span class="at">--community</span> SITE_COMM core1.example.net</span></code></pre></div>
+<p>Because <code>SITE_COMM</code> exists, its contents become the community string.</p>
+<p>If no environment variable named by the token exists, the token itself is used literally:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> <span class="at">--community</span> literal-community core1.example.net</span></code></pre></div>
+<p>Environment-variable names are preferable for secrets because literal command-line values may appear in shell history or process listings.</p>
+<h2 id="10-terminal-color-control">10. Terminal color control</h2>
+<h3 id="no_color"><code>NO_COLOR</code></h3>
+<p>When present in the environment, disable terminal color/styling in <code>get-neighbors</code>, <code>show-neighbors</code>, and the interactive <code>watch</code> dashboard.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="va">NO_COLOR</span><span class="op">=</span>1 <span class="ex">get-neighbors</span> core1.example.net</span></code></pre></div>
+<p>Human output is also automatically colorless when stdout is not a TTY. CSV and JSON output never contain ANSI color codes.</p>
+<p>Terminal styling is configured under <code>[terminal]</code>, not through additional LLDP_RUNNER_* environment variables. <code>color = "auto"</code> enables styling only when terminal capabilities permit it; <code>color = "never"</code> disables styling. <code>palette = "dark"</code> (default) or <code>"light"</code> selects the built-in watch dashboard theme. The existing named semantic colors configure neighbor-oriented output.</p>
+<p>The shipped example is:</p>
+<pre class="text"><code>configs/conf.d/terminal-colors.toml.example</code></pre>
+<p>Supported names are <code>black</code>, <code>red</code>, <code>green</code>, <code>yellow</code>, <code>blue</code>, <code>magenta</code>, <code>cyan</code>, <code>white</code>, <code>default</code>, and <code>none</code>. <code>default</code> selects the terminal default foreground color. <code>none</code> leaves that semantic role uncolored while preserving applicable emphasis when styling is enabled. <code>NO_COLOR</code> remains authoritative over all configured color and palette choices.</p>
+<h2 id="11-standard-process-environment-with-indirect-effects">11. Standard process environment with indirect effects</h2>
+<p>LLDP-Runner also relies on normal operating-system behavior for items such as home-directory expansion and executable lookup. For example, the invoking user's home directory determines <code>~</code> in config and path search locations.</p>
+<p>These are not LLDP-Runner-specific configuration variables and are therefore not part of the supported <code>LLDP_RUNNER_*</code> interface.</p>
+</body>
+</html>

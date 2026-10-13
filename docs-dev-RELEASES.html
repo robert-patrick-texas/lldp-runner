@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/dev/RELEASES.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="release-engineering-guide">Release Engineering Guide</h1>
+<h2 id="inputs">Inputs</h2>
+<p>Use the exact prior release tar archive as the patch base. Verify its hash when available. Do not reconstruct a base tree from memory or an unrelated working directory.</p>
+<h2 id="release-sequence">Release sequence</h2>
+<ol type="1">
+<li>Extract the prior archive into a clean base tree.</li>
+<li>Create a separate working tree.</li>
+<li>Implement source, tests, configuration, examples, docs, and changelog.</li>
+<li>Run focused tests while developing.</li>
+<li>Verify release dependency constraints and create/check the site lockfile.</li>
+<li>Run the complete test and compile gates.</li>
+<li>Generate a patch from the exact base to the release tree.</li>
+<li>Apply the patch to another fresh base extraction.</li>
+<li>Compare patched and staged trees by content.</li>
+<li>Build a source archive with one versioned top-level directory.</li>
+<li>Extract the archive, compare contents, and rerun release tests.</li>
+<li>Generate checksums, a machine-readable manifest, and a validation report.</li>
+</ol>
+<h2 id="dependency-reproducibility">Dependency reproducibility</h2>
+<p>Published project and development dependencies declare supported minimums so packaging metadata does not impose an artificial upper cap. Release-managed uv environments use exact versions under <code>[tool.uv].constraint-dependencies</code> and <code>build-constraint-dependencies</code>. Mirror those selections in the versioned file under <code>constraints/</code> and test that both sources remain identical.</p>
+<p>After extracting a release, the maintainer runs <code>uv lock</code> and then <code>uv sync --all-groups --locked</code> on the supported release platform. Record the uv, Python, and operating-system versions used. A dependency upgrade is a release change: update the constraints, regenerate the lock, and rerun static analysis, tests, archive validation, and production replay. Ordinary operators continue to use <code>--no-sync</code>.</p>
+<p>For a Linux release, the versioned constraint file identifies the exact package set validated on Linux. It must not retain a <code>sys_platform == 'win32'</code> entry or turn a Windows-only package such as Colorama into an unconditional/Linux requirement. Add a Linux marker only when a dependency is genuinely Linux-only; platform-neutral packages do not receive decorative markers. A regression test must compare the text manifest with the concatenated runtime/build uv arrays and reject any Windows marker. Generate/check the lock on Linux in the connected maintainer environment.</p>
+<h2 id="artifact-exclusions">Artifact exclusions</h2>
+<p>Do not package:</p>
+<pre class="text"><code>.git/
+.venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+build/
+dist/
+*.egg-info/</code></pre>
+<h2 id="changelog-discipline">Changelog discipline</h2>
+<p>Describe behavior introduced, corrected, or retired by the release. Mention a schema number only when that schema changes; the current-version inventory belongs in <a href="docs-dev-SCHEMA.html"><code>SCHEMA.md</code></a>. Do not pad a new entry by restating an established feature from several releases earlier. A brief reminder is useful only when it explains a direct dependency, compatibility boundary, or operator impact of the current change.</p>
+<p>Keep historical entries intact except for factual or editorial corrections. Release-specific validation results belong in the validation report rather than being repeated as enduring product behavior.</p>
+<h2 id="release-report">Release report</h2>
+<p>State exactly which checks passed, failed, or were not available. Include base and artifact hashes, test counts, schema versions, archive-root validation, and any limitation of the validation environment.</p>
+</body>
+</html>

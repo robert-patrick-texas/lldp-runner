@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/dev/CONTRIBUTING.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="contribution-guidelines">Contribution Guidelines</h1>
+<h2 id="code-style">Code style</h2>
+<ul>
+<li>Use clear names and complete docstrings for public and non-obvious internal behavior.</li>
+<li>Add comments that explain network/protocol reasons, not line-by-line Python.</li>
+<li>Keep functions focused and type annotations accurate.</li>
+<li>Prefer standard-library behavior unless a dependency provides a clear operational advantage.</li>
+<li>Preserve deterministic ordering in serialized output.</li>
+</ul>
+<h2 id="network-correctness">Network correctness</h2>
+<ul>
+<li>Distinguish protocol index namespaces.</li>
+<li>Preserve raw values and provenance.</li>
+<li>Validate complete tables before accepting negative evidence.</li>
+<li>Apply hard identity conflicts before accumulated weak matches.</li>
+<li>Never use DNS-only agreement, a common address, or a locally scoped chassis value as unrestricted physical-host equality.</li>
+<li>Treat ambiguous many-neighbor ports as observations until evidence supports a stronger interpretation.</li>
+</ul>
+<h2 id="operator-experience">Operator experience</h2>
+<ul>
+<li>SNMP logs place <code>SNMP target=&lt;value&gt;</code> in a consistent position.</li>
+<li>Errors identify operation, target, category, attempt, and relevant table/OID.</li>
+<li>Configuration comments explain practical effects and safe ranges.</li>
+<li>Documentation uses present-tense behavior; release history belongs in <a href="CHANGELOG.html"><code>CHANGELOG.md</code></a>.</li>
+<li>Terminal output remains readable for Network Operations staff who are not Python developers.</li>
+</ul>
+<h2 id="review-checklist">Review checklist</h2>
+<ul>
+<li>Behavior and failure modes are tested.</li>
+<li>Output and schema changes are documented.</li>
+<li>Examples and generated configuration are updated.</li>
+<li>Collection, resolver, or graph-flow changes update <a href="docs-dev-FLOW-DIAGRAMS.html"><code>FLOW-DIAGRAMS.md</code></a>.</li>
+<li>No compatibility alias is added unless the operator requires it.</li>
+<li>Security-sensitive values are redacted.</li>
+<li>New evidence rules include positive, negative, conflict, and order-randomized fixtures.</li>
+</ul>
+<h2 id="sanitized-examples-and-fixtures">Sanitized examples and fixtures</h2>
+<p>Do not commit customer or production identifiers, even when they appear only in an example, comment, test, release note, or captured diagnostic. This includes:</p>
+<ul>
+<li>hostnames, DNS suffixes, usernames, site codes, and asset labels;</li>
+<li>public or private management addresses and operation-derived run IDs;</li>
+<li>hardware serials, chassis identifiers, and MAC-derived endpoint names; and</li>
+<li>organization-specific credential, classification, or tag labels.</li>
+</ul>
+<p>Use role-based names such as <code>hq-core-01</code>, <code>branch-access-01</code>, and <code>client-001</code>. Use <code>example.com</code>, <code>example.net</code>, <code>example.org</code>, or the reserved <code>.example</code> namespace for DNS examples. Use TEST-NET IPv4 ranges and <code>2001:db8::/32</code> for documentation addresses. The benchmarking range <code>198.18.0.0/15</code> is suitable when a test specifically needs non-public lab addressing.</p>
+<p>Keep linked evidence internally consistent. When replacing an endpoint name, also replace its addresses, serial, chassis value, CDP/LLDP details, expected output, and any diff fixture that refers to the same logical system. Synthetic MAC examples should remain valid for the behavior under test without copying a captured device identifier.</p>
+<p>Before submitting a change, run the complete test suite. The sanitized-example regression scans shipped text, documentation namespaces, alternate MAC forms, and compact run IDs so previously removed operation-derived values do not return.</p>
+</body>
+</html>

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/CLI.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="lldp-runner-command-line-reference">LLDP-Runner command-line reference</h1>
+<p>This document describes the command-line interface shipped with LLDP-Runner. It is based on the current parser in <code>src/lldp_runner/cli.py</code>.</p>
+<p>Use <code>lldp-runner --help</code>, <code>lldp-runner COMMAND --help</code>, <code>get-neighbors --help</code>, or <code>show-neighbors --help</code> for parser-generated help.</p>
+<h2 id="1-command-forms">1. Command forms</h2>
+<p>LLDP-Runner provides these command forms:</p>
+<pre class="text"><code>lldp-runner --version
+lldp-runner version
+lldp-runner [GLOBAL OPTIONS] clean [--all] [--scratch] [--dry-run]
+lldp-runner [GLOBAL OPTIONS] purge [--keep NUMBER] [--dry-run]
+lldp-runner [GLOBAL OPTIONS] run [RUN OPTIONS]
+lldp-runner [GLOBAL OPTIONS] get-neighbors SEED [OPTIONS]
+lldp-runner [GLOBAL OPTIONS] show-neighbors [OPTIONS] [PATTERN]
+lldp-runner [GLOBAL OPTIONS] diff [OPTIONS] [PATTERN]
+lldp-runner [GLOBAL OPTIONS] validate-config
+lldp-runner [GLOBAL OPTIONS] generate-config [FILENAME]
+lldp-runner [GLOBAL OPTIONS] explain-target TARGET
+lldp-runner [GLOBAL OPTIONS] status [--json]
+lldp-runner [GLOBAL OPTIONS] watch [WATCH OPTIONS]
+lldp-runner [GLOBAL OPTIONS] pause
+get-neighbors [OPTIONS] SEED
+show-neighbors [OPTIONS] [PATTERN]</code></pre>
+<p><code>get-neighbors</code> is an active one-device operation. It performs ICMP/SNMP as applicable, may require credentials, and never recursively queries learned devices. Options may appear before or after <code>SEED</code>.</p>
+<p><code>show-neighbors</code> is a read-only viewer for finalized <code>discovery.json</code> data. It does not communicate with network devices and disables the credential subsystem.</p>
+<p><code>lldp-runner diff</code> is a read-only comparison of two finalized discovery data sets. It also disables credentials and performs no network activity.</p>
+<h2 id="2-global-lldp-runner-options">2. Global LLDP-Runner options</h2>
+<h3 id="-h---help"><code>-h</code>, <code>--help</code></h3>
+<p>Show parser help and exit.</p>
+<h3 id="--version"><code>--version</code></h3>
+<p>Show the installed LLDP-Runner version and exit. The <code>version</code> subcommand is an exact output-equivalent convenience form.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--version</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> version</span></code></pre></div>
+<h3 id="--config-file"><code>--config FILE</code></h3>
+<p>Select the primary TOML configuration file. An explicit path is Authoritative. If it does not exist or cannot be read, LLDP-Runner fails instead of searching elsewhere.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--config</span> /opt/lldp-runner/config.toml run <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p>When omitted, LLDP-Runner checks the normal config search locations before falling back to built-in defaults. See <a href="docs-PRECEDENCE.html">PRECEDENCE.md</a> for the authoritative assembly order and <a href="docs-ENVIRONMENT.html">ENVIRONMENT.md</a> for environment details.</p>
+<h3 id="--set-sectionoptiontoml_value"><code>--set 'SECTION.OPTION=TOML_VALUE'</code></h3>
+<p>Override one configuration value using TOML value syntax. The option is repeatable.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;snmp.max_repetitions=20&#39;</span> <span class="dt">\</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;icmp.enabled=true&#39;</span> <span class="dt">\</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p>Standard fixed CSV views can also be suppressed for a run:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="dt">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;output.write_stack_members_csv=false&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;output.write_unknown_devices_csv=false&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;output.write_errors_csv=false&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p><code>discovery.json</code> remains enabled regardless of these CSV controls. Custom CSV reports are configured below <code>output.custom_csv</code>; see <a href="docs-CUSTOM-CSV.html">CUSTOM-CSV.md</a>.</p>
+<p>By default, any individually enabled fixed or custom CSV with zero data rows is omitted. Use <code>output.write_empty_csv=true</code> when automation requires a header-only file for every enabled CSV. The optional <code>output.log_alert_on_empty_csv=true</code> setting emits one INFO record at terminal snapshot time listing enabled empty CSVs that were not written.</p>
+<p>Quote string values as TOML strings:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--set</span> <span class="st">&#39;logging.level=&quot;DEBUG&quot;&#39;</span> validate-config</span></code></pre></div>
+<p>Dedicated CLI arguments override <code>--set</code> when both address the same setting.</p>
+<h3 id="--snmpbackend-gufopysnmp---snmp-backend-gufopysnmp"><code>--snmp.backend {gufo,pysnmp}</code>, <code>--snmp-backend {gufo,pysnmp}</code></h3>
+<p>Select the SNMP transport implementation for the current invocation. <code>gufo</code> is still available explicitly; an omitted value now resolves to <code>pysnmp</code>. The value participates in the normal scalar precedence chain: TOML, <code>LLDP_RUNNER_SNMP_BACKEND</code>, <code>--set</code>, then the dedicated option.</p>
+<p>For a discovery run, LLDP-Runner resolves this setting before coordinator or worker discovery begins and binds it to the logical run. Every worker uses that same backend. A resume must resolve to the persisted backend name or it fails before discovery and before <code>run.json</code> is changed. LLDP-Runner never falls back from the selected package to the other package and never combines backend evidence in one run.</p>
+<p>The 0.37.0 default change does not override an explicit Gufo setting. To resume an existing Gufo run, keep or add <code>snmp.backend = "gufo"</code>; an omitted backend now resolves to <code>pysnmp</code>, so the implicit default fails the durable mismatch check before discovery.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--snmp-backend</span> pysnmp run <span class="at">--seed</span> core1.example.net</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--snmp.backend</span> gufo get-neighbors core1.example.net</span></code></pre></div>
+<p>The selected backend name and installed package version are recorded in the run's SQLite metadata, top-level <code>run.json</code> diagnostics, and each invocation record. Credential values are not included.</p>
+<h4 id="entity-mib-query-mode-through---set">ENTITY-MIB query mode through <code>--set</code></h4>
+<p>The ENTITY-MIB collector has three query scopes:</p>
+<pre class="text"><code>full   complete entPhysicalEntry walk; historical/default behavior
+auto   discover the physical index and adapt high-value fields to device type
+brief  discover the physical index and request manufacturer/model/serial only</code></pre>
+<p>For example:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> <span class="at">--set</span> <span class="st">&#39;snmp.entity_mib_mode=&quot;auto&quot;&#39;</span> core1.example.net</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--set</span> <span class="st">&#39;snmp.entity_mib_mode=&quot;brief&quot;&#39;</span> run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p><code>snmp.collect_entity_mib=false</code> is the master disable switch and prevents all ENTITY-MIB queries regardless of the selected mode. <code>auto</code> and <code>brief</code> walk only <code>entPhysicalClass</code> to discover valid agent-assigned indexes before their targeted instance GETs; neither mode assumes that index <code>1</code> exists. Beginning with v0.15.0, all three modes also preserve physical switch members beneath a logical stack identity when ENTITY-MIB exposes usable chassis relationships.</p>
+<h3 id="--snmpcommunity-value---community-value"><code>--snmp.community VALUE</code>, <code>--community VALUE</code></h3>
+<p>Provide the lowest-priority runtime SNMPv2c community. <code>VALUE</code> is first interpreted as an environment-variable name. If that variable does not exist, <code>VALUE</code> is used literally.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SITE_COMM</span><span class="op">=</span><span class="st">&#39;example-community&#39;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--community</span> SITE_COMM run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<h3 id="--snmpuser-value---snmp-user-value"><code>--snmp.user VALUE</code>, <code>--snmp-user VALUE</code></h3>
+<p>Provide the runtime SNMPv3 authPriv username. The environment-name-first lookup rule is the same as <code>--community</code>.</p>
+<h3 id="--snmpauth-value---snmp-auth-value"><code>--snmp.auth VALUE</code>, <code>--snmp-auth VALUE</code></h3>
+<p>Provide the runtime SNMPv3 authentication password.</p>
+<h3 id="--snmppriv-value---snmp-priv-value"><code>--snmp.priv VALUE</code>, <code>--snmp-priv VALUE</code></h3>
+<p>Provide the runtime SNMPv3 privacy password.</p>
+<p>All three SNMPv3 values are required together.</p>
+<h3 id="--snmpversion-2c3---snmp-version-2c3"><code>--snmp.version {2c,3}</code>, <code>--snmp-version {2c,3}</code></h3>
+<p>Choose the preferred runtime SNMP version when both runtime v2c and v3 credentials are available. The other version becomes fallback.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="dt">\</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--community</span> SITE_COMM <span class="dt">\</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--snmp.user</span> SITE_USER <span class="dt">\</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--snmp.auth</span> SITE_AUTH <span class="dt">\</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--snmp.priv</span> SITE_PRIV <span class="dt">\</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--snmp.version</span> 3 <span class="dt">\</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p>Explicit credential profiles in TOML take precedence over synthesized runtime credentials.</p>
+<h2 id="3-version">3. <code>version</code></h2>
+<p>Print the same version string as <code>lldp-runner --version</code> and exit. This command does not load credentials or require access to discovery storage.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> version</span></code></pre></div>
+<h2 id="4-clean">4. <code>clean</code></h2>
+<p>Remove historical LLDP-Runner run state while preserving the newest run and operator-significant <code>current</code>/<code>latest</code> targets. The command disables the credential subsystem entirely.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> clean</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> clean <span class="at">--all</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> clean <span class="at">--scratch</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> clean <span class="at">--scratch</span> <span class="at">--all</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> clean <span class="at">--dry-run</span></span></code></pre></div>
+<p>With no option, <code>clean</code> operates on both persistent and scratch history. <code>--all</code> is an explicit spelling of that default. <code>--scratch</code> limits cleanup to scratch history. When both flags are supplied, <code>--all</code> wins, so <code>clean --scratch --all</code> has the same behavior as <code>clean --all</code>.</p>
+<p>Persistent run state is cleaned below <code>&lt;persistent_root&gt;/&lt;runs_dirname&gt;/</code>. Scratch run directories in the current runtime layout are direct children of <code>&lt;scratch_root&gt;/</code>. The reserved <code>&lt;scratch_root&gt;/scoreboard/</code> live-publication directory is removed by every scratch cleanup, while the <code>&lt;scratch_root&gt;/current</code> symlink remains untouched. The command preserves the newest run directory in each area, the scratch <code>current</code> target, and the durable run directory corresponding to <code>&lt;persistent_root&gt;/&lt;runs_dirname&gt;/latest</code> or <code>&lt;persistent_root&gt;/&lt;output_dirname&gt;/latest</code> when either alias is available. Finalized output directories and the two <code>latest</code> symlinks themselves are never removed.</p>
+<p>Because an explicit scratch root can be shared with other operator data, scratch cleanup only removes directories/files recognizable as LLDP-Runner run artifacts. Unknown scratch children are retained rather than guessed to be safe for deletion.</p>
+<h3 id="--all"><code>--all</code></h3>
+<p>Clean persistent and scratch run history. This is also the default when no scope flag is supplied. If combined with <code>--scratch</code>, <code>--all</code> takes precedence.</p>
+<h3 id="--scratch"><code>--scratch</code></h3>
+<p>Clean only recognized historical scratch runs and make no change to persistent run state.</p>
+<h3 id="--dry-run"><code>--dry-run</code></h3>
+<p>Run the complete retention selection and report what would be removed without deleting any persistent or scratch artifact.</p>
+<h2 id="5-purge">5. <code>purge</code></h2>
+<p>Remove historical finalized output directories below <code>&lt;persistent_root&gt;/&lt;output_dirname&gt;/</code>. <code>purge</code> disables credentials and does not modify durable run state or scratch data.</p>
+<p>With no <code>--keep</code>, the configured <code>output.purge_keep</code> value is used. Its built-in default is 0, which keeps only the <code>latest</code> output. <code>--keep 3</code>, for example, keeps <code>latest</code> plus the three most recent additional output directories. An explicit CLI value overrides configuration.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> purge</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> purge <span class="at">--keep</span> 3</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> purge <span class="at">--dry-run</span></span></code></pre></div>
+<p>Retention ranking uses <code>run.json</code> completion time first, then <code>discovery.completed</code>, then <code>discovery.generated</code>, then the oldest available filesystem mtime among <code>run.json</code>, <code>discovery.json</code>, and the output directory. Missing/malformed metadata falls through safely. A malformed or external <code>outputs/latest</code> symlink is a usage error. When <code>latest</code> is absent, the newest ranked output is retained as a safe equivalent.</p>
+<h3 id="--keep-number"><code>--keep NUMBER</code></h3>
+<p>Keep <code>latest</code> plus NUMBER additional recent output directories. NUMBER must be non-negative.</p>
+<h3 id="--dry-run-1"><code>--dry-run</code></h3>
+<p>Calculate and print the same retain/remove set as normal purge without deleting anything.</p>
+<h2 id="6-run">6. <code>run</code></h2>
+<p><code>run</code> starts a new recursive discovery or resumes an eligible prior run.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p>Completed runs publish <code>run.json</code> beside <code>discovery.json</code>. The schema-versioned document begins with <code>schema_version</code>, <code>app_name</code>, and <code>app_version</code>; the application version is the package runtime version. It also records the fixed SNMP backend name and installed package version at run level and for each invocation. Provenance records logical run start/completion, the starting OS username and UID, every resume invocation, sanitized raw/parsed CLI input, resolved seed inputs (including stdin values), recognized non-secret LLDP-Runner environment inputs, and the resolved config-file chain when enabled. Credential communities and auth/privacy password values are replaced with <code>&lt;redacted&gt;</code> before durable state is written. <code>output.run_json_config_log=false</code> suppresses dynamically resolved config pathname detail. <code>run --dry-run</code> does not allocate a run ID and therefore creates no <code>run.json</code>.</p>
+<p><code>run.json</code> schema 3 preserves the logical <code>duration</code> from persisted start to discovery completion and adds discovery, graph-resolution, graph-serialization, output-publication, finalization, and total wall-clock durations. Completion paths resolve retained filesystem aliases and use canonical <code>outputs/&lt;run-id&gt;/</code> spelling.</p>
+<p>After a run invocation terminates, standard output includes invocation timing immediately after <code>Status:</code>:</p>
+<pre class="text"><code>Run: 20260102-135700-EDT
+Status: COMPLETED
+Runtime: 2026-08-24 13:57:00 EDT to 2026-08-24 13:58:30 EDT (duration: 90s)
+State: ...
+Activity log: ...
+Output: ...</code></pre>
+<p>The Runtime timestamps and duration describe the current command invocation. When an incomplete run is resumed, they do not represent the full wall-clock lifetime of the persisted run ID.</p>
+<h3 id="seed-input-options">Seed input options</h3>
+<h4 id="--seed-target"><code>--seed TARGET</code></h4>
+<p>Add one seed hostname, IPv4 address, or IPv6 address. Repeat as needed.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="dt">\</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> core1.example.net <span class="dt">\</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 192.0.2.10 <span class="dt">\</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 2001:db8::10</span></code></pre></div>
+<h4 id="--seed-file-file"><code>--seed-file FILE</code></h4>
+<p>Read seeds from one file. Repeatable.</p>
+<p>Files ending in <code>.csv</code> must use the current LLDP-Runner <code>seeds.csv</code> field set. Columns may appear in any order and header matching is case-insensitive. Its <code>origin</code> field records the prior run's provenance, but imported rows are explicit seeds in the new run regardless of whether that value was <code>seed</code> or <code>learned</code>. Other files use the plain-text seed parser.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="at">--seed-file</span> /opt/lldp-runner/seeds/core.txt</span></code></pre></div>
+<h4 id="--seed-credential-file-file"><code>--seed-credential-file FILE</code></h4>
+<p>Attach ordered SNMP credential attempts to matching explicit run seeds. The option is repeatable and accepts <code>.csv</code> or <code>.json</code> files. It is an overlay only: records never create seeds, trigger DNS on their own, or cause a credential-only host to be queried. Seeds without a matching record use the existing credential policy unchanged.</p>
+<p>CSV requires these fields, which may appear in any order:</p>
+<pre class="text"><code>seed,credential_strategy,credential_label,credential_profile,
+snmp_version,community,username,auth_password,priv_password,
+auth_protocol,priv_protocol</code></pre>
+<p>CSV blank/comment lines are skipped and cell whitespace is trimmed. Header matching is case-insensitive, and unrelated extra columns are ignored. A missing <code>seed</code> skips the row. A seed row with no profile or usable direct credential is skipped with a WARN activity-log record. Repeated rows for a seed preserve file order. See <a href="docs-CSV-INPUT.html">CSV-INPUT.md</a> for the shared CSV input contract.</p>
+<p>JSON is a top-level array of objects. Keys match the CSV columns; the only extra recognized key is optional positive integer <code>source_line</code>, which is provenance metadata only. JSON array order determines credential attempt order.</p>
+<p><code>credential_strategy</code> defaults to <code>prefer</code>. <code>prefer</code> tries overlay records first and then the normal address/name/default profile. <code>exclusive</code> tries only overlay records. Conflicting explicit strategies for the same seed are errors. A <code>credential_profile</code> row expands the named configured primary/fallback profile; a direct row supplies v2c community or the selected backend's supported v3 authPriv fields. Gufo accepts SHA-1/MD5 with AES-128/DES. PySNMP also accepts SHA-256 plus <code>aes256</code> (Reeder/Cisco) and <code>aes256-blumenthal</code>; it never infers one AES-256 localization from the other. Profile and direct fields may not be mixed on one row.</p>
+<p><code>credential_label</code> is optional, non-secret reporting metadata. It has no uniqueness requirement and is never used as an internal key or profile selector.</p>
+<p>Literal-secret files must not be world-readable or world-writable. Unmatched records are written only to WARN-level activity logging; an INFO activity-log message reports <code>X matched, Y unmatched</code>. Resume requires the applicable overlay to be supplied again because direct secrets are never checkpointed.</p>
+<p>Examples:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="dt">\</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-file</span> /srv/lldp/seeds.csv <span class="dt">\</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-credential-file</span> /etc/lldp-runner/seed-credentials.csv</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 0600 /etc/lldp-runner/seed-credentials.json</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="dt">\</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> core1.example.net <span class="dt">\</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-credential-file</span> /etc/lldp-runner/seed-credentials.json</span></code></pre></div>
+<h4 id="--seed-dir-dir"><code>--seed-dir DIR</code></h4>
+<p>Recursively read eligible seed files from a directory. Repeatable.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="at">--seed-dir</span> /opt/lldp-runner/seeds.d</span></code></pre></div>
+<p>Hidden files/directories, names beginning with <code>README</code>, and names ending in <code>.disabled</code> or <code>.note</code> are ignored. CSV files use the current strict schema. All other eligible files are parsed as plain text.</p>
+<h4 id="--stdin"><code>--stdin</code></h4>
+<p>Read additional plain-text seeds from standard input.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> temporary-seeds.txt <span class="kw">|</span> <span class="ex">lldp-runner</span> run <span class="at">--stdin</span></span></code></pre></div>
+<p>Without <code>--stdin</code>, LLDP-Runner does not consume standard input.</p>
+<h3 id="plain-text-seed-line-rules">Plain-text seed line rules</h3>
+<p>Each active line contains one seed. Blank lines are skipped. Lines whose first non-whitespace character is <code>#</code> or <code>;</code> are comments.</p>
+<p>For active lines, text beginning with the first comma, semicolon, or hash is removed.</p>
+<pre class="text"><code>core1.example.net, inventory note
+192.0.2.10 ; temporary seed
+2001:db8::10 # IPv6 seed
+# ignored comment
+; ignored comment</code></pre>
+<p>The first three lines produce three seeds.</p>
+<h3 id="run-lifecycle-options">Run lifecycle options</h3>
+<h4 id="--new-run"><code>--new-run</code></h4>
+<p>Force a new run even when an incomplete resumable run exists.</p>
+<h4 id="--no-resume"><code>--no-resume</code></h4>
+<p>Disable automatic resume for this invocation.</p>
+<h4 id="--dry-run-2"><code>--dry-run</code></h4>
+<p>Apply the configured seed identity/DNS policy and print policy explanations without sending ICMP or SNMP. At least one seed is required.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="at">--dry-run</span> <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p>Unlike <code>inspect --dry-run</code>, normal <code>run --dry-run</code> loads the run-effective configuration and performs normal credential validation.</p>
+<p><code>run --dry-run</code> also honors <code>discovery.seed_dns_mode</code>, including eligible <code>skip-addressed</code> reusable seed rows.</p>
+<h3 id="worker-and-cohort-options">Worker and cohort options</h3>
+<h4 id="--workers-n---workers-auto"><code>--workers N</code>, <code>--workers auto</code></h4>
+<p>Override the worker-process count. <code>auto</code> resolves at runtime to:</p>
+<pre class="text"><code>(os.cpu_count() or 1) * 4</code></pre>
+<h4 id="--batch-size-n"><code>--batch-size N</code></h4>
+<p>Override the number of device tasks assigned as one worker cohort.</p>
+<h4 id="--max-outstanding-n"><code>--max-outstanding N</code></h4>
+<p>Override the maximum number of active device operations inside each worker.</p>
+<h3 id="seed-scheduling-options">Seed scheduling options</h3>
+<h4 id="--seed-order-inputsortedrandom"><code>--seed-order {input,sorted,random}</code></h4>
+<p>Choose scheduling order after seed consolidation and identity de-duplication.</p>
+<p><code>input</code> preserves first-seen input order.</p>
+<p><code>sorted</code> uses a case-insensitive lexical sort of resolved preferred names.</p>
+<p><code>random</code> uses a hash-based shuffle.</p>
+<h4 id="--seed-dns-mode-resolveskip-addressed"><code>--seed-dns-mode {resolve,skip-addressed}</code></h4>
+<p>Control DNS behavior during initial seed identity resolution.</p>
+<p><code>resolve</code> is the default and performs normal resolver work for every seed.</p>
+<p><code>skip-addressed</code> can bypass DNS for a reusable seed that has a non-IP logical name plus a valid prior <code>queried_as</code> address. When prior <code>state</code> metadata is present, it must indicate <code>complete</code>/successful input; failed or conflicting state forces fresh DNS. IP-only seeds also retain normal reverse resolution.</p>
+<p>The option affects startup seed resolution only. Learned managed-neighbor DNS enrichment remains controlled by <code>discovery.resolve_discovered_managed_names</code>.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="dt">\</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-file</span> seeds.csv <span class="dt">\</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-dns-mode</span> skip-addressed</span></code></pre></div>
+<p>See <a href="docs-DNS.html">DNS.md</a> for the full eligibility and operational tradeoffs.</p>
+<h4 id="--shuffle-key-key"><code>--shuffle-key KEY</code></h4>
+<p>Make <code>--seed-order random</code> reproducible. If omitted, a new key is generated for a new run and persisted so resume keeps the same ordering.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="dt">\</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-file</span> switches.txt <span class="dt">\</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-order</span> random <span class="dt">\</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--shuffle-key</span> 20260821</span></code></pre></div>
+<h3 id="discovery-guardrails">Discovery guardrails</h3>
+<h4 id="--boundary-cidr"><code>--boundary CIDR</code></h4>
+<p>Replace configured discovery boundaries for this invocation. Repeatable.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="dt">\</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--boundary</span> 192.0.2.0/24 <span class="dt">\</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--boundary</span> 2001:db8:1::/48 <span class="dt">\</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<h4 id="--max-devices-n"><code>--max-devices N</code></h4>
+<p>Set the managed-device query guardrail.</p>
+<p>A positive integer enables recursive discovery up to that guardrail.</p>
+<p><code>0</code> disables the managed-device count guardrail.</p>
+<p><code>auto</code> enables seed-only mode: all unique seed devices may be queried, but managed neighbors learned from those seeds are not recursively queried.</p>
+<p>Because the complete SNMP query population is known after seed initialization, LLDP-Runner right-sizes the run's execution plan before starting workers. The effective worker count is bounded by the number of READY seed batches that can make progress concurrently, and a small workload can also reduce batch size to balance seeds across those workers. Configured limits are never increased.</p>
+<p>The INFO log and live scoreboards show configured and effective workers/batch size so the runtime optimization remains visible to operators. Recursive runs do not use this optimization because learned neighbors can create later work.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="at">--max-devices</span> auto <span class="at">--seed-file</span> switches.txt</span></code></pre></div>
+<p>If a finite positive value is smaller than the de-duplicated managed seed inventory, LLDP-Runner fails before workers start.</p>
+<h4 id="--max-hosts-n"><code>--max-hosts N</code></h4>
+<p>Set the identified-host guardrail. <code>0</code> disables it.</p>
+<p>In seed-only mode, explicit seeds do not consume this threshold; discovered non-seed identities do.</p>
+<h4 id="--limit-behavior-pausecomplete"><code>--limit-behavior {pause,complete}</code></h4>
+<p>Choose what reaching a finite runtime guardrail means.</p>
+<p><code>pause</code> produces a resumable <code>LIMIT_REACHED</code> run.</p>
+<p><code>complete</code> treats the threshold as intentional, finalizes output, and marks the run <code>COMPLETED_LIMIT</code>.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> run <span class="dt">\</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-file</span> switches.txt <span class="dt">\</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed-order</span> random <span class="dt">\</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-devices</span> auto <span class="dt">\</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-hosts</span> 1000 <span class="dt">\</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--limit-behavior</span> complete</span></code></pre></div>
+<p>Because worker batches are concurrent, <code>max_hosts</code> is a stopping threshold, not an exact output sample size.</p>
+<h3 id="run-initialization-messages">Run initialization messages</h3>
+<p>Before workers start, a run announces its discovery mode, configuration source, raw seed count, seed-resolution phase, resolution result, and discovery start. Long seed resolution emits a progress heartbeat every 30 seconds. The console is intentionally concise; <code>activity.log</code> includes more detailed phase counters.</p>
+<p>See <a href="docs-RUN.html">RUN.md</a> for message vocabulary, count definitions, examples, and initialization-failure behavior.</p>
+<h3 id="filesystem-options">Filesystem options</h3>
+<h4 id="--persistent-root-dir"><code>--persistent-root DIR</code></h4>
+<p>Override the persistent root. The value <code>auto</code> is accepted.</p>
+<h4 id="--scratch-root-dir"><code>--scratch-root DIR</code></h4>
+<p>Override the scratch/scoreboard root. The value <code>auto</code> is accepted.</p>
+<h3 id="timezone-and-run-id-configuration">Timezone and run-ID configuration</h3>
+<p>These settings use normal TOML/<code>--set</code> configuration rather than dedicated CLI options:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[time]</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="dt">timezone</span> <span class="op">=</span> <span class="st">&quot;eastern&quot;</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="kw">[paths]</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="dt">run_id_format</span> <span class="op">=</span> <span class="st">&quot;%Y%m%d-%H%M%S-%Z&quot;</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="dt">clean_scratch_when_completed</span> <span class="op">=</span> <span class="cn">true</span></span></code></pre></div>
+<p><code>time.timezone</code> accepts case-insensitive <code>eastern</code>, <code>utc</code>, and <code>local</code> aliases, plus IANA names such as <code>America/Denver</code>. <code>local</code> asks the underlying host for its timezone. The policy applies consistently to logs, runtime summaries, persisted timestamps, workers, and run-ID time expansion.</p>
+<p><code>paths.run_id_format</code> accepts safe literal filename characters, <code>%Y</code>, <code>%y</code>, <code>%m</code>, <code>%d</code>, <code>%H</code>, <code>%M</code>, <code>%S</code>, <code>%f</code>, <code>%j</code>, <code>%Z</code>, <code>%z</code>, and at most one <code>{counter}</code>. The stateless counter is zero-padded from <code>00</code> through <code>99</code> and uses highest matching existing counter plus one. Exhaustion is an error; use a higher-precision time component such as <code>%f</code> when more than 100 runs can share one namespace.</p>
+<p><code>paths.clean_scratch_when_completed</code> is a strict boolean and defaults to true. After a <code>COMPLETED</code> or <code>COMPLETED_LIMIT</code> run has published durable output, finished run provenance, archived final scoreboards, and closed SQLite/logging resources, it removes the exact per-run scratch directory and removes <code>scratch_root/current</code> only when the link still selects that run. The stable <code>scratch_root/scoreboard</code> directory remains available after completion. Set the option to false with TOML or <code>--set paths.clean_scratch_when_completed=false</code> to retain per-run scratch files and a copied terminal scoreboard. Paused, resumable-limit, interrupted, and failed runs are not automatically cleaned.</p>
+<h3 id="snmp-and-logging-options">SNMP and logging options</h3>
+<h4 id="--snmp-backend-gufopysnmp"><code>--snmp-backend {gufo,pysnmp}</code></h4>
+<p>Select one SNMP backend for the complete run or resume invocation. PySNMP is the default; Gufo remains available through explicit selection. The coordinator persists the selected name before discovery. A different or missing persisted backend on a real resume is a pre-discovery error; there is no automatic fallback to the other backend.</p>
+<h4 id="--snmp-timeout-seconds"><code>--snmp-timeout SECONDS</code></h4>
+<p>Override the per-request SNMP timeout.</p>
+<h4 id="--per-device-rps-rate"><code>--per-device-rps RATE</code></h4>
+<p>Override the per-device SNMP request-rate limit.</p>
+<h4 id="--log-level-level"><code>--log-level LEVEL</code></h4>
+<p>Override the configured log level, for example <code>DEBUG</code> or <code>INFO</code>.</p>
+<p>Console and file logging destinations are configured independently through the normal configuration/<code>--set</code> interface:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="dt">\</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;logging.console=false&#39;</span> <span class="dt">\</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;logging.file=true&#39;</span> <span class="dt">\</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;logging.filename=&quot;/var/log/lldprunner.log&quot;&#39;</span> <span class="dt">\</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  run <span class="at">--seed</span> core1.example.net</span></code></pre></div>
+<p><code>logging.filename="activity.log"</code> is the default and resolves beneath the current run-ID directory. Relative nested paths remain inside that run directory. Absolute or <code>~</code>-expanded paths may target a centralized location. Enabled file logging appends to an existing destination instead of truncating it. If the configured file cannot be created/opened for append, <code>run</code> exits before discovery and reports the error on standard error. When file logging is disabled, the run summary prints <code>Activity log: disabled</code>.</p>
+<p><code>run</code> also preflights scratch and final persistent-output operations before starting discovery workers. The probe exercises atomic file publication and the output-root symlink operation used for <code>latest</code>; predictable permission/path failures therefore stop before SNMP collection begins.</p>
+<h2 id="7-get-neighbors">7. <code>get-neighbors</code></h2>
+<p><code>get-neighbors</code> probes exactly one target, prints the result to stdout, and never recursively queries learned neighbors.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> get-neighbors core1.example.net</span></code></pre></div>
+<p>It does not create discovery SQLite state, run directories, snapshots, or scoreboards.</p>
+<p>The explicit <code>get-neighbors</code> target may be outside <code>discovery.boundaries</code>. The result reports that fact, but the boundary does not block the query. Explicit <code>query_policy</code> deny rules remain authoritative.</p>
+<h3 id="get-neighbors-runtime-options"><code>get-neighbors</code> runtime options</h3>
+<p>These options may be supplied after <code>get-neighbors</code> and may appear around <code>SEED</code>:</p>
+<pre class="text"><code>--config FILE
+--set OPTION=VALUE
+--snmp.community VALUE / --community VALUE
+--snmp.user VALUE / --snmp-user VALUE
+--snmp.auth VALUE / --snmp-auth VALUE
+--snmp.priv VALUE / --snmp-priv VALUE
+--snmp.backend {gufo,pysnmp} / --snmp-backend {gufo,pysnmp}
+--snmp.version {2c,3} / --snmp-version {2c,3}
+--snmp-timeout SECONDS
+--per-device-rps RATE
+--log-level LEVEL</code></pre>
+<p>Equivalent applicable global options may also appear before <code>get-neighbors</code>. Repeatable <code>--set</code> values before and after the subcommand are accumulated.</p>
+<p>Discovery-only options such as workers, batch size, max devices, max hosts, seed ordering, persistence roots, and resume controls do not apply.</p>
+<h3 id="get-neighbors-output-options"><code>get-neighbors</code> output options</h3>
+<h4 id="--format-tabledetailcsvjson"><code>--format {table,detail,csv,json}</code></h4>
+<p>Select one of the four inspection renderers.</p>
+<p><code>table</code> is the default compact human-readable view.</p>
+<p><code>detail</code> is a scrolling, neighbor-by-neighbor human-readable view.</p>
+<p><code>csv</code> emits comment-prefixed seed metadata and a compact neighbor CSV.</p>
+<p><code>json</code> emits the richest structured result.</p>
+<p>Convenience aliases are available:</p>
+<pre class="text"><code>--detail
+--csv
+--json</code></pre>
+<p>The format aliases are mutually exclusive.</p>
+<p>Human output uses color only on an interactive TTY and honors <code>NO_COLOR</code>. CSV and JSON never contain terminal color escapes. Color roles are configured under <code>[terminal]</code>; the defaults preserve the historical LLDP-Runner palette. When CDP and LLDP describe the same normalized local/remote link, the shared collector can reconcile them into one neighbor row whose protocol label is <code>cdp,lldp</code>. A plausible trailing <code>name(serial)</code> advertisement is preserved raw while its logical base name and non-merging serial hint are recorded separately. The base participates in guarded same-link name comparison; the serial hint requires direct serial corroboration before it can support a physical-chassis conclusion. The table uses the shared <code>output.neighbor_local_width</code> and <code>output.neighbor_remote_port_width</code> baselines (default 18 each). Local and Remote Port expand dynamically when longer values fit while preserving at least 18 columns for Neighbor. The rightmost <code>Mgmt</code> column keeps its normal IPv4 width but expands to the complete text of any valid IPv6 address in the current rows. The table may exceed the detected terminal width rather than replace IPv6 address characters with an ellipsis. The table and detail views also include one compact <code>SNMP obj/ms:</code> line. Each <code>section=objects/ms</code> value reports SNMP varbinds returned before collector filtering and elapsed collector time. Only sections actually queried are listed. The SYSTEM-MIB metric is named <code>sys</code>; the separate <code>Timing ms: basic=...</code> value covers the broader initial ICMP/SNMP probe phase.</p>
+<p><code>get-neighbors</code> always collects these metrics. For a normal discovery run, set <code>snmp.report_metrics=true</code> (for example with <code>--set</code>) to include the same per-host structure in <code>discovery.json</code>. CSV output does not include the metrics.</p>
+<p>The table and detail title line ends with a right-aligned collection timestamp:</p>
+<pre class="text"><code>LLDP-Runner single-device inspection      (collected 2026-08-25 15:52:26)</code></pre>
+<p>When SNMP access succeeds, that timestamp is the most recent successful SNMP access time. If the device was not successfully accessed, the timestamp is the result-finalization time. The first CSV metadata line uses <code>state</code>, not <code>status</code>, and appends <code>timestamp=YYYY-MM-DD HH:MM:SS</code>. Display timestamps are converted through the effective <code>[time].timezone</code> setting.</p>
+<h4 id="--trace----tracefile-filename"><code>--trace</code> / <code>--tracefile FILENAME</code></h4>
+<p><code>--trace</code> writes an operator-readable resolver/ICMP/SNMP network trace to stderr. Normal table/CSV/JSON inspection output remains on stdout, so scripts can redirect the two streams independently.</p>
+<p><code>--tracefile FILENAME</code> enables tracing automatically and writes the trace to the designated file. A relative filename is resolved from the current working directory. The file is created/truncated before DNS, ICMP, or SNMP work starts; if it cannot be opened, inspection exits without contacting the device. Providing both options writes the same trace to stderr and the file.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> core1.example.net <span class="at">--trace</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> core1.example.net <span class="at">--tracefile</span> core1-snmp.trace</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> core1.example.net <span class="at">--trace</span> <span class="at">--tracefile</span> core1-snmp.trace</span></code></pre></div>
+<p>Trace begins with the operating-system resolver operations used by the inspection (<code>getaddrinfo</code>, <code>gethostbyaddr</code>, and <code>getfqdn</code>) and their returned names/addresses or explicit failures. These are logical resolver calls, not a claim that literal DNS packets were emitted; NSS, <code>/etc/hosts</code>, caches, mDNS, or other resolver backends may satisfy them.</p>
+<p>ICMP sections identify each concrete raw/system-ping attempt, address family, sequence, timeout, reply/no-response result, and RTT when available. In <code>auto</code> mode, a raw-backend failure and system-ping fallback are both visible.</p>
+<p>SNMP sections record LLDP-Runner's backend-neutral logical <code>GET</code>/<code>WALK</code> operations, not Gufo's private GETNEXT/GETBULK packet implementation. Query sections include the intended MIB object/table name, description, numeric OID, address/profile, SNMP version, retry stage/attempt where applicable, and every returned varbind. Timeouts, empty walks, and missing requested varbinds are shown as <code>NO RESPONSE</code>. SNMP text/binary values are normalized for safe display, and credential secrets are replaced with <code>&lt;redacted&gt;</code> if they appear in an exception message. The final <code>TRACE SUMMARY</code> reports resolver-query, ICMP-probe, and logical-SNMP counts plus total elapsed monotonic time.</p>
+<p><code>--tracefile</code> without a filename is a CLI usage error.</p>
+<h4 id="--system-only----no-neighbors"><code>--system-only</code> / <code>--no-neighbors</code></h4>
+<p>These aliases select the same diagnostic mode. The target is resolved and checked normally through query policy, ICMP wake-up, credential selection, and the initial SYSTEM-MIB query. The command then stops without querying:</p>
+<pre class="text"><code>ENTITY-MIB
+IF-MIB
+LLDP
+LLDPv2
+CDP</code></pre>
+<p>This mode is useful for comparing baseline SNMP response time across different devices without interface counts, neighbor counts, or ENTITY inventories dominating the measurement. Human output omits the neighbor table/section. JSON sets <code>inspection.collection_mode</code> to <code>system_only</code> and reports only attempted metrics, normally just <code>sys</code>.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> core1.example.net <span class="at">--system-only</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> <span class="at">--no-neighbors</span> core1.example.net <span class="at">--json</span></span></code></pre></div>
+<h4 id="--dry-run-3"><code>--dry-run</code></h4>
+<p>Perform DNS, boundary reporting, query-policy evaluation, and prospective credential selection without sending ICMP or SNMP traffic.</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> get-neighbors core1.example.net <span class="at">--dry-run</span> <span class="at">--json</span></span></code></pre></div>
+<p><code>get-neighbors --dry-run</code> does not require SNMP secrets to be available.</p>
+<h3 id="get-neighbors-exit-behavior"><code>get-neighbors</code> exit behavior</h3>
+<p>A successful SNMP response with no CDP/LLDP neighbors exits successfully.</p>
+<p>ICMP failure does not prevent SNMP attempts.</p>
+<p>If all SNMP attempts fail, <code>get-neighbors</code> still renders available DNS, ICMP, policy, and attempt information, then exits nonzero.</p>
+<h2 id="8-show-neighbors">8. <code>show-neighbors</code></h2>
+<p>The stored-discovery viewer reads finalized <code>discovery.json</code> without opening SQLite state or querying the network. It loads configuration with credentials disabled: credential tables are not built or validated, generic SNMP credential environment variables are not inspected, and no credential secrets are resolved. This keeps stored-data viewing independent from unrelated SNMP policy. With no source option it uses:</p>
+<pre class="text"><code>&lt;persistent_root&gt;/&lt;output_dirname&gt;/latest/discovery.json</code></pre>
+<p>The equivalent command forms are:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> show-neighbors access01</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> access01</span></code></pre></div>
+<p><code>show-neighbors</code> accepts <code>--config</code>, <code>--set</code>, and <code>--persistent-root</code>. The <code>lldp-runner show-neighbors</code> accepts normal global configuration options before the subcommand and the same read-only source options after it.</p>
+<h3 id="discovery-source-selection">Discovery source selection</h3>
+<p><code>--runid RUNID</code> reads one historical finalized run beneath persistent output:</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--runid</span> 20260102-210300-EDT access01</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--runid</span> run-07 <span class="at">--id</span> 127 <span class="at">--detail</span></span></code></pre></div>
+<p>This resolves to:</p>
+<pre class="text"><code>&lt;persistent_root&gt;/&lt;output_dirname&gt;/&lt;RUNID&gt;/discovery.json</code></pre>
+<p>The run ID is validated as one safe directory component but is not required to match the current <code>paths.run_id_format</code>. Older runs therefore remain readable after a site changes its naming convention.</p>
+<p><code>--file FILENAME</code> reads an arbitrary discovery document. Relative paths start at the current working directory; absolute paths and <code>~</code> expansion are allowed:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--file</span> ./archive/discovery.json access01</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--file</span> /srv/archive/site-a/discovery.json <span class="at">--id</span> 127 <span class="at">--json</span></span></code></pre></div>
+<p><code>--file</code> bypasses persistent-root source resolution, which permits examination of exported JSON on a host without LLDP-Runner discovery storage. <code>--runid</code> and <code>--file</code> are mutually exclusive.</p>
+<h3 id="name-and-id-selection">Name and ID selection</h3>
+<p>A positional pattern and <code>--name PATTERN</code> both search <code>preferred_name</code>. Matching uses case-insensitive Python regular expressions with beginning-of-string <code>re.match()</code> semantics. Therefore a plain partial hostname naturally behaves like a left-prefix search:</p>
+<pre class="text"><code>client-137001       matches client-137001.example.com
+example       does not match alpha.example.org
+.*example.*   matches alpha.example.org
+client-13.001       matches client-137001 and client-135001</code></pre>
+<p>Python regex syntax is authoritative; shell-glob <code>?</code> semantics are not added. Invalid regular expressions are CLI usage errors.</p>
+<p>Use an exact persisted host ID when ambiguity is undesirable:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--id</span> 127</span></code></pre></div>
+<p><code>--id</code> is mutually exclusive with name, key, IPv4, and IPv6 criteria. It preserves the same <code>id</code> in standalone JSON output.</p>
+<p>When a non-ID query matches more than one host, the viewer prints the matching IDs and preferred names and exits without choosing a record arbitrarily.</p>
+<h3 id="key-criteria">Key criteria</h3>
+<p><code>--key KEY:PATTERN</code> searches a top-level or dotted host-record key. It uses a case-insensitive Python regex with search-anywhere semantics against the selected value. Arrays and objects are flattened to deterministic text; dotted paths can also traverse arrays of nested objects.</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--key</span> <span class="st">&#39;system.model:^C9300&#39;</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> access <span class="at">--key</span> <span class="st">&#39;system.manufacturer:^Cisco$&#39;</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--key</span> <span class="st">&quot;addresses:&#39;192</span><span class="dt">\\</span><span class="st">.0</span><span class="dt">\\</span><span class="st">.2</span><span class="dt">\\</span><span class="st">.1&#39;&quot;</span></span></code></pre></div>
+<p>The option is repeatable. Multiple keys and all other non-ID selectors use AND semantics. A missing key simply means that host does not satisfy the criterion.</p>
+<h3 id="ipv4-and-ipv6-criteria">IPv4 and IPv6 criteria</h3>
+<p><code>--ipv4</code> and <code>--ipv6</code> accept either a literal text prefix or CIDR. Prefixes are not regular expressions, so dots do not need escaping:</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--ipv4</span> 198.51.100</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--ipv4</span> 198.51.100.0/24</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--ipv6</span> 2001:db8</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--ipv6</span> 2001:db8::/32</span></code></pre></div>
+<p>CIDRs use numeric address membership, including normal IPv6 normalization. Partial non-CIDR values use literal left-prefix matching. The two families may be combined with each other and with name/key criteria; every supplied criterion must match. Invalid CIDRs and address-family mismatches are usage errors.</p>
+<h3 id="neighbor-selection">Neighbor selection</h3>
+<p>With no <code>--neighbors</code> option, the viewer displays learned neighbors when any exist. If the selected host has no learned neighbors, it falls back to <code>observed_by</code> evidence. This makes indirectly observed/unmanaged records useful without changing directly queried devices to an inbound topology view.</p>
+<p>Explicit selection disables that fallback:</p>
+<pre class="text"><code>--neighbors learned       learned only, even when empty
+--neighbors observed_by   observed_by only
+--neighbors both          learned first, then observed_by
+--neighbors               same as --neighbors both</code></pre>
+<p><code>--system-only</code> and <code>--no-neighbors</code> are aliases. Combining either with <code>--neighbors</code> is a CLI usage error because the requests contradict each other.</p>
+<p>Schema-7 learned output is rendered from the observation-complete topology graph when that projection is available. Entity resolution remains provisional, and relationship labels do not imply inferred physical topology or directness. The configured layout is selected by <code>output.relationship_view</code> and can be overridden for one command:</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--relationship-view</span> sectioned branch-access-3650-1</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="ex">show-neighbors</span> <span class="at">--relationship-view</span> combined branch-access-3650-1</span></code></pre></div>
+<p><code>sectioned</code> is the default. It displays ordinary observed relationships first, then indents shared-chassis logical members, overlay observations, and multi-neighbor discrepancies. <code>combined</code> uses one table with compact labels and a one-line legend. Both layouts preserve <code>directness=unresolved</code>; the labels describe graph classifications and do not assert a direct cable or downstream path.</p>
+<p>A port with several learned systems is retained as a review condition. This can represent Nexus VDCs sharing one management attachment, virtual/overlay behavior, or discovery frames forwarded by a transparent intermediate device.</p>
+<p>Terminal neighbor tables use whitespace-padded columns. Learned-only output retains the <code>get-neighbors</code> column order:</p>
+<pre class="text"><code>Local  Protocol  Neighbor  Remote Port  Mgmt</code></pre>
+<p>When observed_by evidence is displayed, or both directions are selected, the sections are visually distinct. Learned always appears first. The <code>Learned</code> and <code>Observed_by</code> labels are right-aligned within their respective header rows and use different bold colors on color-capable terminals. Their semantic colors are configurable under <code>[terminal]</code>. Output remains aligned and readable when color is disabled or <code>NO_COLOR</code> is set. The same <code>output.neighbor_local_width</code> and <code>output.neighbor_remote_port_width</code> baselines used by <code>get-neighbors</code> apply here; both default to 18 and can expand dynamically when the current terminal has room. The rightmost <code>Mgmt</code> column also expands to show a valid IPv6 address in full. Preserving the address takes priority over constraining the plain-text table to the detected terminal width; IPv4 column behavior remains unchanged.</p>
+<h3 id="viewer-output-formats">Viewer output formats</h3>
+<p>The default is a compact terminal system summary followed by the selected neighbor table. <code>--detail</code> adds persisted host, system, SNMP, ICMP, stack-member, and neighbor fields in a scrolling terminal view.</p>
+<p><code>--json</code> prints one standalone host object rather than the outer discovery container. The persisted host ID is unchanged. <code>--system-only</code> removes the two neighbor arrays. Otherwise the selected neighbor directions remain populated and unselected directions are represented as empty arrays.</p>
+<p><code>--csv</code> prints two <code>#</code> metadata lines, a neighbor header, and one interface / neighbor record per row. The direction field uses <code>learned</code> or <code>observed_by</code>. With <code>--system-only</code>, only the two comment lines are written: there is no CSV header and no neighbor row.</p>
+<p>The table and detail title line right-aligns the selected JSON generation time, for example <code>(json 2026-08-25 15:52:26)</code>. The source is <code>discovery.generated</code>, converted through <code>[time].timezone</code>. If that source timestamp is unavailable or unusable, human output shows <code>(json unknown-time)</code> and CSV emits <code>timestamp=unknown</code>. LLDP-Runner does not substitute filesystem mtime or the current clock for missing stored provenance.</p>
+<p>Human output uses ANSI color only on an interactive terminal and honors <code>NO_COLOR</code>. CSV and JSON never contain ANSI escapes. See <code>configs/conf.d/terminal-colors.toml.example</code> for configurable terminal roles.</p>
+<h3 id="viewer-exit-status">Viewer exit status</h3>
+<pre class="text"><code>0  exactly one record matched and was rendered
+1  no records matched
+2  invalid CLI/filter/configuration/discovery input
+3  more than one record matched and choices were listed</code></pre>
+<p>The viewer intentionally loads finalized JSON into memory. This keeps the implementation dependency-free and easy to audit; streaming very large JSON files can be added later if real deployments require it.</p>
+<h2 id="9-diff">9. <code>diff</code></h2>
+<p><code>lldp-runner diff</code> compares two finalized discovery data sets without opening runtime SQLite state or contacting network devices. Credential processing is disabled. With no host selector it performs a macro host/topology comparison. Adding a host selector performs a one-host comparison.</p>
+<p>With no source options, A is the latest finalized run and B is the immediately previous finalized run:</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> diff <span class="at">--changes-only</span></span></code></pre></div>
+<p>If no previous finalized run can be resolved, the command reports that no comparison is possible and exits with status 4.</p>
+<h3 id="diff-source-selection">Diff source selection</h3>
+<p>Sources are directional and retain command-line order. The supported source options are:</p>
+<pre class="text"><code>--latest
+--previous
+--prior
+--oldest
+--runid RUNID
+--file FILENAME</code></pre>
+<p><code>--prior</code> is an alias for <code>--previous</code>; there is no <code>--last</code> alias. <code>--runid</code> and <code>--file</code> are repeatable and can be mixed. One explicitly selected non-latest source is compared as B against latest as A. With two source options, the first is A and the second is B. <code>--latest</code> alone is an error because two different source references are required.</p>
+<p>History aliases use timezone-aware completed timestamps rather than lexical run ID ordering. LLDP-Runner prefers completion metadata from each finalized <code>run.json</code>; if that metadata is unavailable, it reads only the leading discovery metadata as a fallback. An explicit <code>--file</code> is resolved to an absolute pathname from the current working directory when necessary, and that absolute pathname is shown in source headings and ambiguity messages.</p>
+<h3 id="diff-host-selection">Diff host selection</h3>
+<p>A positional PATTERN, <code>--name</code>, <code>--key</code>, <code>--ipv4</code>, <code>--ipv6</code>, and <code>--id</code> retain the same selection semantics as <code>show-neighbors</code>. Name matching is case-insensitive <code>re.match()</code> behavior, key criteria use regex search, address criteria use prefix or CIDR matching, non-ID criteria are AND-combined, and <code>--id</code> remains exclusive.</p>
+<p>The selector identifies a host only in data set A. LLDP-Runner then uses cross-run identity evidence to locate the same logical host in B. It does not assume that the numeric host ID is stable between runs and does not blindly reapply a mutable selector such as software version to B.</p>
+<p>Multiple A-side selector matches produce <code>Multiple records matched:</code> followed by ID and preferred-name choices and exit status 3. Multiple B-side identity matches use <code>Multiple records matched in &lt;resolved-source&gt;:</code>. Conflicting identity evidence is reported as uncertain rather than arbitrarily selecting a host.</p>
+<h3 id="diff-comparison-scope">Diff comparison scope</h3>
+<p>Macro mode compares host records and each host's <code>learned_neighbors</code> only. It does not compare the top-level error records, and it does not independently traverse <code>observed_by_neighbors</code> because those records are reciprocal topology evidence that would double-count macro changes.</p>
+<p>Host-specific mode reports changed host details plus changes in both learned and <code>observed_by</code> neighbors. Volatile timestamps, run-local IDs, probe RTTs, and collector <code>duration_ms</code> values are normalized away by default. Exact durations remain in discovery JSON and can be compared explicitly with <code>--include-collection-timing</code>; <code>--no-include-collection-timing</code> overrides a true configuration value. An uptime value is reported only when the chronologically later record has a lower uptime, which is presented as a possible reboot. Stack members are matched using durable identity where possible rather than JSON array position.</p>
+<p><code>--changes-only</code> suppresses unchanged host rows from the human macro table while preserving complete summary counts. <code>--summary-only</code> limits human output to source/result context, summaries, warnings, and collection incidents. Default human output collapses derivative coverage-uncertain rows beneath each incident; <code>--expand-collection-incidents</code> restores them. The corresponding <code>--no-*</code> forms override true configuration values. JSON always retains full detail.</p>
+<h3 id="diff-output-and-exit-status">Diff output and exit status</h3>
+<p>Human output starts with resolved A/B source headings and always includes:</p>
+<pre class="text"><code>Result: &lt;status message&gt;</code></pre>
+<p>Scope/provenance and collection-coverage warnings are printed immediately after the <code>Result:</code> line. Terminal tables use the configured semantic color roles when stdout is a TTY; redirected output remains plain text and <code>NO_COLOR</code> is honored.</p>
+<p><code>--json</code> emits machine-readable diff JSON instead of human tables. It contains a separate diff-output schema version, result status and exit code, resolved sources, warnings, and comparison records. JSON never contains ANSI escapes. Diff schema 12 qualifies graph entity and relationship correspondence as <code>confirmed</code>, <code>coverage_uncertain</code>, <code>presentation_only</code>, <code>evidence_only</code>, or <code>ambiguous</code> and aggregates derivative effects beneath their originating collection incident. Intentional <code>no_query</code> and <code>out_of_scope</code> entities are not counted as actively queried failures. It reports canonicalized compatibility projections, independent aggregate-health and topology-sensitive coverage, separate entity/presentation/collection host dimensions, attribute coverage provenance, stable-edge evidence changes, and ambiguous weak-identity <code>candidate_move</code> records. Schema 12 retains graph-backed events, cross-view consistency, graph-native incident dependency, observed attachment semantics, and management-health transitions. It additionally records orthogonal graph relationship change dimensions, exact per-member protocol transitions, and member-scoped event keys.</p>
+<p>Exit statuses are:</p>
+<pre class="text"><code>0  comparison completed with no differences
+1  comparison completed and differences were found
+2  usage, configuration, source, or schema error
+3  host selection or identity matching returned multiple records
+4  comparison could not be performed</code></pre>
+<p>Both selected discovery documents must use the currently supported discovery schema and must have matching schema versions. See <a href="docs-DIFF.html">DIFF.md</a> for the full source-selection table, cross-run identity evidence tiers, normalization rules, scope warnings, examples, and machine-readable output contract.</p>
+<h2 id="10-standalone-get-neighbors">10. Standalone <code>get-neighbors</code></h2>
+<p>The standalone <code>get-neighbors</code> entry point uses the same single-device inspection implementation as <code>lldp-runner get-neighbors</code>.</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> core1.example.net</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> core1.example.net <span class="at">--detail</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="ex">get-neighbors</span> <span class="at">--json</span> core1.example.net</span></code></pre></div>
+<p>Options may appear before or after <code>SEED</code>. With <code>--csv</code> combined with <code>--system-only</code> or <code>--no-neighbors</code>, output consists only of the two existing <code>#</code> system metadata lines. No neighbor CSV header or neighbor rows are emitted.</p>
+<p>Supported options are:</p>
+<pre class="text"><code>-h / --help
+--version
+--config FILE
+--set OPTION=VALUE
+--snmp.community VALUE / --community VALUE
+--snmp.user VALUE / --snmp-user VALUE
+--snmp.auth VALUE / --snmp-auth VALUE
+--snmp.priv VALUE / --snmp-priv VALUE
+--snmp.backend {gufo,pysnmp} / --snmp-backend {gufo,pysnmp}
+--snmp.version {2c,3} / --snmp-version {2c,3}
+--snmp-timeout SECONDS
+--per-device-rps RATE
+--log-level LEVEL
+--format {table,detail,csv,json}
+--detail
+--csv
+--json
+--dry-run
+--system-only / --no-neighbors
+--trace
+--tracefile FILENAME</code></pre>
+<h2 id="11-validate-config">11. <code>validate-config</code></h2>
+<p>Load the effective configuration, apply normal precedence, validate settings, and validate required credential secrets.</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> validate-config</span></code></pre></div>
+<p>A specific configuration may be selected globally:</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--config</span> /opt/lldp-runner/config.toml validate-config</span></code></pre></div>
+<p>Global <code>--set</code> and runtime credential options also apply.</p>
+<h2 id="12-generate-config-filename">12. <code>generate-config [FILENAME]</code></h2>
+<p>Write a documented TOML configuration starting from built-in defaults.</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> generate-config</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> generate-config site-config.toml</span></code></pre></div>
+<p>When no filename is supplied, the normal output is:</p>
+<pre class="text"><code>./lldp-runner-config.toml</code></pre>
+<p>When the current directory is <code>~/lldp-runner</code>, <code>/opt/lldp-runner</code>, or <code>/etc/lldp-runner</code> and <code>./config.toml</code> does not exist, the default output is:</p>
+<pre class="text"><code>./config.toml</code></pre>
+<p>If <code>config.toml</code> already exists there, the generator uses the normal <code>lldp-runner-config.toml</code> name rather than overwriting the primary file.</p>
+<p>An explicit filename is used exactly as supplied. The generator refuses to overwrite an existing destination.</p>
+<p>Global <code>--set</code> may alter generated defaults. Global <code>--snmp.backend</code> and <code>--snmp.version</code> may alter the generated backend and preferred SNMP version.</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="dt">\</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;discovery.max_devices=&quot;auto&quot;&#39;</span> <span class="dt">\</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--snmp.version</span> 2c <span class="dt">\</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>  generate-config sample.toml</span></code></pre></div>
+<h2 id="13-explain-target-target">13. <code>explain-target TARGET</code></h2>
+<p>Print JSON describing discovery boundary, query-policy, and credential-policy selection for one target without starting recursive discovery.</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> explain-target core1.example.net</span></code></pre></div>
+<p>Global config, <code>--set</code>, and credential options apply. The command is read-only with respect to LLDP-Runner runtime storage: it does not require writable persistent/scratch roots or available SNMP secret values. Credential profile and rule definitions are still parsed because they are part of the explanation. Target-name DNS resolution may still occur.</p>
+<h2 id="14-status">14. <code>status</code></h2>
+<p>Display <code>&lt;scratch_root&gt;/scoreboard/scoreboard.txt</code>. The stable path retains the last terminal snapshot after successful per-run scratch cleanup.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> status</span></code></pre></div>
+<h3 id="status---json"><code>status --json</code></h3>
+<p>Print the machine-readable <code>scoreboard.json</code> rather than <code>scoreboard.txt</code>.</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> status <span class="at">--json</span></span></code></pre></div>
+<p><code>status</code> disables the credential subsystem entirely and resolves its scratch location without a writable-directory probe. Malformed/unavailable SNMP material or read-only access to an existing scoreboard cannot block the snapshot.</p>
+<h2 id="15-watch">15. <code>watch</code></h2>
+<p>Interactively monitor the current structured scoreboard without repeatedly spawning <code>lldp-runner status</code>:</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> watch</span></code></pre></div>
+<p>The default terminal redraw interval is one second. Scoreboard production is independent and remains controlled by <code>output.scoreboard_interval_seconds</code> (three seconds by default), so elapsed/freshness indicators may redraw between actual scoreboard publications.</p>
+<p>Options:</p>
+<pre class="text"><code>--interval SECONDS
+--worker-view {auto,full,compact,heatmap,summary}
+--palette {dark,light}
+--no-color</code></pre>
+<p><code>--worker-view auto</code> is the default. It reevaluates terminal width and height after resize events and selects the richest individual-worker layout that fits without scrolling. <code>full</code>, <code>compact</code>, and <code>heatmap</code> retain the selected density when more space becomes available. If a fixed view no longer fits usefully, the dashboard follows <code>full -&gt; compact -&gt; heatmap -&gt; summary</code> and marks the aggregate fallback explicitly as <code>SMALL</code> or <code>ABBREVIATED</code>.</p>
+<p>At normal widths the dashboard leaves the first terminal row blank and renders one justified title line inside one-cell left and right borders. It uses the package's canonical application name and version:</p>
+<pre class="text"><code>LLDP-Runner 0.37.0  Run ID = 20260111-04  STATE = RUNNING  updated 00:03 ago</code></pre>
+<p>Update age is total minutes and seconds with at least two digits in each field, so examples include <code>00:07</code>, <code>03:14</code>, and <code>67:09</code>. The state value retains its semantic style, and a stale active scoreboard keeps a prominent <code>*** STALE ***</code> indication without wrapping the title. Spare title width is distributed approximately equally among its four sections. On narrower terminals, cosmetic gap width and then the application version are removed before run ID, state, update age, or worker status. The Run ID title segment uses the same muted semantic color as the footer.</p>
+<p>Individual worker cells always spell out <code>BUSY</code>, <code>IDLE</code>, and <code>DEAD</code>; an unexpected state uses the fixed <code>OTHR</code> token and is identified exactly in summary attention output. The density differences are approximately:</p>
+<pre class="text"><code>full:     [Worker 00 BUSY batch=..184 size=..8]
+compact:  [00 BUSY sz=.8]
+heatmap:  [00 BUSY]
+summary:  aggregate counts plus attention/error and changed workers</code></pre>
+<p>Worker positions remain ordered by worker ID. Each density uses fixed field budgets rather than deriving cell width from the largest value in the current snapshot, so a batch or size gaining another digit cannot move the grid during a run. Unused leading positions in bounded numeric fields use <code>.</code> fill, while values that exceed a field render visible <code>#</code> overflow markers instead of resizing the cell. Columns remain whitespace-aligned across rows. State changes are emphasized without adding transition text beside the worker. <code>BUSY</code> uses a blue hue distinct from dashboard heading/metric colors, <code>IDLE</code> a neutral gray/default color, <code>DEAD</code> red, and unexpected states a yellow/orange warning color.</p>
+<p>The built-in <code>dark</code> palette is intended for black or other dark backgrounds. It uses a bright cyan family for headings/metrics and a distinct blue for BUSY, light gray for IDLE, bright red for DEAD, orange/yellow for unexpected/warning state, green for success, and gray for muted stale content. The <code>light</code> palette uses darker blue/cyan, gray, red, orange, and green foregrounds intended for white or other light backgrounds. The configured default is <code>terminal.palette</code>. <code>--palette</code> overrides it for one watch session. <code>--no-color</code>, <code>terminal.color = "never"</code>, <code>NO_COLOR</code>, or a terminal without color capability leaves text at the terminal default style.</p>
+<p>For active <code>RUNNING</code> and <code>PAUSING</code> states, the dashboard becomes stale after <code>max(15 seconds, 3 * output.scoreboard_interval_seconds)</code> without a new atomic scoreboard publication. Ordinary colors are then muted to gray and the literal <code>*** STALE ***</code> marker remains strongly emphasized. Terminal/final states do not become stale simply because publication stops.</p>
+<p><code>watch</code> reopens <code>&lt;scratch_root&gt;/scoreboard/scoreboard.json</code> on every refresh. A newly published run ID is detected without restarting the command and resets the delta baseline. The stable file remains after a completed per-run scratch tree is removed. <code>scoreboard.json</code> is versioned independently with <code>scoreboard_schema = 1</code> beginning in LLDP-Runner 0.25.0.</p>
+<p>The <code>Started ... Elapsed ... Plan ...</code> line is centered in the bordered content area and has one blank row after it when height permits. When width allows, Watch uses six spaces between its three elements, twice the compact three-space gaps. Metric columns use terminal-geometry-based widths rather than current values, so count and delta growth cannot move later columns. Roomy layouts place a blank row between metric rows. After ordinary spacing is allocated, more than ten blank rows remaining immediately above the footer add a blank row between the title and Started line and a second row after it.</p>
+<p>A source-read error is displayed below the worker table and above the footer, with a blank row above and below. Its <code>SOURCE: waiting for current scoreboard under ...</code> text uses bright red when terminal color is enabled.</p>
+<p>The aggregate <code>Workers N: BUSY ... IDLE ... DEAD ...</code> line is centered independently. The renderer places a blank row above and below it whenever terminal height permits. The same more-than-ten-row condition adds a second blank row on each side.</p>
+<p>Worker capacity is selected before centering. The selected full, compact, or heatmap row width receives one stable left offset for every table row. Complete rows therefore have left/right outer whitespace that differs by at most one column when centering is possible. A partial final row starts at the same first worker column rather than being centered independently. The renderer does not reduce worker density solely to create a margin when the uncentered layout is the only representation that fits.</p>
+<p>Narrow and short terminals retain the same four title concepts while shortening labels and dropping the version when needed. They preserve, in order, state, run ID, age, worker count/status, and at least an aggregate or heatmap worker representation. No line wraps. A display as small as 20x4 avoids a title-only screen and retains a small-terminal indication plus <code>q</code>/Ctrl-C exit guidance. Optional metrics and cosmetic whitespace yield before those essentials. The footer includes requested/effective mode and terminal geometry when space permits, for example <code>worker-view auto-&gt;full (120x44)</code>, and always keeps exit guidance when it is shown.</p>
+<p>Press <code>m</code> to cycle <code>auto -&gt; full -&gt; compact -&gt; heatmap -&gt; summary -&gt; auto</code>; if the cycle returns to <code>auto</code>, resize events again select the richest view that fits. Press <code>h</code> for one-screen metric/worker help. Modal screens preserve normal <code>q</code>/Ctrl-C behavior.</p>
+<p>Like <code>status</code>, <code>watch</code> disables the credential subsystem entirely and does not write-probe the scratch path. It requires an interactive terminal; scripts and redirected consumers should use <code>status</code> or <code>status --json</code>. Press <code>q</code> or Ctrl-C to exit.</p>
+<h2 id="16-pause">16. <code>pause</code></h2>
+<p>Request a controlled pause of the current run by creating the configured pause indicator in the current scratch run.</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> pause</span></code></pre></div>
+<p>SNMP secret availability is not required for <code>pause</code>.</p>
+<h2 id="17-preparing-a-two-run-review-bundle">17. Preparing a two-run review bundle</h2>
+<p><code>scripts/lrun-bundle-diff</code> packages the two latest completed runs, or two explicit run IDs, for local or external review. The prior <code>lrun-prepare-bundle</code> filename is not shipped. It verifies that matching finalized output and runtime-state directories are present and readable, executes <code>lrun-diff --changes-only --json</code>, creates coherent compact SQLite backups in a temporary staging area, and writes one uncompressed tar archive.</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/lrun-bundle-diff</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/lrun-bundle-diff</span> 20260107-06 20260107-05</span></code></pre></div>
+<p>The first explicit run is data set A and the second is data set B. The archive contains:</p>
+<pre class="text"><code>outputs/&lt;runid-A&gt;/...
+outputs/&lt;runid-B&gt;/...
+runs/&lt;runid-A&gt;/...
+runs/&lt;runid-B&gt;/...
+./diff-&lt;runid-A&gt;-&lt;runid-B&gt;.changes.json</code></pre>
+<p>The staged SQLite databases are produced with SQLite's backup API and an integrity check. Live <code>discovery-state.sqlite-wal</code> and <code>discovery-state.sqlite-shm</code> sidecars are not included.</p>
+<p>No arguments selects the two newest completed runs by the timezone-aware <code>completed</code> timestamp in <code>run.json</code>. Any nonzero argument count other than two is an error. The archive is deliberately uncompressed so the operator can inspect it directly or apply the site-approved compression and transfer method.</p>
+<p>Environment overrides for nonstandard layouts are documented in the script header. They include <code>LLDP_RUNNER_BUNDLE_ROOT</code>, <code>LLDP_RUNNER_OUTPUTS_DIR</code>, <code>LLDP_RUNNER_RUNS_DIR</code>, and <code>LLDP_RUNNER_BUNDLE_ARCHIVE_DIR</code>.</p>
+<h2 id="18-configuration-precedence">18. Configuration precedence</h2>
+<p>The effective runtime precedence is:</p>
+<pre class="text"><code>defaults.py
+  -&gt; primary TOML, @include, and conf.d
+  -&gt; LLDP_RUNNER_* environment overrides
+  -&gt; repeatable --set overrides
+  -&gt; dedicated command-line options</code></pre>
+<p>Runtime synthesized SNMP credentials are lowest-priority credentials and do not replace explicit credential/profile policy from configuration.</p>
+<p>See <a href="docs-PRECEDENCE.html">PRECEDENCE.md</a> for the complete assembly and credential model, <a href="docs-ENVIRONMENT.html">ENVIRONMENT.md</a> for environment-variable details, and <a href="docs-ARCHITECTURE.html">ARCHITECTURE.md</a> for the full execution model.</p>
+</body>
+</html>

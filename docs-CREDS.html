@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/CREDS.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="credential-selection-and-seed-credential-overlays">Credential Selection and Seed Credential Overlays</h1>
+<p>This document explains how LLDP-Runner decides which SNMP credential to try. It is written for operators who maintain seed lists, credential profiles, and credential policy.</p>
+<p>The short version is:</p>
+<pre class="text"><code>normal seed / learned managed device
+  -&gt; choose a management address
+  -&gt; check discovery boundary and query policy
+  -&gt; choose a credential route
+  -&gt; try credentials in order until SYSTEM-MIB succeeds or all attempts fail</code></pre>
+<p>For an explicit seed with a matching seed-credential overlay, the overlay can change only the credential route. It does not make a new seed and it does not change discovery boundaries, query policy, or device classification.</p>
+<h2 id="1-which-devices-are-candidates-for-snmp">1. Which devices are candidates for SNMP</h2>
+<p>LLDP-Runner starts with explicit seeds. Seeds may come from configuration, <code>--seed</code>, seed files, seed directories, environment inputs, reusable <code>seeds.csv</code>, and stdin when requested.</p>
+<p>An explicit seed is treated as a <code>managed_device</code>. This means LLDP-Runner will try to schedule it, but a seed is not guaranteed to receive SNMP traffic. The seed still needs:</p>
+<ul>
+<li>at least one usable management address;</li>
+<li>an address inside the configured discovery boundary;</li>
+<li>permission from query policy; and</li>
+<li>room under the applicable discovery guardrails.</li>
+</ul>
+<p><code>max_devices=auto</code> is seed-only mode. Explicit seeds can be queried, but learned non-seed devices are retained as topology records and are not recursively queried.</p>
+<p>In normal recursive mode, learned neighbors can also become SNMP candidates. LLDP-Runner classifies each learned neighbor before it can be scheduled.</p>
+<h2 id="2-what-makes-a-learned-device-managed">2. What makes a learned device managed</h2>
+<p>Classification is separate from credential selection. Credential policy does not make an unknown or unmanaged neighbor into a managed device.</p>
+<p>For learned neighbors, classification is evaluated in this general order:</p>
+<ol type="1">
+<li>explicit address classification rules;</li>
+<li>explicit name classification rules;</li>
+<li>explicit evidence rules;</li>
+<li>managed-endpoint patterns and endpoint capabilities;</li>
+<li>unmanaged patterns and station-only capability;</li>
+<li>managed-manufacturer plus network-device capability; then</li>
+<li><code>unknown_device</code> when there is not enough evidence to query safely.</li>
+</ol>
+<p>The built-in managed-manufacturer list includes Cisco, Juniper, Arista, Aruba, and HPE. The heuristic requires network-device capability evidence such as router, bridge, or switch.</p>
+<p>Explicit classification rules can override the heuristics. See <a href="docs-ARCHITECTURE.html">ARCHITECTURE.md</a> for the complete classification model.</p>
+<p>When configured, LLDP-Runner may resolve a learned managed name and classify it again. DNS can therefore provide an address or FQDN that matches an explicit classification rule before the device is scheduled.</p>
+<p>Only <code>managed_device</code> records are normally eligible for recursive SNMP polling. <code>managed_endpoint</code>, <code>unmanaged_device</code>, and <code>unknown_device</code> records remain in topology/output data but are not recursively queried.</p>
+<h2 id="3-boundary-and-query-policy-come-before-credentials">3. Boundary and query policy come before credentials</h2>
+<p>For each candidate management address, LLDP-Runner first checks the discovery boundary and query policy. Credentials are considered only for an address that is permitted by both checks.</p>
+<p>This distinction is important:</p>
+<pre class="text"><code>classification says: this looks like managed infrastructure
+boundary says:       this address is in discovery scope
+query policy says:   LLDP-Runner may contact it
+credentials say:     these are the SNMP credentials to try</code></pre>
+<p>A credential profile never overrides a boundary or an explicit query deny.</p>
+<h2 id="4-normal-configured-credential-policy">4. Normal configured credential policy</h2>
+<p>Larger sites normally define named credentials, profiles, and credential rules in TOML.</p>
+<p>A credential contains the SNMP authentication material. A profile describes an ordered primary credential and optional fallback credential.</p>
+<p>For SNMPv3 authPriv, both adapters accept <code>sha1</code> or <code>md5</code> for <code>auth_protocol</code> and <code>aes128</code> or <code>des</code> for <code>priv_protocol</code>. PySNMP additionally accepts <code>sha256</code> authentication and two explicit AES-256 privacy methods:</p>
+<pre class="text"><code>aes256              USM_PRIV_CFB256_AES, Reeder localization, aka AES-256-Cisco
+aes256-blumenthal   USM_PRIV_CFB256_AES_BLUMENTHAL</code></pre>
+<p><code>aes256</code> is the intentionally preferred short name for the more common Reeder/Cisco method. The Blumenthal method derives the localized privacy key differently and must be selected by its full name. LLDP-Runner never guesses or falls back between them, and <code>aes256-reeder</code> is not a compatibility alias. Gufo rejects <code>sha256</code>, <code>aes256</code>, and <code>aes256-blumenthal</code> during validation before secret resolution or network activity. The same backend-specific validation applies to direct seed credentials.</p>
+<p>When PySNMP is selected, LLDP-Runner examines only the version/privacy-protocol metadata of credentials reachable through any profile plus direct credentials in the supplied seed overlay. Before discovery, it verifies the installed cryptography provider can perform each reachable AES-128, AES-256, or DES cipher. Credential values are not resolved, logged, or passed to the preflight. An unusable local provider therefore fails once at startup rather than looking like invalid credentials on every device. Gufo and PySNMP v2c-only credential sets do not run this crypto check. A mixed run can still probe authPriv once for another reachable route; that does not add cryptography to the v2c request path.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.site-v3]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v3&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">username_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_USER&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_password_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_AUTH&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_password_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_PRIV&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_protocol</span> <span class="op">=</span> <span class="st">&quot;sha256&quot;</span>       <span class="co"># PySNMP only</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_protocol</span> <span class="op">=</span> <span class="st">&quot;aes256&quot;</span>       <span class="co"># Reeder/Cisco; PySNMP only</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[credentials.site-v2]</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;v2c&quot;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="dt">community_env</span> <span class="op">=</span> <span class="st">&quot;SITE_SNMP_COMMUNITY&quot;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[credential_profiles.campus]</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="dt">primary</span> <span class="op">=</span> <span class="st">&quot;site-v3&quot;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="dt">fallback</span> <span class="op">=</span> <span class="st">&quot;site-v2&quot;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_attempts</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="dt">fallback_attempts</span> <span class="op">=</span> <span class="dv">1</span></span></code></pre></div>
+<p>When normal credential policy is used for an address, profile selection is:</p>
+<pre class="text"><code>most-specific matching credential address rule
+  -&gt; first matching credential name rule
+  -&gt; credential_rules.default_profile</code></pre>
+<p>After a profile is selected, its primary credential is attempted first. If the configured retry count is exhausted and a fallback exists, the fallback is attempted next.</p>
+<h2 id="5-runtime-default-credentials">5. Runtime default credentials</h2>
+<p>When no explicit credentials or credential profiles are configured, LLDP-Runner may synthesize a <code>runtime-default</code> profile from generic runtime inputs.</p>
+<p>SNMPv2c:</p>
+<pre class="text"><code>SNMPCOMM
+--community / --snmp.community</code></pre>
+<p>SNMPv3 authPriv:</p>
+<pre class="text"><code>SNMPUSER  SNMPAUTH  SNMPPRIV
+--snmp-user / --snmp.user
+--snmp-auth / --snmp.auth
+--snmp-priv / --snmp.priv</code></pre>
+<p>If explicit credential/profile policy exists, that policy is authoritative and the generic runtime profile is not synthesized.</p>
+<p>See <a href="docs-PRECEDENCE.html">PRECEDENCE.md</a> for the complete credential precedence rules.</p>
+<h2 id="6-per-seed-credential-overlay">6. Per-seed credential overlay</h2>
+<p><code>run --seed-credential-file FILE</code> adds an ordered credential overlay for explicit seeds. The option may be repeated and accepts <code>.csv</code> or <code>.json</code> files.</p>
+<p>A seed-credential file is not a seed source.</p>
+<pre class="text"><code>normal seed inputs determine WHAT may be queried
+seed-credential files modify HOW matching seeds authenticate</code></pre>
+<p>If a record exists only in a seed-credential file and the seed is not present in the normal seed set, LLDP-Runner does not resolve, ping, or query that record.</p>
+<p>Unmatched overlay records are written to activity logging at WARN level. When one or more credential files are active, the activity log also receives one INFO summary showing matched and unmatched record counts. Unmatched records are not printed as stderr warnings.</p>
+<h2 id="7-overlay-record-fields">7. Overlay record fields</h2>
+<p>The current CSV format requires these fields in any column order:</p>
+<pre class="text"><code>seed,credential_strategy,credential_label,credential_profile,
+snmp_version,community,username,auth_password,priv_password,
+auth_protocol,priv_protocol</code></pre>
+<p>CSV header matching is case-insensitive and unrelated extra columns are ignored. See <a href="docs-CSV-INPUT.html">CSV-INPUT.md</a> for common parsing and safety rules.</p>
+<p>JSON uses the same field names in a top-level array. Optional <code>source_line</code> is provenance only; JSON array order remains the credential-attempt order.</p>
+<p>Important fields:</p>
+<p><code>seed</code> : Matches an already-established explicit run seed. A record without a seed is skipped.</p>
+<p><code>credential_strategy</code> : <code>prefer</code> or <code>exclusive</code>. Blank means <code>prefer</code>.</p>
+<p><code>credential_label</code> : Optional human-readable reporting label. It is not a profile selector or internal key, and it does not need to be unique.</p>
+<p><code>credential_profile</code> : Name of an existing configured credential profile to try for this seed.</p>
+<p>Direct credential fields : <code>snmp_version</code>, <code>community</code>, <code>username</code>, <code>auth_password</code>, <code>priv_password</code>, <code>auth_protocol</code>, and <code>priv_protocol</code> describe an ephemeral direct credential. Protocol names must be supported by the selected run-wide SNMP backend.</p>
+<p>A row may reference a configured <code>credential_profile</code> or contain direct credential material, but not both.</p>
+<h2 id="8-prefer-versus-exclusive">8. <code>prefer</code> versus <code>exclusive</code></h2>
+<p>With <code>credential_strategy=prefer</code>, overlay attempts are tried first. If they all fail, normal configured credential policy is appended.</p>
+<pre class="text"><code>seed overlay attempt 1
+  -&gt; seed overlay attempt 2
+  -&gt; normal policy profile primary
+  -&gt; normal policy profile fallback
+  -&gt; next permitted management address</code></pre>
+<p>With <code>credential_strategy=exclusive</code>, only the overlay attempts are allowed. Normal credential policy is not appended.</p>
+<pre class="text"><code>seed overlay attempt 1
+  -&gt; seed overlay attempt 2
+  -&gt; next permitted management address</code></pre>
+<p>An exclusive overlay is useful when an operator must guarantee that a seed is never queried with general site credentials.</p>
+<h2 id="9-seed-direct-seed-profile-and-policy-profile">9. <code>seed-direct</code>, <code>seed-profile</code>, and <code>policy-profile</code></h2>
+<p>LLDP-Runner records safe credential provenance without storing secret values.</p>
+<p><code>seed-direct</code> : The successful attempt used direct SNMP credential material from a matching seed-credential record.</p>
+<p><code>seed-profile</code> : The matching seed-credential record named a configured credential profile. That profile supplied the actual primary/fallback credentials.</p>
+<p><code>policy-profile</code> : The credential profile came from normal address/name/default credential policy rather than a seed overlay.</p>
+<p><code>credential_label</code> is independent of these values. For example, many unrelated seed rows may all use the label <code>alpha</code> without creating a conflict.</p>
+<h2 id="10-meaning-of-credential_result">10. Meaning of <code>credential_result</code></h2>
+<p><code>credential_result</code> tells which kind or stage of credential actually succeeded.</p>
+<pre class="text"><code>primary   configured profile primary credential succeeded
+fallback  configured profile fallback credential succeeded
+direct    direct seed credential succeeded
+failed    no permitted credential attempt succeeded</code></pre>
+<p>Typical combinations are:</p>
+<pre class="text"><code>credential_source=seed-direct
+credential_result=direct
+credential_profile=&lt;blank&gt;
+credential_label=alpha</code></pre>
+<pre class="text"><code>credential_source=seed-profile
+credential_result=fallback
+credential_profile=campus
+credential_label=alpha</code></pre>
+<pre class="text"><code>credential_source=policy-profile
+credential_result=primary
+credential_profile=branch-default
+credential_label=&lt;blank&gt;</code></pre>
+<h2 id="11-what-happens-when-snmp-succeeds">11. What happens when SNMP succeeds</h2>
+<p>The first successful basic SYSTEM-MIB collection establishes the credential for that device/address.</p>
+<p>Once basic SYSTEM-MIB succeeds:</p>
+<ol type="1">
+<li>LLDP-Runner stops trying other credentials for that device;</li>
+<li>the successful address and credential are retained;</li>
+<li>detail collectors reuse the same credential; and</li>
+<li>safe credential provenance is stored with the device result.</li>
+</ol>
+<p>LLDP-Runner does not try another fallback credential merely because an optional detail collector such as ENTITY-MIB, IF-MIB, LLDP, LLDPv2, or CDP fails. Basic SNMP already proved that the credential works. Detail failures are recorded as collector errors instead.</p>
+<p>An ICMP reply does not count as SNMP credential success. ICMP is reachability information; credential success requires the basic SNMP query to succeed.</p>
+<h2 id="12-what-happens-when-an-snmp-attempt-fails">12. What happens when an SNMP attempt fails</h2>
+<p>When a basic SNMP attempt fails, LLDP-Runner records a safe error category and moves through the configured attempt sequence.</p>
+<p>For a configured profile the order is:</p>
+<pre class="text"><code>primary retry count
+  -&gt; fallback retry count, when configured
+  -&gt; next credential route
+  -&gt; next permitted management address</code></pre>
+<p>A direct seed credential is one credential route. If it fails, LLDP-Runner moves to the next seed credential record, normal policy when strategy is <code>prefer</code>, or the next management address as applicable.</p>
+<p>If every permitted attempt is exhausted, the device is marked failed from the SNMP perspective and <code>credential_result</code> is <code>failed</code>.</p>
+<p>Errors may record the profile name, credential source, and safe <code>credential_label</code>. Communities and SNMPv3 authentication/privacy passwords are not written to discovery output or activity logs.</p>
+<h2 id="13-address-order-and-credentials">13. Address order and credentials</h2>
+<p>Management addresses are de-duplicated and ordered by <code>discovery.address_preference</code>, then numerically within an address family.</p>
+<p>The credential route is evaluated for each permitted address. This matters because normal credential address rules can select different profiles for two addresses belonging to the same device.</p>
+<p>ICMP probes are performed once for a newly selected address, not once for every credential retry on that same address.</p>
+<h2 id="14-overlay-matching-and-identity-merging">14. Overlay matching and identity merging</h2>
+<p>Seed-credential matching occurs only after the normal seed set has been established. Matching uses normalized seed identity without performing extra DNS queries merely to match a credential record.</p>
+<p>Repeated credential rows for one seed are preserved in file/record order. Repeated <code>credential_label</code> values are legal.</p>
+<p>If explicit seed aliases later converge on one device, compatible <code>prefer</code> records can be combined. Conflicting strategies, or ambiguous converged exclusive bindings, are rejected rather than silently weakening the operator's credential intent.</p>
+<h2 id="15-pause-and-resume">15. Pause and resume</h2>
+<p>Direct seed credentials are intentionally ephemeral. LLDP-Runner does not store plaintext seed credential secrets in SQLite so that they can be recovered later.</p>
+<p>A resumed run that previously required seed-credential input requires the corresponding credential input again. If an exclusive binding is missing on resume, LLDP-Runner fails clearly instead of silently reverting to general site credential policy.</p>
+<h2 id="16-secret-handling">16. Secret handling</h2>
+<p>Prefer environment-backed secrets in normal credential configuration:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">community_env</span> <span class="op">=</span> <span class="st">&quot;SITE_COMMUNITY&quot;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="dt">auth_password_env</span> <span class="op">=</span> <span class="st">&quot;SITE_AUTH&quot;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="dt">priv_password_env</span> <span class="op">=</span> <span class="st">&quot;SITE_PRIV&quot;</span></span></code></pre></div>
+<p>Direct seed-credential files are secret-bearing files. Protect them with appropriate ownership and permissions. LLDP-Runner rejects unsafe world-readable/world-writable literal-secret files.</p>
+<p>Direct secrets are not intentionally written to:</p>
+<ul>
+<li><code>run.json</code>;</li>
+<li><code>discovery.json</code>;</li>
+<li>generated CSV output;</li>
+<li>SQLite credential result metadata;</li>
+<li>activity logs; or</li>
+<li><code>get-neighbors --trace</code> output.</li>
+</ul>
+<p>Known secrets in backend error text are replaced with <code>&lt;redacted&gt;</code> before the error is recorded or displayed.</p>
+<h2 id="17-commands-that-do-not-use-credentials">17. Commands that do not use credentials</h2>
+<p>The following local/read-only commands disable the credential subsystem:</p>
+<pre class="text"><code>show-neighbors
+status
+watch
+clean
+purge
+version</code></pre>
+<p>They do not synthesize runtime credentials, resolve credential secret environment variables, or validate credential policy because they do not query network devices.</p>
+<p><code>get-neighbors</code> is a network command and uses the normal configured/runtime credential decision path. The run-only seed credential overlay does not turn a credential-file row into a single-device inspection target.</p>
+<h2 id="18-operator-checklist">18. Operator checklist</h2>
+<p>When a device does not query as expected, check these decisions in order:</p>
+<ol type="1">
+<li>Is it an explicit seed or classified <code>managed_device</code>?</li>
+<li>Does it have a usable management address?</li>
+<li>Is the address inside discovery boundaries?</li>
+<li>Does query policy allow the address/name?</li>
+<li>If it is a seed, did a seed-credential overlay match it?</li>
+<li>Is the overlay <code>prefer</code> or <code>exclusive</code>?</li>
+<li>If a profile is used, which address/name/default rule selected it?</li>
+<li>Did primary, fallback, or direct credential succeed?</li>
+<li>If all attempts failed, inspect activity/error output for timeout, authentication, transport, or unsupported-device evidence.</li>
+</ol>
+<p>Use <code>lldp-runner explain-target</code> to inspect normal policy selection for a target. Use <code>get-neighbors --trace</code> for a detailed single-device network/SNMP diagnostic. Remember that <code>get-neighbors</code> does not consume run seed-credential overlays.</p>
+<p>For configuration assembly and precedence, see <a href="docs-PRECEDENCE.html">PRECEDENCE.md</a>. For all run and credential-file options, see <a href="docs-CLI.html">CLI.md</a>.</p>
+</body>
+</html>

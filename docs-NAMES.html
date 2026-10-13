@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/NAMES.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="device-names-addresses-and-host-identity">Device Names, Addresses, and Host Identity</h1>
+<h2 id="1-summary">1. Summary</h2>
+<p>LLDP-Runner treats a discovered network as a graph of logical hosts and connections. A switch, router, or other device can be observed from several places and under several names or management addresses. The coordinator tries to fold those observations into one host record so that one physical device is not repeatedly scheduled and reported as several independent devices.</p>
+<p>The main rules are:</p>
+<ol type="1">
+<li>Directly advertised names, host-eligible addresses, strict SEP-derived MACs, and appropriately scoped trusted chassis IDs are identity evidence.</li>
+<li>Names are normalized for identity comparison by trimming whitespace, removing a trailing dot, and converting to lowercase.</li>
+<li>IP addresses are normalized to canonical IPv4 or IPv6 text.</li>
+<li>LLDP/LLDPv2 chassis IDs advertised as MAC or network addresses must decode as that advertised type before they are trusted for identity correlation; device-local chassis subtypes, including locally assigned subtype 7, are not global host aliases.</li>
+<li>A candidate that shares compatible normalized identity evidence with an existing host can be associated with that host.</li>
+<li>Evidence from several observations can therefore accumulate on one logical host as additional names, addresses, chassis information, tags, and edges.</li>
+<li><code>preferred_name</code> is an operator-facing presentation value. It is not a database key and is not guaranteed to be unique.</li>
+<li><code>snmp_sysname</code> is collected device data and is separate from <code>preferred_name</code>.</li>
+<li><code>discovery.json</code> contains the richest identity and observation evidence. Fixed CSV files are convenience projections and do not contain every identity detail.</li>
+<li>Repeated addresses are retained as contested claims on every observed host; they are not assigned to whichever host happened to be processed first.</li>
+<li>DNS-derived names and addresses can affect classification, presentation, query policy, and scheduling, but DNS enrichment alone does not merge two discovered hosts.</li>
+</ol>
+<p>This folding behavior intentionally supports the common case where the same switch or router is learned by several neighboring devices. Versions 0.30.3 through 0.30.5 add conservative evidence checks so malformed or contradictory chassis information cannot silently override distinct identities, while strong name-plus-management-address agreement can still identify one logical host on platforms that advertise link-specific chassis identifiers.</p>
+<p>Duplicate device names remain inherently ambiguous when stronger contradictory evidence is unavailable. LLDP-Runner does not enforce globally unique names. Operators should configure every device on the network with a unique name and should change devices that use duplicate, non-unique names. Further identity correlation refinement remains an acknowledged area for future review.</p>
+<h2 id="2-identity-versus-presentation">2. Identity versus presentation</h2>
+<p>Several fields that look similar serve different purposes.</p>
+<h3 id="21-internal-host-id">2.1 Internal host ID</h3>
+<p>Every host in one run has an integer SQLite ID. The same value is written as <code>hosts[].id</code> in <code>discovery.json</code> and is referenced by topology <code>host_ref</code> values.</p>
+<p>The ID is the unambiguous host reference inside one discovery document. It is not intended to be a permanent inventory identifier across separate runs.</p>
+<h3 id="22-identity-aliases">2.2 Identity aliases</h3>
+<p>The coordinator maintains globally owned normalized aliases for:</p>
+<pre class="text"><code>name
+mac
+chassis_id</code></pre>
+<p>Names, MACs, and accepted chassis identities can belong to only one host in the run. IPv4 and IPv6 values are stored separately as many-to-many host-address claims. A unique address can still help locate one host, but once several hosts claim the same value it becomes contested and cannot force them into one record. Together these records drive identity correlation and duplicate prevention.</p>
+<p>The <code>mac</code> alias namespace is used by the strict Cisco <code>SEP&lt;12-hex&gt;</code> and AP naming rules described below. Beginning with 0.32.9, it is also used for one explicitly typed MAC-address LLDP/LLDPv2 Port ID when the candidate is otherwise anonymous. It represents exact hardware evidence, not a generic MAC guess from arbitrary text. A named or addressed device does not acquire global identity from each of its per-interface Port IDs.</p>
+<h3 id="23-preferred_name">2.3 <code>preferred_name</code></h3>
+<p><code>preferred_name</code> is the best current presentation label for a logical host. It is useful for humans, CSV output, sorting, and messages, but it does not have a uniqueness constraint.</p>
+<p>Two top-level host records can therefore have the same <code>preferred_name</code>. The most obvious example is two separate identities that both have no usable name and are rendered as <code>unknown</code>.</p>
+<p>Normal observations carrying the same actual name alias are usually folded before output, so duplicate meaningful <code>preferred_name</code> values are less common than duplicate <code>unknown</code> values. That is an implementation consequence, not a promise that <code>preferred_name</code> is unique.</p>
+<h3 id="24-snmp_sysname">2.4 <code>snmp_sysname</code></h3>
+<p><code>snmp_sysname</code> is the SYSTEM-MIB <code>sysName</code> learned from a successful SNMP query. It is retained separately because the queried device can report a name that differs from the seed string, DNS result, or neighbor-advertised name.</p>
+<p>A successful query may add the normalized <code>sysName</code> as a name alias when that alias is not already owned by another host. It does not automatically replace <code>preferred_name</code>.</p>
+<p>If another host already owns the same normalized name alias, the later <code>sysName</code> alias insertion is ignored rather than moving the alias or forcing a new host merge. The separate <code>snmp_sysname</code> field remains useful evidence for operator review.</p>
+<h3 id="25-query-target">2.5 Query target</h3>
+<p><code>queried_as</code> is the address retained from worker execution. On a successful query it is the management address that answered SNMP. On a complete failure, it can be the first permitted attempted address. Hosts that were not queryable can have no <code>queried_as</code> value.</p>
+<p><code>queried_as</code> is not a host identity key. The host can have several known management addresses while only one address appears in <code>queried_as</code>.</p>
+<h2 id="3-operator-supplied-seed-input">3. Operator-supplied seed input</h2>
+<h3 id="31-seed-sources">3.1 Seed sources</h3>
+<p>A run can receive explicit seeds from configuration, command-line options, files, directories, environment variables, reusable <code>seeds.csv</code>, and stdin. All normal seed sources are consolidated before discovery begins.</p>
+<p>A plain seed target can be a hostname, FQDN, IPv4 address, or IPv6 address.</p>
+<h3 id="32-plain-text-name-input">3.2 Plain-text name input</h3>
+<p>For a hostname or FQDN seed, LLDP-Runner removes surrounding whitespace. A trailing dot is not retained in the DNS candidate used for presentation.</p>
+<p>A short name can also be tried with each configured <code>discovery.dns_suffixes</code> value. For every DNS candidate that resolves, LLDP-Runner can collect:</p>
+<pre class="text"><code>the candidate name
+an operating-system canonical/FQDN result
+canonical names returned by address resolution
+IPv4 addresses
+IPv6 addresses</code></pre>
+<p>The name list and address list are de-duplicated while preserving useful resolver evidence.</p>
+<p>The initial preferred presentation is the first available name containing a dot, otherwise the first available name. If DNS does not produce a usable address, the input name is still retained as identity evidence, but the managed seed cannot be queried until a usable management address is known.</p>
+<h3 id="33-direct-ip-input">3.3 Direct IP input</h3>
+<p>An IP seed is normalized with Python IP-address rules. Brackets around an IPv6 literal are removed and IPv6 text is canonicalized.</p>
+<p>LLDP-Runner attempts reverse resolution. If a PTR name is returned, that name becomes the initial preferred presentation and is retained as a name alias. If reverse resolution fails, the normalized IP address is the initial <code>preferred_name</code>.</p>
+<p>The input IP address remains an address alias in either case.</p>
+<h3 id="34-reusable-seedscsv-input">3.4 Reusable <code>seeds.csv</code> input</h3>
+<p>The supported seed CSV can carry:</p>
+<pre class="text"><code>preferred_name
+queried_as
+ipv4
+ipv6
+credential_profile
+credential_result
+origin
+state
+last_seen
+notes</code></pre>
+<p>For identity input, <code>preferred_name</code> is normally the seed string. If it is empty, a valid <code>queried_as</code> value can be used as the seed fallback.</p>
+<p><code>queried_as</code>, <code>ipv4</code>, and <code>ipv6</code> can contribute management-address hints from a previous run. Those valid address hints are combined with fresh DNS results. This is intentional so a later run can still reach a device when DNS is temporarily incomplete.</p>
+<p>The previous CSV <code>origin</code> does not remain authoritative. Any row supplied as input to a new run is an explicit seed in that new run.</p>
+<h3 id="35-first-stage-seed-consolidation">3.5 First-stage seed consolidation</h3>
+<p>Before DNS/state correlation, repeated logical seed strings are consolidated case-insensitively. Address hints and parse diagnostics from repeated rows are combined.</p>
+<p>For example, two current-format CSV rows whose seed string is the same <code>access-sw1</code> are treated as one seed input even if one row carries <code>192.0.2.10</code> and the other carries <code>192.0.2.20</code>.</p>
+<p>Later identity correlation can also merge different seed strings when DNS or another alias shows that they refer to the same host.</p>
+<h2 id="4-learned-device-input">4. Learned device input</h2>
+<h3 id="41-neighbor-evidence">4.1 Neighbor evidence</h3>
+<p>A successful CDP, LLDP, or LLDPv2 collection can create a learned candidate with evidence such as:</p>
+<pre class="text"><code>remote name
+management addresses
+chassis ID and subtype
+remote port information
+platform and description
+capabilities
+observing host and local interface
+protocol-specific details</code></pre>
+<p>The observation becomes both identity evidence for the remote logical host and an edge showing which queried host observed it.</p>
+<h3 id="42-learned-managed-devices">4.2 Learned managed devices</h3>
+<p>LLDP-Runner first classifies the learned candidate. If it is a <code>managed_device</code>, has a remote name, and <code>discovery.resolve_discovered_managed_names</code> is enabled, the coordinator tries DNS resolution for that learned name.</p>
+<p>Resolver names and addresses are added to the enriched candidate and the candidate is classified again. This allows DNS-provided FQDN/address evidence to affect presentation, ownership classification, query policy, and recursive scheduling. Beginning with 0.31.4, only the directly advertised protocol name is admitted to global name identity during this path. DNS-only agreement cannot merge unrelated devices that happen to resolve through the same load balancer, anycast frontend, or shared service address.</p>
+<p>If the learned managed host has one or more permitted management addresses, the coordinator treats them as alternate addresses for the same logical device. They are ordered by <code>discovery.address_preference</code> and then numerically within an address family when a worker task is built.</p>
+<h3 id="43-learned-unmanaged-and-unknown-devices">4.3 Learned unmanaged and unknown devices</h3>
+<p>A candidate that is not classified as <code>managed_device</code> is not DNS-enriched by this learned-name path. Its advertised name, observed management addresses, and chassis ID still participate in identity correlation.</p>
+<p>An unmanaged or unknown device with only a name can therefore still be folded with later observations of that normalized name even though LLDP-Runner does not query it.</p>
+<h3 id="44-observations-with-no-normal-identity">4.4 Observations with no normal identity</h3>
+<p>A learned neighbor can occasionally have no usable name, address, or chassis ID. LLDP-Runner creates a synthetic observation alias derived from the edge so the evidence can still be represented without inventing a device name.</p>
+<p>Such observations do not automatically correlate across unrelated edges because there is no shared normal identity alias proving that they are the same remote device.</p>
+<h3 id="45-same-link-protocol-reconciliation">4.5 Same-link protocol reconciliation</h3>
+<p>A queried device can advertise the same physical topology edge through more than one discovery protocol. LLDP-Runner first attempts to reconcile those collector rows before the remote host is inserted into authoritative state. A reconciled edge records multiple protocols, for example:</p>
+<pre class="text"><code>cdp,lldp</code></pre>
+<p>This prevents one physical connection from appearing twice merely because both CDP and LLDP describe it. Protocol-specific evidence remains under keys such as <code>cdp.*</code> and <code>lldp.*</code> so the original advertisements can still be reviewed.</p>
+<p>There are two guarded reconciliation paths.</p>
+<p>The strict path requires the same normalized local interface and remote interface. Exact logical names can then reconcile directly. A device can also append a serial-like token to an advertised name. Cisco Nexus NX-OS commonly advertises a VDC through CDP as:</p>
+<pre class="text"><code>hq-vdc2-7nx1.example.com(SERIAL000001)</code></pre>
+<p>while LLDP advertises the logical VDC System Name as:</p>
+<pre class="text"><code>hq-vdc2-7nx1.example.com</code></pre>
+<p>LLDP-Runner preserves the raw advertisement and parses a plausible final <code>(serial)</code> token into a separate logical base name and serial hint. The parser requires a nonempty usable base and an alphanumeric token of 6 through 32 characters containing at least one digit. Text that does not meet that narrow shape remains an ordinary raw name.</p>
+<p>For a CDP/LLDP pair on the same normalized local and remote interfaces, the logical base can compare with the undecorated name. This is deliberately an edge-scoped rule. The serial hint is a moderate physical-container claim, not a global host alias, because several VDCs can share one physical Nexus chassis serial. A direct ENTITY-MIB or other trustworthy serial observation is needed before the hint can support a physical-chassis conclusion.</p>
+<p>The corroborated path handles devices whose protocols describe the same remote port differently. For ordinary names it requires all of the following:</p>
+<pre class="text"><code>CDP compared with LLDP or LLDPv2
+same normalized local switch interface
+at least one identical usable address
+compatible protocol names</code></pre>
+<p>Usable address evidence normally comes from a protocol management-address field. An LLDP chassis ID explicitly typed as <code>network_address</code> can also corroborate the same address while remaining separately identified as chassis evidence in the raw protocol details.</p>
+<p>Compatible ordinary names include an exact normalized match. They also include one single-label short name and one FQDN whose left-most host component is exactly that short name. For example:</p>
+<pre class="text"><code>CDP: phone1
+LLDP: phone1.example.com</code></pre>
+<p>The ordinary rule does <strong>not</strong> strip arbitrary domain suffixes. Two different FQDNs such as these remain different names even though the left-most labels match:</p>
+<pre class="text"><code>phone1.site-a.example.com
+phone1.site-b.example.com</code></pre>
+<p>Likewise, an ordinary short/FQDN pair does not reconcile when the address evidence differs or when the observations came from different local switch ports. These restrictions keep generic DNS-name inference local to one strongly corroborated physical edge.</p>
+<p>Beginning with 0.31.2, Cisco <code>SEP</code> endpoints have a separate stronger identity rule. If the left-most host component is exactly <code>SEP</code> followed by twelve hexadecimal characters, those characters are decoded as the endpoint MAC. For example, all of these contribute the same canonical MAC identity:</p>
+<pre class="text"><code>SEP001234560004
+SEP001234560004.voice-a.example.com
+SEP001234560004.voice-b.example.net
+
+00:12:34:56:00:04</code></pre>
+<p>This rule is intended for Cisco phones and Cisco video endpoints that advertise the standard <code>SEP&lt;MAC&gt;</code> form. It is deliberately strict: LLDP-Runner does not derive MAC identity from arbitrary names that merely end in hexadecimal text.</p>
+<p>On the same local switch interface, matching strict SEP MAC identity is enough to reconcile CDP and LLDP/LLDPv2 even when one protocol temporarily lacks a management-address row. This covers a production pattern such as:</p>
+<pre class="text"><code>CDP   SEP001234560004                  / Port 1
+LLDP  SEP001234560004.voice-a.example.com  / 001234560004:P1</code></pre>
+<p>It also keeps the same physical endpoint when its reported DNS suffix changes between <code>.voice-a...</code> and <code>.voice-b...</code>. The suffix remains useful for presentation and raw protocol evidence; the embedded SEP MAC supplies durable endpoint identity.</p>
+<p>Beginning with 0.31.3, contradictory strict SEP MAC identities are a hard host identity boundary. Two phones such as <code>SEP001234560001</code> and <code>SEP001234560006</code> cannot become one host merely because both advertise the same usable address or the same LLDP chassis ID typed as <code>network_address</code>. This matters for endpoint software that reports a repeated/default address across physically unrelated phones. Shared address evidence remains useful for normal correlation, but it cannot override two different SEP-derived hardware MACs.</p>
+<p>When remote-port strings differ on a corroborated CDP/LLDP edge, LLDP-Runner prefers the LLDP typed Port ID for the normalized edge. The CDP and LLDP names, ports, addresses, descriptions, capabilities, and chassis evidence are retained under their protocol-specific <code>details</code> keys.</p>
+<p>Because edge reconciliation happens before authoritative state insertion, one reconciled physical connection produces one <code>learned_neighbors</code> row on the observer and one reciprocal <code>observed_by_neighbors</code> row on the remote host. The protocol list still shows that both CDP and LLDP contributed evidence.</p>
+<p>CISCO-CDP-MIB <code>cdpCacheAddress</code> is retained as CDP entry-address evidence. It can differ from the Primary Management Address printed by Cisco CLI. When a CDP row reconciles with LLDP, LLDP management-address evidence is ordered first for operator-facing display while all unique observed addresses remain available in structured output and host correlation.</p>
+<h3 id="46-lldp-snapshot-integrity">4.6 LLDP snapshot integrity</h3>
+<p>An LLDP remote table is obtained through multiple SNMP requests and columns. A neighbor can be inserted, removed, or rebuilt while the walk is in progress. In that case a collector can observe later columns from a row without having seen its mandatory chassis-ID or Port-ID fields during the same walk.</p>
+<p>Beginning with 0.31.1, LLDP-Runner does not convert such a partial row into host or topology identity. Original LLDP and LLDPv2 require both mandatory identifier pairs:</p>
+<pre class="text"><code>chassis-ID subtype + chassis-ID
+Port-ID subtype + Port-ID</code></pre>
+<p>If any pair is incomplete, the worker retries the complete protocol collector once, including the management-address walk. A second structurally incomplete snapshot is recorded as an <code>incomplete_table</code> collector error. Diff can then classify topology affected by that failed protocol as uncertain instead of presenting a partial table as definite network change.</p>
+<p>Beginning with 0.31.2, an exception while walking the LLDP or LLDPv2 management-address subtable is also no longer converted into an empty address set. Timeout and transport failures trigger the same complete-protocol retry. A final failure is persisted as protocol collection loss, allowing diff to mark affected topology uncertain. A successfully empty management-address table is still valid and is distinct from a failed table walk.</p>
+<p>LLDP-Runner also preserves the complete remote-row index while assembling table columns. Original LLDP keeps <code>timeMark</code>, local-port number, and remote index as one row key. LLDPv2 additionally keeps its local destination-MAC index context. The <code>time_mark</code> value is retained for diagnostics but treated as volatile by diff because it is a table locator rather than logical topology identity.</p>
+<h2 id="5-internal-normalization">5. Internal normalization</h2>
+<h3 id="51-name-normalization">5.1 Name normalization</h3>
+<p>Name aliases are normalized as follows:</p>
+<pre class="text"><code>trim surrounding whitespace
+remove trailing dots
+convert to lowercase</code></pre>
+<p>Therefore these values represent the same name alias:</p>
+<pre class="text"><code>ACCESS-SW1
+access-sw1
+access-sw1.</code></pre>
+<p>A short name and an FQDN are not equal merely because they look related:</p>
+<pre class="text"><code>access-sw1
+access-sw1.example.net</code></pre>
+<p>They become connected when DNS or another observation supplies shared evidence, such as both names on one candidate or the same management address.</p>
+<p>This global alias rule is separate from the generic edge-scoped reconciliation in <a href="#45-same-link-protocol-reconciliation">section 4.5</a>. On one already corroborated CDP/LLDP edge, a single-label short name can match the identical left-most host component of an FQDN when local-port and address evidence also agree. That generic edge decision does not register a suffix-derived global name alias.</p>
+<p>Strict Cisco <code>SEP&lt;12-hex&gt;</code> names are the narrow exception. The embedded twelve hexadecimal characters become a canonical <code>mac</code> identity alias, so the short form and FQDN forms can converge globally on the same Cisco endpoint without asserting that their DNS suffixes are generally interchangeable.</p>
+<h3 id="52-address-normalization-and-host-eligibility">5.2 Address normalization and host eligibility</h3>
+<p>IPv4 and IPv6 aliases are parsed with Python's standard <code>ipaddress</code> module and emitted in canonical notation. LLDP-Runner does not rely on regular-expression shape checks alone: several values are syntactically valid IP addresses but are not plausible addresses for one remote host.</p>
+<p>The canonical identity boundary rejects malformed addresses and these non-host classes:</p>
+<pre class="text"><code>IPv4 0.0.0.0/8       this-network / unspecified semantics
+IPv4 127.0.0.0/8     loopback
+IPv4 224.0.0.0/4     multicast
+IPv4 240.0.0.0/4     reserved, including 255.255.255.255
+IPv6 ::               unspecified
+IPv6 ::1              loopback
+IPv6 ff00::/8         multicast</code></pre>
+<p>IPv4-mapped IPv6 forms inherit the rejection semantics of their embedded IPv4 address, so an encoded limited-broadcast or reserved IPv4 value cannot bypass the same boundary.</p>
+<p>Private IPv4, CGNAT, benchmark/documentation ranges, IPv4 link-local, IPv6 ULA, and IPv6 link-local remain eligible. LLDP-Runner can legitimately observe or operate with those values; using a simple <code>is_global</code> test would incorrectly discard useful management or control-plane evidence such as <code>169.254.100.10</code>.</p>
+<p>A bare address does not carry a subnet prefix, so LLDP-Runner cannot safely infer whether an otherwise valid unicast value such as <code>192.0.2.255</code> is a directed broadcast for the remote subnet. Boundary and query policy remain separate from identity-address eligibility.</p>
+<p>The same eligibility check is applied defensively at collector, seed, canonical alias, network-address chassis-ID, and cross-run diff boundaries. For CDP, a parsed <code>cdpCacheAddress</code> sentinel such as <code>0.0.0.0</code> remains visible under <code>cdp.entry_addresses</code> for diagnostics but is omitted from <code>remote_addresses</code> and cannot become an IPv4/IPv6 host alias.</p>
+<p>A DNS name resolving to several eligible addresses can make all of those values available to the same enriched candidate for policy and querying. Learned-host identity remains anchored in directly observed evidence; DNS expansion by itself is not permission to merge two established hosts.</p>
+<p>Address claims are many-to-many beginning with 0.31.4. The first observation of an address can still locate one host efficiently. If a later incompatible host advertises the same value, both claims are retained and the address becomes contested. Subsequent candidates need a unique name, MAC, chassis, or other corroboration rather than inheriting whichever host first owned the address.</p>
+<h3 id="53-chassis-normalization">5.3 Chassis normalization</h3>
+<p>LLDP-Runner treats the chassis subtype as part of chassis identity. Equal text advertised under different chassis subtypes therefore does not automatically refer to the same internal alias.</p>
+<p>Subtype-aware binary identifiers receive additional validation:</p>
+<pre class="text"><code>mac_address     must decode as a six-octet MAC address
+network_address must decode as a host-eligible IPv4 or IPv6 address</code></pre>
+<p>If an agent advertises one of those subtypes but LLDP-Runner can only preserve the raw value as diagnostic <code>hex:...</code> text, that value remains in the neighbor observation details but is not admitted to the canonical host identity registry. This is intentionally conservative: malformed repeated values must not collapse otherwise unrelated neighbors.</p>
+<p>Not every syntactically valid chassis subtype has network-wide scope. Beginning with 0.31.4, <code>chassis_component</code>, <code>interface_alias</code>, <code>port_component</code>, and <code>interface_name</code> remain observation/agent-local evidence and are not registered as global host aliases. Beginning with 0.31.5, a <code>network_address</code> chassis value is retained as a weak edge-scoped claim and raw protocol evidence, but does not enter the global IPv4/IPv6 identity lookup by itself. A separately advertised management address remains its own direct address claim. These boundaries prevent values such as VMware <code>vmnic2</code> or a repeated/default <code>198.51.100.3</code> chassis value from merging unrelated endpoints at different physical edges.</p>
+<p>Beginning with 0.32.9, locally assigned chassis subtype 7 follows the same scoped rule. A vendor-supplied local label or opaque value remains in raw neighbor details and can still be shown to an operator, but it cannot select or merge hosts across unrelated interfaces. Subtype 7 expressly permits local assignment and therefore does not establish network-wide uniqueness.</p>
+<p>For an otherwise anonymous observation, LLDP-Runner can use one exact, explicitly typed MAC-address Port ID as bounded endpoint identity. The subtype must identify a MAC address, the value must be a complete unambiguous MAC, and all retained LLDP/LLDPv2 typed representations must agree. This fallback is not used when a usable direct name, management address, or trusted chassis alias is already available. If neither strong device identity nor a typed Port-ID MAC is available, the compatibility projection retains its observation-scoped fallback.</p>
+<p>For accepted global chassis identity evidence, a separate case-preserving display form is retained so canonical output can show the device-supplied chassis value. LLDP and LLDPv2 always preserve chassis subtype evidence in neighbor details even when that subtype is not eligible for global identity. A locally assigned chassis label can be used as the operator-facing display name when no system name is advertised. The label remains edge-scoped and cannot become global identity evidence by itself.</p>
+<h2 id="6-host-correlation-and-intentional-folding">6. Host correlation and intentional folding</h2>
+<h3 id="61-why-folding-exists">6.1 Why folding exists</h3>
+<p>Network topology is a graph. It is normal for the same switch or router to be reported by several neighboring devices.</p>
+<p>For example:</p>
+<pre class="text"><code>core-a learns dist-1 at 192.0.2.10
+core-b learns dist-1 at 192.0.2.10
+access-a learns dist-1 by chassis ID</code></pre>
+<p>Creating three top-level host records would inflate inventory counts and could schedule redundant SNMP work. LLDP-Runner instead accumulates matching evidence into one authoritative host whenever its identity aliases connect the observations.</p>
+<p>This design supports:</p>
+<pre class="text"><code>one device observed from many links
+one device with short and fully qualified names
+one device with IPv4 and IPv6 management addresses
+one device with more than one management address
+one device first learned by name and later learned by chassis ID
+one learned device that later overlaps an explicit seed</code></pre>
+<h3 id="62-alias-matching">6.2 Alias matching</h3>
+<p>When a candidate reaches the state store, LLDP-Runner looks up its normalized identity aliases and address claims. A unique address can identify one existing host, but a value already claimed by several hosts is contested and is not used to select all of them.</p>
+<p>If none of the compatible aliases belong to an existing host, a new host is created. If compatible aliases belong to an existing host, the new evidence can be folded into that logical host. If one candidate connects aliases that already belong to several compatible host records, the coordinator can merge those records so the graph has one logical identity. The merge preserves important topology, classification, seed, tag, error, and successful query evidence.</p>
+<p>The coordinator protects host IDs actively owned by workers rather than invalidating an in-flight task. A later observation can reconcile records when it is safe to do so.</p>
+<h3 id="63-identity-conflict-protection-and-corroboration">6.3 Identity conflict protection and corroboration</h3>
+<p>LLDP-Runner deliberately balances two failure modes:</p>
+<pre class="text"><code>too little consolidation  -&gt; duplicate records for one logical host
+too much consolidation    -&gt; multiple discrete hosts incorrectly become one</code></pre>
+<p>No single evidence type is universally authoritative on every platform. Chassis IDs are useful physical evidence, but some systems advertise different valid LLDP chassis MACs on different links. Names and addresses are useful logical evidence, but duplicate names and reused addresses can also exist. Correlation therefore considers combinations of evidence rather than assuming one field is always decisive.</p>
+<p>The current conflict policy can be summarized as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Evidence</th>
+<th>Default decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name + address match; chassis matches</td>
+<td>Fold</td>
+</tr>
+<tr>
+<td>Name + address match; chassis differs</td>
+<td>Fold</td>
+</tr>
+<tr>
+<td>Name matches; address and chassis differ</td>
+<td>Keep separate</td>
+</tr>
+<tr>
+<td>Address matches; name and chassis differ</td>
+<td>Keep separate / unresolved</td>
+</tr>
+<tr>
+<td>Address matches; names conflict</td>
+<td>Keep separate; retain address claims</td>
+</tr>
+<tr>
+<td>Names + addresses differ; chassis matches</td>
+<td>Keep separate</td>
+</tr>
+<tr>
+<td>Device-local chassis text matches</td>
+<td>Keep separate without other identity</td>
+</tr>
+<tr>
+<td>Anonymous typed Port-ID MAC matches</td>
+<td>Fold that endpoint</td>
+</tr>
+<tr>
+<td>Anonymous typed Port-ID MAC differs</td>
+<td>Keep separate</td>
+</tr>
+<tr>
+<td>Only malformed chassis matches</td>
+<td>Keep separate</td>
+</tr>
+<tr>
+<td>Nexus physical serial matches; VDC identity differs</td>
+<td>Keep separate</td>
+</tr>
+</tbody>
+</table>
+<p>A candidate with a different trusted chassis identity is therefore normally considered contradictory. The important exception is when both a normalized name and at least one normalized management address already agree. That pair of logical identity signals is strong enough to support platforms such as Nexus 7000 VDCs whose LLDP chassis MAC can vary by link.</p>
+<p>A chassis-only match remains rejected when both sides have non-empty names and management-address sets and those sets are disjoint. This retains the safeguards for devices that reuse, misencode, or otherwise advertise non-unique chassis information.</p>
+<p>For example, these observations remain separate:</p>
+<pre class="text"><code>phone-a / 192.0.2.10 / chassis 00:11:22:33:44:55
+phone-b / 192.0.2.20 / chassis 00:11:22:33:44:55</code></pre>
+<p>The shared chassis value has no corroboration because both the names and management addresses disagree.</p>
+<p>By contrast, these observations can fold normally even when the chassis value changes between links:</p>
+<pre class="text"><code>dist-1 / 192.0.2.10 / chassis 00:11:22:33:44:55
+dist-1 / 192.0.2.10 / chassis 00:11:22:33:44:66</code></pre>
+<p>The matching name and management address corroborate one logical device. Both observation-specific chassis values remain available for review.</p>
+<h3 id="64-duplicate-names-remain-an-ambiguity">6.4 Duplicate names remain an ambiguity</h3>
+<p>The conflict checks do not make names globally unique. Two devices using the same name can be consolidated when no contradictory trusted chassis identity is available. This is necessary for common cases where one observation supplies a name and another later adds a management address.</p>
+<p>For example:</p>
+<pre class="text"><code>name=access-sw1
+ipv4=192.0.2.10</code></pre>
+<p>and later:</p>
+<pre class="text"><code>name=access-sw1
+ipv4=192.0.2.20</code></pre>
+<p>can still become one logical host when there is no stronger physical evidence showing that the observations describe different devices. Operators should not therefore use <code>preferred_name</code> as a unique key, and all managed devices should be configured with unique names.</p>
+<h3 id="65-vmware-esxi-cdp-sentinel-example">6.5 VMware ESXi CDP sentinel example</h3>
+<p>Some VMware ESXi CDP advertisements contain no usable Entry address. On certain Cisco SNMP agents, that absence is represented by <code>cdpCacheAddress=0.0.0.0</code>. Several unrelated ESXi systems can therefore all appear with distinct CDP Device IDs but the same syntactically valid placeholder address.</p>
+<p>Before 0.30.8, <code>0.0.0.0</code> could enter the IPv4 alias registry and connect those discrete systems into one host record. The resulting aggregate could accumulate many unrelated ESXi names, allowing an operator-facing preferred name from one site to appear on a neighbor observed at another site.</p>
+<p>Beginning with 0.30.8, <code>0.0.0.0</code> is diagnostic evidence only. Distinct ESXi CDP names remain distinct hosts unless some other valid identity evidence connects them. Repeated observations of the same ESXi Device ID can still fold normally through the shared name alias.</p>
+<h3 id="66-cisco-nexus-vdc-example">6.6 Cisco Nexus VDC example</h3>
+<p>Cisco Nexus 7000-series Virtual Device Contexts illustrate why LLDP-Runner must distinguish physical-chassis evidence from logical-host identity. One physical Nexus can host several separately named and addressed VDCs, for example:</p>
+<pre class="text"><code>hq-vdc1-7nx1.example.com
+hq-vdc2-7nx1.example.com
+hq-vdc3-7nx1.example.com</code></pre>
+<p>CDP can append the same physical serial token to all three Device IDs while LLDP advertises the undecorated VDC System Names. The VDCs remain separate hosts because their logical names and management addresses differ. The shared physical serial is not promoted into the host alias registry.</p>
+<p>The same VDC can also be connected by several links while advertising a different valid LLDP chassis MAC on each link. When its normalized VDC name and management address agree, LLDP-Runner allows those observations to fold into one logical host and retains each link-specific chassis value in its edge details.</p>
+<p>This treatment avoids both sides of the consolidation problem: duplicate CDP and LLDP rows for one VDC are reduced to one edge, while different VDCs on the same physical Nexus remain discrete logical hosts.</p>
+<p>Cross-run <code>lldp-runner diff</code> applies the same distinction. A serial shared by several VDC host records is treated as physical-container evidence rather than a sufficient logical-host key. Diff narrows those candidates using matching normalized VDC name plus management address. A per-link chassis-ID difference can be tolerated under that same two-signal corroboration, while serial or SNMP engine conflicts remain blocking evidence. See <a href="docs-DIFF.html">DIFF.md</a> for the complete cross-run pairing rules.</p>
+<h3 id="67-order-independent-bridge-reconciliation">6.7 Order-independent bridge reconciliation</h3>
+<p>The global alias table intentionally gives each normalized name and accepted chassis identity one owner. Address claims are many-to-many in 0.31.4. During concurrent recursive discovery, an early contradictory observation can still create a temporary split host whose duplicate name cannot own the already-registered alias.</p>
+<p>Version 0.31.0 introduced later strong-evidence repair, and 0.31.4 applies it across the global-name and many-to-many address model. Conflict evaluation can use a temporary host's usable <code>preferred_name</code> and management addresses retained on inbound neighbor observations even when the name could not own the global alias or the address is contested.</p>
+<p>The repair remains conservative. A later candidate must connect the records with both:</p>
+<pre class="text"><code>same normalized logical name
++
+at least one shared usable management address</code></pre>
+<p>Only then can link-specific chassis disagreement be tolerated and the temporary records merged. Duplicate name alone is not a reconciliation trigger. This removes observation-order dependence for Nexus-style logical devices without turning <code>preferred_name</code> into a unique key.</p>
+<h3 id="68-placeholder-names-are-diagnostic-not-identity">6.8 Placeholder names are diagnostic, not identity</h3>
+<p>Some protocols or devices explicitly advertise missing-value text instead of omitting a name. Common examples include:</p>
+<pre class="text"><code>unknown
+null
+none
+(none)
+(none).(none)
+n/a
+na
+-
+not advertised</code></pre>
+<p>Beginning with 0.31.0 these values are not admitted into the canonical <code>name</code> alias namespace and are not used as cross-run name evidence. The raw protocol field can remain visible in neighbor details or presentation output so the operator can see what the device actually advertised.</p>
+<p>This boundary prevents a repeated placeholder such as <code>null</code> from becoming a global correlation key for unrelated endpoints. It does not reject arbitrary generic strings merely because they are poor naming practice; only explicit missing-value sentinels receive this treatment.</p>
+<h3 id="69-malformed-chassis-example">6.9 Malformed chassis example</h3>
+<p>A production case that motivated the 0.30.3 safeguards involved several Cisco phones learned through LLDP from the same switch. The phones supplied different system names, management IPv4 addresses, and Port IDs, while their collected chassis field repeated the same malformed subtype-5 diagnostic value:</p>
+<pre class="text"><code>SEP...A / 192.0.2.191 / hex:15:00:00:00:00:00
+SEP...B / 192.0.2.206 / hex:15:00:00:00:00:00
+SEP...C / 192.0.2.115 / hex:15:00:00:00:00:00</code></pre>
+<p>Because subtype 5 means <code>network_address</code>, the <code>hex:...</code> value is retained as observation evidence but is not eligible to identify a canonical host. The three names and management addresses therefore remain separate host records, and <code>show-neighbors</code> can render the same distinct names collected by <code>get-neighbors</code>.</p>
+<h2 id="7-how-preferred_name-is-selected">7. How <code>preferred_name</code> is selected</h2>
+<p><code>preferred_name</code> is generated in stages rather than being a single raw input field.</p>
+<h3 id="71-new-explicit-seed">7.1 New explicit seed</h3>
+<p>For a hostname seed, resolver output prefers an available FQDN-like name, then another name. For an IP seed, a reverse-resolved name is preferred when available; otherwise the normalized IP address is used.</p>
+<h3 id="72-new-learned-host">7.2 New learned host</h3>
+<p>For a learned candidate, presentation prefers:</p>
+<pre class="text"><code>an available name containing a dot
+otherwise the first available name
+otherwise the first management address
+otherwise unknown</code></pre>
+<h3 id="73-later-observations">7.3 Later observations</h3>
+<p>An <code>unknown</code> presentation can be replaced when better evidence appears. The state preference heuristic also favors a later candidate containing a dot over an existing dotless presentation, while excluding colon-bearing IPv6 text. An IPv4 address contains dots too, so a state row can temporarily prefer an IPv4 value when a later address-only observation is connected to a dotless name.</p>
+<p>Canonical output corrects the important presentation case: when normalized name aliases exist and the stored presentation is an IP or <code>unknown</code>, output promotes an actual name alias. Otherwise the existing presentation normally remains stable rather than changing whenever another alias is learned.</p>
+<p>This means <code>preferred_name</code> is not a deterministic sort of every known alias. Observation order and which useful presentation was established first can matter.</p>
+<h3 id="74-output-time-name-promotion">7.4 Output-time name promotion</h3>
+<p>When canonical output is assembled, a stored <code>unknown</code> or IP presentation can be promoted to an available normalized name alias. An FQDN-like alias is preferred when one exists.</p>
+<p>The optional <code>output.chassis_id_name_fallback</code> policy can also use a suitable chassis ID as the displayed name when there is no real observed/resolved name and the stored presentation is missing, <code>unknown</code>, or an IP address.</p>
+<p>A genuine observed name outranks chassis fallback.</p>
+<p>Canonical output then applies four narrowly scoped presentation corrections that are shared by <code>discovery.json</code>, fixed CSVs, and custom CSV projections:</p>
+<ol type="1">
+<li>A recognized trailing hardware serial decoration is omitted from the display value. For example, <code>hq-vdc1-7nx1.example.com(SERIAL000001)</code> is presented as <code>hq-vdc1-7nx1.example.com</code>. The guarded parser requires a plausible alphanumeric serial token containing a digit; ordinary descriptive parentheses are not cropped. The raw advertisement/serial claim remains available as evidence.</li>
+<li>When the resulting name is <code>unknown</code>, every inbound observed name and remote description is blank, and all inbound chassis evidence is locally assigned and yields exactly one value, that string is used as the display name. Locally assigned subtype 7 remains edge-scoped and is not promoted into global identity merely because it is useful for output review.</li>
+<li>Under the same blank-name and blank-description conditions, one unambiguous MAC-address-typed chassis value is the next fallback for <code>unknown</code>. It is rendered as a canonical lowercase, colon-separated MAC address. A nonblank observed name or description prevents this substitution.</li>
+<li>When the resulting name is <code>null</code> or <code>not advertised</code>, all nonblank inbound names and descriptions contain only those placeholders, and all inbound chassis evidence is MAC-address typed and yields exactly one value, the canonical colon-separated MAC is used as the display name.</li>
+</ol>
+<p>The chassis substitutions require one unambiguous value and consistent subtype evidence. Conflicting candidates or mixed subtype classes leave the placeholder unchanged rather than guessing. These rules run after normal alias promotion and alter only the canonical presentation field; raw protocol names, descriptions, chassis subtypes/values, aliases, and topology identity decisions remain unchanged.</p>
+<h3 id="75-why-it-is-not-unique">7.5 Why it is not unique</h3>
+<p><code>preferred_name</code> has no uniqueness constraint and must not be treated as a primary key by operators or downstream applications.</p>
+<p>Possible duplicate presentation values include:</p>
+<pre class="text"><code>multiple separate unknown identities rendered as unknown
+records created from distinct evidence that happen to present the same label
+CSV rows repeated by a one-to-many output such as switch stack members</code></pre>
+<p>In the normal neighbor path, two candidates carrying the exact same normalized name alias are usually folded into one host rather than emitted as two hosts. That behavior still does not turn <code>preferred_name</code> itself into a unique field.</p>
+<h2 id="8-name-and-address-output-in-discoveryjson">8. Name and address output in <code>discovery.json</code></h2>
+<p><code>discovery.json</code> is the canonical result and the best place to investigate identity questions.</p>
+<p>A host contains fields including:</p>
+<pre class="text"><code>id
+preferred_name
+queried_as
+snmp_sysname
+classification
+state
+is_seed
+names
+addresses.ipv4
+addresses.ipv6
+chassis_id
+learned_neighbors
+observed_by_neighbors</code></pre>
+<h3 id="81-names">8.1 <code>names</code></h3>
+<p><code>names</code> contains normalized name aliases associated with the logical host. Because aliases are normalized for matching, these values are normally lowercase and have no trailing dot.</p>
+<p>The list can contain more than one name, such as a short name plus an FQDN.</p>
+<h3 id="82-addresses">8.2 <code>addresses</code></h3>
+<p><code>addresses.ipv4</code> and <code>addresses.ipv6</code> contain the known normalized management address aliases associated with the host. More than one address is normal and can represent dual-stack or multi-address management for one device.</p>
+<p>When duplicate device names have caused unintended folding, multiple addresses can instead be evidence that several physical devices were consolidated. Context is required.</p>
+<h3 id="83-chassis_id">8.3 <code>chassis_id</code></h3>
+<p>The canonical host object has one top-level <code>chassis_id</code> field representing chassis evidence accepted for host identity. Neighbor edge details retain the observation-specific chassis value and subtype even when that value was rejected as malformed or contradictory identity evidence.</p>
+<p>Therefore a malformed subtype-aware chassis value can appear under a neighbor's <code>details</code> while being absent from the referenced host's top-level <code>chassis_id</code>. That distinction is intentional and keeps diagnostic collector evidence without allowing it to consolidate unrelated devices.</p>
+<h3 id="84-topology-evidence">8.4 Topology evidence</h3>
+<p><code>learned_neighbors</code> describes devices learned by the current queried host. <code>observed_by_neighbors</code> describes inbound evidence where another queried host reported the current host.</p>
+<p>Neighbor records preserve useful observation evidence including:</p>
+<pre class="text"><code>host_ref
+observed_name
+observed_addresses
+protocols
+interfaces
+protocol-specific names and addresses
+protocol-specific chassis/Port ID details</code></pre>
+<p>For reconciled CDP/LLDP edges, <code>observed_addresses</code> is a de-duplicated union with LLDP management addresses ordered before CDP entry addresses. Raw evidence remains distinguishable under protocol-specific fields such as <code>lldp.remote_addresses</code>, <code>cdp.remote_addresses</code>, and <code>cdp.entry_addresses</code>.</p>
+<p>The details can include chassis ID/subtype and LLDP Port ID information. This observation-level evidence is particularly useful when a logical host has several addresses or appears at several network locations.</p>
+<h2 id="9-name-and-address-output-in-fixed-csv-files">9. Name and address output in fixed CSV files</h2>
+<p>Fixed CSV files are generated from the canonical discovery document. They are intentionally flatter than JSON.</p>
+<h3 id="91-hostscsv">9.1 <code>hosts.csv</code></h3>
+<p><code>hosts.csv</code> has one row per logical host. Useful identity/presentation columns include:</p>
+<pre class="text"><code>preferred_name
+queried_as
+snmp_sysname
+origin
+classification
+state
+ipv4
+ipv6
+learned_neighbors
+observed_by_neighbors</code></pre>
+<p>The <code>ipv4</code> and <code>ipv6</code> columns join multiple addresses with semicolons.</p>
+<p>The fixed file does not include the JSON host <code>id</code> or a top-level chassis ID. A consumer that requires an unambiguous per-run host reference should use <code>discovery.json</code> or configure a custom CSV field such as <code>json.host.id</code>.</p>
+<h3 id="92-stack-memberscsv">9.2 <code>stack-members.csv</code></h3>
+<p>This file has one row per physical stack member. Logical-host fields including <code>preferred_name</code>, <code>queried_as</code>, IPv4/IPv6 addresses, and state are repeated for every member.</p>
+<p><code>preferred_name</code> is therefore intentionally repeated even when there is no identity collision.</p>
+<h3 id="93-seedscsv">9.3 <code>seeds.csv</code></h3>
+<p>Despite its filename, this is the reusable managed-device inventory. It includes both original seeds and learned managed devices.</p>
+<p>Its identity/presentation fields are:</p>
+<pre class="text"><code>preferred_name
+queried_as
+ipv4
+ipv6
+origin
+state</code></pre>
+<p><code>preferred_name</code> is not a unique row key. If reused as later input, rows are processed under the seed-input rules described earlier in this document.</p>
+<h3 id="94-unknown-devicescsv">9.4 <code>unknown-devices.csv</code></h3>
+<p>This file concentrates review evidence for <code>unknown_device</code> records. In addition to <code>preferred_name</code>, addresses, and inbound topology, it includes aggregated observation fields such as:</p>
+<pre class="text"><code>observed_names
+observed_chassis_ids
+observed_chassis_id_subtypes
+observed_chassis_id_subtype_ids</code></pre>
+<p>Those fields make this CSV especially useful for reviewing unnamed or incompletely identified neighbors. The fixed view intentionally omits <code>manufacturer</code> and <code>model</code> because live unknown-neighbor records do not populate those system fields. The same-source <code>unknown-devices.manufacturer</code> and <code>unknown-devices.model</code> selectors are not accepted. Use the canonical JSON selectors <code>json.host.system.manufacturer</code> and <code>json.host.system.model</code> when a record contains those values.</p>
+<h3 id="95-errorscsv">9.5 <code>errors.csv</code></h3>
+<p><code>errors.csv</code> can contain repeated <code>device</code> values because one host can have many errors and because the device label is a presentation value. <code>query_target</code> records address context when available.</p>
+<p>The <code>device</code> column must not be treated as a unique host key.</p>
+<h3 id="96-custom-csv-output">9.6 Custom CSV output</h3>
+<p>Custom CSV reports can project canonical JSON fields. A site that needs a per-run identity column can include <code>json.host.id</code> together with <code>json.host.preferred_name</code>, address fields, and other required evidence.</p>
+<p>Both <code>hosts.preferred_name</code> and <code>json.host.preferred_name</code> read the same canonical output-time value, including guarded serial-suffix removal and the unambiguous placeholder chassis fallbacks described in section 7.4.</p>
+<p>The JSON host ID is reliable only within that discovery result. Sites that need cross-run durable inventory correlation should use their own authoritative inventory identity and compare several LLDP-Runner evidence fields rather than assuming either <code>id</code> or <code>preferred_name</code> is permanent.</p>
+<h2 id="10-use-cases">10. Use cases</h2>
+<h3 id="101-same-physical-switch-learned-from-several-devices">10.1 Same physical switch learned from several devices</h3>
+<p>Incoming evidence:</p>
+<pre class="text"><code>core-a -&gt; dist-1 / 192.0.2.10
+core-b -&gt; dist-1 / 192.0.2.10
+access-a -&gt; dist-1 / chassis 00:11:22:33:44:55</code></pre>
+<p>Expected behavior:</p>
+<ul>
+<li>shared aliases connect the observations;</li>
+<li>LLDP-Runner intentionally folds them into one logical host;</li>
+<li>topology edges from all observing devices are retained;</li>
+<li>the host can accumulate several names and management addresses;</li>
+<li>only one logical host is eligible for recursive scheduling.</li>
+</ul>
+<p>This is the primary reason identity folding exists.</p>
+<h3 id="102-same-learned-name-with-different-ip-addresses">10.2 Same learned name with different IP addresses</h3>
+<p>Incoming evidence:</p>
+<pre class="text"><code>access-sw1 / 192.0.2.10
+access-sw1 / 192.0.2.20</code></pre>
+<p>Current behavior:</p>
+<ul>
+<li>both observations share <code>name=access-sw1</code> after normalization;</li>
+<li>the second observation can reuse the existing logical host;</li>
+<li>both addresses can become aliases of that one host;</li>
+<li>worker scheduling treats the addresses as alternate management addresses for one device;</li>
+<li>one top-level host row is normally emitted rather than two.</li>
+</ul>
+<p>If those IPs actually belong to two devices with a duplicated network name, the output can incorrectly consolidate the two devices.</p>
+<h3 id="103-same-learned-name-no-ip-address-different-chassis-ids">10.3 Same learned name, no IP address, different chassis IDs</h3>
+<p>Incoming evidence:</p>
+<pre class="text"><code>phone-01 / no management address / trusted chassis A
+phone-01 / no management address / trusted chassis B</code></pre>
+<p>Current behavior:</p>
+<ul>
+<li>the shared normalized name initially points toward the existing logical host;</li>
+<li>the different trusted chassis identity is treated as contradictory evidence;</li>
+<li>the observations remain separate host records rather than being folded by the duplicate name.</li>
+</ul>
+<p>If the chassis values are absent or are malformed subtype-aware values that are not trusted for identity, the duplicate name remains ambiguous and can still consolidate the observations.</p>
+<h3 id="104-different-names-with-the-same-management-address">10.4 Different names with the same management address</h3>
+<p>Incoming evidence:</p>
+<pre class="text"><code>dist-1 / 192.0.2.10
+dist-1.example.net / 192.0.2.10</code></pre>
+<p>Current behavior:</p>
+<ul>
+<li>the shared normalized IP address is strong connecting evidence in the current alias model;</li>
+<li>the observations are folded into one logical host;</li>
+<li>both names can be retained in <code>names</code>;</li>
+<li>an FQDN-like value can become the preferred presentation.</li>
+</ul>
+<p>This is a normal and desirable merge for short-name/FQDN aliases.</p>
+<h3 id="105-different-names-and-addresses-with-the-same-chassis-id">10.5 Different names and addresses with the same chassis ID</h3>
+<p>Incoming evidence:</p>
+<pre class="text"><code>dist-old / 192.0.2.10 / trusted chassis A
+dist-new / 192.0.2.11 / trusted chassis A</code></pre>
+<p>Current behavior:</p>
+<ul>
+<li>the shared chassis ID is the only matching identity evidence;</li>
+<li>both sides have non-empty names and management addresses;</li>
+<li>both the name sets and address sets are disjoint;</li>
+<li>LLDP-Runner conservatively keeps the records separate.</li>
+</ul>
+<p>This can split a device that was simultaneously renamed and re-addressed, but it avoids silently merging two devices when an agent reuses a chassis identifier. When trusted chassis IDs conflict, automatic reconciliation requires both a shared normalized name and at least one shared management address.</p>
+<h3 id="106-nexus-vdc-seen-through-cdp-and-lldp">10.6 Nexus VDC seen through CDP and LLDP</h3>
+<p>Incoming evidence on one source port:</p>
+<pre class="text"><code>LLDP  hq-vdc2-7nx1.example.com                 Eth1/2  192.0.2.46
+CDP   hq-vdc2-7nx1.example.com(SERIAL000001)   Eth1/2  198.51.100.17</code></pre>
+<p>Current behavior:</p>
+<ul>
+<li>matching normalized local and remote interfaces identify one candidate edge;</li>
+<li>the guarded decorated-name parser separates logical base and serial hint;</li>
+<li>the undecorated VDC name is used as the logical comparison name;</li>
+<li>the raw CDP Device ID and entry address remain under <code>cdp.*</code> details;</li>
+<li>the serial hint remains non-merging unless direct serial evidence corroborates it;</li>
+<li>LLDP management addresses are ordered first in the merged observation;</li>
+<li>both protocols are retained as <code>cdp,lldp</code>.</li>
+</ul>
+<p>If another link to that same VDC has the same logical name and management address but a different valid LLDP chassis MAC, the host can still fold because name-plus-address evidence corroborates one logical device. A different VDC that shares only the physical Nexus serial remains a separate host.</p>
+<h3 id="107-short-name-and-fqdn-without-connecting-dns-evidence">10.7 Short name and FQDN without connecting DNS evidence</h3>
+<p>Incoming evidence:</p>
+<pre class="text"><code>access-sw1
+access-sw1.example.net</code></pre>
+<p>The strings are different normalized name aliases. LLDP-Runner does not infer that one is a suffix-expanded form of the other by text alone.</p>
+<p>If configured DNS resolution supplies a shared address or supplies both name forms on one candidate, the identities can merge. If DNS does not connect the evidence, separate records are possible.</p>
+<h3 id="108-no-name-and-no-address-but-a-chassis-id-exists">10.8 No name and no address, but a chassis ID exists</h3>
+<p>Incoming evidence:</p>
+<pre class="text"><code>no name / no address / trusted chassis A</code></pre>
+<p>A trusted chassis ID is sufficient identity evidence. Repeated observations of that same typed chassis alias can fold into the same logical host. If a binary MAC/network chassis value is malformed, it is not trusted and the edge-derived synthetic observation identity is used instead.</p>
+<h3 id="109-no-name-no-address-and-no-chassis-id">10.9 No name, no address, and no chassis ID</h3>
+<p>There is no normal identity alias to correlate. LLDP-Runner uses an edge-derived synthetic observation alias so the neighbor can still be recorded. Different unrelated edges are not automatically folded merely because both lack identity information.</p>
+<h3 id="1010-two-separate-identities-both-render-as-unknown">10.10 Two separate identities both render as <code>unknown</code></h3>
+<p>Two hosts can have different chassis or synthetic observation identities while both have no usable operator-facing name.</p>
+<p>The top-level output can therefore legitimately contain:</p>
+<pre class="text"><code>host id 101 -&gt; preferred_name=unknown
+host id 145 -&gt; preferred_name=unknown</code></pre>
+<p>This directly demonstrates why <code>preferred_name</code> is not unique.</p>
+<h3 id="1011-duplicate-explicit-seed-names-in-reusable-inventory">10.11 Duplicate explicit seed names in reusable inventory</h3>
+<p>If two imported seed rows use the same logical seed name, first-stage seed consolidation combines them. Their address hints can become one seed's set of addresses before coordinator identity correlation begins.</p>
+<p>Operators should not represent two physical devices with the same seed name and expect separate discovery records merely because different IP columns are present.</p>
+<h3 id="1012-duplicate-snmp-sysname-values">10.12 Duplicate SNMP <code>sysName</code> values</h3>
+<p>Two queried hosts can return the same <code>snmp_sysname</code>. The field remains visible on each queried host record.</p>
+<p>A newly learned <code>sysName</code> can be added as a normalized name alias only when that alias is available. If another host already owns it, the later alias insertion is ignored. <code>snmp_sysname</code> is therefore useful as a conflict indicator and must not be treated as a uniqueness guarantee.</p>
+<h2 id="11-operator-review-for-suspected-duplicate-names">11. Operator review for suspected duplicate names</h2>
+<h3 id="111-network-naming-recommendation">11.1 Network naming recommendation</h3>
+<p>Every managed and unmanaged device that advertises a device name should use a unique name across the discovery scope.</p>
+<p>Operators should change the configured name of devices that reuse a duplicate, non-unique name. Unique naming improves LLDP/CDP interpretation, DNS behavior, SNMP troubleshooting, inventory correlation, and LLDP-Runner identity quality.</p>
+<p>LLDP-Runner does not currently enforce this requirement. The current behavior should therefore be treated as a reason to correct network naming, not as a substitute for unique device configuration.</p>
+<h3 id="112-start-with-discoveryjson">11.2 Start with <code>discovery.json</code></h3>
+<p>When a host looks suspicious, compare more than <code>preferred_name</code>:</p>
+<pre class="text"><code>hosts[].id
+hosts[].preferred_name
+hosts[].snmp_sysname
+hosts[].names
+hosts[].addresses
+hosts[].chassis_id
+hosts[].queried_as
+hosts[].learned_neighbors
+hosts[].observed_by_neighbors</code></pre>
+<p>For inbound observations, compare <code>observed_name</code>, <code>observed_addresses</code>, interfaces, protocols, and <code>details.chassis_id</code> where present.</p>
+<p>A host carrying several addresses is not automatically wrong. Routers, switches, stacks, and dual-stack devices commonly have several valid management addresses. Suspicion increases when the addresses, chassis evidence, physical ports, SNMP system identity, or network location are inconsistent with one physical device.</p>
+<h3 id="113-find-duplicate-presentation-names">11.3 Find duplicate presentation names</h3>
+<p>A simple first check is:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">jq</span> <span class="at">-r</span> <span class="st">&#39;.hosts[].preferred_name&#39;</span> discovery.json <span class="kw">|</span> <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="at">-d</span></span></code></pre></div>
+<p>This finds duplicate top-level presentation values. It does not find the more important case where two physical devices have already been folded into one host because they advertised the same name.</p>
+<h3 id="114-review-one-suspicious-logical-host">11.4 Review one suspicious logical host</h3>
+<p>For a suspected name, inspect the full canonical record:</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="ex">jq</span> <span class="st">&#39;.hosts[] | select(.preferred_name == &quot;access-sw1&quot;)&#39;</span> discovery.json</span></code></pre></div>
+<p>Pay particular attention to:</p>
+<pre class="text"><code>multiple unexpected management subnets
+an SNMP sysName that conflicts with neighbor-advertised names
+inbound observations from incompatible physical locations
+multiple observation-specific chassis IDs
+unexpectedly different remote Port IDs or descriptions</code></pre>
+<p>For <code>unknown_device</code> records, <code>unknown-devices.csv</code> also provides flattened <code>observed_names</code> and observed chassis aggregates for convenient review.</p>
+<h3 id="115-fixed-csv-consumers">11.5 Fixed CSV consumers</h3>
+<p>Do not use <code>preferred_name</code> alone as a database key when importing fixed CSV files.</p>
+<p>If a workflow requires an unambiguous per-run host reference, use <code>discovery.json</code> or a custom CSV containing <code>json.host.id</code>. When matching across runs, combine authoritative site inventory with names, addresses, SNMP <code>sysName</code>, chassis/serial information, and topology context as appropriate.</p>
+<h3 id="116-deterministic-interface-observation-groups">11.6 Deterministic interface observation groups</h3>
+<p>A local interface can legitimately contain more than one protocol advertisement. Examples include several Nexus VDC logical agents sharing one physical management attachment and CDP or LLDP frames forwarded by an intermediate transparent device. LLDP-Runner preserves all members in one deterministic graph relationship group. Observation completeness is independent from provisional entity resolution and unresolved directness.</p>
+<p>Members are compared and rendered in a canonical order based on normalized identity, protocol, remote port, multiplicity, and immutable evidence fingerprints. SNMP table row order therefore cannot create a topology difference. A group with several systems is marked for operator review and uses <code>directness=unresolved</code>; LLDP-Runner does not label a member direct, downstream, or passed through without independent evidence.</p>
+<p>The flat <code>hosts[].learned_neighbors</code> array remains a compatibility projection. Cross-run graph correspondence can describe a one-to-many split, many-to-one merge, many-to-many reassociation, or duplicate absorption without forcing the result into a one-host-to-one-host table.</p>
+<p>Before compatibility macro diff performs one-to-one pairing, it conservatively folds duplicate complete managed-host rows supported by compatible direct logical names and at least one shared host-eligible management address. Exact names are compatible, and one short name may match the same left-most component of one FQDN. Two FQDNs are never matched merely by removing their suffixes. Conflicting serial, SNMP-engine, strict MAC, chassis, or logical-name evidence prevents the fold. Neighbor references are remapped and duplicate projected rows are removed only for the diagnostic comparison; immutable graph advertisements remain unchanged. During discovery, the state owner applies the same conservative name-and-address boundary before worker claims and after worker shutdown to reduce redundant SNMP collection.</p>
+<h2 id="12-current-safeguards-limitations-and-future-review">12. Current safeguards, limitations, and future review</h2>
+<p>The current evidence-strength boundaries include:</p>
+<pre class="text"><code>malformed subtype-aware chassis ID -&gt; retain as observation evidence only
+conflicting trusted chassis IDs -&gt; keep identities separate
+chassis-only match + disjoint names and addresses -&gt; keep identities separate
+device-local chassis subtype -&gt; never a global host alias
+anonymous typed Port-ID MAC -&gt; bounded identity when no stronger alias exists
+named/addressed Port-ID MAC -&gt; edge evidence, not host identity
+repeated address -&gt; retain as contested claim, not a forced merge
+DNS-only agreement -&gt; enrichment only, not a host union
+disjoint strict SEP MACs -&gt; hard identity conflict
+weak/low-entropy MAC-only cross-port match -&gt; ambiguous candidate_move only
+complete empty optional ENTITY-MIB table -&gt; not proof of hardware removal</code></pre>
+<p>The schema-7 graph is intentionally conservative. It separates physical chassis, logical systems, observed systems, interfaces, advertisements, and relationships, but it does not yet provide a calibrated probability for every possible name/address/topology conflict. Duplicate names remain weak evidence; physical serials associate logical systems with a chassis but do not merge the logical systems themselves.</p>
+<p>Diff exposes categorical pairing confidence and the exact evidence used. Those categories improve explainability but are not calibrated probabilities and do not replace operator validation against authoritative inventory.</p>
+<p>Future review can consider broader evidence weighting, collision warnings, or additional identity output without discarding the useful graph folding behavior that prevents normal duplicate polling. Any stricter rule must account for the legitimate fact that a router or switch can have several addresses, names, interfaces, and observation paths.</p>
+<p>The operational rule remains straightforward:</p>
+<p><strong>Use unique device names throughout the network and correct duplicate names when they are found.</strong></p>
+<h2 id="13-related-references">13. Related references</h2>
+<ul>
+<li><a href="docs-RUN.html">RUN.md</a> describes the run phases around seed identity resolution.</li>
+<li><a href="docs-DNS.html">DNS.md</a> describes startup seed DNS modes and the supplied name/address evidence that can be reused without changing learned-neighbor DNS enrichment.</li>
+<li><a href="docs-DIFF.html">DIFF.md</a> describes cross-run host matching and identity uncertainty.</li>
+</ul>
+</body>
+</html>

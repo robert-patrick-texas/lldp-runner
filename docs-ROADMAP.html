@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: docs/ROADMAP.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="lldp-runner-roadmap">LLDP-Runner Roadmap</h1>
+<p>This file tracks planned work, unresolved design questions, production-derived fixtures, and ideas that may become future features. It is a working outline, not a release promise. Items can move, split, or be removed when live network evidence shows that another design is safer.</p>
+<p>Released behavior is documented in the source, operator documentation, and <a href="CHANGELOG.html"><code>CHANGELOG.md</code></a>. An unchecked roadmap item is not implemented unless a later release entry says otherwise.</p>
+<p>Each unfinished item includes three planning notes: <strong>Remaining work</strong> describes the implementation boundary, <strong>Operational benefit</strong> explains why an operator might prioritize it, and <strong>Estimated effort</strong> is a relative engineering estimate that includes implementation, tests, documentation, and production validation.</p>
+<h2 id="guiding-principles">Guiding principles</h2>
+<ul>
+<li>Preserve what each device reported before applying identity or topology reasoning.</li>
+<li>Treat CDP, LLDP, LLDPv2, IF-MIB, ENTITY-MIB, DNS, and seed input as typed evidence with provenance and scope.</li>
+<li>Prefer an explicit ambiguous or conflicted result over a confident false merge.</li>
+<li>Make repeated processing idempotent: replaying the same evidence produces the same graph.</li>
+<li>Keep reasoning reversible: stronger or conflicting evidence can supersede an earlier decision without deleting history.</li>
+<li>Separate collection coverage from topology state. A failed query means “not observed,” not necessarily “removed.”</li>
+<li>Keep physical chassis, logical systems, SNMP agents, interfaces, protocol advertisements, and relationships as separate concepts.</li>
+<li>Preserve deterministic ordering for output, tests, and cross-run comparison.</li>
+<li>Explain advanced resolver behavior in terms useful to Network Operations staff while retaining enough precision for engineering and architecture review.</li>
+</ul>
+<h2 id="current-graph-integrity-work">Current graph-integrity work</h2>
+<h3 id="immutable-collection-boundary">Immutable collection boundary</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Retain CDP, LLDP, and LLDPv2 advertisements before compatibility reconciliation.</label></li>
+<li><label><input type="checkbox" checked="" />Record typed immutable claims with provenance, scope, and strength.</label></li>
+<li><label><input type="checkbox" checked="" />Make observation replay idempotent through deterministic fingerprints.</label></li>
+<li><label><input type="checkbox" checked="" />Reference the immutable SNMP result that supplied each protocol advertisement so retirement of a provisional compatibility host cannot erase source context.</label></li>
+<li><label><input type="checkbox" checked="" />Account for every durable protocol advertisement in the graph or emit an explicit machine-readable exclusion reason.</label></li>
+<li><label><input type="checkbox" checked="" />Record per-table collection coverage such as complete, complete-empty, timeout, access-restricted, unsupported, structurally invalid, and not attempted.</label></li>
+<li><label><input type="checkbox" checked="" />Reject incomplete CDP snapshots before endpoint/relationship materialization and restart the complete table from its root.</label></li>
+<li><label><input type="checkbox" />Persist every native collector row and complete MIB index tuple before protocol-specific row assembly.</label>
+<ul>
+<li><strong>Remaining work:</strong> Extend the collection-state schema and each CDP/LLDP/LLDPv2 collector so the unassembled native row, including every index component, is committed before normalization or filtering.</li>
+<li><strong>Operational benefit:</strong> Investigators could reconstruct exactly what the agent returned and distinguish device data defects from parser or row-assembly defects.</li>
+<li><strong>Estimated effort:</strong> Large - requires schema work, collector changes, replay tooling, storage-size review, and production fixtures.</li>
+</ul></li>
+<li><label><input type="checkbox" />Record the exact credential route, SNMP context, table root OID, attempt, request count, and adaptive transport profile for every table collection.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define one table-attempt provenance record and populate it on success, empty results, retries, and terminal failures across every collector path.</li>
+<li><strong>Operational benefit:</strong> Operators could explain why one table succeeded or failed on a particular route without correlating several log streams manually.</li>
+<li><strong>Estimated effort:</strong> Medium to large - cross-cuts session routing, collectors, SQLite persistence, schemas, and diagnostics.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add vendor-table coverage families as additional collectors are introduced.</label>
+<ul>
+<li><strong>Remaining work:</strong> Specify coverage states and provenance fields for each future vendor-specific MIB family, then connect them to uncertainty and diff reporting.</li>
+<li><strong>Operational benefit:</strong> New collectors would not silently weaken topology conclusions when a proprietary table is absent, partial, or inaccessible.</li>
+<li><strong>Estimated effort:</strong> Ongoing medium effort per collector family after the shared coverage contract is established.</li>
+</ul></li>
+</ul>
+<h3 id="graph-authority-and-materialization">Graph authority and materialization</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Publish an observation-complete graph projection when every durable advertisement is represented or explicitly excluded.</label></li>
+<li><label><input type="checkbox" checked="" />Report graph authority as separate dimensions:</label>
+<ul>
+<li>observation completeness;</li>
+<li>observation projection status;</li>
+<li>entity-resolution maturity;</li>
+<li>physical-topology inference status;</li>
+<li>directness status; and</li>
+<li>compatibility-projection role.</li>
+</ul></li>
+<li><label><input type="checkbox" checked="" />Keep physical chassis and logical systems as separate entity types.</label></li>
+<li><label><input type="checkbox" checked="" />Represent several logical systems as members of one physical chassis when directly collected serial evidence corroborates the relationship.</label></li>
+<li><label><input type="checkbox" checked="" />Represent local-interface observation groups and retain all protocol members.</label></li>
+<li><label><input type="checkbox" checked="" />Flag a local interface that reports several systems for operator review.</label></li>
+<li><label><input type="checkbox" checked="" />Leave relationship directness unresolved rather than guessing.</label></li>
+<li><label><input type="checkbox" checked="" />Store graph decisions append-only and permit a later decision to supersede an earlier decision.</label></li>
+<li><label><input type="checkbox" checked="" />Store the current graph projection in compact form rather than duplicating one large plain-text graph document inside SQLite.</label></li>
+<li><label><input type="checkbox" />Attach every SNMP response to an explicit SNMP-agent/context entity before projecting it into a logical or physical system.</label>
+<ul>
+<li><strong>Remaining work:</strong> Model SNMP engine, address, credential route, and context as a first-class graph entity and route all collected evidence through that entity before system resolution.</li>
+<li><strong>Operational benefit:</strong> This would separate the device that answered a query from the logical or physical systems inferred from its data, especially for VDCs and shared management planes.</li>
+<li><strong>Estimated effort:</strong> Large - foundational graph/schema work with broad resolver, projection, diff, and migration impact.</li>
+</ul></li>
+<li><label><input type="checkbox" />Rematerialize only the affected connected component after a decision is superseded.</label>
+<ul>
+<li><strong>Remaining work:</strong> Track decision dependencies and component membership so replacing one claim invalidates and rebuilds only graph objects reachable from that decision.</li>
+<li><strong>Operational benefit:</strong> Large runs would resolve faster and operator assertions could be applied without rebuilding the complete graph.</li>
+<li><strong>Estimated effort:</strong> Large - requires dependency indexing, deterministic incremental algorithms, rollback tests, and performance measurement.</li>
+</ul></li>
+<li><label><input type="checkbox" />Generate the compatibility host and neighbor projection from the graph instead of maintaining two independent interpretations.</label>
+<ul>
+<li><strong>Remaining work:</strong> Replace the legacy compatibility resolver as a parallel authority with a deterministic graph-to-host projection that preserves current output contracts where intended.</li>
+<li><strong>Operational benefit:</strong> One interpretation would drive discovery.json, CSV, and graph views, reducing cross-view disagreement and duplicate bug fixes.</li>
+<li><strong>Estimated effort:</strong> Very large - high-risk architectural convergence requiring extensive production replay and deliberate compatibility decisions.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add operator-supplied topology assertions and exceptions as typed, auditable claims rather than destructive overrides.</label>
+<ul>
+<li><strong>Remaining work:</strong> Design configuration/input syntax, validity periods, provenance, conflict handling, and explain output for assertions such as known chassis membership or non-direct links.</li>
+<li><strong>Operational benefit:</strong> Network Operations could encode verified site knowledge while preserving device evidence and seeing where an assertion changes resolution.</li>
+<li><strong>Estimated effort:</strong> Large - needs a claim contract, validation, persistence, graph integration, CLI tooling, and safety documentation.</li>
+</ul></li>
+</ul>
+<h3 id="stable-identifiers-and-deterministic-replay">Stable identifiers and deterministic replay</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Distinguish content fingerprints, advertisement occurrences, semantic entity/relationship identities, and run-local SQLite IDs.</label></li>
+<li><label><input type="checkbox" checked="" />Exclude volatile SNMP table indexes and run-local host IDs from semantic graph identity.</label></li>
+<li><label><input type="checkbox" checked="" />Keep equivalent graph identities stable when query route, credential route, table order, or provisional compatibility-host ID changes.</label></li>
+<li><label><input type="checkbox" checked="" />Sort multi-neighbor member collections independently of device-returned row order.</label></li>
+<li><label><input type="checkbox" />Randomize complete evidence-ingestion order in every graph release gate and require byte-equivalent graph output.</label>
+<ul>
+<li><strong>Remaining work:</strong> Add repeatable shuffled-replay test passes over representative fixtures and normalize all ordering that still depends on insertion sequence.</li>
+<li><strong>Operational benefit:</strong> This would catch nondeterministic graph IDs or relationships before release and make repeated runs easier to compare.</li>
+<li><strong>Estimated effort:</strong> Medium - mostly test/replay infrastructure, followed by potentially substantial fixes when instability is found.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add a persistent diagnostic that identifies which claims caused an entity or relationship key to change between equivalent runs.</label>
+<ul>
+<li><strong>Remaining work:</strong> Store key-derivation inputs and expose an explanation comparing old and new claim sets whenever a semantic key changes unexpectedly.</li>
+<li><strong>Operational benefit:</strong> Operators and developers could trace identity churn to one concrete piece of evidence instead of reverse-engineering hashes.</li>
+<li><strong>Estimated effort:</strong> Medium to large - requires stable explanation records, diff presentation, and retention-size controls.</li>
+</ul></li>
+</ul>
+<h3 id="graph-aware-diff">Graph-aware diff</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Support one-to-one, one-to-many, many-to-one, and many-to-many entity correspondence components.</label></li>
+<li><label><input type="checkbox" checked="" />Report cluster split, cluster merge, cluster reassociation, duplicate projection introduction, and duplicate absorption.</label></li>
+<li><label><input type="checkbox" checked="" />Compare interface member collections without depending on SNMP row order.</label></li>
+<li><label><input type="checkbox" checked="" />Avoid claiming physical topology changes while directness is unresolved.</label></li>
+<li><label><input type="checkbox" checked="" />Summarize collection-coverage incidents at the top of diff JSON and retain per-host coverage details.</label></li>
+<li><label><input type="checkbox" checked="" />Propagate observer protocol/table failures through one-sided entity, relationship, and recursive-descendant presence decisions.</label></li>
+<li><label><input type="checkbox" checked="" />Qualify graph correspondence as confirmed, coverage-uncertain, presentation-only, or ambiguous without asserting physical topology.</label></li>
+<li><label><input type="checkbox" checked="" />Treat a uniquely corroborated resolved-versus-unresolved local-port name difference as presentation coverage rather than topology change.</label></li>
+<li><label><input type="checkbox" />Add an operator-focused component view for large many-to-many results.</label>
+<ul>
+<li><strong>Remaining work:</strong> Create a compact terminal/JSON presentation that groups the A and B entities, correspondence reasons, conflicts, and affected links for one component.</li>
+<li><strong>Operational benefit:</strong> Complex split/merge results would become reviewable without reading raw graph-diff structures.</li>
+<li><strong>Estimated effort:</strong> Medium - primarily renderer and CLI work after the current correspondence data is normalized for presentation.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add component-level confidence dimensions for identity, cluster integrity, interface resolution, relationship evidence, and collection coverage.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define categorical values and derivation rules for each dimension, persist them in diff output, and explain supporting and limiting evidence.</li>
+<li><strong>Operational benefit:</strong> Operators could distinguish a strong identity match with weak collection coverage from a genuinely ambiguous match.</li>
+<li><strong>Estimated effort:</strong> Large - requires an engineering confidence model, fixtures, schema changes, and calibrated operator wording.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add calibrated numeric probabilities only after a labeled validation set is available; categorical engineering confidence remains the default.</label>
+<ul>
+<li><strong>Remaining work:</strong> Build and label a representative truth set, choose measurable outcomes, validate calibration, and define how probabilities coexist with categorical safety states.</li>
+<li><strong>Operational benefit:</strong> A numeric score would be meaningful and testable rather than an arbitrary confidence-looking number.</li>
+<li><strong>Estimated effort:</strong> Very large and data-dependent - blocked on sanitized labeled fixtures and sustained validation work.</li>
+</ul></li>
+</ul>
+<h2 id="sanitized-topology-regression-fixtures">Sanitized topology regression fixtures</h2>
+<p>These sanitized examples are regression-fixture input and design constraints. They are not hard-coded naming or addressing rules.</p>
+<h3 id="nexus-7700-vdc-management-identities">Nexus 7700 VDC management identities</h3>
+<ul>
+<li><code>hq-vdc2-7nx1</code> uses <code>203.0.113.21</code> on SVI interface VLAN 61.</li>
+<li><code>hq-vdc2-7nx1</code> uses <code>203.0.113.24</code> on <code>mgmt0</code>.</li>
+<li><code>hq-vdc3-7nx1</code> uses <code>203.0.113.22</code> on <code>mgmt0</code>.</li>
+<li><code>hq-vdc1-7nx1</code> uses <code>203.0.113.23</code> on <code>mgmt0</code> for that VDC instance.</li>
+<li>The VDCs are separate logical systems on one physical Nexus 7700 chassis.</li>
+<li>One VDC can legitimately have more than one management route or interface. Same logical name plus the same verified physical serial can associate those routes with one VDC without merging sibling VDCs.</li>
+<li>A Catalyst port connected to shared Nexus <code>mgmt0</code> can report several VDC advertisements on one physical management attachment.</li>
+<li>The operator-facing default should show one physical chassis with indented logical VDC members.</li>
+<li>Site naming conventions such as <code>hq-vdc&lt;n&gt;-7nx1</code> are useful display hints but are never universal identity rules.</li>
+</ul>
+<h3 id="hq-vdc1-7nx1-duplicate-compatibility-projection"><code>hq-vdc1-7nx1</code> duplicate compatibility projection</h3>
+<p>The sanitized regression fixture contains two compatibility records with:</p>
+<ul>
+<li>query target <code>203.0.113.23</code>;</li>
+<li>SNMP sysName <code>hq-vdc1-7nx1</code>;</li>
+<li>physical serial <code>SERIAL000001</code>;</li>
+<li>the exact same sysUpTime sample; and</li>
+<li>the same 28 learned-neighbor rows.</li>
+</ul>
+<p>The address is confirmed as <code>mgmt0</code> for the <code>hq-vdc1-7nx1</code> VDC. The graph represents one logical VDC and retains both source projections as evidence. Version 0.32.3 also prevents an inactive equivalent row from being claimed, defers a READY duplicate while its equivalent projection is active, reconciles remaining duplicates before final output, and folds duplicate complete rows in the compatibility diff. The graph remains the immutable evidence boundary; the compatibility scheduler is not yet graph-derived.</p>
+<p>Useful future diagnostics still include:</p>
+<ul>
+<li>SNMP engine ID and context name for each attempted route;</li>
+<li>seed, DNS, alias, and observed-neighbor paths that selected the same target;</li>
+<li>a collection-session ID showing whether both projections consumed one SNMP response; and</li>
+<li>a resolver explanation that identifies why the duplicate was absorbed.</li>
+</ul>
+<h3 id="transparent-discovery-protocol-forwarding">Transparent discovery-protocol forwarding</h3>
+<p>A sanitized fixture records a former pass-through-CDP condition at <code>hq-edge-router-01</code>. The intervening switch was configured to block CDP, so downstream Nexus advertisements no longer appear on the router port.</p>
+<p>The general case remains valid: an unmanaged switch, transparent bridge, or misconfigured device can forward CDP or LLDP frames. LLDP-Runner therefore retains multi-neighbor observations and does not infer direct versus downstream solely from protocol type. A future directness classifier requires independent corroboration and an operator-visible explanation.</p>
+<h3 id="virtual-endpoint-movement">Virtual endpoint movement</h3>
+<p><code>00:00:00:00:01:03</code> appears on more than one switch port and is likely associated with a virtual appliance on VMware ESXi. Such a low-entropy token may identify one logical workload while that workload shifts between hypervisor uplinks. It is insufficient by itself to prove a physical endpoint move.</p>
+<p>Future modeling should distinguish:</p>
+<ul>
+<li>logical workload movement;</li>
+<li>hypervisor uplink selection;</li>
+<li>a physical device move; and</li>
+<li>repeated placeholder or implementation-local identifiers.</li>
+</ul>
+<h3 id="end-user-workstation-appearance">End-user workstation appearance</h3>
+<p><code>workstation-01</code> is a generic end-user endpoint that remained connected to <code>branch-floor2-3560-1</code> across a reboot. The fixture should be reported as an endpoint appearance or renewed observation, not as resolver churn.</p>
+<h3 id="intermittent-entity-mib-collection">Intermittent ENTITY-MIB collection</h3>
+<p><code>hq-dc-leaf-02</code> represents a Nexus-class switch with intermittent ENTITY-MIB results. Missing rows may arise from device software, network conditions, rate limiting, or other external factors. A missing member row is not a confirmed hardware removal unless ENTITY-MIB coverage is complete.</p>
+<h2 id="operator-presentation">Operator presentation</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Provide a sectioned relationship view and a combined labeled view.</label></li>
+<li><label><input type="checkbox" checked="" />Default to physical/chassis-oriented sections with logical, overlay, or multi-neighbor members indented beneath.</label></li>
+<li><label><input type="checkbox" checked="" />Leave unresolved directness visible instead of presenting it as fact.</label></li>
+<li><label><input type="checkbox" />Refine labels after production use without implying unresolved directness.</label>
+<ul>
+<li><strong>Remaining work:</strong> Collect operator feedback on current relationship-group terms, revise labels and help text, and preserve explicit unresolved/ambiguous states.</li>
+<li><strong>Operational benefit:</strong> Routine reviews would use vocabulary that matches Network Operations practice without overstating physical adjacency.</li>
+<li><strong>Estimated effort:</strong> Small to medium - presentation and documentation changes, but requires production feedback and regression review.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add a physical-chassis detail view with logical VDC members.</label>
+<ul>
+<li><strong>Remaining work:</strong> Add a graph inspection renderer that selects one physical chassis and nests its logical systems, management agents, interfaces, evidence, and coverage.</li>
+<li><strong>Operational benefit:</strong> Shared-chassis platforms such as Nexus VDC deployments would be understandable as one container with distinct operational members.</li>
+<li><strong>Estimated effort:</strong> Medium - reuses existing graph entities but needs selection semantics, CLI output, and production-shaped tests.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add an interface-discrepancy report listing every port with more than one observed neighbor.</label>
+<ul>
+<li><strong>Remaining work:</strong> Build a report over local-interface observation groups, classify duplicate/protocol/forwarding cases, and link each row to supporting evidence.</li>
+<li><strong>Operational benefit:</strong> Operators could focus immediately on ports that may represent shared media, transparent forwarding, duplicate advertisements, or data defects.</li>
+<li><strong>Estimated effort:</strong> Medium - query/report implementation plus careful classification and fixture coverage.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add filters for entity type, cluster integrity, coverage state, and relationship-group classification.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define composable CLI filters for graph views, validate values, and ensure terminal, JSON, and CSV presentations apply the same selection rules.</li>
+<li><strong>Operational benefit:</strong> Large topology reviews could be narrowed to actionable categories such as conflicted endpoints or coverage-uncertain links.</li>
+<li><strong>Estimated effort:</strong> Medium - mostly shared filtering and presentation work with schema-aware tests.</li>
+</ul></li>
+</ul>
+<h3 id="future-graph-inspection-command">Future graph inspection command</h3>
+<p>A graph-focused operator command is planned after the graph projection and stable IDs complete another production-validation cycle. The preferred command family is:</p>
+<pre class="text"><code>lldp-runner graph show
+lldp-runner graph explain
+lldp-runner graph audit
+lldp-runner graph export
+lldp-runner graph diff</code></pre>
+<p>An optional <code>scripts/lrun-graph</code> launcher may invoke the same subcommands. It must not implement a second diff engine. <code>graph diff</code> should call the same graph correspondence library used by <code>lldp-runner diff</code>.</p>
+<p>Planned behavior:</p>
+<ul>
+<li><code>show</code>: render entities, interfaces, memberships, and relationship groups;</li>
+<li><code>explain</code>: list supporting, conflicting, ignored, and superseded claims for a selected result;</li>
+<li><code>audit</code>: report unaccounted evidence, conflicts, contested claims, duplicate projections, and unstable identifiers;</li>
+<li><code>export</code>: emit normalized graph JSON or documented CSV views; and</li>
+<li><code>diff</code>: provide a graph-focused presentation of the existing many-to-many comparison.</li>
+</ul>
+<h2 id="watch-display-and-live-performance-visibility">Watch display and live performance visibility</h2>
+<h3 id="watch-layout">Watch layout</h3>
+<ul class="task-list">
+<li><p><label><input type="checkbox" checked="" />Leave a blank top row and blank left/right edge cells, then use one justified four-section title line when width permits:</label></p>
+<pre class="text"><code>&lt;app&gt; &lt;version&gt;    Run ID = &lt;runid&gt;    STATE = &lt;state&gt;    updated &lt;age&gt; ago</code></pre></li>
+<li><p><label><input type="checkbox" checked="" />Use broader geometry-based metric columns and add blank rows between metric rows when vertical space permits.</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Center the aggregate worker summary with a blank row above and below when height permits, while preserving worker-cell content and density.</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Center the worker-status table with approximately equal whitespace at the left and right content borders.</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Provide a clear narrow-terminal fallback that first crops cosmetic title spacing and the version, while preserving state, run ID, age, and worker information without wrapping into unreadable columns.</label></p></li>
+</ul>
+<h3 id="performance-counters">Performance counters</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Track discovery, graph resolution, graph materialization, output serialization, finalization, and total wall-clock durations separately.</label>
+<ul>
+<li><strong>Remaining work:</strong> Complete phase boundaries for all listed stages, define whether phases overlap, and persist consistent monotonic measurements on every terminal path.</li>
+<li><strong>Operational benefit:</strong> Operators could identify whether a slow run is caused by network collection, graph work, or output/storage finalization.</li>
+<li><strong>Estimated effort:</strong> Medium - some timing exists already, but boundaries, naming, failure paths, tests, and documentation remain incomplete.</li>
+</ul></li>
+<li><label><input type="checkbox" />Track per-target and per-collector timing, retries, degraded-session time, partial-table restarts, PDU counts, object counts, and queue wait time.</label>
+<ul>
+<li><strong>Remaining work:</strong> Instrument worker/session/collector boundaries and aggregate detailed measurements without making high-volume runs excessively large or slow.</li>
+<li><strong>Operational benefit:</strong> Troubleshooting could distinguish slow devices, congested queues, retry-heavy tables, and inefficient transport profiles.</li>
+<li><strong>Estimated effort:</strong> Large - broad instrumentation, storage design, overhead testing, and operator aggregation are required.</li>
+</ul></li>
+<li><label><input type="checkbox" />Display selected counters in <code>lldp-runner watch</code>.</label>
+<ul>
+<li><strong>Remaining work:</strong> Choose a bounded set of stable live counters, add them to the scoreboard contract, and design responsive full/compact renderings.</li>
+<li><strong>Operational benefit:</strong> Operators could see the current bottleneck and retry/coverage trend without opening logs during a run.</li>
+<li><strong>Estimated effort:</strong> Medium - depends on performance-counter definitions and requires scoreboard schema plus Watch layout work.</li>
+</ul></li>
+<li><label><input type="checkbox" />Write a concise final summary to console and <code>activity.log</code>.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define a stable completion summary covering phase durations, retry/coverage highlights, and the slowest actionable causes without duplicating full reports.</li>
+<li><strong>Operational benefit:</strong> The end of every run would immediately show where time was spent and whether performance warrants investigation.</li>
+<li><strong>Estimated effort:</strong> Small to medium after aggregate counters exist; mainly summary selection, rendering, and tests.</li>
+</ul></li>
+<li><label><input type="checkbox" />Persist enough aggregate metrics in <code>run.json</code> to compare completed runs without loading the full discovery document.</label>
+<ul>
+<li><strong>Remaining work:</strong> Select versioned run-level metrics, populate them for all completed states, and update diff/reporting consumers and schema documentation.</li>
+<li><strong>Operational benefit:</strong> Historical performance and health trends could be computed cheaply from small manifests.</li>
+<li><strong>Estimated effort:</strong> Medium - run-manifest schema change, aggregation, compatibility policy, and regression tests.</li>
+</ul></li>
+<li><label><input type="checkbox" />Produce a ranked “slowest targets and causes” section for operator review.</label>
+<ul>
+<li><strong>Remaining work:</strong> Aggregate per-target measurements, define deterministic ranking/tie rules, identify dominant causes, and cap output to a useful top set.</li>
+<li><strong>Operational benefit:</strong> Network Operations could prioritize devices or paths that have the greatest effect on run duration.</li>
+<li><strong>Estimated effort:</strong> Medium after detailed timing exists; ranking accuracy and cause attribution need production validation.</li>
+</ul></li>
+</ul>
+<h3 id="run-timeboxes-and-alerts">Run timeboxes and alerts</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Add a warning threshold that emits an operator alert while discovery continues.</label>
+<ul>
+<li><strong>Remaining work:</strong> Add validated configuration, monotonic threshold evaluation, one-shot/repeat policy, and a non-disruptive alert event while workers continue.</li>
+<li><strong>Operational benefit:</strong> Operators could react to unexpectedly long runs before the maintenance window is consumed.</li>
+<li><strong>Estimated effort:</strong> Medium - coordinator policy, logging/manifest events, CLI/config docs, and deterministic time-based tests.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add a maximum threshold at which the coordinator pauses admission of new work while active workers drain safely.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define terminal/resumable status semantics and stop dispatching new targets at the limit while allowing active claims to settle and checkpoint.</li>
+<li><strong>Operational benefit:</strong> A run could respect a hard operational window without abruptly killing SNMP work or corrupting resume state.</li>
+<li><strong>Estimated effort:</strong> Large - touches scheduling, pause/resume, status reporting, finalization, and failure/restart testing.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add an automatic threshold that alerts when elapsed time exceeds a configurable percentage above a robust baseline from prior <code>run.json</code> files.</label>
+<ul>
+<li><strong>Remaining work:</strong> Load comparable historical manifests, select matching run classes, compute a robust baseline, and apply a configurable deviation policy.</li>
+<li><strong>Operational benefit:</strong> Alerts would adapt to the site's normal scale instead of requiring one fixed duration for every discovery mode.</li>
+<li><strong>Estimated effort:</strong> Large - depends on aggregate run metrics and needs history selection, statistical safeguards, and operator explanation.</li>
+</ul></li>
+<li><label><input type="checkbox" />Require a minimum history count before using historical thresholds.</label>
+<ul>
+<li><strong>Remaining work:</strong> Add a configurable sample floor and explicit insufficient-history status to the baseline evaluator.</li>
+<li><strong>Operational benefit:</strong> New installations or changed run profiles would not trigger misleading alerts from one or two atypical runs.</li>
+<li><strong>Estimated effort:</strong> Small once historical thresholding exists; configuration and edge-case tests are straightforward.</li>
+</ul></li>
+<li><label><input type="checkbox" />Prefer a median or percentile baseline over a simple average so failed or exceptional runs do not distort the comparison.</label>
+<ul>
+<li><strong>Remaining work:</strong> Choose and document the statistic, exclude non-comparable terminal states, and test behavior with outliers and sparse history.</li>
+<li><strong>Operational benefit:</strong> The automatic threshold would represent normal operations more reliably when past runs include incidents.</li>
+<li><strong>Estimated effort:</strong> Small to medium within the historical-alert feature; requires careful comparability rules more than code volume.</li>
+</ul></li>
+<li><label><input type="checkbox" />Support optional alert transports for journald, syslog, and email.</label>
+<ul>
+<li><strong>Remaining work:</strong> Design a transport-neutral alert event, implement opt-in adapters, validate delivery configuration, and avoid exposing secrets in logs or manifests.</li>
+<li><strong>Operational benefit:</strong> Sites could route run warnings into existing operational notification systems rather than watching a terminal.</li>
+<li><strong>Estimated effort:</strong> Medium to large - journald/syslog are moderate; reliable email configuration, security, and testing add effort.</li>
+</ul></li>
+<li><label><input type="checkbox" />Record every threshold decision in the run log and manifest.</label>
+<ul>
+<li><strong>Remaining work:</strong> Persist threshold type, configured value, measured value, baseline inputs, action, and timestamp for both triggered and suppressed decisions.</li>
+<li><strong>Operational benefit:</strong> Post-run review could explain exactly why an alert or automatic pause did or did not occur.</li>
+<li><strong>Estimated effort:</strong> Small to medium after threshold features exist; requires a versioned manifest representation and redaction review.</li>
+</ul></li>
+</ul>
+<h2 id="collection-and-transport">Collection and transport</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Increase timeout by 50 percent after a retry-eligible timeout.</label></li>
+<li><label><input type="checkbox" checked="" />Reduce GETBULK <code>max_repetitions</code> or GET-MANY batch size by 50 percent.</label></li>
+<li><label><input type="checkbox" checked="" />Add inter-PDU pacing after a target demonstrates difficulty.</label></li>
+<li><label><input type="checkbox" checked="" />Keep the degraded profile scoped to one address and credential route.</label></li>
+<li><label><input type="checkbox" checked="" />Give each logical operation/table a bounded retry allowance while enforcing a total target-route cap.</label></li>
+<li><label><input type="checkbox" checked="" />Restart an interrupted table from its root and discard partial rows.</label></li>
+<li><label><input type="checkbox" checked="" />Distinguish authentication, access restriction, timeout, unsupported OID, structural failure, and transport failure.</label></li>
+<li><label><input type="checkbox" checked="" />Record collector, operation, table/root OID, credential route, phase, counters, transport values, discarded rows, and outcome for every retry or exhaustion event.</label></li>
+<li><label><input type="checkbox" />Add optional long-term per-device transport-profile hints without allowing stale performance data to override current configuration.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define hint persistence, freshness/decay, address and credential scoping, operator reset controls, and strict configuration precedence.</li>
+<li><strong>Operational benefit:</strong> Known slow or PDU-sensitive devices could start closer to a reliable profile and reduce avoidable first-attempt failures.</li>
+<li><strong>Estimated effort:</strong> Large - needs durable history, safe invalidation, routing identity, policy controls, and extensive production testing.</li>
+</ul></li>
+<li><label><input type="checkbox" />Evaluate adaptive reduction triggered by <code>tooBig</code>, repeated truncation, and measured response size, not only timeout.</label>
+<ul>
+<li><strong>Remaining work:</strong> Collect reproducible fixtures for these signals, define bounded profile changes, and verify that a complete table restart remains deterministic.</li>
+<li><strong>Operational benefit:</strong> The collector could recover faster from agent/PDU limits that do not present as timeouts.</li>
+<li><strong>Estimated effort:</strong> Medium - targeted transport logic and tests, with device-specific validation needed before enabling by default.</li>
+</ul></li>
+<li><label><input type="checkbox" />Evaluate bounded jitter for large concurrent fleets to avoid synchronized retries.</label>
+<ul>
+<li><strong>Remaining work:</strong> Model retry synchronization, choose a deterministic or bounded-random delay policy, and confirm it does not harm reproducibility or timeboxes.</li>
+<li><strong>Operational benefit:</strong> Large fleets would be less likely to create retry bursts against shared network paths or management infrastructure.</li>
+<li><strong>Estimated effort:</strong> Small to medium implementation, but meaningful load testing is required to justify and tune it.</li>
+</ul></li>
+</ul>
+<h2 id="identity-and-claim-analysis">Identity and claim analysis</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Enforce strict Cisco SEP phone/video MAC identities.</label></li>
+<li><label><input type="checkbox" checked="" />Enforce strict Cisco AP name-to-MAC identities.</label></li>
+<li><label><input type="checkbox" checked="" />Parse trailing <code>name(serial)</code> advertisements non-destructively.</label></li>
+<li><label><input type="checkbox" checked="" />Keep network-address chassis values weak and scoped.</label></li>
+<li><label><input type="checkbox" checked="" />Keep DNS results as enrichment rather than direct identity equality.</label></li>
+<li><label><input type="checkbox" />Add frequency-aware evidence weight so common defaults contribute less than rare values.</label>
+<ul>
+<li><strong>Remaining work:</strong> Measure value frequency in a bounded scope, define safe weighting categories, and prevent frequency from overriding hard conflicts or typed strong evidence.</li>
+<li><strong>Operational benefit:</strong> Repeated vendor defaults and low-entropy placeholders would be less likely to cause accidental identity merges.</li>
+<li><strong>Estimated effort:</strong> Large - requires statistics, resolver-policy design, explainability, and labeled production validation.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add explicit contested-claim objects and operator reports.</label>
+<ul>
+<li><strong>Remaining work:</strong> Create a first-class record for mutually incompatible claims, preserve all provenance, connect it to affected entities, and render actionable reports.</li>
+<li><strong>Operational benefit:</strong> Conflicts would be visible and auditable instead of inferred indirectly from cluster outcomes or logs.</li>
+<li><strong>Estimated effort:</strong> Medium to large - schema, resolver, graph projection, output, and diff changes.</li>
+</ul></li>
+<li><label><input type="checkbox" />Promote directly collected SNMP engine IDs, ENTITY-MIB serials, and context identifiers into deferred re-resolution.</label>
+<ul>
+<li><strong>Remaining work:</strong> Trigger a bounded second resolution pass when late strong identifiers arrive, while recording which prior decisions are reconsidered.</li>
+<li><strong>Operational benefit:</strong> Entities initially formed from weak advertisements could be corrected when authoritative device evidence becomes available later in the run.</li>
+<li><strong>Estimated effort:</strong> Large - dependency-aware resolver work with ordering, split/merge, and replay-idempotence risks.</li>
+</ul></li>
+<li><label><input type="checkbox" />Split a materialized cluster when later strong evidence contradicts an earlier weak union.</label>
+<ul>
+<li><strong>Remaining work:</strong> Replace irreversible union behavior with provenance-backed components that can retract a weak edge and deterministically rematerialize resulting clusters.</li>
+<li><strong>Operational benefit:</strong> The system could recover from early ambiguous evidence instead of carrying a false merge through final output.</li>
+<li><strong>Estimated effort:</strong> Very large - core resolver redesign requiring append-only decisions, incremental rematerialization, and extensive truth fixtures.</li>
+</ul></li>
+<li><label><input type="checkbox" />Represent physical container, line card, stack member, logical context, virtual machine, and endpoint roles where MIB evidence supports them.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define entity/relationship types and vendor-neutral evidence rules, then map ENTITY-MIB and protocol observations without fabricating unsupported hierarchy.</li>
+<li><strong>Operational benefit:</strong> Inventory and topology views could distinguish hardware containment, logical tenancy, and endpoint attachment accurately.</li>
+<li><strong>Estimated effort:</strong> Very large and incremental - each role needs schema, collector mappings, resolver rules, output, and vendor fixtures.</li>
+</ul></li>
+</ul>
+<h2 id="quality-measurement">Quality measurement</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />Maintain a production-derived, sanitized golden fixture set.</label>
+<ul>
+<li><strong>Remaining work:</strong> Establish a repeatable sanitization/review process, truth annotations, versioning, and release-gate selection for representative network cases.</li>
+<li><strong>Operational benefit:</strong> Resolver and diff changes could be measured against real complexity without exposing operational identifiers or relying only on synthetic examples.</li>
+<li><strong>Estimated effort:</strong> Large initial effort plus ongoing maintenance; requires operator review and secure data-handling procedures.</li>
+</ul></li>
+<li><label><input type="checkbox" />Measure pairwise precision and recall for entity clustering.</label>
+<ul>
+<li><strong>Remaining work:</strong> Label same/different entity pairs in golden fixtures and add an automated evaluator with per-scenario breakdowns.</li>
+<li><strong>Operational benefit:</strong> Release reviews would quantify false merges and false splits rather than relying solely on aggregate output counts.</li>
+<li><strong>Estimated effort:</strong> Medium after a labeled fixture set exists; evaluator code is modest but labels are labor-intensive.</li>
+</ul></li>
+<li><label><input type="checkbox" />Measure B-cubed precision, recall, and F1 for cluster quality.</label>
+<ul>
+<li><strong>Remaining work:</strong> Add per-item cluster scoring against labeled truth and report macro/weighted results alongside pairwise metrics.</li>
+<li><strong>Operational benefit:</strong> Large and imbalanced clusters would be assessed more fairly, exposing errors hidden by pair counts alone.</li>
+<li><strong>Estimated effort:</strong> Small to medium after labels and identity mappings exist.</li>
+</ul></li>
+<li><label><input type="checkbox" />Measure relationship and move-event precision/recall separately.</label>
+<ul>
+<li><strong>Remaining work:</strong> Label true links and true cross-run moves, then score relationship existence, endpoints, ports, and event classification independently.</li>
+<li><strong>Operational benefit:</strong> Topology accuracy and change-detection accuracy would be visible separately from entity clustering quality.</li>
+<li><strong>Estimated effort:</strong> Large - requires multi-run truth fixtures, event matching rules, and careful uncertainty treatment.</li>
+</ul></li>
+<li><label><input type="checkbox" />Report order-invariance, replay-idempotence, contested-claim, unresolved- interface, and hard-conflict counts per run.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define each metric precisely, calculate it during replay/materialization, and publish both totals and links to affected objects.</li>
+<li><strong>Operational benefit:</strong> Every run would expose graph-health indicators that make silent instability or unresolved evidence easy to spot.</li>
+<li><strong>Estimated effort:</strong> Medium - mostly graph audit aggregation and output once contested claims and shuffled replay are available.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add a run quality report beside <code>discovery.json</code>.</label>
+<ul>
+<li><strong>Remaining work:</strong> Design a compact versioned artifact summarizing coverage, graph integrity, uncertainty, conflicts, and validation metrics with drill-down references.</li>
+<li><strong>Operational benefit:</strong> Operators could judge whether a run is trustworthy before using it for inventory or change decisions.</li>
+<li><strong>Estimated effort:</strong> Medium to large - depends on agreed quality metrics and requires schema, output, docs, and consumer tests.</li>
+</ul></li>
+<li><label><input type="checkbox" />Calibrate any future numeric confidence score against labeled fixtures; do not present an uncalibrated heuristic as a probability.</label>
+<ul>
+<li><strong>Remaining work:</strong> Select calibration methods and acceptance criteria, evaluate by scenario/vendor class, and document limitations and recalibration triggers.</li>
+<li><strong>Operational benefit:</strong> Displayed probabilities would have an empirical interpretation and would not create false operational certainty.</li>
+<li><strong>Estimated effort:</strong> Very large and ongoing - blocked on sufficient labeled data and statistically meaningful validation.</li>
+</ul></li>
+</ul>
+<h2 id="data-contracts-storage-and-scale">Data contracts, storage, and scale</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Publish separate graph authority dimensions.</label></li>
+<li><label><input type="checkbox" checked="" />Expose many-to-many graph correspondence in diff JSON.</label></li>
+<li><label><input type="checkbox" checked="" />Store the current graph projection in compressed form in SQLite.</label></li>
+<li><label><input type="checkbox" checked="" />Prepare review bundles using a coherent compact SQLite backup and omit live WAL/SHM sidecars.</label></li>
+<li><label><input type="checkbox" />Make normalized SQLite evidence and graph tables the durable authority.</label>
+<ul>
+<li><strong>Remaining work:</strong> Complete normalized schemas, transactional materialization, integrity constraints, and readers so all final artifacts can be regenerated from SQLite alone.</li>
+<li><strong>Operational benefit:</strong> Runs would have one durable source of truth suitable for replay, partial inspection, and scalable tooling.</li>
+<li><strong>Estimated effort:</strong> Very large - major storage migration affecting collectors, graph builders, outputs, resume, diff, and release compatibility.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add output profiles such as <code>standard</code>, <code>forensic</code>, and <code>compatibility</code>.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define profile contents and precedence, keep required canonical artifacts explicit, and validate unsupported combinations.</li>
+<li><strong>Operational benefit:</strong> Operators could choose compact routine output or richer investigative evidence without hand-editing many settings.</li>
+<li><strong>Estimated effort:</strong> Medium - configuration and output orchestration work after artifact boundaries are settled.</li>
+</ul></li>
+<li><label><input type="checkbox" />Keep default <code>discovery.json</code> compact while allowing an optional forensic artifact with complete raw evidence.</label>
+<ul>
+<li><strong>Remaining work:</strong> Specify a separate versioned forensic contract, generate it from durable native evidence, and add size/redaction controls.</li>
+<li><strong>Operational benefit:</strong> Routine consumers would retain manageable files while incident reviews could access lossless collection details.</li>
+<li><strong>Estimated effort:</strong> Large - depends on native-row persistence and requires schema, storage, performance, and privacy work.</li>
+</ul></li>
+<li><label><input type="checkbox" />Avoid storing a second complete graph JSON document when normalized graph tables can reproduce it.</label>
+<ul>
+<li><strong>Remaining work:</strong> Move remaining graph consumers to normalized tables and retain only necessary indexes/caches with regeneration checks.</li>
+<li><strong>Operational benefit:</strong> Persistent run size and write amplification would fall without sacrificing reproducibility.</li>
+<li><strong>Estimated effort:</strong> Large - blocked on normalized SQLite authority and requires reader/performance migration.</li>
+</ul></li>
+<li><label><input type="checkbox" />Deduplicate repeated descriptions and large evidence payloads through content-addressed records.</label>
+<ul>
+<li><strong>Remaining work:</strong> Identify high-volume repeated values, define canonical hashing and reference tables, and preserve transparent export/replay behavior.</li>
+<li><strong>Operational benefit:</strong> Large runs could use substantially less disk and memory when many devices advertise identical platform or description text.</li>
+<li><strong>Estimated effort:</strong> Medium to large - schema migration, garbage/reference integrity, and benchmark work.</li>
+</ul></li>
+<li><label><input type="checkbox" />Evaluate a separate graph artifact when embedded discovery JSON size materially affects operations.</label>
+<ul>
+<li><strong>Remaining work:</strong> Measure production document size and consumer cost, define a split contract and discovery-to-graph reference, and test atomic publication.</li>
+<li><strong>Operational benefit:</strong> Graph-aware tools could load only the data they need while compatibility consumers retain a smaller discovery document.</li>
+<li><strong>Estimated effort:</strong> Medium design study; large implementation if evidence shows a separate artifact is warranted.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add streaming graph readers so large comparisons do not require loading the complete document at once.</label>
+<ul>
+<li><strong>Remaining work:</strong> Create iterator/index-based readers and refactor diff algorithms to operate on bounded partitions while preserving deterministic correspondence.</li>
+<li><strong>Operational benefit:</strong> Very large run comparisons would use predictable memory and start producing diagnostics sooner.</li>
+<li><strong>Estimated effort:</strong> Very large - algorithm and storage changes with demanding correctness/performance tests.</li>
+</ul></li>
+<li><label><input type="checkbox" />Document stable field namespaces for custom graph CSV exports.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define row grains, field paths, null semantics, transforms, and versioning for entity, interface, claim, and relationship sources.</li>
+<li><strong>Operational benefit:</strong> Operators could build durable graph reports without depending on internal Python or SQLite names.</li>
+<li><strong>Estimated effort:</strong> Medium - contract/documentation work plus projection implementation and regression tests.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add schema migration tooling only when backward compatibility becomes an operator requirement.</label>
+<ul>
+<li><strong>Remaining work:</strong> First define supported source/target versions, backup and failure behavior, then implement explicit migrations with validation and rollback guidance.</li>
+<li><strong>Operational benefit:</strong> Sites retaining old durable state could upgrade deliberately without silently interpreting incompatible data.</li>
+<li><strong>Estimated effort:</strong> Large when activated; intentionally deferred to avoid permanent migration burden before a concrete requirement exists.</li>
+</ul></li>
+</ul>
+<h2 id="bundle-preparation-and-review-workflow">Bundle preparation and review workflow</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Include <code>scripts/lrun-bundle-diff</code>.</label></li>
+<li><label><input type="checkbox" checked="" />Select the two latest completed runs when no run IDs are supplied.</label></li>
+<li><label><input type="checkbox" checked="" />Accept exactly two explicit run IDs in A/B order.</label></li>
+<li><label><input type="checkbox" checked="" />Validate matching <code>outputs/&lt;runid&gt;</code> and <code>runs/&lt;runid&gt;</code> trees.</label></li>
+<li><label><input type="checkbox" checked="" />Generate <code>lrun-diff --changes-only --json</code> and package both runs plus the diff in one uncompressed tar archive.</label></li>
+<li><label><input type="checkbox" checked="" />Create a coherent, compact SQLite backup in the staging area.</label></li>
+<li><label><input type="checkbox" checked="" />Exclude <code>discovery-state.sqlite-wal</code> and <code>discovery-state.sqlite-shm</code>.</label></li>
+<li><label><input type="checkbox" />Add an optional compression flag if operator workflow shows it is useful.</label>
+<ul>
+<li><strong>Remaining work:</strong> Choose supported formats and filename behavior, preserve deterministic bundle contents, and verify downstream review/extraction tooling.</li>
+<li><strong>Operational benefit:</strong> Large review bundles could transfer faster and consume less storage when operators prefer compressed archives.</li>
+<li><strong>Estimated effort:</strong> Small - launcher/script option and tests, contingent on confirming operational demand.</li>
+</ul></li>
+<li><label><input type="checkbox" />Add optional redaction/sanitization profiles for external review.</label>
+<ul>
+<li><strong>Remaining work:</strong> Define fields requiring masking, stable pseudonymization where cross-file joins matter, secret guarantees, and a verification report.</li>
+<li><strong>Operational benefit:</strong> Support bundles could be shared outside the operational enclave with lower disclosure risk while retaining diagnostic structure.</li>
+<li><strong>Estimated effort:</strong> Large and security-sensitive - requires threat review, cross-artifact consistency, tests, and clear limitations.</li>
+</ul></li>
+</ul>
+<h2 id="developer-and-contributor-documentation">Developer and contributor documentation</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Provide <a href="docs-DEV.html"><code>DEV.md</code></a> as the contributor entry point.</label></li>
+<li><label><input type="checkbox" checked="" />Provide focused references under <code>docs/dev/</code> for architecture, modules, command/script surfaces, state and schemas, testing, releases, and contribution guidelines.</label></li>
+<li><label><input type="checkbox" />Generate a checked module/function index from source docstrings during release validation.</label>
+<ul>
+<li><strong>Remaining work:</strong> Build a deterministic documentation generator, define which public/internal symbols are indexed, and fail validation on stale generated output.</li>
+<li><strong>Operational benefit:</strong> Contributors could locate implementation entry points quickly and documentation drift would be detected automatically.</li>
+<li><strong>Estimated effort:</strong> Medium - generator, curated visibility rules, release integration, and initial docstring cleanup.</li>
+</ul></li>
+<li><label><input type="checkbox" checked="" />Add source-maintained diagrams for collection flow, resolver flow, and graph rematerialization in <a href="docs-dev-FLOW-DIAGRAMS.html"><code>dev/FLOW-DIAGRAMS.md</code></a>.</label></li>
+<li><label><input type="checkbox" />Add a contributor checklist for schema changes, CLI changes, logging, documentation, fixtures, and release artifacts.</label>
+<ul>
+<li><strong>Remaining work:</strong> Codify required version decisions, compatibility review, tests, docs, changelog, fixtures, packaging, and clean-archive checks in one release checklist.</li>
+<li><strong>Operational benefit:</strong> Maintenance releases would be less likely to omit a consumer contract, operator document, or validation artifact.</li>
+<li><strong>Estimated effort:</strong> Small - documentation and release-process integration, followed by routine upkeep.</li>
+</ul></li>
+</ul>
+<h2 id="open-design-questions">Open design questions</h2>
+<ul>
+<li>What evidence is sufficient to promote an observed relationship from <code>directness=unresolved</code> to direct or indirect?</li>
+<li>How should operator-confirmed topology assertions expire or be revalidated?</li>
+<li>When several VDCs share <code>mgmt0</code>, should the physical attachment remain one interface group with several logical memberships, or become a dedicated attachment entity?</li>
+<li>How should tunnels and other multipoint overlays be summarized without implying physical adjacency?</li>
+<li>When one logical workload appears through several hypervisor uplinks, which view best serves operations: workload movement, current forwarding path, or both?</li>
+<li>Which ENTITY-MIB absence conditions are authoritative on vendors that expose incomplete or inconsistent tables despite successful SNMP responses?</li>
+<li>At what scale should graph storage move from embedded discovery JSON to a separate indexed artifact?</li>
+<li>Which graph explanation details are useful at the terminal, and which belong only in JSON or an audit report?</li>
+</ul>
+</body>
+</html>
