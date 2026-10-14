@@ -251,6 +251,10 @@
 <body>
 <nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
 <h1 id="changelog">Changelog</h1>
+<h2 id="unreleased">Unreleased</h2>
+<ul>
+<li>Link the source repository from the <code>index.html</code> that <code>scripts/md-to-html.sh</code> generates. The URL comes from the new <code>[project.urls]</code> <code>Repository</code> entry in <code>pyproject.toml</code>, which also adds a <code>Project-URL</code> to the package metadata. <code>--repo-url URL</code> or <code>REPO_URL</code> overrides it, an empty value omits the link, and anything other than an <code>http://</code> or <code>https://</code> URL is rejected.</li>
+</ul>
 <h2 id="0381---2026-10-13">0.38.1 - 2026-10-13</h2>
 <ul>
 <li>Bring <code>ty check</code> to zero diagnostics under the pinned Ty 0.0.63 (251 at 0.38.0), so <code>./scripts/check.sh</code> passes end to end. Correct annotations that disagreed with the code: <code>ArgumentParser.error</code> returns <code>NoReturn</code>, <code>Coordinator.workers</code> holds <code>BaseProcess</code> objects, and the Gufo session argument builders return <code>dict[str, Any]</code>.</li>

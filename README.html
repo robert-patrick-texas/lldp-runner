@@ -750,7 +750,7 @@ errors.csv</code></pre>
 <li><code>scripts/gufo-snmp-diag.py</code> is the more detailed direct Gufo diagnostic for session construction, open, request, and close phases.</li>
 <li><code>scripts/pysnmp-snmp-diag.py</code> is the direct PySNMP counterpart for engine and transport-target construction, GET responses, and dispatcher cleanup. It bypasses LLDP-Runner and does not alter the selected discovery backend.</li>
 <li><code>scripts/gufo-readme.txt</code> gives safe examples, environment guidance, and exit meanings for both Gufo diagnostics.</li>
-<li><code>scripts/md-to-html.sh</code> recursively converts project Markdown into a flat standalone HTML documentation directory. Subdirectory components become hyphenated prefixes, such as <code>docs/CLI.md</code> -&gt; <code>docs-CLI.html</code>.</li>
+<li><code>scripts/md-to-html.sh</code> recursively converts project Markdown into a flat standalone HTML documentation directory. Subdirectory components become hyphenated prefixes, such as <code>docs/CLI.md</code> -&gt; <code>docs-CLI.html</code>. The generated <code>index.html</code> links the <code>Repository</code> URL from <code>[project.urls]</code> in <code>pyproject.toml</code>; <code>--repo-url URL</code> overrides it and <code>--repo-url ''</code> omits it.</li>
 </ul>
 <p>The paths and fixed arguments near the top of each launcher are operator configuration, not package defaults. Review them before deployment when the project, configuration, seed file, or desired run policy differs from the provided <code>/opt/lldp-runner</code> examples.</p>
 <h2 id="runoutput-retention-maintenance">Run/output retention maintenance</h2>
