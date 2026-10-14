@@ -14,6 +14,9 @@ dependencies = [
   "pysnmp>=7.1.29",
 ]
 
+[project.urls]
+Repository = "https://github.com/robert-patrick-texas/lldp-runner"
+
 [project.scripts]
 lldp-runner = "lldp_runner.cli:main"
 get-neighbors = "lldp_runner.cli:get_neighbors_main"

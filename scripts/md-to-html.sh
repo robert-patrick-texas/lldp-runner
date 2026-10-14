@@ -6,7 +6,7 @@
 # published into one flat web directory.  Local Markdown links are rewritten
 # to the generated flat HTML names so documentation navigation keeps working.
 #
-# Last updated August 27, 2026.
+# Last updated October 13, 2026.
 #
 # Prerequisite (Ubuntu/Debian):
 #
@@ -42,6 +42,11 @@ PROJECT_NAME="${PROJECT_NAME:-}"
 WEB_DOCS_DIR="${WEB_DOCS_DIR:-}"
 PANDOC_BIN="${PANDOC_BIN:-pandoc}"
 
+# An explicitly set REPO_URL, even an empty one, overrides pyproject.toml.
+repo_url_overridden=0
+[[ -z "${REPO_URL+x}" ]] || repo_url_overridden=1
+REPO_URL="${REPO_URL-}"
+
 usage()
 {
     cat <<'USAGE'
@@ -55,6 +60,9 @@ Options:
   --web-root PATH        Web root used with PROJECT_NAME.
   --project-name NAME    Published project directory name.
   --output-dir PATH      Explicit output directory; overrides --web-root/name.
+  --repo-url URL         Source repository linked from index.html.  Defaults
+                         to [project.urls] Repository in pyproject.toml; an
+                         empty value omits the link.
   -h, --help             Show this help.
 
 Environment overrides:
@@ -63,6 +71,7 @@ Environment overrides:
   PROJECT_NAME
   WEB_DOCS_DIR
   PANDOC_BIN
+  REPO_URL
 
 Default output:
   /var/www/html/<project-directory-name>/
@@ -97,6 +106,12 @@ while (($#)); do
             WEB_DOCS_DIR="$2"
             shift 2
             ;;
+        --repo-url)
+            (($# >= 2)) || die "--repo-url requires a value"
+            REPO_URL="$2"
+            repo_url_overridden=1
+            shift 2
+            ;;
         -h|--help)
             usage
             exit 0
@@ -123,6 +138,35 @@ fi
 
 [[ "$WEB_DOCS_DIR" = /* ]] || die "output directory must be an absolute path"
 [[ "$WEB_DOCS_DIR" != "/" ]] || die "refusing to publish directly into /"
+
+# Read a plain one-line Repository = "URL" entry from [project.urls].  This
+# deliberately avoids a TOML parser dependency; other forms are ignored.
+pyproject_repository_url()
+{
+    awk '
+        /^[[:space:]]*\[/ {
+            in_urls = ($0 ~ /^[[:space:]]*\[project\.urls\][[:space:]]*(#.*)?$/)
+            next
+        }
+        in_urls {
+            line = $0
+            if (sub(/^[[:space:]]*"?Repository"?[[:space:]]*=[[:space:]]*"/, "", line) &&
+                sub(/".*$/, "", line)) {
+                print line
+                exit
+            }
+        }
+    ' "$1"
+}
+
+if ((!repo_url_overridden)) && [[ -f "${PROJECT_DIR}/pyproject.toml" ]]; then
+    REPO_URL="$(pyproject_repository_url "${PROJECT_DIR}/pyproject.toml")"
+fi
+
+if [[ -n "$REPO_URL" ]]; then
+    [[ "$REPO_URL" =~ ^https?://[^[:space:]]+$ ]] || \
+        die "repository URL must be an http:// or https:// URL: $REPO_URL"
+fi
 
 command -v -- "$PANDOC_BIN" >/dev/null 2>&1 || \
     die "'${PANDOC_BIN}' was not found in PATH; install pandoc first"
@@ -430,8 +474,15 @@ EOF_INDEX_HEAD
 <body>
 <h1>Documentation Index</h1>
 <p>Generated from Markdown files in the project source tree.</p>
-<ul>
 EOF_INDEX_BODY
+
+    if [[ -n "$REPO_URL" ]]; then
+        printf '<p>Source repository: <a href="%s">%s</a></p>\n' \
+            "$(html_escape "$REPO_URL")" \
+            "$(html_escape "$REPO_URL")"
+    fi
+
+    printf '<ul>\n'
 
     for md_file in "${markdown_files[@]}"; do
         rel_path="${md_file#${PROJECT_DIR}/}"

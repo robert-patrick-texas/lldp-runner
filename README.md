@@ -1249,7 +1249,9 @@ operator-versus-maintainer launcher environment.
   meanings for both Gufo diagnostics.
 - `scripts/md-to-html.sh` recursively converts project Markdown into a flat
   standalone HTML documentation directory. Subdirectory components become
-  hyphenated prefixes, such as `docs/CLI.md` -> `docs-CLI.html`.
+  hyphenated prefixes, such as `docs/CLI.md` -> `docs-CLI.html`. The generated
+  `index.html` links the `Repository` URL from `[project.urls]` in
+  `pyproject.toml`; `--repo-url URL` overrides it and `--repo-url ''` omits it.
 
 The paths and fixed arguments near the top of each launcher are operator
 configuration, not package defaults. Review them before deployment when the

@@ -9,6 +9,8 @@ import sys
 import tarfile
 from pathlib import Path
 
+import pytest
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_NAMES = (
     "lrun-checkconfig",
@@ -256,20 +258,10 @@ def test_shared_private_example_is_shipped_for_central_uv_use() -> None:
     assert not (scripts / "lldp-runner.env.example").exists()
 
 
-def test_markdown_publisher_uses_hyphenated_flat_names(tmp_path: Path) -> None:
-    """Subdirectory Markdown should publish with readable path prefixes."""
+def _write_fake_pandoc(directory: Path) -> Path:
+    """Create a pandoc stand-in that writes a minimal page to --output."""
 
-    script = PROJECT_ROOT / "scripts" / "md-to-html.sh"
-    assert script.is_file()
-    assert os.access(script, os.X_OK)
-
-    project = tmp_path / "sample-project"
-    (project / "docs" / "guides").mkdir(parents=True)
-    (project / "README.md").write_text("# Root\n", encoding="utf-8")
-    (project / "docs" / "CLI.md").write_text("# CLI\n", encoding="utf-8")
-    (project / "docs" / "guides" / "OPS.md").write_text("# Operations\n", encoding="utf-8")
-
-    fake_pandoc = tmp_path / "pandoc"
+    fake_pandoc = directory / "pandoc"
     fake_pandoc.write_text(
         "#!/bin/sh\n"
         "set -eu\n"
@@ -284,10 +276,25 @@ def test_markdown_publisher_uses_hyphenated_flat_names(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     fake_pandoc.chmod(0o755)
+    return fake_pandoc
+
+
+def test_markdown_publisher_uses_hyphenated_flat_names(tmp_path: Path) -> None:
+    """Subdirectory Markdown should publish with readable path prefixes."""
+
+    script = PROJECT_ROOT / "scripts" / "md-to-html.sh"
+    assert script.is_file()
+    assert os.access(script, os.X_OK)
+
+    project = tmp_path / "sample-project"
+    (project / "docs" / "guides").mkdir(parents=True)
+    (project / "README.md").write_text("# Root\n", encoding="utf-8")
+    (project / "docs" / "CLI.md").write_text("# CLI\n", encoding="utf-8")
+    (project / "docs" / "guides" / "OPS.md").write_text("# Operations\n", encoding="utf-8")
 
     output = tmp_path / "html"
     env = os.environ.copy()
-    env["PANDOC_BIN"] = str(fake_pandoc)
+    env["PANDOC_BIN"] = str(_write_fake_pandoc(tmp_path))
     subprocess.run(
         [
             str(script),
@@ -308,6 +315,47 @@ def test_markdown_publisher_uses_hyphenated_flat_names(tmp_path: Path) -> None:
     assert "docs-guides-OPS.html" in generated
     assert "docs__CLI.html" not in generated
     assert "index.html" in generated
+
+
+def test_markdown_publisher_links_repository_from_pyproject(tmp_path: Path) -> None:
+    """The index should link [project.urls] Repository unless overridden."""
+
+    script = PROJECT_ROOT / "scripts" / "md-to-html.sh"
+    project = tmp_path / "sample-project"
+    project.mkdir()
+    (project / "README.md").write_text("# Root\n", encoding="utf-8")
+    (project / "pyproject.toml").write_text(
+        '[project]\nname = "sample"\n\n'
+        '[project.urls]\nRepository = "https://example.com/sample?a=1&b=2"\n',
+        encoding="utf-8",
+    )
+    env = os.environ.copy()
+    env["PANDOC_BIN"] = str(_write_fake_pandoc(tmp_path))
+    env.pop("REPO_URL", None)
+
+    def publish(output: Path, *extra: str) -> str:
+        subprocess.run(
+            [str(script), "--project-dir", str(project), "--output-dir", str(output), *extra],
+            check=True,
+            env=env,
+            text=True,
+            capture_output=True,
+        )
+        return (output / "index.html").read_text(encoding="utf-8")
+
+    index = publish(tmp_path / "default")
+    assert '<a href="https://example.com/sample?a=1&amp;b=2">' in index
+
+    index = publish(tmp_path / "override", "--repo-url", "https://example.org/fork")
+    assert '<a href="https://example.org/fork">' in index
+    assert "example.com/sample" not in index
+
+    index = publish(tmp_path / "omitted", "--repo-url", "")
+    assert "Source repository" not in index
+
+    with pytest.raises(subprocess.CalledProcessError) as rejected:
+        publish(tmp_path / "rejected", "--repo-url", "javascript:alert(1)")
+    assert "must be an http:// or https:// URL" in rejected.value.stderr
 
 
 def _write_review_run(root: Path, run_id: str, completed: str) -> None:

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Link the source repository from the `index.html` that
+  `scripts/md-to-html.sh` generates. The URL comes from the new
+  `[project.urls]` `Repository` entry in `pyproject.toml`, which also adds a
+  `Project-URL` to the package metadata. `--repo-url URL` or `REPO_URL`
+  overrides it, an empty value omits the link, and anything other than an
+  `http://` or `https://` URL is rejected.
+
 ## 0.38.1 - 2026-10-13
 
 - Bring `ty check` to zero diagnostics under the pinned Ty 0.0.63 (251 at
