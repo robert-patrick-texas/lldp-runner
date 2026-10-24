@@ -260,13 +260,13 @@
 <li><code>lldp-runner diff</code>: compatibility and graph-aware cross-run comparison.</li>
 <li><code>lldp-runner watch</code>, <code>status</code>, <code>pause</code>: running-state control and display.</li>
 <li><code>lldp-runner clean</code>, <code>purge</code>: retention maintenance.</li>
-<li><code>lldp-runner check-config</code>, <code>explain-config</code>: configuration diagnostics.</li>
+<li><code>lldp-runner validate-config</code>, <code>paths</code>, <code>explain-target</code>: configuration and runtime-location diagnostics.</li>
 </ul>
 <h2 id="script-launchers">Script launchers</h2>
 <ul>
 <li><code>lrun-run</code>, <code>lrun-seedrun</code>: common discovery launch patterns.</li>
 <li><code>lrun-get</code>, <code>lrun-show</code>, <code>lrun-diff</code>, <code>lrun-watch</code>: short operator wrappers.</li>
-<li><code>lrun-checkconfig</code>, <code>lrun-explain</code>, <code>lrun-dryrun</code>: configuration review.</li>
+<li><code>lrun-checkconfig</code>, <code>lrun-paths</code>, <code>lrun-explain</code>, <code>lrun-dryrun</code>: configuration review.</li>
 <li><code>lrun-clean</code>, <code>lrun-purge</code>: retention actions.</li>
 <li><code>lrun-bundle-diff</code>: selects two runs, creates a JSON diff, makes coherent SQLite backups, excludes WAL/SHM sidecars, and builds one review tar archive.</li>
 <li><code>bootstrap.sh</code>, <code>shared-setup.sh</code>, <code>svc-setup.sh</code>, <code>svc-remove.sh</code>: deployment helpers.</li>

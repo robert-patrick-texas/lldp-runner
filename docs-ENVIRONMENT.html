@@ -336,7 +336,7 @@
 <h2 id="3-discovery-and-filesystem-overrides">3. Discovery and filesystem overrides</h2>
 <p>These variables overlay the matching configuration settings.</p>
 <h3 id="lldp_runner_root"><code>LLDP_RUNNER_ROOT</code></h3>
-<p>Override <code>paths.persistent_root</code>.</p>
+<p>Override <code>paths.persistent_root</code>. The value <code>auto</code> selects the install layout's root, such as <code>/opt/lldp-runner/var</code> for <code>/opt/lldp-runner/config.toml</code>; see <a href="docs-INSTALL.html">INSTALL.md</a>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LLDP_RUNNER_ROOT</span><span class="op">=</span>/srv/lldp-runner</span></code></pre></div>
 <p>Operational effect is primarily on full discovery and commands that resolve run storage. Single-device inspect deliberately skips persistent-path probing.</p>
 <h3 id="lldp_runner_scratch_root"><code>LLDP_RUNNER_SCRATCH_ROOT</code></h3>

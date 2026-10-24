@@ -474,19 +474,28 @@ discovery.address_preference</code></pre>
 <pre class="text"><code>(os.cpu_count() or 1) * 4</code></pre>
 <p>Workers are processes. Each worker then runs asyncio internally.</p>
 <h3 id="52-persistent-root">5.2 Persistent root</h3>
-<p><code>persistent_root = "auto"</code> checks existing directories in this order:</p>
-<pre class="text"><code>~/lldp-runner
-/opt/lldp-runner
-/var/lib/lldp-runner</code></pre>
-<p>The first existing candidate is authoritative. If it exists but is not writable, LLDP-Runner fails rather than silently moving durable state elsewhere.</p>
-<p>If none exists, the current working directory is used when writable.</p>
+<p><code>persistent_root = "auto"</code> follows the install layout of the selected primary configuration file (<code>lldp_runner.layout</code>):</p>
+<pre class="text"><code>/etc/lldp-runner/config.toml         -&gt; /var/lib/lldp-runner     (system)
+&lt;dir&gt;/config.toml outside home       -&gt; &lt;dir&gt;/var                (shared)
+&lt;dir&gt;/config.toml below home         -&gt; &lt;dir&gt;/var                (user)
+a file directly in ~                 -&gt; ~/lldp-runner/var        (user)
+no file, /opt/lldp-runner exists     -&gt; /opt/lldp-runner/var     (shared)
+no file, /var/lib or /etc install    -&gt; /var/lib/lldp-runner     (system)
+no file, no installation             -&gt; ~/lldp-runner/var        (user)</code></pre>
+<p>Without a configuration file the first present installation wins, checked in the order shown. A present installation is never bypassed when its data directory is missing or unwritable, so runs without a configuration on a shared host cannot scatter data across home directories.</p>
+<p>The rule uses the configuration path as it was named (<code>config_location</code>), made absolute but with symbolic links kept; <code>config_path</code> is the resolved file that is read. A link such as <code>/opt/lldp-runner/config.toml -&gt; /srv/cfg/x.toml</code> therefore stays a shared <code>/opt/lldp-runner</code> installation. Without a configuration, an installation, or a usable home directory (<code>HOME=/</code>), <code>auto</code> has no location and the command fails until <code>paths.persistent_root</code> is set.</p>
+<p>The data directory is a subdirectory rather than <code>&lt;dir&gt;</code> itself because discovery write-tests the persistent root. A group-writable installation root would let any operator add files, such as <code>uv.toml</code> or <code>conf.d/</code>, that the maintainer or service account later loads.</p>
+<p>Only a user root is created on demand. Shared and system roots need administrator-set ownership and group permissions, so a missing one is an error that names <code>scripts/shared-setup.sh</code>. An existing but unwritable root also fails rather than silently moving durable state elsewhere.</p>
+<p>When <code>&lt;dir&gt;/var</code> does not exist but <code>&lt;dir&gt;/runs</code> or <code>&lt;dir&gt;/outputs</code> does, the installation predates the layout and <code>&lt;dir&gt;</code> stays the persistent root. The <code>paths</code>, <code>validate-config</code>, and <code>run</code> commands then warn that the directories should move into <code>var/</code>. Once <code>var/</code> exists, real <code>runs/</code> or <code>outputs/</code> directories beside it are reported as unused history, as is <code>~/lldp-runner/{runs,outputs}</code> (the old automatic location) for a user configuration elsewhere. Symlinks such as <code>&lt;dir&gt;/runs -&gt; var/runs</code> are never history.</p>
+<p>The read-only resolvers used by <code>status</code>, <code>watch</code>, <code>clean</code>, <code>purge</code>, <code>paths</code>, <code>show-neighbors</code>, and <code>diff</code> apply the same layout without creating or write-testing anything.</p>
 <h3 id="53-scratch-root">5.3 Scratch root</h3>
-<p><code>scratch_root = "auto"</code> tries:</p>
-<pre class="text"><code>/dev/shm/lldp-runner
-/tmp/lldp-runner
-/var/tmp/lldp-runner
-&lt;persistent_root&gt;/tmp</code></pre>
-<p>Scratch locations may fall through because scratch data is intentionally relocatable.</p>
+<p><code>scratch_root = "auto"</code> tries the layout's candidates, then <code>&lt;persistent_root&gt;/tmp</code>:</p>
+<pre class="text"><code>shared  /dev/shm/lldp-runner          (/opt/lldp-runner)
+        /dev/shm/lldp-runner-srv-lab  (/srv/lab, and so on)
+system  /run/lldp-runner
+user    $XDG_RUNTIME_DIR/lldp-runner  (~/lldp-runner; others add their path)</code></pre>
+<p>The per-installation names keep two installations on one host from sharing a <code>current</code> run or scoreboard. <code>scripts/shared-setup.sh</code> and <code>scripts/svc-setup.sh</code> compute the same names; <code>--print-paths</code> shows them.</p>
+<p>Scratch locations may fall through because scratch data is intentionally relocatable. Read-only commands prefer the candidate that holds a <code>current</code> run, so <code>status</code> and <code>watch</code> find a run that fell back to <code>&lt;persistent_root&gt;/tmp</code>.</p>
 <p>Every run uses <code>&lt;scratch_root&gt;/&lt;run-id&gt;/</code> plus an atomic relative <code>&lt;scratch_root&gt;/current</code> symlink while active. Live status is published separately below <code>&lt;scratch_root&gt;/scoreboard/</code>, so removal of a completed per-run scratch tree does not remove the terminal Watch/status snapshot. For successful terminal states, <code>paths.clean_scratch_when_completed = true</code> removes the run tree only after durable output/state publication, scoreboard archival, and coordinator resource closure. The current link is removed only if it still points to the completed run, preserving a newer concurrent owner. Overlap checks prohibit recursive cleanup when scratch resolves inside or above the persistent run/output directories.</p>
 <p>Inspection skips persistent/scratch probing because it produces stdout only.</p>
 <h2 id="6-seed-ingestion">6. Seed ingestion</h2>

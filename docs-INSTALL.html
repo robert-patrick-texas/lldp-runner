@@ -316,8 +316,8 @@
 <body>
 <nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
 <h1 id="installing-lldp-runner">Installing LLDP-Runner</h1>
-<p>This document is the installation reference for LLDP-Runner. It covers a simple single-user source installation and the recommended centrally managed model for multiple NetOps operators on one Linux server.</p>
-<p>The examples assume Ubuntu Linux 24.04 LTS or 26.04 LTS, a project installed at <code>/opt/lldp-runner</code>, a shared uv-managed Python under <code>/opt/shared/python</code>, a trusted operator group named <code>netops</code>, and an LLDP-Runner service account named <code>lldp-runner</code>.</p>
+<p>This document is the installation reference for LLDP-Runner. It covers the recommended shared installation under <code>/opt/lldp-runner</code> for a group of NetOps operators, a system layout for distribution packages, and a single-user installation below a home directory.</p>
+<p>The shared examples assume Ubuntu Linux 24.04 LTS or 26.04 LTS, a project installed at <code>/opt/lldp-runner</code>, a shared uv-managed Python under <code>/opt/shared/python</code>, a trusted operator group named <code>netops</code>, and an LLDP-Runner service account named <code>lldp-runner</code>.</p>
 <h2 id="requirements">Requirements</h2>
 <p>LLDP-Runner requires Python 3.13 or newer.</p>
 <p>The installed project dependencies are:</p>
@@ -332,313 +332,402 @@ pysnmp &gt;=7.1.29</code></pre>
 <pre class="text"><code>lldp-runner
 get-neighbors
 show-neighbors</code></pre>
-<h2 id="simple-single-user-source-installation">Simple single-user source installation</h2>
-<p>For a workstation or other installation used by one account:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /opt/lldp-runner</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync <span class="at">--all-groups</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run lldp-runner <span class="at">--version</span></span></code></pre></div>
-<p>For a runtime-only environment, use <code>uv sync --no-dev</code> instead of <code>--all-groups</code>. The latter also installs pytest, Ruff, and Ty for maintenance.</p>
-<h2 id="why-a-shared-installation-needs-explicit-paths">Why a shared installation needs explicit paths</h2>
-<p>A centrally managed installation needs more planning than a single-user uv project. uv-managed Python normally lives below the installing user's home directory. A shared project virtual environment can therefore point at a Python runtime that another operator cannot traverse after the original account is changed or removed.</p>
+<p>The default <code>time.timezone</code> (<code>eastern</code>) and other IANA zone names need the operating system's time zone database. Minimal Ubuntu images, such as containers, may not include it; without it every command fails at startup with <code>ZoneInfoNotFoundError</code>. Install the <code>tzdata</code> package on such hosts.</p>
+<h2 id="install-layouts">Install layouts</h2>
+<p>An installation is defined by its primary configuration file. While <code>paths.persistent_root</code> and <code>paths.scratch_root</code> keep their default value <code>auto</code>, LLDP-Runner places runtime data with that file, so every operator of one installation reads and writes the same data:</p>
+<ul>
+<li><strong>shared</strong> (the default deployment): <code>/opt/lldp-runner/config.toml</code>, or any <code>&lt;dir&gt;/config.toml</code> outside the invoking user's home directory. Persistent root <code>&lt;dir&gt;/var</code>; scratch root <code>/dev/shm/lldp-runner</code>.</li>
+<li><strong>system</strong> (distribution packages): <code>/etc/lldp-runner/config.toml</code>. Persistent root <code>/var/lib/lldp-runner</code>; scratch root <code>/run/lldp-runner</code>.</li>
+<li><strong>user</strong> (one account): <code>~/lldp-runner/config.toml</code> or another configuration below the home directory. Persistent root <code>&lt;dir&gt;/var</code>; a file directly in the home directory uses <code>~/lldp-runner/var</code>. Scratch root <code>$XDG_RUNTIME_DIR/lldp-runner</code>.</li>
+</ul>
+<p>Without any configuration file, LLDP-Runner uses the installation present on the host, checked in this order:</p>
+<ol type="1">
+<li><code>/opt/lldp-runner</code> exists: the shared layout, data in <code>/opt/lldp-runner/var</code>.</li>
+<li><code>/var/lib/lldp-runner</code> or <code>/etc/lldp-runner</code> exists: the system layout, data in <code>/var/lib/lldp-runner</code>.</li>
+<li>Otherwise the user layout, data in <code>~/lldp-runner/var</code>.</li>
+</ol>
+<p>A present installation is never bypassed: if <code>/opt/lldp-runner</code> exists but its <code>var/</code> has not been prepared, or the operator cannot write to it, the command fails instead of writing to the home directory. To use a personal installation on such a host, create <code>~/lldp-runner/config.toml</code> with <code>lldp-runner generate-config</code>.</p>
+<p>Every layout falls back to <code>&lt;persistent_root&gt;/tmp</code> when its preferred scratch root is unavailable. An installation other than <code>/opt/lldp-runner</code> (or <code>~/lldp-runner</code>) gets its own scratch name, so two installations on one host never share a running scoreboard: <code>/srv/lab/config.toml</code> uses <code>/dev/shm/lldp-runner-srv-lab</code>.</p>
+<p>The layout follows the configuration path as it was named. A <code>config.toml</code> that is a symbolic link to a file kept elsewhere, such as in a configuration repository, still belongs to the directory that holds the link. Without a configuration file, without an installation, and without a usable home directory (for example <code>HOME=/</code>), there is no automatic location; set <code>paths.persistent_root</code> or use <code>--config</code>.</p>
+<p>The persistent root holds <code>runs/</code> (run state, activity logs) and <code>outputs/</code> (finalized <code>discovery.json</code>, CSV files, and <code>latest</code> links).</p>
+<p>A shared installation therefore uses these folders:</p>
+<pre class="text"><code>/opt/lldp-runner/              code, .venv, launchers, config.toml, conf.d/,
+                               seed.list, scripts/.private
+/opt/lldp-runner/var/runs/     run state and activity logs
+/opt/lldp-runner/var/outputs/  finalized outputs and the latest link
+/opt/lldp-runner/var/tmp/      scratch fallback
+/dev/shm/lldp-runner/          scratch: current run, scoreboard, drafts
+/opt/shared/python/            uv-managed Python
+/usr/local/bin/uv              uv</code></pre>
+<p>Data lives in a <code>var/</code> subdirectory, not in <code>/opt/lldp-runner</code> itself, because discovery write-tests its persistent root. A group-writable installation directory would let any operator add files, such as <code>uv.toml</code> or <code>conf.d/</code>, that the maintainer's next <code>uv sync</code> or the service account's next run would load. Only <code>var/</code> and the scratch root are writable by the operator group.</p>
+<p>Sites that depend on the older <code>/opt/lldp-runner/runs</code> and <code>/opt/lldp-runner/outputs</code> locations can add compatibility links:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ln <span class="at">-s</span> var/runs /opt/lldp-runner/runs</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ln <span class="at">-s</span> var/outputs /opt/lldp-runner/outputs</span></code></pre></div>
+<p>An installation that still keeps real <code>runs/</code> and <code>outputs/</code> directories directly in <code>&lt;dir&gt;</code>, with no <code>&lt;dir&gt;/var</code>, keeps using them and prints a warning. When <code>&lt;dir&gt;/var</code> exists, such directories are not used, and <code>paths</code>, <code>validate-config</code>, and <code>run</code> warn about them instead. The same warning appears for older history in <code>~/lldp-runner/runs</code> or <code>~/lldp-runner/outputs</code> when a single-user configuration elsewhere is in use. See <a href="#moving-data-into-var">Moving data into var/</a> to convert an installation.</p>
+<p>Explicit values always win over the layout. Set <code>[paths]</code> in the primary <code>config.toml</code> (it overrides <code>conf.d</code> fragments), or use <code>LLDP_RUNNER_ROOT</code> and <code>LLDP_RUNNER_SCRATCH_ROOT</code>, which override the file. Check the effective locations at any time without creating anything:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/opt/lldp-runner/scripts/lrun-paths</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--config</span> /opt/lldp-runner/config.toml paths <span class="at">--json</span></span></code></pre></div>
+<h2 id="single-user-installation">Single-user installation</h2>
+<p>For a workstation or a restricted host where one account runs LLDP-Runner, install the project below the home directory. The default uv-managed Python below the home directory is fine here because no other account uses it.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/lldp-runner</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzf</span> lldp-runner-0.38.1.tar.gz <span class="at">-C</span> ~/lldp-runner <span class="at">--strip-components</span><span class="op">=</span>1</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/lldp-runner</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync <span class="at">--no-dev</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run lldp-runner generate-config</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run lldp-runner paths</span></code></pre></div>
+<p><code>generate-config</code> writes <code>~/lldp-runner/config.toml</code>. The user layout keeps run state and outputs in <code>~/lldp-runner/var</code>, created on first use, and scratch data in <code>$XDG_RUNTIME_DIR/lldp-runner</code> (or <code>~/lldp-runner/var/tmp</code> when no session runtime directory exists, such as under cron). The <code>scripts/lrun-*</code> launchers select <code>~/lldp-runner/config.toml</code> automatically.</p>
+<p>Use <code>uv sync --all-groups</code> instead of <code>--no-dev</code> to also install pytest, Ruff, and Ty for maintenance.</p>
+<h2 id="why-a-shared-installation-needs-a-shared-python">Why a shared installation needs a shared Python</h2>
+<p>uv-managed Python normally lives below the installing user's home directory. Ubuntu creates home directories with mode <code>0750</code>, so a shared project environment that points at such a Python fails for every other operator with <code>Permission denied</code>. The same failure appears when the original account is changed or removed.</p>
 <p>For shared operation:</p>
 <ul>
 <li>keep the project under <code>/opt/lldp-runner</code>;</li>
 <li>install uv itself in a system/shared executable path;</li>
-<li>install uv-managed Python under <code>/opt/shared/python</code>;</li>
-<li>use explicit shared <code>persistent_root</code> and <code>scratch_root</code> paths;</li>
-<li>keep project source and <code>.venv</code> writable only by a maintainer when practical;</li>
-<li>give operators read/execute access to the project and shared Python;</li>
-<li>give operators/services group write access to runtime roots; and</li>
+<li>install uv-managed Python under <code>/opt/shared/python</code>, owned by root;</li>
+<li>keep project source and <code>.venv</code> writable only by a maintainer;</li>
+<li>give the operator group read/execute access to the project and no access to other users;</li>
+<li>give operators/services group write access only to <code>var/</code> and the scratch root; and</li>
 <li>use <code>scripts/.private</code> so ordinary operators do not synchronize <code>.venv</code>.</li>
 </ul>
 <p>The project sets <code>tool.uv.link-mode = "copy"</code> in <code>pyproject.toml</code>, so package files are copied into the environment instead of depending on cache links owned by one account.</p>
 <h2 id="shared-uv-and-python-installation">Shared uv and Python installation</h2>
-<p>Install uv itself somewhere every operator/service can execute it, such as <code>/usr/local/bin</code>. Then install the managed Python into the shared directory. The Python version below is an example pin; another Python 3.13-or-newer release may be used when required by site standards.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">UV_PYTHON_INSTALL_DIR</span><span class="op">=</span>/opt/shared/python</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> python install <span class="dt">\</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--install-dir</span> <span class="st">&quot;</span><span class="va">$UV_PYTHON_INSTALL_DIR</span><span class="st">&quot;</span> <span class="dt">\</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--no-bin</span> <span class="dt">\</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    3.13.5</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="va">UV_PYTHON_INSTALL_DIR</span><span class="op">=</span>/opt/shared/python <span class="ex">uv</span> python dir</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">UV_LINK_MODE</span><span class="op">=</span>copy</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /opt/lldp-runner</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync <span class="at">--all-groups</span></span></code></pre></div>
-<p><code>UV_PYTHON_INSTALL_DIR</code> must be visible to later uv commands that need to find that managed Python. <code>UV_LINK_MODE=copy</code> is equivalent to the project setting and is useful when installation commands are executed explicitly.</p>
+<p>Install uv itself somewhere every operator/service can execute it, such as <code>/usr/local/bin</code>. Then install the managed Python into the shared directory as root. The Python version below is an example pin; another Python 3.13-or-newer release may be used when required by site standards.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-d</span> <span class="at">-o</span> root <span class="at">-g</span> root <span class="at">-m</span> 0755 /opt/shared/python</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> env UV_PYTHON_INSTALL_DIR=/opt/shared/python <span class="dt">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    /usr/local/bin/uv python install <span class="dt">\</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">--install-dir</span> /opt/shared/python <span class="dt">\</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">--no-bin</span> <span class="dt">\</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        3.13.17</span></code></pre></div>
+<p>uv installs each patch release in its own directory and maintains a minor-version link that project environments refer to:</p>
+<pre class="text"><code>/opt/shared/python/cpython-3.13.17-linux-x86_64-gnu/
+/opt/shared/python/cpython-3.13-linux-x86_64-gnu -&gt; cpython-3.13.17-...
+/opt/lldp-runner/.venv/bin/python
+    -&gt; /opt/shared/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13</code></pre>
+<p><code>--no-bin</code> keeps uv from adding <code>python3.13</code> links to root's <code>~/.local/bin</code>. Installing a later 3.13 patch the same way moves the minor-version link, so the project environment uses the new interpreter without another <code>uv sync</code>.</p>
+<p><code>UV_PYTHON_INSTALL_DIR</code> must be visible to every later uv command that needs to find that managed Python. uv's <code>uv.toml</code> cannot set it, so add two server-wide guard rails:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-d</span> <span class="at">-m</span> 0755 /etc/uv</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tee /etc/uv/uv.toml <span class="op">&gt;</span>/dev/null <span class="op">&lt;&lt;&#39;EOF&#39;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">python-downloads = &quot;manual&quot;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">python-preference = &quot;only-managed&quot;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;export UV_PYTHON_INSTALL_DIR=/opt/shared/python&#39;</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sudo</span> tee /etc/profile.d/uv-shared-python.sh <span class="op">&gt;</span>/dev/null</span></code></pre></div>
+<p><code>python-downloads = "manual"</code> stops uv from silently downloading a Python into a home directory when <code>UV_PYTHON_INSTALL_DIR</code> is missing, for example after <code>sudo -u</code> or in a script; the command fails with a hint instead. Explicit <code>uv python install</code> still works. <code>python-preference = "only-managed"</code> keeps uv from selecting the operating system's Python, which is 3.14 on Ubuntu 26.04. The profile script sets the shared directory for login shells. These settings apply to every uv user on the server.</p>
 <h2 id="operator-group-and-shared-runtime-directories">Operator group and shared runtime directories</h2>
 <p>Create a trusted operator group and add all accounts that are allowed to use LLDP-Runner. Group membership normally takes effect after a new login/session.</p>
-<p>The shipped helper prepares runtime roots, repairs group ownership on existing content, applies setgid directories, and adds default POSIX ACLs when <code>setfacl</code> is available:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/shared-setup.sh <span class="dt">\</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--group</span> netops <span class="dt">\</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--persistent-root</span> /var/lib/lldp-runner <span class="dt">\</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--scratch-root</span> /dev/shm/lldp-runner <span class="dt">\</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-dir</span> /opt/shared/python</span></code></pre></div>
+<p>The shipped helper creates the runtime directories with setgid, group write, no access for other users, and default POSIX ACLs when <code>setfacl</code> is available:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/shared-setup.sh <span class="at">--group</span> netops</span></code></pre></div>
+<p>With the defaults (<code>--layout shared --project-root /opt/lldp-runner</code>) it prepares:</p>
+<pre class="text"><code>/opt/lldp-runner/var             root:netops 2770 (+ default ACLs)
+/opt/lldp-runner/var/runs        root:netops 2770
+/opt/lldp-runner/var/outputs     root:netops 2770
+/opt/lldp-runner/var/tmp         root:netops 2770
+/dev/shm/lldp-runner             root:netops 2770
+/etc/tmpfiles.d/lldp-runner-scratch.conf</code></pre>
+<p><code>/dev/shm</code> is cleared at every reboot. The tmpfiles entry recreates the scratch root with the same ownership, mode, and ACLs at boot, so the first operator to run after a reboot cannot create it with private permissions. <code>--layout system</code> prepares <code>/var/lib/lldp-runner</code> and <code>/run/lldp-runner</code> instead, and <code>--project-root DIR</code> prepares another shared installation with its own scratch name. <code>--print-paths</code> shows the directories without changing anything.</p>
+<p>Operators can write to these directories, so the helper never follows a symbolic link there as root. It locks each runtime root to root-only access while it works below it, requires existing entries to be real directories, and refuses a runtime root that equals or contains the project root, sits in a group- or world-writable parent, or is owned by another account. Re-running it is safe. By default it does not walk existing content; <code>--repair</code> also fixes group ownership, permissions, and ACLs of existing files, and should run only while no LLDP-Runner process or operator session uses the directories. It refuses to create <code>var/</code> while older <code>runs/</code> or <code>outputs/</code> sit in the project root; see <a href="#moving-data-into-var">Moving data into var/</a>.</p>
+<p>It creates <code>/opt/shared/python</code> root-owned when it is missing and otherwise leaves its ownership alone. It warns when that directory or the project root is group- or world-writable.</p>
 <p>The helper deliberately does not create the Unix group or add users. Identity management remains an explicit administrator responsibility.</p>
-<p>Use explicit shared runtime paths instead of leaving path selection at <code>auto</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[paths]</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">persistent_root</span> <span class="op">=</span> <span class="st">&quot;/var/lib/lldp-runner&quot;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">scratch_root</span> <span class="op">=</span> <span class="st">&quot;/dev/shm/lldp-runner&quot;</span></span></code></pre></div>
-<p>See <code>configs/conf.d/shared-paths.toml.example</code> for a reusable fragment. Explicit paths prevent different users from selecting different home-directory or other automatic runtime locations.</p>
-<p>All users/services that run discovery, resume runs, clean state, or purge output need appropriate group access. LLDP-Runner performs real create/remove write probes for <code>persistent_root</code> and <code>scratch_root</code>; read access is not sufficient.</p>
+<p>Keep the automatic values in the site configuration:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[paths]</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">persistent_root</span> <span class="op">=</span> <span class="st">&quot;auto&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">scratch_root</span> <span class="op">=</span> <span class="st">&quot;auto&quot;</span></span></code></pre></div>
+<p>A configuration created by <code>generate-config</code> already contains these lines. Because the primary <code>config.toml</code> overrides <code>conf.d</code> fragments, do not try to set shared paths in a fragment while <code>config.toml</code> sets them too.</p>
+<p>All users/services that run discovery, resume runs, clean state, or purge output need appropriate group access. LLDP-Runner performs real create/remove write probes for <code>persistent_root</code> and <code>scratch_root</code>; read access is not sufficient. Read-only commands such as <code>show-neighbors</code>, <code>status</code>, and <code>paths</code> need only group read access.</p>
 <p>Setgid keeps new runtime entries in the shared group, but it does not guarantee group write permission when a process uses <code>umask 0022</code>. The helper uses default ACLs when available. Without POSIX ACL tools, use <code>umask 0002</code> for every shell, cron, or service invocation. The equivalent systemd setting is <code>UMask=0002</code>.</p>
 <h2 id="shared-launcher-environment">Shared launcher environment</h2>
 <p>The <code>lrun-*</code> launchers source <code>scripts/.private</code> when present. The release ships <code>scripts/example.private</code> as a starting point for a centrally managed site. Copy it to <code>.private</code>, review it, and protect the deployed copy:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /opt/lldp-runner</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> scripts/example.private scripts/.private</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> lldp-maintainer:netops scripts/.private</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 0640 scripts/.private</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /opt/lldp-runner</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> scripts/example.private scripts/.private</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">chown</span> lldp-maintainer:netops scripts/.private</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 0640 scripts/.private</span></code></pre></div>
 <p>The example uses <code>lldp-maintainer</code> as the designated maintainer. For that account, <code>UV_RUN_ARGS=()</code> permits normal <code>uv run</code> synchronization. Every other operator and the <code>lldp-runner</code> service account receives:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="va">UV_RUN_ARGS</span><span class="op">=</span><span class="va">(</span>--no-sync<span class="va">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="va">UV_RUN_ARGS</span><span class="op">=</span><span class="va">(</span>--no-sync<span class="va">)</span></span></code></pre></div>
 <p>This lets ordinary operators use the centrally prepared <code>.venv</code> without asking uv to install, remove, or update packages. After an LLDP-Runner upgrade or intentional dependency change, the maintainer must run <code>uv sync</code> before other operators use the no-sync launchers.</p>
+<p>uv needs a writable cache directory even for <code>--no-sync</code> runs. A service account whose home is <code>/nonexistent</code> cannot create <code>~/.cache/uv</code>, so <code>example.private</code> sets <code>UV_NO_CACHE=1</code> whenever that directory cannot be created. The systemd units installed by <code>svc-setup.sh</code> set <code>UV_CACHE_DIR</code> instead.</p>
+<p>The launchers select <code>/opt/lldp-runner/config.toml</code> automatically (see <a href="docs-CLI.html">CLI.md</a> and the launcher headers), so the shared configuration and its <code>var/</code> data apply to every operator. Set <code>LLDP_RUNNER_CONFIG</code> in <code>.private</code> only to use a different file. An <code>LLDP_RUNNER_CONFIG</code> exported in an operator's own shell applies only when the installation has no <code>config.toml</code>, so it cannot move the shared launchers onto a personal configuration.</p>
 <p>The published dependency declarations retain supported minimum versions. For maintainer-managed release environments, <code>[tool.uv]</code> applies exact runtime, test, static-analysis, and build constraints. The same selections are listed in <code>constraints/release-0.38.1.txt</code> for review. Run <code>uv lock</code>, then <code>uv sync --all-groups --locked</code>, after extracting a release. This creates one site lockfile from the release constraints and prevents later synchronization from silently selecting a different tested toolchain. A deliberate dependency upgrade should update the constraints, regenerate the lock, and rerun the full release gate before ordinary <code>--no-sync</code> use resumes.</p>
 <p>After synchronization, verify the three backend packages before production discovery:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run python <span class="at">-</span> <span class="op">&lt;&lt;&#39;PY&#39;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">import importlib.metadata</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">for package in (&quot;cryptography&quot;, &quot;gufo-snmp&quot;, &quot;pysnmp&quot;):</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st">    print(package, importlib.metadata.version(package))</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="op">PY</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run ./scripts/pysnmp-snmp-diag.py DEVICE <span class="at">--snmp-version</span> 3</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run python <span class="at">-</span> <span class="op">&lt;&lt;&#39;PY&#39;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="st">import importlib.metadata</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="st">for package in (&quot;cryptography&quot;, &quot;gufo-snmp&quot;, &quot;pysnmp&quot;):</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="st">    print(package, importlib.metadata.version(package))</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">PY</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run ./scripts/pysnmp-snmp-diag.py DEVICE <span class="at">--snmp-version</span> 3</span></code></pre></div>
 <p>The diagnostic reads <code>SNMPUSER</code>, <code>SNMPAUTH</code>, and <code>SNMPPRIV</code> from its environment, performs the same local privacy-cipher preflight before DNS or SNMP, and prints the installed cryptography version without printing credential values.</p>
 <p><code>scripts/.private</code> also exports the shared Python location and copy link mode and sets <code>umask 0002</code>. It is ignored by Git so site settings or secrets are not accidentally committed. Avoid putting secrets there unless the file permissions and group membership are appropriate for those secrets.</p>
-<p>Direct <code>uv run</code> commands that bypass <code>lrun-*</code> need equivalent environment settings. For a shared instance, they should also explicitly use <code>--config /opt/lldp-runner/config.toml</code> or set <code>LLDP_RUNNER_CONFIG</code>; otherwise normal config discovery can select a per-user configuration first.</p>
+<p>Direct <code>uv run</code> commands that bypass <code>lrun-*</code> need equivalent environment settings. For a shared instance, they should also explicitly use <code>--config /opt/lldp-runner/config.toml</code> or set <code>LLDP_RUNNER_CONFIG</code>; otherwise normal config discovery can select a per-user configuration first, and with it per-user data.</p>
 <h2 id="project-and-credential-file-ownership">Project and credential-file ownership</h2>
-<p>For a centrally managed installation, keep <code>/opt/lldp-runner</code> and its <code>.venv</code> writable only by package/application maintainers when practical. The operator group normally needs read/execute access to code and Python. Runtime write access belongs on the configured persistent/scratch roots instead.</p>
+<p>For a centrally managed installation, keep <code>/opt/lldp-runner</code> and its <code>.venv</code> writable only by the maintainer. The operator group needs read/execute access to code and Python; other users need none:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find /opt/lldp-runner <span class="at">-path</span> /opt/lldp-runner/var <span class="at">-prune</span> <span class="at">-o</span> <span class="dt">\</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">-exec</span> chown <span class="at">-h</span> lldp-maintainer:netops {} +</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> find /opt/lldp-runner <span class="at">-path</span> /opt/lldp-runner/var <span class="at">-prune</span> <span class="at">-o</span> <span class="dt">\</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    ! <span class="at">-type</span> l <span class="at">-exec</span> chmod u+rwX,g+rX,g-w,o-rwx {} +</span></code></pre></div>
+<p>These commands skip <code>var/</code>, whose ownership and group write access belong to <code>shared-setup.sh</code>. The maintainer account is trusted with the code that every operator and the service account run; operators are not, which is why only <code>var/</code> and the scratch root are writable by the group.</p>
 <p>Credential-bearing files deserve stricter treatment than runtime output. A seed-credential file can be <code>root:netops</code> mode <code>0640</code> only when every member of that group is authorized to use the secrets. Use a narrower group when credential access should be more restricted. Do not store credential files in group-writable runtime directories merely for convenience.</p>
 <h2 id="scheduled-operation-with-systemd">Scheduled operation with systemd</h2>
 <p>For a shared Linux server, LLDP-Runner ships helpers that install the recommended systemd schedule. Run <code>shared-setup.sh</code> first, then install the units/timers:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/svc-setup.sh <span class="dt">\</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--service-user</span> lldp-runner <span class="dt">\</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--group</span> netops <span class="dt">\</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--project-root</span> /opt/lldp-runner <span class="dt">\</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--persistent-root</span> /var/lib/lldp-runner <span class="dt">\</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--scratch-root</span> /dev/shm/lldp-runner <span class="dt">\</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-dir</span> /opt/shared/python <span class="dt">\</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">--purge-keep</span> 11</span></code></pre></div>
-<p>The service account must already exist and be a member of the configured group. <code>svc-setup.sh</code> refuses to create accounts/change memberships. If generated units already exist, setup stops and instructs the administrator to remove them first.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/svc-setup.sh <span class="dt">\</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--service-user</span> lldp-runner <span class="dt">\</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--group</span> netops <span class="dt">\</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--project-root</span> /opt/lldp-runner <span class="dt">\</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-dir</span> /opt/shared/python <span class="dt">\</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--purge-keep</span> 11</span></code></pre></div>
+<p>The service account must already exist and be a member of the configured group. <code>svc-setup.sh</code> refuses to create accounts/change memberships. If generated units already exist, setup stops and instructs the administrator to remove them first. It also stops when the scratch root (default <code>/dev/shm/lldp-runner</code> for <code>/opt/lldp-runner</code>, the same per-installation name as <code>shared-setup.sh</code> otherwise) or the persistent root (default <code>&lt;project-root&gt;/var</code>) does not exist yet.</p>
 <p>The default schedule starts discovery at 00:00, 04:00, 08:00, 12:00, 16:00, and 20:00, plus daily maintenance at 02:30. Both timers use a stable randomized delay of up to ten minutes. Override it with <code>--random-delay MINUTES</code> or <code>LLDP_RUNNER_RANDOM_DELAY_MINUTES</code>.</p>
-<p>Daily maintenance runs <code>lrun-clean</code> and then <code>lrun-purge</code>. <code>--purge-keep 11</code> means <code>latest</code> plus 11 additional output directories, for 12 total outputs. Discovery and maintenance share one <code>flock</code> under <code>scratch_root</code>, so they wait for one another instead of modifying run/output state concurrently.</p>
-<p>When scratch storage is <code>/dev/shm</code>, it disappears at reboot. Writable LLDP-Runner commands can create a missing explicit scratch root, but process creation inherits the process's ownership/mode. <code>svc-setup.sh</code> therefore installs <code>/etc/tmpfiles.d/lldp-runner.conf</code> and invokes <code>systemd-tmpfiles --create</code> so the scratch root is recreated with the service user, operator group, and mode <code>2775</code>.</p>
+<p>Daily maintenance runs <code>lrun-clean</code> and then <code>lrun-purge</code>. <code>--purge-keep 11</code> means <code>latest</code> plus 11 additional output directories, for 12 total outputs. Discovery and maintenance share one <code>flock</code> under the scratch root, so they wait for one another instead of modifying run/output state concurrently.</p>
+<p>The units run as the service account with <code>UMask=0002</code>, the shared Python location, and a uv cache in <code>/var/cache/lldp-runner/uv</code> that systemd creates through <code>CacheDirectory=</code>. The scratch root is recreated at boot by the tmpfiles entry that <code>shared-setup.sh</code> installs.</p>
 <p>Remove only the generated scheduling configuration with:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/svc-remove.sh</span></code></pre></div>
-<p>Removal preserves persistent output/run state, the existing scratch directory, and the service account/group.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/svc-remove.sh</span></code></pre></div>
+<p>Removal preserves persistent output/run state, the existing scratch directory, its tmpfiles entry, and the service account/group.</p>
+<h2 id="system-layout-for-distribution-packages">System layout for distribution packages</h2>
+<p>A distribution package should not install into <code>/opt</code>; Debian policy, for example, reserves it for the local administrator. Use the system layout instead:</p>
+<ul>
+<li>install the Python package so the <code>lldp-runner</code>, <code>get-neighbors</code>, and <code>show-neighbors</code> entry points are on <code>PATH</code>, for example in <code>/usr/bin</code>;</li>
+<li>ship <code>/etc/lldp-runner/config.toml</code> with <code>persistent_root = "auto"</code> and <code>scratch_root = "auto"</code>, which select <code>/var/lib/lldp-runner</code> and <code>/run/lldp-runner</code>;</li>
+<li>create <code>/var/lib/lldp-runner/{runs,outputs,tmp}</code> and a tmpfiles entry for <code>/run/lldp-runner</code>, owned by the package's service group with mode <code>2770</code> (<code>scripts/shared-setup.sh --layout system --group GROUP</code> performs both); and</li>
+<li>optionally ship the <code>lrun-*</code> launchers, for example in <code>/usr/share/lldp-runner/scripts</code>. Without a <code>pyproject.toml</code> beside them they run the installed <code>lldp-runner</code> from <code>PATH</code> and select <code>/etc/lldp-runner/config.toml</code>.</li>
+</ul>
+<p>The layout constants live in <code>lldp_runner/defaults.py</code> (<code>SYSTEM_CONFIG_DIR</code>, <code>SYSTEM_PERSISTENT_ROOT</code>, <code>SYSTEM_SCRATCH_ROOTS</code>, and related names), so a distribution that needs different locations can change them in one place. Units for a package can follow the ones <code>svc-setup.sh</code> generates, with <code>ExecStart=</code> calling <code>/usr/bin/lldp-runner</code> directly.</p>
 <h2 id="ubuntu-24042604-lts-shared-installation-walkthrough">Ubuntu 24.04/26.04 LTS shared installation walkthrough</h2>
 <p>The following example starts with an LLDP-Runner source <code>tar.gz</code> in the current directory. It uses <code>lldp-maintainer</code> as the designated maintainer and <code>operator1</code> and <code>operator2</code> as example operators. Review account names, paths, Python version, configuration, and credential policy before pasting commands into a production server.</p>
+<p>Ubuntu 26.04 uses <code>sudo-rs</code> and the Rust coreutils; the commands below work with them and with the classic tools on 24.04.</p>
 <p>Run the administrative portions from a sudo-capable account. Before copying the block, set <code>CONFIG_SOURCE</code> and <code>SEED_SOURCE</code> to approved site files. A site using <code>@include</code> or additional configuration fragments must install those files too.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 0. Review these site-specific inputs before doing anything destructive.</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="va">ARCHIVE</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/lldp-runner-0.38.1.tar.gz&quot;</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="va">CONFIG_SOURCE</span><span class="op">=</span><span class="st">&quot;/path/to/approved-config.toml&quot;</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="va">SEED_SOURCE</span><span class="op">=</span><span class="st">&quot;/path/to/approved-seed.list&quot;</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="va">DEVELOPER</span><span class="op">=</span><span class="st">&quot;lldp-maintainer&quot;</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="va">OPERATORS</span><span class="op">=</span><span class="va">(</span>operator1 operator2<span class="va">)</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="va">PYTHON_VERSION</span><span class="op">=</span><span class="st">&quot;3.13.5&quot;</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">$ARCHIVE</span><span class="st">&quot;</span> <span class="kw">]]</span> <span class="kw">||</span> <span class="kw">{</span> <span class="bu">echo</span> <span class="st">&quot;Missing archive: </span><span class="va">$ARCHIVE</span><span class="st">&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span><span class="kw">;</span> <span class="bu">exit</span> 1<span class="kw">;</span> <span class="kw">}</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">$CONFIG_SOURCE</span><span class="st">&quot;</span> <span class="kw">]]</span> <span class="kw">||</span> <span class="kw">{</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Set CONFIG_SOURCE to an approved LLDP-Runner config.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">$SEED_SOURCE</span><span class="st">&quot;</span> <span class="kw">]]</span> <span class="kw">||</span> <span class="kw">{</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Set SEED_SOURCE to an approved LLDP-Runner seed file.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="kw">{</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Developer account does not exist: </span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Install basic operating-system prerequisites.</span></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install <span class="at">-y</span> ca-certificates curl acl util-linux</span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Create the trusted NetOps group when it does not already exist.</span></span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="fu">getent</span> group netops <span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">sudo</span> groupadd netops</span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Create the non-login LLDP-Runner service account when it does not exist.</span></span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="co">#    Its primary group is netops so scheduled discovery inherits that group.</span></span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="ot">! </span><span class="fu">getent</span> passwd lldp-runner <span class="op">&gt;</span>/dev/null<span class="kw">;</span> <span class="cf">then</span></span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sudo</span> useradd <span class="dt">\</span></span>
-<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">--system</span> <span class="dt">\</span></span>
-<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">--gid</span> netops <span class="dt">\</span></span>
-<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">--home-dir</span> /nonexistent <span class="dt">\</span></span>
-<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>        <span class="at">--shell</span> /usr/sbin/nologin <span class="dt">\</span></span>
-<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>        lldp-runner</span>
-<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
-<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Add the maintainer and example operators to netops.</span></span>
-<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a><span class="co">#    Replace OPERATORS above with the actual site account list.</span></span>
-<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> user <span class="kw">in</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="st">&quot;</span><span class="va">${OPERATORS</span><span class="op">[@]</span><span class="va">}</span><span class="st">&quot;</span><span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="fu">id</span> <span class="st">&quot;</span><span class="va">$user</span><span class="st">&quot;</span> <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
-<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sudo</span> usermod <span class="at">-aG</span> netops <span class="st">&quot;</span><span class="va">$user</span><span class="st">&quot;</span></span>
-<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
-<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>        <span class="bu">printf</span> <span class="st">&#39;WARNING: user %s does not exist; group membership skipped.\n&#39;</span> <span class="dt">\</span></span>
-<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;</span><span class="va">$user</span><span class="st">&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
-<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">fi</span></span>
-<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
-<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a><span class="co"># The service account must also be a member of netops.</span></span>
-<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span> <span class="at">-nG</span> lldp-runner <span class="kw">|</span> <span class="fu">tr</span> <span class="st">&#39; &#39;</span> <span class="st">&#39;\n&#39;</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-Fxq</span> netops <span class="kw">||</span> <span class="kw">{</span></span>
-<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;lldp-runner is not a member of netops&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
-<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
-<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
-<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Install uv in a shared executable location.</span></span>
-<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a><span class="co">#    UV_NO_MODIFY_PATH prevents edits to the administrator&#39;s shell profile.</span></span>
-<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-LsSf</span> https://astral.sh/uv/install.sh <span class="kw">|</span> <span class="dt">\</span></span>
-<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sudo</span> env UV_INSTALL_DIR=/usr/local/bin UV_NO_MODIFY_PATH=1 sh</span>
-<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a><span class="ex">/usr/local/bin/uv</span> <span class="at">--version</span></span>
-<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Extract the bundled release under /opt/lldp-runner.</span></span>
-<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a><span class="co">#    Archive executable bits are preserved; ownership moves to the maintainer.</span></span>
-<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-d</span> <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="at">-g</span> netops <span class="at">-m</span> 0755 /opt/lldp-runner</span>
-<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tar <span class="at">-xzf</span> <span class="st">&quot;</span><span class="va">$ARCHIVE</span><span class="st">&quot;</span> <span class="at">-C</span> /opt/lldp-runner <span class="at">--strip-components</span><span class="op">=</span>1</span>
-<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chown <span class="at">-R</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span>:netops /opt/lldp-runner</span>
-<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod <span class="at">-R</span> u+rwX,g+rX,o+rX /opt/lldp-runner</span>
-<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a><span class="co"># The chmod above only adds permissions. An archive with group-writable</span></span>
-<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a><span class="co"># modes, such as GitHub&#39;s automatic &quot;Source code&quot; download, leaves the code</span></span>
-<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a><span class="co"># writable by every netops member. Depending on local site requirements,</span></span>
-<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a><span class="co"># consider removing group and other write access so only the maintainer can</span></span>
-<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a><span class="co"># change the installed code:</span></span>
-<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a><span class="co"># sudo chmod -R go-w /opt/lldp-runner</span></span>
-<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. Prepare shared Python and synchronize the project as the maintainer.</span></span>
-<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-d</span> <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="at">-g</span> netops <span class="at">-m</span> 0755 /opt/shared/python</span>
-<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> env <span class="dt">\</span></span>
-<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a>    UV_PYTHON_INSTALL_DIR=/opt/shared/python <span class="dt">\</span></span>
-<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>    UV_LINK_MODE=copy <span class="dt">\</span></span>
-<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>    /usr/local/bin/uv python install <span class="dt">\</span></span>
-<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>        <span class="at">--install-dir</span> /opt/shared/python <span class="dt">\</span></span>
-<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>        <span class="at">--no-bin</span> <span class="dt">\</span></span>
-<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;</span><span class="va">$PYTHON_VERSION</span><span class="st">&quot;</span></span>
-<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> env <span class="dt">\</span></span>
-<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>    UV_PYTHON_INSTALL_DIR=/opt/shared/python <span class="dt">\</span></span>
-<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>    UV_LINK_MODE=copy <span class="dt">\</span></span>
-<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>    /usr/local/bin/uv lock <span class="dt">\</span></span>
-<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a>        <span class="at">--directory</span> /opt/lldp-runner</span>
-<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> env <span class="dt">\</span></span>
-<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>    UV_PYTHON_INSTALL_DIR=/opt/shared/python <span class="dt">\</span></span>
-<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>    UV_LINK_MODE=copy <span class="dt">\</span></span>
-<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a>    /usr/local/bin/uv sync <span class="dt">\</span></span>
-<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a>        <span class="at">--directory</span> /opt/lldp-runner <span class="dt">\</span></span>
-<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a>        <span class="at">--all-groups</span> <span class="dt">\</span></span>
-<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a>        <span class="at">--locked</span></span>
-<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a><span class="co"># 8. Install the launcher environment. Change its maintainer account if</span></span>
-<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a><span class="co">#    DEVELOPER differs from the shipped neutral example.</span></span>
-<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="dt">\</span></span>
-<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="dt">\</span></span>
-<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a>    <span class="at">-g</span> netops <span class="dt">\</span></span>
-<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a>    <span class="at">-m</span> 0640 <span class="dt">\</span></span>
-<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/example.private <span class="dt">\</span></span>
-<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/.private</span>
-<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a><span class="co"># 9. Install the approved site config and seed list used by lrun-run.</span></span>
-<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="at">-g</span> netops <span class="at">-m</span> 0640 <span class="dt">\</span></span>
-<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;</span><span class="va">$CONFIG_SOURCE</span><span class="st">&quot;</span> /opt/lldp-runner/config.toml</span>
-<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="at">-g</span> netops <span class="at">-m</span> 0640 <span class="dt">\</span></span>
-<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;</span><span class="va">$SEED_SOURCE</span><span class="st">&quot;</span> /opt/lldp-runner/seed.list</span>
-<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a><span class="co"># Add explicit shared runtime paths without duplicating them in the site file.</span></span>
-<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-d</span> <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="at">-g</span> netops <span class="at">-m</span> 0755 <span class="dt">\</span></span>
-<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/conf.d</span>
-<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> tee <span class="dt">\</span></span>
-<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/conf.d/10-shared-paths.toml <span class="op">&gt;</span>/dev/null <span class="op">&lt;&lt;&#39;EOF_PATHS&#39;</span></span>
-<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a><span class="st">[paths]</span></span>
-<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a><span class="st">persistent_root = &quot;/var/lib/lldp-runner&quot;</span></span>
-<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a><span class="st">scratch_root = &quot;/dev/shm/lldp-runner&quot;</span></span>
-<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a><span class="op">EOF_PATHS</span></span>
-<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chown <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span>:netops <span class="dt">\</span></span>
-<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/conf.d/10-shared-paths.toml</span>
-<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod 0640 /opt/lldp-runner/conf.d/10-shared-paths.toml</span>
-<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a><span class="co"># 10. Prepare group-writable runtime roots.</span></span>
-<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/shared-setup.sh <span class="dt">\</span></span>
-<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a>    <span class="at">--group</span> netops <span class="dt">\</span></span>
-<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">--persistent-root</span> /var/lib/lldp-runner <span class="dt">\</span></span>
-<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a>    <span class="at">--scratch-root</span> /dev/shm/lldp-runner <span class="dt">\</span></span>
-<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-dir</span> /opt/shared/python</span>
-<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a><span class="co"># 11. Validate configuration and seed behavior before enabling services.</span></span>
-<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
-<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-version</span>
-<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
-<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-checkconfig</span>
-<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
-<span id="cb12-171"><a href="#cb12-171" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-dryrun</span>
-<span id="cb12-172"><a href="#cb12-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a><span class="co"># 12. Review maintenance selection without deleting anything.</span></span>
-<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
-<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-clean <span class="at">--dry-run</span></span>
-<span id="cb12-178"><a href="#cb12-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-179"><a href="#cb12-179" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
-<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-purge <span class="at">--keep</span> 11 <span class="at">--dry-run</span></span>
-<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a><span class="co"># 13. Install and enable the systemd discovery/maintenance timers.</span></span>
-<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/svc-setup.sh <span class="dt">\</span></span>
-<span id="cb12-186"><a href="#cb12-186" aria-hidden="true" tabindex="-1"></a>    <span class="at">--service-user</span> lldp-runner <span class="dt">\</span></span>
-<span id="cb12-187"><a href="#cb12-187" aria-hidden="true" tabindex="-1"></a>    <span class="at">--group</span> netops <span class="dt">\</span></span>
-<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a>    <span class="at">--project-root</span> /opt/lldp-runner <span class="dt">\</span></span>
-<span id="cb12-189"><a href="#cb12-189" aria-hidden="true" tabindex="-1"></a>    <span class="at">--persistent-root</span> /var/lib/lldp-runner <span class="dt">\</span></span>
-<span id="cb12-190"><a href="#cb12-190" aria-hidden="true" tabindex="-1"></a>    <span class="at">--scratch-root</span> /dev/shm/lldp-runner <span class="dt">\</span></span>
-<span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-dir</span> /opt/shared/python <span class="dt">\</span></span>
-<span id="cb12-192"><a href="#cb12-192" aria-hidden="true" tabindex="-1"></a>    <span class="at">--purge-keep</span> 11</span>
-<span id="cb12-193"><a href="#cb12-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-194"><a href="#cb12-194" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-195"><a href="#cb12-195" aria-hidden="true" tabindex="-1"></a><span class="co"># 14. Verify installed schedules and inspect service logs.</span></span>
-<span id="cb12-196"><a href="#cb12-196" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
-<span id="cb12-197"><a href="#cb12-197" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> list-timers <span class="st">&#39;lldp-runner-*&#39;</span></span>
-<span id="cb12-198"><a href="#cb12-198" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> status lldp-runner-run.timer lldp-runner-maintenance.timer</span>
-<span id="cb12-199"><a href="#cb12-199" aria-hidden="true" tabindex="-1"></a><span class="ex">journalctl</span> <span class="at">-u</span> lldp-runner-run.service <span class="at">-n</span> 50 <span class="at">--no-pager</span></span>
-<span id="cb12-200"><a href="#cb12-200" aria-hidden="true" tabindex="-1"></a><span class="ex">journalctl</span> <span class="at">-u</span> lldp-runner-maintenance.service <span class="at">-n</span> 50 <span class="at">--no-pager</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 0. Review these site-specific inputs before doing anything destructive.</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="va">ARCHIVE</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/lldp-runner-0.38.1.tar.gz&quot;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="va">CONFIG_SOURCE</span><span class="op">=</span><span class="st">&quot;/path/to/approved-config.toml&quot;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="va">SEED_SOURCE</span><span class="op">=</span><span class="st">&quot;/path/to/approved-seed.list&quot;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="va">DEVELOPER</span><span class="op">=</span><span class="st">&quot;lldp-maintainer&quot;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="va">OPERATORS</span><span class="op">=</span><span class="va">(</span>operator1 operator2<span class="va">)</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="va">PYTHON_VERSION</span><span class="op">=</span><span class="st">&quot;3.13.17&quot;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">$ARCHIVE</span><span class="st">&quot;</span> <span class="kw">]]</span> <span class="kw">||</span> <span class="kw">{</span> <span class="bu">echo</span> <span class="st">&quot;Missing archive: </span><span class="va">$ARCHIVE</span><span class="st">&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span><span class="kw">;</span> <span class="bu">exit</span> 1<span class="kw">;</span> <span class="kw">}</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">$CONFIG_SOURCE</span><span class="st">&quot;</span> <span class="kw">]]</span> <span class="kw">||</span> <span class="kw">{</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Set CONFIG_SOURCE to an approved LLDP-Runner config.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">$SEED_SOURCE</span><span class="st">&quot;</span> <span class="kw">]]</span> <span class="kw">||</span> <span class="kw">{</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Set SEED_SOURCE to an approved LLDP-Runner seed file.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="kw">{</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Developer account does not exist: </span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Install basic operating-system prerequisites.</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install <span class="at">-y</span> ca-certificates curl acl util-linux tzdata</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Create the trusted NetOps group when it does not already exist.</span></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a><span class="fu">getent</span> group netops <span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">sudo</span> groupadd netops</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Create the non-login LLDP-Runner service account when it does not exist.</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a><span class="co">#    Its primary group is netops so scheduled discovery inherits that group.</span></span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="ot">! </span><span class="fu">getent</span> passwd lldp-runner <span class="op">&gt;</span>/dev/null<span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sudo</span> useradd <span class="dt">\</span></span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">--system</span> <span class="dt">\</span></span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">--gid</span> netops <span class="dt">\</span></span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">--home-dir</span> /nonexistent <span class="dt">\</span></span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a>        <span class="at">--shell</span> /usr/sbin/nologin <span class="dt">\</span></span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a>        lldp-runner</span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Add the maintainer and example operators to netops.</span></span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a><span class="co">#    Replace OPERATORS above with the actual site account list.</span></span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> user <span class="kw">in</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="st">&quot;</span><span class="va">${OPERATORS</span><span class="op">[@]</span><span class="va">}</span><span class="st">&quot;</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="fu">id</span> <span class="st">&quot;</span><span class="va">$user</span><span class="st">&quot;</span> <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sudo</span> usermod <span class="at">-aG</span> netops <span class="st">&quot;</span><span class="va">$user</span><span class="st">&quot;</span></span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a>        <span class="bu">printf</span> <span class="st">&#39;WARNING: user %s does not exist; group membership skipped.\n&#39;</span> <span class="dt">\</span></span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;</span><span class="va">$user</span><span class="st">&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">fi</span></span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a><span class="co"># The service account must also be a member of netops.</span></span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span> <span class="at">-nG</span> lldp-runner <span class="kw">|</span> <span class="fu">tr</span> <span class="st">&#39; &#39;</span> <span class="st">&#39;\n&#39;</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-Fxq</span> netops <span class="kw">||</span> <span class="kw">{</span></span>
+<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;lldp-runner is not a member of netops&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb19-65"><a href="#cb19-65" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
+<span id="cb19-66"><a href="#cb19-66" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
+<span id="cb19-67"><a href="#cb19-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-68"><a href="#cb19-68" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-69"><a href="#cb19-69" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Install uv in a shared executable location, plus the server-wide guard</span></span>
+<span id="cb19-70"><a href="#cb19-70" aria-hidden="true" tabindex="-1"></a><span class="co">#    rails that keep uv-managed Python out of home directories.</span></span>
+<span id="cb19-71"><a href="#cb19-71" aria-hidden="true" tabindex="-1"></a><span class="co">#    UV_NO_MODIFY_PATH prevents edits to the administrator&#39;s shell profile.</span></span>
+<span id="cb19-72"><a href="#cb19-72" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-73"><a href="#cb19-73" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-LsSf</span> https://astral.sh/uv/install.sh <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-74"><a href="#cb19-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sudo</span> env UV_INSTALL_DIR=/usr/local/bin UV_NO_MODIFY_PATH=1 sh</span>
+<span id="cb19-75"><a href="#cb19-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-76"><a href="#cb19-76" aria-hidden="true" tabindex="-1"></a><span class="ex">/usr/local/bin/uv</span> <span class="at">--version</span></span>
+<span id="cb19-77"><a href="#cb19-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-78"><a href="#cb19-78" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-d</span> <span class="at">-m</span> 0755 /etc/uv</span>
+<span id="cb19-79"><a href="#cb19-79" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tee /etc/uv/uv.toml <span class="op">&gt;</span>/dev/null <span class="op">&lt;&lt;&#39;EOF_UV&#39;</span></span>
+<span id="cb19-80"><a href="#cb19-80" aria-hidden="true" tabindex="-1"></a><span class="st">python-downloads = &quot;manual&quot;</span></span>
+<span id="cb19-81"><a href="#cb19-81" aria-hidden="true" tabindex="-1"></a><span class="st">python-preference = &quot;only-managed&quot;</span></span>
+<span id="cb19-82"><a href="#cb19-82" aria-hidden="true" tabindex="-1"></a><span class="op">EOF_UV</span></span>
+<span id="cb19-83"><a href="#cb19-83" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;export UV_PYTHON_INSTALL_DIR=/opt/shared/python&#39;</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-84"><a href="#cb19-84" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sudo</span> tee /etc/profile.d/uv-shared-python.sh <span class="op">&gt;</span>/dev/null</span>
+<span id="cb19-85"><a href="#cb19-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-86"><a href="#cb19-86" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-87"><a href="#cb19-87" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Extract the bundled release under /opt/lldp-runner.</span></span>
+<span id="cb19-88"><a href="#cb19-88" aria-hidden="true" tabindex="-1"></a><span class="co">#    Ownership moves to the maintainer; netops may read, other users may not.</span></span>
+<span id="cb19-89"><a href="#cb19-89" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-90"><a href="#cb19-90" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-d</span> <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="at">-g</span> netops <span class="at">-m</span> 0750 /opt/lldp-runner</span>
+<span id="cb19-91"><a href="#cb19-91" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tar <span class="at">-xzf</span> <span class="st">&quot;</span><span class="va">$ARCHIVE</span><span class="st">&quot;</span> <span class="at">-C</span> /opt/lldp-runner <span class="at">--strip-components</span><span class="op">=</span>1</span>
+<span id="cb19-92"><a href="#cb19-92" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chown <span class="at">-R</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span>:netops /opt/lldp-runner</span>
+<span id="cb19-93"><a href="#cb19-93" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod <span class="at">-R</span> u+rwX,g+rX,g-w,o-rwx /opt/lldp-runner</span>
+<span id="cb19-94"><a href="#cb19-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-95"><a href="#cb19-95" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-96"><a href="#cb19-96" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. Install the shared Python as root, then lock and synchronize the project</span></span>
+<span id="cb19-97"><a href="#cb19-97" aria-hidden="true" tabindex="-1"></a><span class="co">#    as the maintainer.</span></span>
+<span id="cb19-98"><a href="#cb19-98" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-99"><a href="#cb19-99" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-d</span> <span class="at">-o</span> root <span class="at">-g</span> root <span class="at">-m</span> 0755 /opt/shared/python</span>
+<span id="cb19-100"><a href="#cb19-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-101"><a href="#cb19-101" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> env UV_PYTHON_INSTALL_DIR=/opt/shared/python <span class="dt">\</span></span>
+<span id="cb19-102"><a href="#cb19-102" aria-hidden="true" tabindex="-1"></a>    /usr/local/bin/uv python install <span class="dt">\</span></span>
+<span id="cb19-103"><a href="#cb19-103" aria-hidden="true" tabindex="-1"></a>        <span class="at">--install-dir</span> /opt/shared/python <span class="dt">\</span></span>
+<span id="cb19-104"><a href="#cb19-104" aria-hidden="true" tabindex="-1"></a>        <span class="at">--no-bin</span> <span class="dt">\</span></span>
+<span id="cb19-105"><a href="#cb19-105" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;</span><span class="va">$PYTHON_VERSION</span><span class="st">&quot;</span></span>
+<span id="cb19-106"><a href="#cb19-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-107"><a href="#cb19-107" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> env <span class="dt">\</span></span>
+<span id="cb19-108"><a href="#cb19-108" aria-hidden="true" tabindex="-1"></a>    UV_PYTHON_INSTALL_DIR=/opt/shared/python <span class="dt">\</span></span>
+<span id="cb19-109"><a href="#cb19-109" aria-hidden="true" tabindex="-1"></a>    UV_LINK_MODE=copy <span class="dt">\</span></span>
+<span id="cb19-110"><a href="#cb19-110" aria-hidden="true" tabindex="-1"></a>    /usr/local/bin/uv lock <span class="dt">\</span></span>
+<span id="cb19-111"><a href="#cb19-111" aria-hidden="true" tabindex="-1"></a>        <span class="at">--directory</span> /opt/lldp-runner</span>
+<span id="cb19-112"><a href="#cb19-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-113"><a href="#cb19-113" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> env <span class="dt">\</span></span>
+<span id="cb19-114"><a href="#cb19-114" aria-hidden="true" tabindex="-1"></a>    UV_PYTHON_INSTALL_DIR=/opt/shared/python <span class="dt">\</span></span>
+<span id="cb19-115"><a href="#cb19-115" aria-hidden="true" tabindex="-1"></a>    UV_LINK_MODE=copy <span class="dt">\</span></span>
+<span id="cb19-116"><a href="#cb19-116" aria-hidden="true" tabindex="-1"></a>    /usr/local/bin/uv sync <span class="dt">\</span></span>
+<span id="cb19-117"><a href="#cb19-117" aria-hidden="true" tabindex="-1"></a>        <span class="at">--directory</span> /opt/lldp-runner <span class="dt">\</span></span>
+<span id="cb19-118"><a href="#cb19-118" aria-hidden="true" tabindex="-1"></a>        <span class="at">--all-groups</span> <span class="dt">\</span></span>
+<span id="cb19-119"><a href="#cb19-119" aria-hidden="true" tabindex="-1"></a>        <span class="at">--locked</span></span>
+<span id="cb19-120"><a href="#cb19-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-121"><a href="#cb19-121" aria-hidden="true" tabindex="-1"></a><span class="co"># The environment must point at the shared Python, never a home directory.</span></span>
+<span id="cb19-122"><a href="#cb19-122" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grep <span class="st">&#39;^home = /opt/shared/python/&#39;</span> /opt/lldp-runner/.venv/pyvenv.cfg</span>
+<span id="cb19-123"><a href="#cb19-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-124"><a href="#cb19-124" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-125"><a href="#cb19-125" aria-hidden="true" tabindex="-1"></a><span class="co"># 8. Install the launcher environment. Change its maintainer account if</span></span>
+<span id="cb19-126"><a href="#cb19-126" aria-hidden="true" tabindex="-1"></a><span class="co">#    DEVELOPER differs from the shipped neutral example.</span></span>
+<span id="cb19-127"><a href="#cb19-127" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-128"><a href="#cb19-128" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="dt">\</span></span>
+<span id="cb19-129"><a href="#cb19-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="dt">\</span></span>
+<span id="cb19-130"><a href="#cb19-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">-g</span> netops <span class="dt">\</span></span>
+<span id="cb19-131"><a href="#cb19-131" aria-hidden="true" tabindex="-1"></a>    <span class="at">-m</span> 0640 <span class="dt">\</span></span>
+<span id="cb19-132"><a href="#cb19-132" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/example.private <span class="dt">\</span></span>
+<span id="cb19-133"><a href="#cb19-133" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/.private</span>
+<span id="cb19-134"><a href="#cb19-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-135"><a href="#cb19-135" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-136"><a href="#cb19-136" aria-hidden="true" tabindex="-1"></a><span class="co"># 9. Install the approved site config and seed list used by lrun-run.</span></span>
+<span id="cb19-137"><a href="#cb19-137" aria-hidden="true" tabindex="-1"></a><span class="co">#    Keep [paths] at &quot;auto&quot; so data goes to /opt/lldp-runner/var.</span></span>
+<span id="cb19-138"><a href="#cb19-138" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-139"><a href="#cb19-139" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="at">-g</span> netops <span class="at">-m</span> 0640 <span class="dt">\</span></span>
+<span id="cb19-140"><a href="#cb19-140" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;</span><span class="va">$CONFIG_SOURCE</span><span class="st">&quot;</span> /opt/lldp-runner/config.toml</span>
+<span id="cb19-141"><a href="#cb19-141" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> install <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$DEVELOPER</span><span class="st">&quot;</span> <span class="at">-g</span> netops <span class="at">-m</span> 0640 <span class="dt">\</span></span>
+<span id="cb19-142"><a href="#cb19-142" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;</span><span class="va">$SEED_SOURCE</span><span class="st">&quot;</span> /opt/lldp-runner/seed.list</span>
+<span id="cb19-143"><a href="#cb19-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-144"><a href="#cb19-144" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> grep <span class="at">-E</span> <span class="st">&#39;^(persistent_root|scratch_root) *=&#39;</span> <span class="dt">\</span></span>
+<span id="cb19-145"><a href="#cb19-145" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/config.toml</span>
+<span id="cb19-146"><a href="#cb19-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-147"><a href="#cb19-147" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-148"><a href="#cb19-148" aria-hidden="true" tabindex="-1"></a><span class="co"># 10. Prepare the group-writable runtime directories and the boot-time</span></span>
+<span id="cb19-149"><a href="#cb19-149" aria-hidden="true" tabindex="-1"></a><span class="co">#     scratch entry.</span></span>
+<span id="cb19-150"><a href="#cb19-150" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-151"><a href="#cb19-151" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/shared-setup.sh <span class="at">--group</span> netops</span>
+<span id="cb19-152"><a href="#cb19-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-153"><a href="#cb19-153" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-154"><a href="#cb19-154" aria-hidden="true" tabindex="-1"></a><span class="co"># 11. Validate paths, configuration, and seed behavior before enabling</span></span>
+<span id="cb19-155"><a href="#cb19-155" aria-hidden="true" tabindex="-1"></a><span class="co">#     services.</span></span>
+<span id="cb19-156"><a href="#cb19-156" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-157"><a href="#cb19-157" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
+<span id="cb19-158"><a href="#cb19-158" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-version</span>
+<span id="cb19-159"><a href="#cb19-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-160"><a href="#cb19-160" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
+<span id="cb19-161"><a href="#cb19-161" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-paths</span>
+<span id="cb19-162"><a href="#cb19-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-163"><a href="#cb19-163" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
+<span id="cb19-164"><a href="#cb19-164" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-checkconfig</span>
+<span id="cb19-165"><a href="#cb19-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-166"><a href="#cb19-166" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
+<span id="cb19-167"><a href="#cb19-167" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-dryrun</span>
+<span id="cb19-168"><a href="#cb19-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-169"><a href="#cb19-169" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-170"><a href="#cb19-170" aria-hidden="true" tabindex="-1"></a><span class="co"># 12. Review maintenance selection without deleting anything.</span></span>
+<span id="cb19-171"><a href="#cb19-171" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-172"><a href="#cb19-172" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
+<span id="cb19-173"><a href="#cb19-173" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-clean <span class="at">--dry-run</span></span>
+<span id="cb19-174"><a href="#cb19-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-175"><a href="#cb19-175" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner <span class="dt">\</span></span>
+<span id="cb19-176"><a href="#cb19-176" aria-hidden="true" tabindex="-1"></a>    /opt/lldp-runner/scripts/lrun-purge <span class="at">--keep</span> 11 <span class="at">--dry-run</span></span>
+<span id="cb19-177"><a href="#cb19-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-178"><a href="#cb19-178" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-179"><a href="#cb19-179" aria-hidden="true" tabindex="-1"></a><span class="co"># 13. Install and enable the systemd discovery/maintenance timers.</span></span>
+<span id="cb19-180"><a href="#cb19-180" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-181"><a href="#cb19-181" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/svc-setup.sh <span class="dt">\</span></span>
+<span id="cb19-182"><a href="#cb19-182" aria-hidden="true" tabindex="-1"></a>    <span class="at">--service-user</span> lldp-runner <span class="dt">\</span></span>
+<span id="cb19-183"><a href="#cb19-183" aria-hidden="true" tabindex="-1"></a>    <span class="at">--group</span> netops <span class="dt">\</span></span>
+<span id="cb19-184"><a href="#cb19-184" aria-hidden="true" tabindex="-1"></a>    <span class="at">--project-root</span> /opt/lldp-runner <span class="dt">\</span></span>
+<span id="cb19-185"><a href="#cb19-185" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-dir</span> /opt/shared/python <span class="dt">\</span></span>
+<span id="cb19-186"><a href="#cb19-186" aria-hidden="true" tabindex="-1"></a>    <span class="at">--purge-keep</span> 11</span>
+<span id="cb19-187"><a href="#cb19-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-188"><a href="#cb19-188" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-189"><a href="#cb19-189" aria-hidden="true" tabindex="-1"></a><span class="co"># 14. Verify installed schedules and inspect service logs.</span></span>
+<span id="cb19-190"><a href="#cb19-190" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------------------------------------------</span></span>
+<span id="cb19-191"><a href="#cb19-191" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> list-timers <span class="st">&#39;lldp-runner-*&#39;</span></span>
+<span id="cb19-192"><a href="#cb19-192" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> status lldp-runner-run.timer lldp-runner-maintenance.timer</span>
+<span id="cb19-193"><a href="#cb19-193" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> journalctl <span class="at">-u</span> lldp-runner-run.service <span class="at">-n</span> 50 <span class="at">--no-pager</span></span>
+<span id="cb19-194"><a href="#cb19-194" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> journalctl <span class="at">-u</span> lldp-runner-maintenance.service <span class="at">-n</span> 50 <span class="at">--no-pager</span></span></code></pre></div>
 <p>New group membership is normally visible only after users start a new login session. Before enabling production discovery, test <code>lrun-dryrun</code>, validate credential/query/classification policy, confirm seed inputs, and verify that the service account can write both configured runtime roots.</p>
 <h2 id="maintaining-the-shared-installation">Maintaining the shared installation</h2>
 <p>The designated maintainer should update the source, lock/environment, and Python packages. A typical post-upgrade synchronization is:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">UV_PYTHON_INSTALL_DIR</span><span class="op">=</span>/opt/shared/python</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">UV_LINK_MODE</span><span class="op">=</span>copy</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">umask</span> 0002</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /opt/lldp-runner</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync <span class="at">--all-groups</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">UV_PYTHON_INSTALL_DIR</span><span class="op">=</span>/opt/shared/python</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">UV_LINK_MODE</span><span class="op">=</span>copy</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">umask</span> 0022</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /opt/lldp-runner</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync <span class="at">--all-groups</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest</span></code></pre></div>
+<p>Keep <code>umask 0022</code> for the maintainer: <code>.venv</code> must not become group-writable.</p>
+<p>To install a new release, extract it over <code>/opt/lldp-runner</code> and repeat the ownership commands from <a href="#project-and-credential-file-ownership">Project and credential-file ownership</a>, which leave <code>var/</code> alone, before synchronizing:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tar <span class="at">-xzf</span> lldp-runner-NEW.tar.gz <span class="at">-C</span> /opt/lldp-runner <span class="at">--strip-components</span><span class="op">=</span>1</span></code></pre></div>
+<p>Python patch releases are installed by root as in step 7 with the new version. The minor-version link moves to the new patch, and the project environment uses it immediately. Remove an old patch once nothing else depends on it:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> env UV_PYTHON_INSTALL_DIR=/opt/shared/python <span class="dt">\</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    /usr/local/bin/uv python uninstall <span class="at">--install-dir</span> /opt/shared/python 3.13.15</span></code></pre></div>
 <p>Ordinary operators should continue using the <code>lrun-*</code> launchers. Because the example <code>.private</code> gives non-maintainers <code>UV_RUN_ARGS=(--no-sync)</code>, operational commands use the environment prepared by the maintainer without modifying it.</p>
 <p>After changing generated service/timer settings, use <code>svc-remove.sh</code> and then <code>svc-setup.sh</code> rather than manually editing generated unit files.</p>
+<h2 id="moving-data-into-var">Moving data into var/</h2>
+<p>Older shared installations kept <code>runs/</code> and <code>outputs/</code> directly in <code>/opt/lldp-runner</code>, which required a group-writable installation directory. LLDP-Runner keeps using that location, with a warning, until <code>/opt/lldp-runner/var</code> exists. To convert:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop the schedule and wait for a discovery or maintenance run to finish.</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl stop lldp-runner-run.timer lldp-runner-maintenance.timer</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="ex">systemctl</span> is-active <span class="at">--quiet</span> <span class="dt">\</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        lldp-runner-run.service lldp-runner-maintenance.service<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sleep</span> 10</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># The installation root must not be writable by the operator group.</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chmod g-w,o-w /opt/lldp-runner</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Move runs/, outputs/, and tmp/ into var/ and repair their permissions.</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> /opt/lldp-runner/scripts/shared-setup.sh <span class="at">--group</span> netops <span class="at">--migrate</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> lldp-runner /opt/lldp-runner/scripts/lrun-paths</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl start lldp-runner-run.timer lldp-runner-maintenance.timer</span></code></pre></div>
+<p><code>--migrate</code> refuses to run while an LLDP-Runner run, clean, or purge is in progress. Ask operators not to start runs until the move is complete. Once <code>var/</code> exists, LLDP-Runner uses it, and directories left in the old location are reported but no longer resumed, diffed, or purged. Then apply the ownership commands from <a href="#project-and-credential-file-ownership">Project and credential-file ownership</a> to the rest of the installation.</p>
+<p>Sites that set explicit paths, such as <code>/var/lib/lldp-runner</code>, are not affected; either keep the explicit <code>[paths]</code> or move the data and return to <code>auto</code>.</p>
+<p>If the old scheduling was installed by an earlier <code>svc-setup.sh</code>, also run <code>svc-remove.sh</code> and then <code>svc-setup.sh</code>. The earlier helper owned <code>/etc/tmpfiles.d/lldp-runner.conf</code>; <code>shared-setup.sh</code> now maintains <code>/etc/tmpfiles.d/lldp-runner-scratch.conf</code> instead.</p>
 </body>
 </html>

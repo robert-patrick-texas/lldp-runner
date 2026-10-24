@@ -329,6 +329,7 @@ lldp-runner [GLOBAL OPTIONS] get-neighbors SEED [OPTIONS]
 lldp-runner [GLOBAL OPTIONS] show-neighbors [OPTIONS] [PATTERN]
 lldp-runner [GLOBAL OPTIONS] diff [OPTIONS] [PATTERN]
 lldp-runner [GLOBAL OPTIONS] validate-config
+lldp-runner [GLOBAL OPTIONS] paths [--json]
 lldp-runner [GLOBAL OPTIONS] generate-config [FILENAME]
 lldp-runner [GLOBAL OPTIONS] explain-target TARGET
 lldp-runner [GLOBAL OPTIONS] status [--json]
@@ -800,16 +801,31 @@ client-13.001       matches client-137001 and client-135001</code></pre>
 --system-only / --no-neighbors
 --trace
 --tracefile FILENAME</code></pre>
-<h2 id="11-validate-config">11. <code>validate-config</code></h2>
+<h2 id="11-validate-config-and-paths">11. <code>validate-config</code> and <code>paths</code></h2>
 <p>Load the effective configuration, apply normal precedence, validate settings, and validate required credential secrets.</p>
 <div class="sourceCode" id="cb60"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> validate-config</span></code></pre></div>
 <p>A specific configuration may be selected globally:</p>
 <div class="sourceCode" id="cb61"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--config</span> /opt/lldp-runner/config.toml validate-config</span></code></pre></div>
-<p>Global <code>--set</code> and runtime credential options also apply.</p>
+<p>Global <code>--set</code> and runtime credential options also apply. After validation, the command prints the install layout and the resolved, write-tested runtime roots:</p>
+<pre class="text"><code>Configuration valid: /opt/lldp-runner/config.toml
+Install layout:  shared
+Persistent root: /opt/lldp-runner/var
+Scratch root:    /dev/shm/lldp-runner</code></pre>
+<h3 id="paths---json"><code>paths [--json]</code></h3>
+<p>Show where the effective configuration keeps run state, finalized outputs, and scratch data, without creating, write-testing, or changing anything. Credentials are not processed, so any operator can run it.</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="at">--config</span> /opt/lldp-runner/config.toml paths</span></code></pre></div>
+<pre class="text"><code>Configuration:   /opt/lldp-runner/config.toml
+Install layout:  shared
+Persistent root: /opt/lldp-runner/var (auto)
+Runs:            /opt/lldp-runner/var/runs
+Outputs:         /opt/lldp-runner/var/outputs
+Scratch root:    /dev/shm/lldp-runner (auto)</code></pre>
+<p><code>(auto)</code> marks a root chosen by the install layout; <code>(configured)</code> marks one set by configuration, environment, <code>--set</code>, or a dedicated option. For an automatic scratch root, the command reports the location that <code>status</code> and <code>watch</code> read: the candidate holding a current run, otherwise the first existing candidate. <code>--json</code> prints the same information with the keys <code>config_path</code>, <code>layout</code>, <code>legacy_layout</code>, <code>persistent_root</code>, <code>persistent_root_auto</code>, <code>runs_dir</code>, <code>outputs_dir</code>, <code>scratch_root</code>, and <code>scratch_root_auto</code>.</p>
+<p>The install layout follows the primary configuration file; see <a href="docs-INSTALL.html">INSTALL.md</a> for the shared, system, and user layouts. When <code>runs/</code> or <code>outputs/</code> still sit directly in the installation directory and no <code>var/</code> directory exists, the older location stays in use and the command prints a warning on stderr. <code>validate-config</code> and <code>run</code> print the same warning. <code>scripts/lrun-paths</code> runs this command through the shared launcher.</p>
 <h2 id="12-generate-config-filename">12. <code>generate-config [FILENAME]</code></h2>
 <p>Write a documented TOML configuration starting from built-in defaults.</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> generate-config</span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> generate-config site-config.toml</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> generate-config</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> generate-config site-config.toml</span></code></pre></div>
 <p>When no filename is supplied, the normal output is:</p>
 <pre class="text"><code>./lldp-runner-config.toml</code></pre>
 <p>When the current directory is <code>~/lldp-runner</code>, <code>/opt/lldp-runner</code>, or <code>/etc/lldp-runner</code> and <code>./config.toml</code> does not exist, the default output is:</p>
@@ -817,24 +833,24 @@ client-13.001       matches client-137001 and client-135001</code></pre>
 <p>If <code>config.toml</code> already exists there, the generator uses the normal <code>lldp-runner-config.toml</code> name rather than overwriting the primary file.</p>
 <p>An explicit filename is used exactly as supplied. The generator refuses to overwrite an existing destination.</p>
 <p>Global <code>--set</code> may alter generated defaults. Global <code>--snmp.backend</code> and <code>--snmp.version</code> may alter the generated backend and preferred SNMP version.</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="dt">\</span></span>
-<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;discovery.max_devices=&quot;auto&quot;&#39;</span> <span class="dt">\</span></span>
-<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--snmp.version</span> 2c <span class="dt">\</span></span>
-<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>  generate-config sample.toml</span></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> <span class="dt">\</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--set</span> <span class="st">&#39;discovery.max_devices=&quot;auto&quot;&#39;</span> <span class="dt">\</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--snmp.version</span> 2c <span class="dt">\</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  generate-config sample.toml</span></code></pre></div>
 <h2 id="13-explain-target-target">13. <code>explain-target TARGET</code></h2>
 <p>Print JSON describing discovery boundary, query-policy, and credential-policy selection for one target without starting recursive discovery.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> explain-target core1.example.net</span></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> explain-target core1.example.net</span></code></pre></div>
 <p>Global config, <code>--set</code>, and credential options apply. The command is read-only with respect to LLDP-Runner runtime storage: it does not require writable persistent/scratch roots or available SNMP secret values. Credential profile and rule definitions are still parsed because they are part of the explanation. Target-name DNS resolution may still occur.</p>
 <h2 id="14-status">14. <code>status</code></h2>
 <p>Display <code>&lt;scratch_root&gt;/scoreboard/scoreboard.txt</code>. The stable path retains the last terminal snapshot after successful per-run scratch cleanup.</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> status</span></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> status</span></code></pre></div>
 <h3 id="status---json"><code>status --json</code></h3>
 <p>Print the machine-readable <code>scoreboard.json</code> rather than <code>scoreboard.txt</code>.</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> status <span class="at">--json</span></span></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> status <span class="at">--json</span></span></code></pre></div>
 <p><code>status</code> disables the credential subsystem entirely and resolves its scratch location without a writable-directory probe. Malformed/unavailable SNMP material or read-only access to an existing scoreboard cannot block the snapshot.</p>
 <h2 id="15-watch">15. <code>watch</code></h2>
 <p>Interactively monitor the current structured scoreboard without repeatedly spawning <code>lldp-runner status</code>:</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> watch</span></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> watch</span></code></pre></div>
 <p>The default terminal redraw interval is one second. Scoreboard production is independent and remains controlled by <code>output.scoreboard_interval_seconds</code> (three seconds by default), so elapsed/freshness indicators may redraw between actual scoreboard publications.</p>
 <p>Options:</p>
 <pre class="text"><code>--interval SECONDS
@@ -863,12 +879,12 @@ summary:  aggregate counts plus attention/error and changed workers</code></pre>
 <p>Like <code>status</code>, <code>watch</code> disables the credential subsystem entirely and does not write-probe the scratch path. It requires an interactive terminal; scripts and redirected consumers should use <code>status</code> or <code>status --json</code>. Press <code>q</code> or Ctrl-C to exit.</p>
 <h2 id="16-pause">16. <code>pause</code></h2>
 <p>Request a controlled pause of the current run by creating the configured pause indicator in the current scratch run.</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> pause</span></code></pre></div>
+<div class="sourceCode" id="cb76"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lldp-runner</span> pause</span></code></pre></div>
 <p>SNMP secret availability is not required for <code>pause</code>.</p>
 <h2 id="17-preparing-a-two-run-review-bundle">17. Preparing a two-run review bundle</h2>
 <p><code>scripts/lrun-bundle-diff</code> packages the two latest completed runs, or two explicit run IDs, for local or external review. The prior <code>lrun-prepare-bundle</code> filename is not shipped. It verifies that matching finalized output and runtime-state directories are present and readable, executes <code>lrun-diff --changes-only --json</code>, creates coherent compact SQLite backups in a temporary staging area, and writes one uncompressed tar archive.</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/lrun-bundle-diff</span></span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/lrun-bundle-diff</span> 20260107-06 20260107-05</span></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/lrun-bundle-diff</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/lrun-bundle-diff</span> 20260107-06 20260107-05</span></code></pre></div>
 <p>The first explicit run is data set A and the second is data set B. The archive contains:</p>
 <pre class="text"><code>outputs/&lt;runid-A&gt;/...
 outputs/&lt;runid-B&gt;/...
@@ -877,7 +893,7 @@ runs/&lt;runid-B&gt;/...
 ./diff-&lt;runid-A&gt;-&lt;runid-B&gt;.changes.json</code></pre>
 <p>The staged SQLite databases are produced with SQLite's backup API and an integrity check. Live <code>discovery-state.sqlite-wal</code> and <code>discovery-state.sqlite-shm</code> sidecars are not included.</p>
 <p>No arguments selects the two newest completed runs by the timezone-aware <code>completed</code> timestamp in <code>run.json</code>. Any nonzero argument count other than two is an error. The archive is deliberately uncompressed so the operator can inspect it directly or apply the site-approved compression and transfer method.</p>
-<p>Environment overrides for nonstandard layouts are documented in the script header. They include <code>LLDP_RUNNER_BUNDLE_ROOT</code>, <code>LLDP_RUNNER_OUTPUTS_DIR</code>, <code>LLDP_RUNNER_RUNS_DIR</code>, and <code>LLDP_RUNNER_BUNDLE_ARCHIVE_DIR</code>.</p>
+<p>By default the source <code>outputs/</code> and <code>runs/</code> directories come from <code>scripts/lrun-paths --json</code>, so the bundle reads the same installation data as <code>lrun-diff</code>. Environment overrides for nonstandard layouts are documented in the script header. They include <code>LLDP_RUNNER_BUNDLE_ROOT</code>, <code>LLDP_RUNNER_OUTPUTS_DIR</code>, <code>LLDP_RUNNER_RUNS_DIR</code>, <code>LLDP_RUNNER_PATHS_BIN</code>, and <code>LLDP_RUNNER_BUNDLE_ARCHIVE_DIR</code>.</p>
 <h2 id="18-configuration-precedence">18. Configuration precedence</h2>
 <p>The effective runtime precedence is:</p>
 <pre class="text"><code>defaults.py
