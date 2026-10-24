@@ -149,6 +149,30 @@ both `member_presence` and `protocol_evidence`, with exact member-scoped events.
 Discovery scheduling, Gufo behavior, collector output, and retry budgets remain
 unchanged from 0.32.7.
 
+## 0.39.0 focused release tests
+
+0.39.0 moves automatic runtime paths onto install layouts. `test_layout.py`
+covers each layout, the order used without a configuration file (shared
+`/opt/lldp-runner`, then a system package, then the home directory), symlinked
+configuration paths, `HOME=/`, legacy and unused `runs/`/`outputs/` history,
+per-installation scratch names, and the read-only resolvers behind `paths`,
+`status`, `watch`, `clean`, and `purge`. An autouse fixture in `conftest.py`
+keeps those results independent of installations present on the test host.
+
+`test_operator_scripts.py` runs the launchers with stand-in `uv` and
+`lldp-runner` commands: configuration selection and precedence, `seed.list`
+resolution beside the configuration, `~` expansion, the preserved working
+directory of `lrun-diff`, the packaged fallback without `pyproject.toml`, and
+`lrun-bundle-diff` reading its directories from `lrun-paths`. The
+`shared-setup.sh` and `svc-setup.sh` `--print-paths` output must match
+`lldp_runner.layout` for several project roots, including non-ASCII ones.
+`test_seeds.py` checks that an unparseable seed becomes an `invalid_seed`
+error instead of aborting initialization.
+
+The root-run setup scripts were also exercised in Ubuntu 26.04 containers,
+because they need root, systemd, and several accounts; see
+[RELEASE-STATUS-0.39.0.md](../../RELEASE-STATUS-0.39.0.md).
+
 ## 0.38.1 focused release tests
 
 0.38.1 makes the full `./scripts/check.sh` gate pass. `ty check` must report

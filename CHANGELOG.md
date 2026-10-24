@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.39.0 - 2026-10-24
 
 - Automatic runtime paths now follow the selected configuration file's
   directory instead of the first existing `~/lldp-runner`, `/opt/lldp-runner`,
@@ -61,11 +61,14 @@
   group-writable.
 - INSTALL.md covers the three layouts, installs the shared Python as root,
   adds `/etc/uv/uv.toml` and `/etc/profile.d` guard rails that keep uv-managed
-  Python out of home directories, removes world access from the installation,
-  and drops the `conf.d` paths step, which the primary `config.toml` silently
-  overrode. It also lists the `tzdata` package: without the operating
-  system's time zone database, every command failed at startup with
-  `ZoneInfoNotFoundError`.
+  Python out of home directories, and removes group write and world access
+  from the installation tree. It drops the `conf.d` paths step, which the
+  primary `config.toml` silently overrode, and lists the `tzdata` package:
+  without the operating system's time zone database, every command failed at
+  startup with `ZoneInfoNotFoundError`.
+- Ignore the site `uv.lock` in Git. Each installation creates its own lockfile
+  with `uv lock` against the release constraints, so it no longer shows up as
+  an untracked file after `uv sync`.
 - Fix discovery aborting with `UnboundLocalError` when a seed cannot be parsed,
   for example a loopback address. The seed is recorded as an `invalid_seed`
   error and initialization continues.
