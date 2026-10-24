@@ -346,6 +346,7 @@ acl_line=""
 if command -v setfacl >/dev/null 2>&1; then
     acl_line="a+ $SCRATCH_ROOT - - - - d:g::rwx,d:m::rwx,d:o::-,g::rwx,m::rwx,o::-"
 fi
+install -d -m 0755 -- "$(dirname -- "$TMPFILES_FILE")"
 {
     printf '# Managed by LLDP-Runner scripts/shared-setup.sh\n'
     printf 'd %s 2770 root %s - -\n' "$SCRATCH_ROOT" "$GROUP_NAME"

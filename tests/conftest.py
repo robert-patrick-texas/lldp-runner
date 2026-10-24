@@ -7,6 +7,17 @@ import pytest
 from lldp_runner.config import AppConfig, load_config
 
 
+@pytest.fixture(autouse=True)
+def _no_host_installations(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ignore /opt/lldp-runner, /var/lib/lldp-runner, or /etc/lldp-runner on this host.
+
+    Without a configuration file, the install layout depends on which of those
+    exist. Tests that exercise that detection re-enable it explicitly.
+    """
+
+    monkeypatch.setattr("lldp_runner.layout._installation_present", lambda path: False)
+
+
 @pytest.fixture
 def config_file(tmp_path: Path) -> Path:
     path = tmp_path / "config.toml"

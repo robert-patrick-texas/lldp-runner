@@ -463,10 +463,15 @@ with the installation that the file belongs to:
   `/dev/shm/lldp-runner`.
 - System layout, `/etc/lldp-runner/config.toml`: persistent root
   `/var/lib/lldp-runner`, scratch root `/run/lldp-runner`.
-- User layout, a configuration below the home directory or no configuration at
-  all: persistent root `<dir>/var` (`~/lldp-runner/var` for a file directly in
-  the home directory or no configuration), scratch root
-  `$XDG_RUNTIME_DIR/lldp-runner`.
+- User layout, a configuration below the home directory: persistent root
+  `<dir>/var` (`~/lldp-runner/var` for a file directly in the home directory),
+  scratch root `$XDG_RUNTIME_DIR/lldp-runner`.
+
+Without any configuration file, the first installation present wins:
+`/opt/lldp-runner` (shared), then `/var/lib/lldp-runner` or `/etc/lldp-runner`
+(system), then `~/lldp-runner` (user). A present installation whose data
+directory is missing or unwritable is an error, never a reason to fall back to
+the home directory.
 
 The layout follows the configuration path as named, without resolving
 symbolic links. Installations other than `/opt/lldp-runner` and

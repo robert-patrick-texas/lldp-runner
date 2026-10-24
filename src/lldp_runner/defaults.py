@@ -56,9 +56,13 @@ CONFIG_SEARCH_PATHS: tuple[str, ...] = (
 #           /opt/lldp-runner: persistent <dir>/var, scratch /dev/shm/lldp-runner
 #   system  /etc/lldp-runner/config.toml: persistent /var/lib/lldp-runner,
 #           scratch /run/lldp-runner
-#   user    a config below the home directory, or no config at all:
-#           persistent <dir>/var (~/lldp-runner/var for a file directly in the
-#           home directory or no file), scratch $XDG_RUNTIME_DIR/lldp-runner
+#   user    a config below the home directory: persistent <dir>/var
+#           (~/lldp-runner/var for a file directly in the home directory),
+#           scratch $XDG_RUNTIME_DIR/lldp-runner
+#
+# Without a config file the first present installation wins: shared when
+# /opt/lldp-runner exists, system when /var/lib/lldp-runner or /etc/lldp-runner
+# exists, otherwise user (~/lldp-runner).
 #
 # A shared installation other than /opt/lldp-runner, or a user installation
 # other than ~/lldp-runner, gets its own scratch name such as

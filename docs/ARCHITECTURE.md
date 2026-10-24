@@ -308,15 +308,23 @@ configuration file (`lldp_runner.layout`):
 /etc/lldp-runner/config.toml         -> /var/lib/lldp-runner     (system)
 <dir>/config.toml outside home       -> <dir>/var                (shared)
 <dir>/config.toml below home         -> <dir>/var                (user)
-a file directly in ~, or no file     -> ~/lldp-runner/var        (user)
+a file directly in ~                 -> ~/lldp-runner/var        (user)
+no file, /opt/lldp-runner exists     -> /opt/lldp-runner/var     (shared)
+no file, /var/lib or /etc install    -> /var/lib/lldp-runner     (system)
+no file, no installation             -> ~/lldp-runner/var        (user)
 ```
+
+Without a configuration file the first present installation wins, checked in
+the order shown. A present installation is never bypassed when its data
+directory is missing or unwritable, so runs without a configuration on a
+shared host cannot scatter data across home directories.
 
 The rule uses the configuration path as it was named (`config_location`),
 made absolute but with symbolic links kept; `config_path` is the resolved file
 that is read. A link such as `/opt/lldp-runner/config.toml -> /srv/cfg/x.toml`
 therefore stays a shared `/opt/lldp-runner` installation. Without a
-configuration and without a usable home directory (`HOME=/`), `auto` has no
-location and the command fails until `paths.persistent_root` is set.
+configuration, an installation, or a usable home directory (`HOME=/`), `auto`
+has no location and the command fails until `paths.persistent_root` is set.
 
 The data directory is a subdirectory rather than `<dir>` itself because
 discovery write-tests the persistent root. A group-writable installation root

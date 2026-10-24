@@ -169,6 +169,81 @@ def test_no_config_or_a_file_directly_in_home_use_the_user_instance(
     assert layout.unused_history == ()
 
 
+@pytest.fixture
+def host_installs(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Path]:
+    """Point the shared and system installation markers at tmp_path, detected for real."""
+
+    paths = {
+        "shared": (tmp_path / "opt" / "lldp-runner").resolve(),
+        "system_data": (tmp_path / "var" / "lib" / "lldp-runner").resolve(),
+        "system_config": (tmp_path / "etc" / "lldp-runner").resolve(),
+    }
+    monkeypatch.setattr(layout_module, "SHARED_DEFAULT_INSTANCE_DIR", str(paths["shared"]))
+    monkeypatch.setattr(layout_module, "SYSTEM_PERSISTENT_ROOT", str(paths["system_data"]))
+    monkeypatch.setattr(layout_module, "SYSTEM_CONFIG_DIR", str(paths["system_config"]))
+    monkeypatch.setattr(layout_module, "_installation_present", lambda path: path.is_dir())
+    return paths
+
+
+def test_no_config_prefers_the_default_shared_install(
+    home: Path, host_installs: dict[str, Path]
+) -> None:
+    host_installs["shared"].mkdir(parents=True)
+    host_installs["system_data"].mkdir(parents=True)
+
+    layout = select_layout(None)
+
+    assert layout.name == "shared"
+    assert layout.persistent_root == host_installs["shared"] / "var"
+    assert layout.scratch_candidates == (Path("/dev/shm/lldp-runner"),)
+    assert layout.create_persistent is False
+
+
+@pytest.mark.parametrize("marker", ["system_data", "system_config"])
+def test_no_config_then_uses_a_system_package_install(
+    home: Path, host_installs: dict[str, Path], marker: str
+) -> None:
+    host_installs[marker].mkdir(parents=True)
+
+    layout = select_layout(None)
+
+    assert layout.name == "system"
+    assert layout.persistent_root == host_installs["system_data"]
+
+
+def test_no_config_and_no_install_uses_the_home_directory(
+    home: Path, host_installs: dict[str, Path]
+) -> None:
+    layout = select_layout(None)
+
+    assert layout.name == "user"
+    assert layout.persistent_root == home / "lldp-runner" / "var"
+
+
+def test_no_config_never_falls_back_to_home_when_the_shared_install_is_unprepared(
+    home: Path, host_installs: dict[str, Path]
+) -> None:
+    """A present /opt install without var/ is an error, not a reason to use ~."""
+
+    host_installs["shared"].mkdir(parents=True)
+
+    with pytest.raises(ConfigError, match=r"shared-setup\.sh"):
+        load_config(None, env={}, credential_mode=CredentialMode.OPTIONAL)
+    assert not (home / "lldp-runner").exists()
+
+
+def test_no_config_reports_old_home_history_when_using_the_shared_install(
+    home: Path, host_installs: dict[str, Path]
+) -> None:
+    (host_installs["shared"] / "var").mkdir(parents=True)
+    (home / "lldp-runner" / "outputs").mkdir(parents=True)
+
+    layout = select_layout(None)
+
+    assert layout.persistent_root == host_installs["shared"] / "var"
+    assert layout.unused_history == (home / "lldp-runner" / "outputs",)
+
+
 def test_home_of_slash_does_not_turn_every_install_into_a_user_install(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

@@ -83,9 +83,24 @@ one installation reads and writes the same data:
 - **system** (distribution packages): `/etc/lldp-runner/config.toml`.
   Persistent root `/var/lib/lldp-runner`; scratch root `/run/lldp-runner`.
 - **user** (one account): `~/lldp-runner/config.toml` or another configuration
-  below the home directory, or no configuration file at all. Persistent root
-  `<dir>/var`; a file directly in the home directory, or no file, uses
-  `~/lldp-runner/var`. Scratch root `$XDG_RUNTIME_DIR/lldp-runner`.
+  below the home directory. Persistent root `<dir>/var`; a file directly in the
+  home directory uses `~/lldp-runner/var`. Scratch root
+  `$XDG_RUNTIME_DIR/lldp-runner`.
+
+Without any configuration file, LLDP-Runner uses the installation present on
+the host, checked in this order:
+
+1. `/opt/lldp-runner` exists: the shared layout, data in
+   `/opt/lldp-runner/var`.
+2. `/var/lib/lldp-runner` or `/etc/lldp-runner` exists: the system layout,
+   data in `/var/lib/lldp-runner`.
+3. Otherwise the user layout, data in `~/lldp-runner/var`.
+
+A present installation is never bypassed: if `/opt/lldp-runner` exists but its
+`var/` has not been prepared, or the operator cannot write to it, the command
+fails instead of writing to the home directory. To use a personal installation
+on such a host, create `~/lldp-runner/config.toml` with
+`lldp-runner generate-config`.
 
 Every layout falls back to `<persistent_root>/tmp` when its preferred scratch
 root is unavailable. An installation other than `/opt/lldp-runner` (or
@@ -96,11 +111,12 @@ never share a running scoreboard: `/srv/lab/config.toml` uses
 The layout follows the configuration path as it was named. A `config.toml`
 that is a symbolic link to a file kept elsewhere, such as in a configuration
 repository, still belongs to the directory that holds the link. Without a
-configuration file and without a usable home directory (for example
-`HOME=/`), there is no automatic location; set `paths.persistent_root` or use
-`--config`. The persistent root holds `runs/` (run state, activity
-logs) and `outputs/` (finalized `discovery.json`, CSV files, and `latest`
-links).
+configuration file, without an installation, and without a usable home
+directory (for example `HOME=/`), there is no automatic location; set
+`paths.persistent_root` or use `--config`.
+
+The persistent root holds `runs/` (run state, activity logs) and `outputs/`
+(finalized `discovery.json`, CSV files, and `latest` links).
 
 A shared installation therefore uses these folders:
 

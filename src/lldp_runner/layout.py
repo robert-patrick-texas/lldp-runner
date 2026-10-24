@@ -14,10 +14,14 @@ conventional locations from the same rule:
 ``system``
     ``/etc/lldp-runner/config.toml``. Data lives in ``/var/lib/lldp-runner``.
 ``user``
-    A configuration below the home directory, or no configuration at all. Data
-    lives in ``<dir>/var``, where a file directly in the home directory (or no
-    file) uses ``~/lldp-runner``, and scratch uses the per-user
-    ``$XDG_RUNTIME_DIR``.
+    A configuration below the home directory. Data lives in ``<dir>/var``,
+    where a file directly in the home directory uses ``~/lldp-runner``, and
+    scratch uses the per-user ``$XDG_RUNTIME_DIR``.
+
+Without a configuration file, LLDP-Runner uses the installation present on the
+host: the shared ``/opt/lldp-runner`` when that directory exists, otherwise the
+system layout when ``/var/lib/lldp-runner`` or ``/etc/lldp-runner`` exists,
+otherwise the user's ``~/lldp-runner``.
 
 The layout follows the configuration path as the operator or launcher named it.
 Symbolic links are not resolved, so a ``config.toml`` that links to a file kept
@@ -131,6 +135,16 @@ def _home_directories() -> tuple[Path, ...]:
     return (home,) if resolved == home else (home, resolved)
 
 
+def _installation_present(path: Path) -> bool:
+    """Return whether ``path`` marks an installation on this host.
+
+    Kept separate so the test suite can isolate itself from installations that
+    exist on the machine running it.
+    """
+
+    return path.is_dir()
+
+
 def _real_directories(base: Path, names: tuple[str, ...]) -> tuple[Path, ...]:
     """Return ``base/<name>`` entries that are real directories, not symlinks."""
 
@@ -168,32 +182,59 @@ def select_layout(
     data_names = (runs_dirname, output_dirname)
     location = None if config_location is None else Path(os.path.normpath(config_location))
 
-    if location is not None and location.parent == Path(SYSTEM_CONFIG_DIR):
-        return InstallLayout(
-            name="system",
-            persistent_root=Path(SYSTEM_PERSISTENT_ROOT),
-            scratch_candidates=tuple(Path(item) for item in SYSTEM_SCRATCH_ROOTS),
-            create_persistent=False,
-        )
-
     homes = _home_directories()
     in_home = location is not None and any(location.is_relative_to(home) for home in homes)
     user_base = Path(os.path.normpath(Path(USER_INSTANCE_DIR).expanduser())) if homes else None
+    # The previous automatic rule preferred ~/lldp-runner, so history left there
+    # is reported whenever runs without a configuration now go elsewhere.
+    old_user_history = () if user_base is None else _real_directories(user_base, data_names)
 
-    if location is None or (in_home and location.parent in homes):
-        # No file, or a file directly in the home directory: never use $HOME
-        # itself as the installation directory.
-        if user_base is None:
+    system = InstallLayout(
+        name="system",
+        persistent_root=Path(SYSTEM_PERSISTENT_ROOT),
+        scratch_candidates=tuple(Path(item) for item in SYSTEM_SCRATCH_ROOTS),
+        create_persistent=False,
+    )
+    if location is not None and location.parent == Path(SYSTEM_CONFIG_DIR):
+        return system
+
+    if location is None:
+        # No configuration file: use the installation present on this host, in
+        # order: the default shared install, a system package, then the user's
+        # own. A present installation is never bypassed in favor of a home
+        # directory, even when its data directory is missing or unwritable.
+        if _installation_present(Path(SHARED_DEFAULT_INSTANCE_DIR)):
+            base = Path(SHARED_DEFAULT_INSTANCE_DIR)
+            name = "shared"
+        elif _installation_present(Path(SYSTEM_PERSISTENT_ROOT)) or _installation_present(
+            Path(SYSTEM_CONFIG_DIR)
+        ):
+            return InstallLayout(
+                name=system.name,
+                persistent_root=system.persistent_root,
+                scratch_candidates=system.scratch_candidates,
+                create_persistent=False,
+                unused_history=old_user_history,
+            )
+        elif user_base is None:
             return InstallLayout(
                 name="user",
                 persistent_root=None,
                 scratch_candidates=(),
                 create_persistent=False,
                 unavailable=(
-                    "no configuration file was found and the home directory cannot "
-                    "hold LLDP-Runner data; use --config or set paths.persistent_root"
+                    "no configuration file or installation was found and the home "
+                    "directory cannot hold LLDP-Runner data; use --config or set "
+                    "paths.persistent_root"
                 ),
             )
+        else:
+            base = user_base
+            name = "user"
+    elif in_home and location.parent in homes:
+        # A file directly in the home directory: never use $HOME itself as the
+        # installation directory.
+        assert user_base is not None
         base = user_base
         name = "user"
     else:
@@ -215,9 +256,8 @@ def select_layout(
     history = _real_directories(base, data_names)
     legacy = bool(history) and not data_dir.exists()
     unused = () if legacy else history
-    if name == "user" and user_base is not None and base != user_base:
-        # The previous automatic rule always preferred ~/lldp-runner.
-        unused += _real_directories(user_base, data_names)
+    if (name == "user" or location is None) and base != user_base:
+        unused += old_user_history
 
     return InstallLayout(
         name=name,

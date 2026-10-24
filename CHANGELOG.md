@@ -9,15 +9,17 @@
   and outputs in `/opt/lldp-runner/var` and scratch data in
   `/dev/shm/lldp-runner`, falling back to `/opt/lldp-runner/var/tmp`. The
   system layout (`/etc/lldp-runner/config.toml`) uses `/var/lib/lldp-runner`
-  and `/run/lldp-runner`. A configuration below the home directory, or none,
-  uses `<dir>/var` and `$XDG_RUNTIME_DIR/lldp-runner`; a file directly in the
-  home directory, or none, uses `~/lldp-runner/var`. The layout follows the
+  and `/run/lldp-runner`. A configuration below the home directory uses
+  `<dir>/var` and `$XDG_RUNTIME_DIR/lldp-runner`; a file directly in the home
+  directory uses `~/lldp-runner/var`. Without a configuration file the first
+  present installation wins: `/opt/lldp-runner`, then `/var/lib/lldp-runner`
+  or `/etc/lldp-runner`, then `~/lldp-runner`. The layout follows the
   configuration path as named, without resolving symbolic links. Other
   installations get their own scratch name, such as
   `/dev/shm/lldp-runner-srv-lab`. `/tmp/lldp-runner` and `/var/tmp/lldp-runner`
   are no longer scratch candidates, shared and system roots are no longer
-  created on demand, and without a configuration or usable home directory
-  `auto` is an error instead of the working directory.
+  created on demand, and without a configuration, installation, or usable
+  home directory `auto` is an error instead of the working directory.
 - Installations that still keep `runs/` and `outputs/` directly in the
   installation directory keep using them until `<dir>/var` exists. `paths`,
   `validate-config`, and `run` warn about it, and about such directories left
