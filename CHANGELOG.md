@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.39.1 - 2026-10-24
 
 - Add `tools/flat_graph_compare.py`, a read-only developer tool that derives a
   flat host list from a `discovery.json` topology graph and compares it with

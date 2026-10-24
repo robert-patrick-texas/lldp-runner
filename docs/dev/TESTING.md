@@ -149,6 +149,17 @@ both `member_presence` and `protocol_evidence`, with exact member-scoped events.
 Discovery scheduling, Gufo behavior, collector output, and retry budgets remain
 unchanged from 0.32.7.
 
+## 0.39.1 focused release tests
+
+0.39.1 adds `tools/flat_graph_compare.py`. `test_flat_graph_compare.py` drives
+the coordinator's real ingestion path with simulated device results and
+requires the derived flat hosts and the graph to agree for a clean discovery.
+A switch reached through two management addresses must appear as one graph
+system merging two flat hosts, with the repeated neighbor rows counted as
+duplicates. Hand-built documents cover splits, systems found in only one view,
+field and protocol differences, placeholder addresses, the command-line exit
+codes, unsupported schemas, and running with only the standard library.
+
 ## 0.39.0 focused release tests
 
 0.39.0 moves automatic runtime paths onto install layouts. `test_layout.py`
@@ -170,8 +181,8 @@ directory of `lrun-diff`, the packaged fallback without `pyproject.toml`, and
 error instead of aborting initialization.
 
 The root-run setup scripts were also exercised in Ubuntu 26.04 containers,
-because they need root, systemd, and several accounts; see
-[RELEASE-STATUS-0.39.0.md](../../RELEASE-STATUS-0.39.0.md).
+because they need root, systemd, and several accounts. Their results are in
+the 0.39.0 release status report, kept in the `v0.39.0` tag.
 
 ## 0.38.1 focused release tests
 

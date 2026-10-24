@@ -349,7 +349,7 @@ run storage. At normal widths the screen starts with a blank row,
 keeps one blank cell at both side edges, and uses this justified title:
 
 ```text
-LLDP-Runner 0.39.0  Run ID = 20260111-04  STATE = RUNNING  updated 00:03 ago
+LLDP-Runner 0.39.1  Run ID = 20260111-04  STATE = RUNNING  updated 00:03 ago
 ```
 
 The update age uses total minutes and seconds, including values such as `67:09`.
