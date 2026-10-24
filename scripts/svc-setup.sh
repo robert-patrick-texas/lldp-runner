@@ -5,21 +5,13 @@
 
 set -euo pipefail
 
-# Example production/shared-install defaults. Uncomment and adjust for a stable
-# centrally managed deployment.
-# SERVICE_USER="${LLDP_RUNNER_SERVICE_USER:-lldp-runner}"
-# GROUP_NAME="${LLDP_RUNNER_GROUP:-lldp-runner}"
-# PROJECT_ROOT="${LLDP_RUNNER_PROJECT_ROOT:-/opt/lldp-runner}"
-# PERSISTENT_ROOT="${LLDP_RUNNER_PERSISTENT_ROOT:-/var/lib/lldp-runner}"
-# SCRATCH_ROOT="${LLDP_RUNNER_SCRATCH_ROOT:-/var/tmp/lldp-runner}"
-# PYTHON_DIR="${UV_PYTHON_INSTALL_DIR:-/opt/shared/python}"
-
-# Development defaults used by this project today. These settings are subject
-# to change and should be reviewed before use at a site.
+# Defaults for the shared layout prepared by scripts/shared-setup.sh: the
+# installation in /opt/lldp-runner, runtime data in /opt/lldp-runner/var, and
+# scratch data in /dev/shm/lldp-runner. Review them before use at a site.
 SERVICE_USER="${LLDP_RUNNER_SERVICE_USER:-lldp-runner}"
 GROUP_NAME="${LLDP_RUNNER_GROUP:-netops}"
 PROJECT_ROOT="${LLDP_RUNNER_PROJECT_ROOT:-/opt/lldp-runner}"
-PERSISTENT_ROOT="${LLDP_RUNNER_PERSISTENT_ROOT:-/opt/lldp-runner}"
+PERSISTENT_ROOT="${LLDP_RUNNER_PERSISTENT_ROOT:-}"
 SCRATCH_ROOT="${LLDP_RUNNER_SCRATCH_ROOT:-/dev/shm/lldp-runner}"
 PYTHON_DIR="${UV_PYTHON_INSTALL_DIR:-/opt/shared/python}"
 RANDOM_DELAY_MINUTES="${LLDP_RUNNER_RANDOM_DELAY_MINUTES:-10}"
@@ -29,7 +21,11 @@ MAINT_CALENDAR="${LLDP_RUNNER_MAINT_CALENDAR:-*-*-* 02:30:00}"
 PURGE_KEEP="${LLDP_RUNNER_PURGE_KEEP:-11}"
 
 SYSTEMD_DIR="/etc/systemd/system"
-TMPFILES_FILE="/etc/tmpfiles.d/lldp-runner.conf"
+# Written by svc-setup.sh before shared-setup.sh took over boot-time scratch
+# recreation (lldp-runner-scratch.conf). svc-remove.sh still removes it.
+LEGACY_TMPFILES_FILE="/etc/tmpfiles.d/lldp-runner.conf"
+# The service account has no writable home, so uv's cache lives here instead.
+CACHE_DIRECTORY_NAME="lldp-runner"
 UNIT_NAMES=(
     lldp-runner-run.service
     lldp-runner-run.timer
@@ -45,8 +41,9 @@ Options:
   --service-user NAME       Service account (default: lldp-runner).
   --group NAME              Required service group (default: netops).
   --project-root PATH       LLDP-Runner project root.
-  --persistent-root PATH    Configured persistent_root.
-  --scratch-root PATH       Configured scratch_root.
+  --persistent-root PATH    Configured persistent_root (default: PROJECT/var).
+  --scratch-root PATH       Configured scratch_root; holds the schedule lock
+                            (default: /dev/shm/lldp-runner).
   --python-dir PATH         Shared uv-managed Python directory.
   --random-delay MINUTES    Timer random delay, 0 or greater (default: 10).
   --run-calendar SPEC       systemd OnCalendar for discovery.
@@ -76,9 +73,10 @@ while (($#)); do
     esac
 done
 
+: "${PERSISTENT_ROOT:=${PROJECT_ROOT}/var}"
+
 [[ ${EUID} -eq 0 ]] || die "run this script with sudo or as root"
 command -v systemctl >/dev/null 2>&1 || die "systemctl is required"
-command -v systemd-tmpfiles >/dev/null 2>&1 || die "systemd-tmpfiles is required"
 command -v flock >/dev/null 2>&1 || die "flock is required"
 getent passwd "$SERVICE_USER" >/dev/null || die "service user '$SERVICE_USER' does not exist"
 getent group "$GROUP_NAME" >/dev/null || die "group '$GROUP_NAME' does not exist"
@@ -96,6 +94,10 @@ done
 [[ -x "$PROJECT_ROOT/scripts/lrun-run" ]] || die "missing executable: $PROJECT_ROOT/scripts/lrun-run"
 [[ -x "$PROJECT_ROOT/scripts/lrun-clean" ]] || die "missing executable: $PROJECT_ROOT/scripts/lrun-clean"
 [[ -x "$PROJECT_ROOT/scripts/lrun-purge" ]] || die "missing executable: $PROJECT_ROOT/scripts/lrun-purge"
+[[ -d "$SCRATCH_ROOT" ]] || \
+    die "scratch root $SCRATCH_ROOT does not exist; run scripts/shared-setup.sh first"
+[[ -d "$PERSISTENT_ROOT" ]] || \
+    die "persistent root $PERSISTENT_ROOT does not exist; run scripts/shared-setup.sh first"
 
 for unit in "${UNIT_NAMES[@]}"; do
     [[ ! -e "$SYSTEMD_DIR/$unit" ]] || \
@@ -104,16 +106,8 @@ for unit in "${UNIT_NAMES[@]}"; do
         die "$unit is already registered; run scripts/svc-remove.sh first"
     fi
 done
-[[ ! -e "$TMPFILES_FILE" ]] || \
-    die "$TMPFILES_FILE already exists; run scripts/svc-remove.sh first"
-
-# systemd-tmpfiles recreates volatile scratch storage after reboot with stable
-# ownership/group permissions before the timer starts a discovery.
-cat > "$TMPFILES_FILE" <<EOF_TMP
-# Managed by LLDP-Runner scripts/svc-setup.sh
-d $SCRATCH_ROOT 2775 $SERVICE_USER $GROUP_NAME - -
-EOF_TMP
-systemd-tmpfiles --create "$TMPFILES_FILE"
+[[ ! -e "$LEGACY_TMPFILES_FILE" ]] || \
+    die "$LEGACY_TMPFILES_FILE already exists; run scripts/svc-remove.sh first"
 
 cat > "$SYSTEMD_DIR/lldp-runner-run.service" <<EOF_UNIT
 [Unit]
@@ -128,6 +122,9 @@ Group=$GROUP_NAME
 WorkingDirectory=$PROJECT_ROOT
 Environment=UV_PYTHON_INSTALL_DIR=$PYTHON_DIR
 Environment=UV_LINK_MODE=copy
+Environment=UV_CACHE_DIR=/var/cache/$CACHE_DIRECTORY_NAME/uv
+CacheDirectory=$CACHE_DIRECTORY_NAME
+CacheDirectoryMode=0750
 UMask=0002
 TimeoutStartSec=infinity
 ExecStart=/usr/bin/flock --exclusive $SCRATCH_ROOT/.schedule.lock $PROJECT_ROOT/scripts/lrun-run
@@ -160,6 +157,9 @@ Group=$GROUP_NAME
 WorkingDirectory=$PROJECT_ROOT
 Environment=UV_PYTHON_INSTALL_DIR=$PYTHON_DIR
 Environment=UV_LINK_MODE=copy
+Environment=UV_CACHE_DIR=/var/cache/$CACHE_DIRECTORY_NAME/uv
+CacheDirectory=$CACHE_DIRECTORY_NAME
+CacheDirectoryMode=0750
 UMask=0002
 TimeoutStartSec=infinity
 ExecStart=/usr/bin/flock --exclusive $SCRATCH_ROOT/.schedule.lock /bin/bash -c '$PROJECT_ROOT/scripts/lrun-clean && $PROJECT_ROOT/scripts/lrun-purge --keep $PURGE_KEEP'

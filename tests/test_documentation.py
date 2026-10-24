@@ -324,9 +324,11 @@ def test_shared_paths_fragment_is_parseable_and_explicit() -> None:
     path = ROOT / "configs" / "conf.d" / "shared-paths.toml.example"
     parsed = tomllib.loads(path.read_text(encoding="utf-8"))
     assert parsed["paths"] == {
-        "persistent_root": "/var/lib/lldp-runner",
-        "scratch_root": "/var/tmp/lldp-runner",
+        "persistent_root": "/srv/lldp-runner",
+        "scratch_root": "/dev/shm/lldp-runner",
     }
+    # The fragment must not suggest the install root itself as persistent_root.
+    assert parsed["paths"]["persistent_root"] != "/opt/lldp-runner"
 
 
 def test_hidden_watch_overlay_stays_out_of_operator_documentation() -> None:

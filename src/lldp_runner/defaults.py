@@ -47,21 +47,28 @@ CONFIG_SEARCH_PATHS: tuple[str, ...] = (
     "/etc/lldp-runner/config.toml",
 )
 
-# ``persistent_root = 'auto'`` checks these existing directories in order. An
-# existing candidate that is not writable is an error; LLDP-Runner deliberately
-# does not silently fall through to a different location after a permission
-# problem. If none exists, the current working directory is used when writable.
-PERSISTENT_ROOT_AUTO_CANDIDATES: tuple[str, ...] = (
-    "~/lldp-runner",
-    "/opt/lldp-runner",
-    "/var/lib/lldp-runner",
-)
-
-# ``scratch_root = 'auto'`` tries to create/use an ``lldp-runner`` subdirectory
-# beneath these temporary-memory/filesystem locations. Unlike persistent_root,
-# an unavailable/unwritable scratch candidate is skipped because scratch data is
-# intentionally relocatable. The final fallback is ``<persistent_root>/tmp``.
-SCRATCH_ROOT_AUTO_BASES: tuple[str, ...] = ("/dev/shm", "/tmp", "/var/tmp")
+# Install layouts used when ``paths.persistent_root`` or ``paths.scratch_root``
+# is ``auto``. The layout follows the directory of the selected primary config
+# file, so runtime data always belongs to the installation that defined it
+# (see lldp_runner.layout):
+#
+#   shared  <dir>/config.toml outside the home directory, such as
+#           /opt/lldp-runner: persistent <dir>/var, scratch /dev/shm/lldp-runner
+#   system  /etc/lldp-runner/config.toml: persistent /var/lib/lldp-runner,
+#           scratch /run/lldp-runner, then /dev/shm/lldp-runner
+#   user    a config below the home directory, or no config at all:
+#           persistent ~/lldp-runner/var, scratch $XDG_RUNTIME_DIR/lldp-runner
+#
+# Every layout falls back to <persistent_root>/tmp for scratch. Distribution
+# packagers can change these constants instead of patching resolver code.
+SYSTEM_CONFIG_DIR: Final[str] = "/etc/lldp-runner"
+SYSTEM_PERSISTENT_ROOT: Final[str] = "/var/lib/lldp-runner"
+SYSTEM_SCRATCH_ROOTS: tuple[str, ...] = ("/run/lldp-runner", "/dev/shm/lldp-runner")
+SHARED_SCRATCH_ROOTS: tuple[str, ...] = ("/dev/shm/lldp-runner",)
+USER_INSTANCE_DIR: Final[str] = "~/lldp-runner"
+USER_HOME_CONFIG_NAME: Final[str] = "lldp-runner-config.toml"
+INSTANCE_DATA_DIRNAME: Final[str] = "var"
+SCRATCH_FALLBACK_DIRNAME: Final[str] = "tmp"
 
 # PySNMP became the built-in default in 0.37.0 after repeated production
 # discovery runs demonstrated complete collection, stable topology, correct
@@ -84,9 +91,8 @@ DEFAULT_SNMP_ENV = {
 # specify values that differ from these defaults.
 DEFAULTS: dict[str, Any] = {
     "paths": {
-        # Resolve at runtime using PERSISTENT_ROOT_AUTO_CANDIDATES above.
+        # Resolve at runtime from the install layout described above.
         "persistent_root": "auto",
-        # Resolve at runtime using SCRATCH_ROOT_AUTO_BASES above.
         "scratch_root": "auto",
         "runs_dirname": "runs",
         "output_dirname": "outputs",

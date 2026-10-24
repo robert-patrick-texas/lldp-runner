@@ -20,7 +20,12 @@ from pathlib import Path
 from typing import Any, Literal
 
 from lldp_runner.claims import stable_fingerprint
-from lldp_runner.config import AppConfig, ConfigError, resolve_existing_persistent_root
+from lldp_runner.config import (
+    AppConfig,
+    ConfigError,
+    install_layout,
+    resolve_existing_persistent_root,
+)
 from lldp_runner.diff_reconciliation import reconcile_compatibility_and_graph
 from lldp_runner.discovery_query import (
     DiscoveryDocument,
@@ -610,7 +615,9 @@ def _persistent_output_root(config: AppConfig) -> Path:
     """Resolve the configured persistent output root without creating anything."""
 
     try:
-        path = resolve_existing_persistent_root(config.paths.persistent_root)
+        path = resolve_existing_persistent_root(
+            config.paths.persistent_root, layout=install_layout(config)
+        )
     except (ConfigError, OSError, ValueError) as exc:
         raise DiscoveryDiffError(str(exc)) from exc
     output = path / config.paths.output_dirname

@@ -301,32 +301,51 @@ Workers are processes. Each worker then runs asyncio internally.
 
 ### 5.2 Persistent root
 
-`persistent_root = "auto"` checks existing directories in this order:
+`persistent_root = "auto"` follows the install layout of the selected primary
+configuration file (`lldp_runner.layout`):
 
 ```text
-~/lldp-runner
-/opt/lldp-runner
-/var/lib/lldp-runner
+/etc/lldp-runner/config.toml         -> /var/lib/lldp-runner     (system)
+<dir>/config.toml outside home       -> <dir>/var                (shared)
+<dir>/config.toml below home         -> <dir>/var                (user)
+~/lldp-runner-config.toml or no file -> ~/lldp-runner/var        (user)
 ```
 
-The first existing candidate is authoritative. If it exists but is not
-writable, LLDP-Runner fails rather than silently moving durable state elsewhere.
+The data directory is a subdirectory rather than `<dir>` itself because
+discovery write-tests the persistent root. A group-writable installation root
+would let any operator add files, such as `uv.toml` or `conf.d/`, that the
+maintainer or service account later loads.
 
-If none exists, the current working directory is used when writable.
+Only a user root is created on demand. Shared and system roots need
+administrator-set ownership and group permissions, so a missing one is an error
+that names `scripts/shared-setup.sh`. An existing but unwritable root also fails
+rather than silently moving durable state elsewhere.
+
+When `<dir>/var` does not exist but `<dir>/runs` or `<dir>/outputs` does, the
+installation predates the layout and `<dir>` stays the persistent root. The
+`paths`, `validate-config`, and `run` commands then warn that the directories
+should move into `var/`. Symlinks such as `<dir>/runs -> var/runs` do not count,
+because `var/` exists.
+
+The read-only resolvers used by `status`, `watch`, `clean`, `purge`, `paths`,
+`show-neighbors`, and `diff` apply the same layout without creating or
+write-testing anything.
 
 ### 5.3 Scratch root
 
-`scratch_root = "auto"` tries:
+`scratch_root = "auto"` tries the layout's candidates, then
+`<persistent_root>/tmp`:
 
 ```text
-/dev/shm/lldp-runner
-/tmp/lldp-runner
-/var/tmp/lldp-runner
-<persistent_root>/tmp
+shared  /dev/shm/lldp-runner
+system  /run/lldp-runner, /dev/shm/lldp-runner
+user    $XDG_RUNTIME_DIR/lldp-runner (when set)
 ```
 
 Scratch locations may fall through because scratch data is intentionally
-relocatable.
+relocatable. Read-only commands prefer the candidate that holds a `current`
+run, so `status` and `watch` find a run that fell back to
+`<persistent_root>/tmp`.
 
 Every run uses `<scratch_root>/<run-id>/` plus an atomic relative
 `<scratch_root>/current` symlink while active. Live status is published

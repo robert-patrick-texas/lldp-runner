@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 import lldp_runner.config as config_module
+import lldp_runner.layout as layout_module
 from lldp_runner.cli import _default_generated_config_path, main
 from lldp_runner.config import (
     ConfigError,
@@ -16,18 +17,30 @@ from lldp_runner.config import (
 
 
 def _isolate_auto_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
-    """Keep dynamic path tests away from real user/system directories."""
+    """Keep dynamic path tests away from real user/system directories.
 
-    scratch_base = tmp_path / "scratch-base"
-    scratch_base.mkdir()
-    monkeypatch.setattr(config_module, "PERSISTENT_ROOT_AUTO_CANDIDATES", ())
-    monkeypatch.setattr(config_module, "SCRATCH_ROOT_AUTO_BASES", (str(scratch_base),))
+    The home directory and per-user runtime directory move below ``tmp_path``.
+    Configs written directly in ``tmp_path`` use the shared layout, so its
+    ``var/`` data directory is created the way shared-setup.sh would. Returns the
+    per-user runtime directory.
+    """
+
+    home = tmp_path / "home"
+    runtime = tmp_path / "runtime"
+    home.mkdir()
+    runtime.mkdir()
+    (tmp_path / "var").mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_RUNTIME_DIR", str(runtime))
+    monkeypatch.setattr(
+        layout_module, "SHARED_SCRATCH_ROOTS", (str(tmp_path / "shm" / "lldp-runner"),)
+    )
     monkeypatch.chdir(tmp_path)
-    return scratch_base
+    return runtime
 
 
 def test_default_only_runtime_resolves_dynamic_values(monkeypatch, tmp_path: Path) -> None:
-    scratch_base = _isolate_auto_paths(monkeypatch, tmp_path)
+    runtime = _isolate_auto_paths(monkeypatch, tmp_path)
     monkeypatch.setattr(config_module.os, "cpu_count", lambda: 6)
 
     config = load_config(None, env={"SNMPCOMM": "public"})
@@ -41,8 +54,9 @@ def test_default_only_runtime_resolves_dynamic_values(monkeypatch, tmp_path: Pat
     assert config.snmp.max_outstanding_devices_per_worker == 24
     assert config.snmp.collect_entity_mib is True
     assert config.snmp.entity_mib_mode == "full"
-    assert config.paths.persistent_root == tmp_path.resolve()
-    assert config.paths.scratch_root == (scratch_base / "lldp-runner").resolve()
+    # Without a config file, LLDP-Runner behaves as a single-user installation.
+    assert config.paths.persistent_root == (tmp_path / "home" / "lldp-runner" / "var").resolve()
+    assert config.paths.scratch_root == (runtime / "lldp-runner").resolve()
 
 
 def test_partial_config_inherits_defaults_and_replaces_default_lists(
@@ -106,39 +120,43 @@ def test_explicit_missing_config_is_error(tmp_path: Path) -> None:
         discover_config_path(tmp_path / "missing.toml", env={})
 
 
-def test_existing_auto_persistent_permission_error_does_not_fall_through(
-    monkeypatch, tmp_path: Path
-) -> None:
-    first = tmp_path / "first"
-    second = tmp_path / "second"
-    first.mkdir()
-    second.mkdir()
-    monkeypatch.setattr(
-        config_module,
-        "PERSISTENT_ROOT_AUTO_CANDIDATES",
-        (str(first), str(second)),
-    )
+def test_shared_layout_does_not_create_missing_data_directory(monkeypatch, tmp_path: Path) -> None:
+    """A shared root needs setup-time ownership, so auto resolution never creates it."""
+
+    _isolate_auto_paths(monkeypatch, tmp_path)
+    install = tmp_path / "opt" / "lldp-runner"
+    install.mkdir(parents=True)
+    path = install / "config.toml"
+    path.write_text("", encoding="utf-8")
+
+    with pytest.raises(ConfigError, match=r"shared-setup\.sh"):
+        load_config(path, env={}, credential_mode=CredentialMode.OPTIONAL)
+    assert not (install / "var").exists()
+
+
+def test_shared_layout_unwritable_data_directory_is_an_error(monkeypatch, tmp_path: Path) -> None:
+    _isolate_auto_paths(monkeypatch, tmp_path)
+    install = tmp_path / "opt" / "lldp-runner"
+    (install / "var").mkdir(parents=True)
+    path = install / "config.toml"
+    path.write_text("", encoding="utf-8")
     calls: list[Path] = []
 
     def fake_probe(path: Path, *, create: bool, label: str) -> Path:
         calls.append(path)
-        if path == first:
-            raise ConfigError(f"{label} directory is not writable: {path}")
-        return path
+        raise ConfigError(f"{label} directory is not writable: {path}")
 
     monkeypatch.setattr(config_module, "_probe_writable_directory", fake_probe)
 
     with pytest.raises(ConfigError, match="not writable"):
-        config_module._resolve_persistent_root("auto")
-    assert calls == [first]
+        load_config(path, env={}, credential_mode=CredentialMode.OPTIONAL)
+    assert calls == [install / "var"]
 
 
 def test_defaults_only_persistent_error_mentions_generate_config(
     monkeypatch, tmp_path: Path
 ) -> None:
-    candidate = tmp_path / "existing"
-    candidate.mkdir()
-    monkeypatch.setattr(config_module, "PERSISTENT_ROOT_AUTO_CANDIDATES", (str(candidate),))
+    _isolate_auto_paths(monkeypatch, tmp_path)
 
     def fail_probe(path: Path, *, create: bool, label: str) -> Path:
         raise ConfigError(f"{label} directory is not writable: {path}")

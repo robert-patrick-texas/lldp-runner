@@ -20,6 +20,7 @@ lldp-runner [GLOBAL OPTIONS] get-neighbors SEED [OPTIONS]
 lldp-runner [GLOBAL OPTIONS] show-neighbors [OPTIONS] [PATTERN]
 lldp-runner [GLOBAL OPTIONS] diff [OPTIONS] [PATTERN]
 lldp-runner [GLOBAL OPTIONS] validate-config
+lldp-runner [GLOBAL OPTIONS] paths [--json]
 lldp-runner [GLOBAL OPTIONS] generate-config [FILENAME]
 lldp-runner [GLOBAL OPTIONS] explain-target TARGET
 lldp-runner [GLOBAL OPTIONS] status [--json]
@@ -1320,7 +1321,7 @@ Supported options are:
 --tracefile FILENAME
 ```
 
-## 11. `validate-config`
+## 11. `validate-config` and `paths`
 
 Load the effective configuration, apply normal precedence, validate settings,
 and validate required credential secrets.
@@ -1335,7 +1336,51 @@ A specific configuration may be selected globally:
 lldp-runner --config /opt/lldp-runner/config.toml validate-config
 ```
 
-Global `--set` and runtime credential options also apply.
+Global `--set` and runtime credential options also apply. After validation,
+the command prints the install layout and the resolved, write-tested runtime
+roots:
+
+```text
+Configuration valid: /opt/lldp-runner/config.toml
+Install layout:  shared
+Persistent root: /opt/lldp-runner/var
+Scratch root:    /dev/shm/lldp-runner
+```
+
+### `paths [--json]`
+
+Show where the effective configuration keeps run state, finalized outputs, and
+scratch data, without creating, write-testing, or changing anything. Credentials
+are not processed, so any operator can run it.
+
+```bash
+lldp-runner --config /opt/lldp-runner/config.toml paths
+```
+
+```text
+Configuration:   /opt/lldp-runner/config.toml
+Install layout:  shared
+Persistent root: /opt/lldp-runner/var (auto)
+Runs:            /opt/lldp-runner/var/runs
+Outputs:         /opt/lldp-runner/var/outputs
+Scratch root:    /dev/shm/lldp-runner (auto)
+```
+
+`(auto)` marks a root chosen by the install layout; `(configured)` marks one
+set by configuration, environment, `--set`, or a dedicated option. For an
+automatic scratch root, the command reports the location that `status` and
+`watch` read: the candidate holding a current run, otherwise the first existing
+candidate. `--json`
+prints the same information with the keys `config_path`, `layout`,
+`legacy_layout`, `persistent_root`, `persistent_root_auto`, `runs_dir`,
+`outputs_dir`, `scratch_root`, and `scratch_root_auto`.
+
+The install layout follows the primary configuration file; see
+[INSTALL.md](INSTALL.md) for the shared, system, and user layouts. When
+`runs/` or `outputs/` still sit directly in the installation directory and no
+`var/` directory exists, the older location stays in use and the command
+prints a warning on stderr. `validate-config` and `run` print the same warning.
+`scripts/lrun-paths` runs this command through the shared launcher.
 
 ## 12. `generate-config [FILENAME]`
 
@@ -1593,9 +1638,12 @@ No arguments selects the two newest completed runs by the timezone-aware
 is an error. The archive is deliberately uncompressed so the operator can
 inspect it directly or apply the site-approved compression and transfer method.
 
-Environment overrides for nonstandard layouts are documented in the script
-header. They include `LLDP_RUNNER_BUNDLE_ROOT`, `LLDP_RUNNER_OUTPUTS_DIR`,
-`LLDP_RUNNER_RUNS_DIR`, and `LLDP_RUNNER_BUNDLE_ARCHIVE_DIR`.
+By default the source `outputs/` and `runs/` directories come from
+`scripts/lrun-paths --json`, so the bundle reads the same installation data as
+`lrun-diff`. Environment overrides for nonstandard layouts are documented in the
+script header. They include `LLDP_RUNNER_BUNDLE_ROOT`,
+`LLDP_RUNNER_OUTPUTS_DIR`, `LLDP_RUNNER_RUNS_DIR`, `LLDP_RUNNER_PATHS_BIN`, and
+`LLDP_RUNNER_BUNDLE_ARCHIVE_DIR`.
 
 ## 18. Configuration precedence
 

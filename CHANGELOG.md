@@ -2,6 +2,53 @@
 
 ## Unreleased
 
+- Automatic runtime paths now follow the selected configuration file's
+  directory instead of the first existing `~/lldp-runner`, `/opt/lldp-runner`,
+  or `/var/lib/lldp-runner`, so every operator of one installation uses the
+  same data. The shared layout (`/opt/lldp-runner/config.toml`) keeps run state
+  and outputs in `/opt/lldp-runner/var` and scratch data in
+  `/dev/shm/lldp-runner`, falling back to `/opt/lldp-runner/var/tmp`. The
+  system layout (`/etc/lldp-runner/config.toml`) uses `/var/lib/lldp-runner`
+  and `/run/lldp-runner`. A configuration below the home directory, or none,
+  uses `<dir>/var` (`~/lldp-runner/var`) and `$XDG_RUNTIME_DIR/lldp-runner`.
+  `/tmp/lldp-runner` and `/var/tmp/lldp-runner` are no longer scratch
+  candidates. Shared and system roots are no longer created on demand.
+- Installations that still keep `runs/` and `outputs/` directly in the
+  installation directory keep using them until `<dir>/var` exists. `paths`,
+  `validate-config`, and `run` warn about it. INSTALL.md describes the move.
+- Add `lldp-runner paths [--json]` and `scripts/lrun-paths`, which show the
+  install layout, persistent, runs, outputs, and scratch locations without
+  creating anything. `validate-config` also prints the resolved roots.
+- The `lrun-*` launchers no longer embed `/opt/lldp-runner`. They select
+  `LLDP_RUNNER_CONFIG`, `<project>/config.toml`, or
+  `/etc/lldp-runner/config.toml`, start in that file's directory so
+  `seed.list` resolves beside it, and run through `uv run --project`. Without a
+  `pyproject.toml` beside them they run the installed `lldp-runner` from
+  `PATH`. `lrun-explain` now uses the deployed configuration as well.
+- `lrun-bundle-diff` reads the outputs and runs directories from `lrun-paths`
+  unless `LLDP_RUNNER_BUNDLE_ROOT`, `LLDP_RUNNER_OUTPUTS_DIR`, or
+  `LLDP_RUNNER_RUNS_DIR` is set.
+- `shared-setup.sh` gains `--layout shared|system` and `--project-root`. It
+  creates `var/{runs,outputs,tmp}` and the scratch root as `root:GROUP` mode
+  `2770` without access for other users, installs
+  `/etc/tmpfiles.d/lldp-runner-scratch.conf` so the scratch root is recreated
+  at boot, refuses a runtime root that equals or contains the project root, and
+  no longer changes the owner of an existing Python directory. Previously it
+  re-owned `/opt/shared/python` to root, which broke the maintainer's later
+  `uv python install`.
+- `svc-setup.sh` defaults to the shared layout, requires the runtime roots from
+  `shared-setup.sh`, no longer writes its own tmpfiles entry, and gives the
+  units a uv cache in `/var/cache/lldp-runner/uv`. Without one, uv failed with
+  "Failed to initialize cache" for a service account whose home is
+  `/nonexistent`. `scripts/example.private` sets `UV_NO_CACHE=1` for the same
+  case outside systemd.
+- INSTALL.md covers the three layouts, installs the shared Python as root,
+  adds `/etc/uv/uv.toml` and `/etc/profile.d` guard rails that keep uv-managed
+  Python out of home directories, removes world access from the installation,
+  and drops the `conf.d` paths step, which the primary `config.toml` silently
+  overrode. It also lists the `tzdata` package: without the operating
+  system's time zone database, every command failed at startup with
+  `ZoneInfoNotFoundError`.
 - Fix discovery aborting with `UnboundLocalError` when a seed cannot be parsed,
   for example a loopback address. The seed is recorded as an `invalid_seed`
   error and initialization continues.

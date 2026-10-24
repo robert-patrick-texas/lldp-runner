@@ -47,7 +47,9 @@ These variables overlay the matching configuration settings.
 
 ### `LLDP_RUNNER_ROOT`
 
-Override `paths.persistent_root`.
+Override `paths.persistent_root`. The value `auto` selects the install layout's
+root, such as `/opt/lldp-runner/var` for `/opt/lldp-runner/config.toml`; see
+[INSTALL.md](INSTALL.md).
 
 ```bash
 export LLDP_RUNNER_ROOT=/srv/lldp-runner

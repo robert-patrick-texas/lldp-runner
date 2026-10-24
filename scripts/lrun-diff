@@ -13,7 +13,8 @@
 # Expected project layout:
 #
 #   <project_directory>/
-#   ├── pyproject.toml
+#   ├── pyproject.toml            # Absent for a packaged installation
+#   ├── config.toml               # Optional; selected when present
 #   └── scripts/
 #       ├── <scriptname>.sh
 #       └── .private              # Optional
@@ -46,7 +47,7 @@ APP_NAME="lldp-runner"
 # Use a Bash array so that arguments containing spaces or shell-sensitive
 # characters remain individual arguments without requiring eval.
 APP_ARGS=(
-  --config /opt/lldp-runner/config.toml diff
+  diff
 )
 ### compare what changed, not what merely moved in a table
 echo
@@ -83,6 +84,13 @@ UV_BIN="uv"
 #
 #   uv run <APP_NAME>
 UV_RUN_ARGS=()
+
+# Working directory for the application.
+#
+#   false = start in the directory holding the selected configuration file, so
+#           relative paths in APP_ARGS (such as seed.list) resolve there
+#   true  = keep the operator's current working directory
+KEEP_WORKING_DIRECTORY=true
 
 
 # ============================================================================
@@ -178,6 +186,14 @@ case "${SINGLE_INSTANCE:-}" in
         ;;
 esac
 
+case "${KEEP_WORKING_DIRECTORY:-}" in
+    true|false)
+        ;;
+    *)
+        die "KEEP_WORKING_DIRECTORY must be either 'true' or 'false'."
+        ;;
+esac
+
 
 # ----------------------------------------------------------------------------
 # Determine the project directory.
@@ -204,15 +220,60 @@ project_directory="$(cd -- "$project_directory" && pwd -P)"
 
 
 # ----------------------------------------------------------------------------
-# Verify that this appears to be the expected uv/Python project.
+# Choose how to start the application.
+#
+# A source installation has pyproject.toml in the project directory and starts
+# the application through uv. A packaged installation has no pyproject.toml
+# beside the scripts directory and starts APP_NAME from PATH instead.
 # ----------------------------------------------------------------------------
 
-if [[ ! -f "${project_directory}/pyproject.toml" ]]; then
-    die "pyproject.toml was not found in project directory: ${project_directory}"
+use_uv=false
+
+if [[ -f "${project_directory}/pyproject.toml" ]]; then
+    use_uv=true
+
+    if ! command -v -- "$UV_BIN" >/dev/null 2>&1; then
+        die "'${UV_BIN}' was not found in PATH."
+    fi
+elif ! command -v -- "$APP_NAME" >/dev/null 2>&1; then
+    die "pyproject.toml was not found in ${project_directory} and '${APP_NAME}' is not in PATH."
 fi
 
-if ! command -v -- "$UV_BIN" >/dev/null 2>&1; then
-    die "'${UV_BIN}' was not found in PATH."
+
+# ----------------------------------------------------------------------------
+# Select the installation's configuration.
+#
+# Precedence:
+#
+#   1. LLDP_RUNNER_CONFIG, for example exported by .private.
+#   2. <project_directory>/config.toml.
+#   3. /etc/lldp-runner/config.toml.
+#   4. The application's normal configuration search.
+#
+# LLDP-Runner keeps runtime data with the selected configuration file, so every
+# operator who uses this launcher works on the same installation's data.
+# ----------------------------------------------------------------------------
+
+if [[ -z "${LLDP_RUNNER_CONFIG:-}" ]]; then
+    for config_candidate in \
+        "${project_directory}/config.toml" \
+        /etc/lldp-runner/config.toml
+    do
+        if [[ -f "$config_candidate" ]]; then
+            export LLDP_RUNNER_CONFIG="$config_candidate"
+            break
+        fi
+    done
+fi
+
+if [[ -n "${LLDP_RUNNER_CONFIG:-}" ]]; then
+    if [[ "$LLDP_RUNNER_CONFIG" != /* ]]; then
+        export LLDP_RUNNER_CONFIG="${PWD}/${LLDP_RUNNER_CONFIG}"
+    fi
+
+    instance_directory="$(dirname -- "$LLDP_RUNNER_CONFIG")"
+else
+    instance_directory="$project_directory"
 fi
 
 
@@ -265,9 +326,10 @@ fi
 # ----------------------------------------------------------------------------
 # Launch the application.
 #
-# uv is pointed at the project explicitly while this launcher preserves the
-# operator's working directory. This is required so relative --file arguments
-# retain the command-line semantics documented by lldp-runner diff.
+# Unless KEEP_WORKING_DIRECTORY is true, the application starts in the
+# directory holding the selected configuration, regardless of the operator's
+# original working directory. uv is pointed at the project explicitly, so it
+# finds the project environment from any working directory.
 #
 # Arguments supplied to this launcher are passed through unchanged.
 #
@@ -277,15 +339,19 @@ fi
 #
 # becomes:
 #
-#   uv run <APP_NAME> --verbose --target router01
+#   uv run --project <project_directory> <APP_NAME> --verbose --target router01
 #
-# exec replaces this Bash process with uv so that exit status and process
-# signals propagate naturally.
+# exec replaces this Bash process with the application so that exit status and
+# process signals propagate naturally.
 # ----------------------------------------------------------------------------
 
-# Unlike most launchers, diff intentionally preserves the operator's current
-# working directory because relative --file paths are defined relative to where
-# the operator invoked the command. --project tells uv where the Python project
-# lives without changing that working-directory context.
-exec "$UV_BIN" run --project "$project_directory" \
-    "${UV_RUN_ARGS[@]}" "$APP_NAME" "${APP_ARGS[@]}" "$@"
+if [[ "$KEEP_WORKING_DIRECTORY" != true ]]; then
+    cd -- "$instance_directory"
+fi
+
+if [[ "$use_uv" == true ]]; then
+    exec "$UV_BIN" run --project "$project_directory" \
+        "${UV_RUN_ARGS[@]}" "$APP_NAME" "${APP_ARGS[@]}" "$@"
+fi
+
+exec "$APP_NAME" "${APP_ARGS[@]}" "$@"

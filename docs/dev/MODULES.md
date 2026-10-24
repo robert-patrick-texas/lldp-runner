@@ -17,6 +17,8 @@ and tests before changing behavior.
 
 - `defaults.py`: canonical defaults.
 - `config.py`: TOML/include/environment/CLI assembly and validation.
+- `layout.py`: install layouts (shared, system, user) behind `auto`
+  persistent and scratch roots.
 - `configgen.py`: generated configuration and explanatory comments.
 - `runtime.py`: run paths, storage preflight, atomic `latest` publication, and
   guarded completed-scratch cleanup.

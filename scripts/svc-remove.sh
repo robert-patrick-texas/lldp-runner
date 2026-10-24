@@ -5,24 +5,14 @@
 
 set -euo pipefail
 
-# Example production/shared-install defaults. Retained for symmetry with setup.
-# SERVICE_USER="${LLDP_RUNNER_SERVICE_USER:-lldp-runner}"
-# GROUP_NAME="${LLDP_RUNNER_GROUP:-lldp-runner}"
-# PROJECT_ROOT="${LLDP_RUNNER_PROJECT_ROOT:-/opt/lldp-runner}"
-# PERSISTENT_ROOT="${LLDP_RUNNER_PERSISTENT_ROOT:-/var/lib/lldp-runner}"
-# SCRATCH_ROOT="${LLDP_RUNNER_SCRATCH_ROOT:-/var/tmp/lldp-runner}"
-# PYTHON_DIR="${UV_PYTHON_INSTALL_DIR:-/opt/shared/python}"
-
-# Development defaults used by this project today. These settings are subject
-# to change and should be reviewed before use at a site.
+# Defaults matching svc-setup.sh. Only the summary below uses them.
 SERVICE_USER="${LLDP_RUNNER_SERVICE_USER:-lldp-runner}"
 GROUP_NAME="${LLDP_RUNNER_GROUP:-netops}"
-PROJECT_ROOT="${LLDP_RUNNER_PROJECT_ROOT:-/opt/lldp-runner}"
-PERSISTENT_ROOT="${LLDP_RUNNER_PERSISTENT_ROOT:-/opt/lldp-runner}"
 SCRATCH_ROOT="${LLDP_RUNNER_SCRATCH_ROOT:-/dev/shm/lldp-runner}"
-PYTHON_DIR="${UV_PYTHON_INSTALL_DIR:-/opt/shared/python}"
 
 SYSTEMD_DIR="/etc/systemd/system"
+# Written by older svc-setup.sh versions. The scratch entry that shared-setup.sh
+# now maintains (lldp-runner-scratch.conf) is left in place.
 TMPFILES_FILE="/etc/tmpfiles.d/lldp-runner.conf"
 UNIT_NAMES=(
     lldp-runner-run.service

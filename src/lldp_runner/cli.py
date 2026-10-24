@@ -7,23 +7,26 @@ import json
 import logging
 import os
 import sys
+from collections.abc import Mapping
 from pathlib import Path
-from typing import NoReturn
+from typing import Any, NoReturn
 
 from lldp_runner import __version__
 from lldp_runner.cleanup import clean_run_history
 from lldp_runner.config import (
+    AppConfig,
     ConfigError,
     CredentialMode,
     defaults_with_set_overrides,
     discover_config_path,
+    install_layout,
     load_config,
     resolve_existing_persistent_root,
     resolve_readonly_scratch_root,
 )
 from lldp_runner.configgen import render_generated_config
 from lldp_runner.coordinator import Coordinator, DiscoveryOutcome, explain_target
-from lldp_runner.defaults import DEFAULT_SNMP_BACKEND
+from lldp_runner.defaults import DEFAULT_SNMP_BACKEND, INSTANCE_DATA_DIRNAME
 from lldp_runner.discovery_diff import (
     DiffOutcome,
     DiffSourceSpec,
@@ -927,6 +930,12 @@ def _parser() -> argparse.ArgumentParser:
 
     sub.add_parser("validate-config", help="validate effective configuration and credentials")
 
+    paths = sub.add_parser(
+        "paths",
+        help="show where this configuration keeps run state, outputs, and scratch data",
+    )
+    paths.add_argument("--json", action="store_true", help="print machine-readable paths")
+
     generate = sub.add_parser(
         "generate-config",
         help="write a commented configuration starting from built-in defaults",
@@ -975,6 +984,69 @@ def _parser() -> argparse.ArgumentParser:
 
     sub.add_parser("pause", help="request a controlled pause of the current run")
     return parser
+
+
+def _paths_report(config: AppConfig) -> dict[str, Any]:
+    """Describe where ``config`` keeps runtime data without creating anything.
+
+    Args:
+        config: Effective configuration. Its paths may still be ``auto`` (read-only
+            commands) or already resolved (``validate-config``).
+
+    Returns:
+        JSON-serializable mapping of the selected config file, install layout,
+        persistent/run/output directories, and scratch root.
+    """
+
+    layout = install_layout(config)
+    persistent_auto = str(config.paths.persistent_root).lower() == "auto"
+    scratch_auto = str(config.paths.scratch_root).lower() == "auto"
+    persistent = resolve_existing_persistent_root(config.paths.persistent_root, layout=layout)
+    scratch = resolve_readonly_scratch_root(
+        config.paths.scratch_root, persistent_root=persistent, layout=layout
+    )
+    return {
+        "config_path": str(config.config_path) if config.config_path is not None else None,
+        "layout": layout.name,
+        "legacy_layout": layout.legacy and persistent == layout.persistent_root.resolve(),
+        "persistent_root": str(persistent),
+        "persistent_root_auto": persistent_auto,
+        "runs_dir": str(persistent / config.paths.runs_dirname),
+        "outputs_dir": str(persistent / config.paths.output_dirname),
+        "scratch_root": str(scratch),
+        "scratch_root_auto": scratch_auto,
+    }
+
+
+def _print_paths_report(report: Mapping[str, Any]) -> None:
+    """Print :func:`_paths_report` output for operators."""
+
+    def source(auto: bool) -> str:
+        return "auto" if auto else "configured"
+
+    print(f"Configuration:   {report['config_path'] or 'built-in defaults'}")
+    print(f"Install layout:  {report['layout']}")
+    print(
+        f"Persistent root: {report['persistent_root']} ({source(report['persistent_root_auto'])})"
+    )
+    print(f"Runs:            {report['runs_dir']}")
+    print(f"Outputs:         {report['outputs_dir']}")
+    print(f"Scratch root:    {report['scratch_root']} ({source(report['scratch_root_auto'])})")
+
+
+def _warn_legacy_layout(config: AppConfig, report: Mapping[str, Any]) -> None:
+    """Tell operators that runtime data still sits directly in the install directory."""
+
+    if not report["legacy_layout"]:
+        return
+    root = Path(report["persistent_root"])
+    print(
+        f"Warning: {root} still holds {config.paths.runs_dirname}/ and "
+        f"{config.paths.output_dirname}/ directly (older layout). Move them into "
+        f"{root / INSTANCE_DATA_DIRNAME}/ to use the current layout, or set "
+        "paths.persistent_root to keep this location.",
+        file=sys.stderr,
+    )
 
 
 def _load_app(
@@ -1480,7 +1552,7 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         credential_mode = CredentialMode.REQUIRED
-        if args.command in {"status", "watch", "clean", "purge"}:
+        if args.command in {"status", "watch", "clean", "purge", "paths"}:
             credential_mode = CredentialMode.DISABLED
         elif args.command in {"pause", "explain-target"}:
             # explain-target evaluates credential-profile policy but never needs
@@ -1491,13 +1563,14 @@ def main(argv: list[str] | None = None) -> None:
             args,
             credential_mode=credential_mode,
             resolve_paths=(
-                args.command not in {"status", "watch", "clean", "purge", "explain-target"}
+                args.command not in {"status", "watch", "clean", "purge", "explain-target", "paths"}
             ),
         )
         if args.command in {"status", "watch", "clean", "purge"}:
             config.paths.scratch_root = resolve_readonly_scratch_root(
                 config.paths.scratch_root,
                 persistent_root=config.paths.persistent_root,
+                layout=install_layout(config),
             )
     except (ConfigError, OSError, ValueError) as exc:
         parser.error(str(exc))
@@ -1511,7 +1584,9 @@ def main(argv: list[str] | None = None) -> None:
         scratch_only = bool(args.scratch and not args.all)
         persistent_root = None
         try:
-            persistent_root = resolve_existing_persistent_root(config.paths.persistent_root)
+            persistent_root = resolve_existing_persistent_root(
+                config.paths.persistent_root, layout=install_layout(config)
+            )
         except (ConfigError, OSError, ValueError) as exc:
             # Scratch-only cleanup must not become dependent on persistent
             # storage availability. When resolvable, however, its latest alias
@@ -1543,7 +1618,9 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.command == "purge":
         try:
-            persistent_root = resolve_existing_persistent_root(config.paths.persistent_root)
+            persistent_root = resolve_existing_persistent_root(
+                config.paths.persistent_root, layout=install_layout(config)
+            )
             keep = config.output.purge_keep if args.keep is None else args.keep
             result = purge_output_history(
                 config,
@@ -1600,9 +1677,27 @@ def main(argv: list[str] | None = None) -> None:
         sys.stdout.write(scoreboard.read_text(encoding="utf-8"))
         return
 
+    if args.command == "paths":
+        try:
+            report = _paths_report(config)
+        except (ConfigError, OSError, ValueError) as exc:
+            parser.error(str(exc))
+            return
+        _warn_legacy_layout(config, report)
+        if args.json:
+            print(json.dumps(report, indent=2))
+        else:
+            _print_paths_report(report)
+        return
+
     if args.command == "validate-config":
         source = str(config.config_path) if config.config_path is not None else "built-in defaults"
         print(f"Configuration valid: {source}")
+        report = _paths_report(config)
+        _warn_legacy_layout(config, report)
+        print(f"Install layout:  {report['layout']}")
+        print(f"Persistent root: {report['persistent_root']}")
+        print(f"Scratch root:    {report['scratch_root']}")
         return
 
     if args.command == "explain-target":
@@ -1610,6 +1705,7 @@ def main(argv: list[str] | None = None) -> None:
         return
 
     if args.command == "run":
+        _warn_legacy_layout(config, _paths_report(config))
         stdin_seeds: list[str] = []
         raw_seed_counts: list[int] = []
         try:

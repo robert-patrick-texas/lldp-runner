@@ -1,6 +1,12 @@
-# Example explicit paths for a centrally managed multi-user installation.
+# Example explicit paths for a site that keeps runtime data outside the
+# installation directory. The default "auto" paths already place a shared
+# /opt/lldp-runner installation's data in /opt/lldp-runner/var and its scratch
+# data in /dev/shm/lldp-runner, so most sites do not need this fragment.
+#
+# The primary config.toml overrides conf.d fragments. Remove persistent_root and
+# scratch_root from config.toml, or set them there instead, when using this file.
 # Use dedicated directories owned by the trusted LLDP-Runner operator group.
 
 [paths]
-persistent_root = "/var/lib/lldp-runner"
-scratch_root = "/var/tmp/lldp-runner"
+persistent_root = "/srv/lldp-runner"
+scratch_root = "/dev/shm/lldp-runner"

@@ -454,31 +454,31 @@ Each resolved config file is merged only once per load.
 
 ## Default filesystem behavior
 
-Both persistent and scratch roots default to `auto`.
+Both persistent and scratch roots default to `auto`. Automatic paths follow
+the directory of the selected primary configuration file, so runtime data stays
+with the installation that the file belongs to:
 
-Persistent root checks existing locations in order:
+- Shared layout, `<dir>/config.toml` outside the home directory such as
+  `/opt/lldp-runner/config.toml`: persistent root `<dir>/var`, scratch root
+  `/dev/shm/lldp-runner`.
+- System layout, `/etc/lldp-runner/config.toml`: persistent root
+  `/var/lib/lldp-runner`, scratch root `/run/lldp-runner`, then
+  `/dev/shm/lldp-runner`.
+- User layout, a configuration below the home directory or no configuration at
+  all: persistent root `<dir>/var` (`~/lldp-runner/var` without a
+  configuration), scratch root `$XDG_RUNTIME_DIR/lldp-runner`.
 
-```text
-~/lldp-runner
-/opt/lldp-runner
-/var/lib/lldp-runner
-```
+Every layout falls back to `<persistent_root>/tmp` for scratch. A shared or
+system persistent root must already exist with group permissions, normally
+created by `scripts/shared-setup.sh`; a user persistent root is created on
+demand. An existing but unwritable persistent root is an error; LLDP-Runner
+never silently moves durable state elsewhere. Scratch candidates may safely fall
+through when unavailable.
 
-The first existing location is authoritative. If it exists but is not writable,
-LLDP-Runner reports an error instead of silently moving durable state elsewhere.
-
-If none exists, the writable current working directory is used.
-
-Scratch root checks:
-
-```text
-/dev/shm/lldp-runner
-/tmp/lldp-runner
-/var/tmp/lldp-runner
-<persistent_root>/tmp
-```
-
-Scratch candidates may safely fall through when unavailable.
+An installation whose `runs/` and `outputs/` still sit directly in `<dir>`
+keeps using them until `<dir>/var` exists, with a warning that suggests moving
+them. `lldp-runner paths` shows the effective locations without creating
+anything. See [INSTALL.md](docs/INSTALL.md) for each layout's setup.
 
 A successful terminal run publishes two relative convenience links:
 
@@ -1192,18 +1192,25 @@ See [`docs/CLI.md`](docs/CLI.md) for the complete command-line reference.
 
 ## Operator launcher scripts
 
-The `scripts/lrun-*` files are Bash convenience launchers for installations that
-keep the project and primary configuration under `/opt/lldp-runner`. Each
-launcher resolves the project from its own location, optionally sources
-`scripts/.private`, runs through `uv`, forwards additional command-line
-arguments, and can use `flock` when `SINGLE_INSTANCE=true`.
-See [`docs/INSTALL.md`](docs/INSTALL.md) and `scripts/example.private` for the
-shared uv and
-operator-versus-maintainer launcher environment.
+The `scripts/lrun-*` files are Bash convenience launchers. Each launcher
+resolves the project from its own location, so the same scripts serve a shared
+`/opt/lldp-runner`, a home-directory, or a packaged installation. It optionally
+sources `scripts/.private`, selects the installation's configuration, forwards
+additional command-line arguments, and can use `flock` when
+`SINGLE_INSTANCE=true`.
 
-- `scripts/lrun-checkconfig` runs `lldp-runner validate-config` against
-  `/opt/lldp-runner/config.toml`, providing a short operator command for
-  checking the deployed configuration before a discovery run.
+The configuration is `LLDP_RUNNER_CONFIG` when set, otherwise
+`<project>/config.toml`, otherwise `/etc/lldp-runner/config.toml`. The command
+starts in that file's directory, so `seed.list` in the fixed arguments means the
+seed list beside the configuration. A source installation (with
+`pyproject.toml`) runs through `uv run --project`; a packaged installation runs
+the installed `lldp-runner` command from `PATH`. See
+[`docs/INSTALL.md`](docs/INSTALL.md) and `scripts/example.private` for the
+shared uv and operator-versus-maintainer launcher environment.
+
+- `scripts/lrun-checkconfig` runs `lldp-runner validate-config` against the
+  deployed configuration, providing a short operator command for checking it,
+  and the resolved runtime roots, before a discovery run.
 - `scripts/lrun-clean` runs `lldp-runner clean` against the deployed primary
   configuration. It permits concurrent invocation (`SINGLE_INSTANCE=false`) and
   forwards options such as `--scratch`, `--all`, or `--dry-run`.
@@ -1211,19 +1218,21 @@ operator-versus-maintainer launcher environment.
   deployed primary configuration. It preserves the invoking working directory
   so relative `--file` paths continue to resolve from the operator's context.
 - `scripts/lrun-dryrun` runs the normal discovery command in `--dry-run` mode
-  using `/opt/lldp-runner/seed.list`, so seed/configuration behavior can be
-  checked without contacting devices.
-- `scripts/lrun-explain` runs `lldp-runner explain-target` and forwards the
-  requested target/options, using LLDP-Runner's normal configuration discovery.
+  using the `seed.list` beside the configuration, so seed/configuration
+  behavior can be checked without contacting devices.
+- `scripts/lrun-explain` runs `lldp-runner explain-target` against the deployed
+  configuration and forwards the requested target/options.
 - `scripts/lrun-get` wraps `lldp-runner get-neighbors` with the deployed primary
   configuration, prints a short target notice, and passes inspection and trace
   options through unchanged.
+- `scripts/lrun-paths` runs `lldp-runner paths` to show where the deployed
+  configuration keeps run state, outputs, and scratch data.
 - `scripts/lrun-purge` runs `lldp-runner purge` against the deployed primary
   configuration. It permits concurrent invocation (`SINGLE_INSTANCE=false`) and
   forwards retention options such as `--keep` and `--dry-run`.
-- `scripts/lrun-run` starts a normal discovery run using
-  `/opt/lldp-runner/seed.list` and enables the launcher's single-instance
-  `flock` guard so a second copy fails immediately instead of overlapping.
+- `scripts/lrun-run` starts a normal discovery run using the `seed.list` beside
+  the configuration and enables the launcher's single-instance `flock` guard so
+  a second copy fails immediately instead of overlapping.
 - `scripts/lrun-seedrun` starts a single-instance seeded discovery using random
   seed ordering, shuffle key `20260102`, `max_devices=auto`, `max_hosts=150000`,
   and `limit_behavior=complete` for a bounded seed-oriented run.
@@ -1233,7 +1242,7 @@ operator-versus-maintainer launcher environment.
 - `scripts/lrun-version` runs `lldp-runner version` without requiring a
   configuration file.
 - `scripts/lrun-watch` starts the native interactive `lldp-runner watch`
-  dashboard against `/opt/lldp-runner/config.toml` and forwards optional watch
+  dashboard against the deployed configuration and forwards optional watch
   controls such as `--worker-view`, `--palette`, and `--no-color`.
 - `scripts/gufo-ipv6-test.py` bypasses LLDP-Runner and compares direct Gufo SNMP
   behavior for the same IPv6 destination in canonical unbracketed and
@@ -1253,10 +1262,9 @@ operator-versus-maintainer launcher environment.
   `index.html` links the `Repository` URL from `[project.urls]` in
   `pyproject.toml`; `--repo-url URL` overrides it and `--repo-url ''` omits it.
 
-The paths and fixed arguments near the top of each launcher are operator
-configuration, not package defaults. Review them before deployment when the
-project, configuration, seed file, or desired run policy differs from the
-provided `/opt/lldp-runner` examples.
+The fixed arguments near the top of each launcher are operator configuration,
+not package defaults. Review them before deployment when the seed file or
+desired run policy differs from the provided examples.
 
 ## Run/output retention maintenance
 

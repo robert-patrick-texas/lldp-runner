@@ -18,16 +18,21 @@
 # Optional environment variables:
 #
 #   LLDP_RUNNER_BUNDLE_ROOT
-#       Parent of the source outputs and runs directories. The default is the
-#       project directory above this scripts directory.
+#       Parent of the source outputs and runs directories. When unset, both
+#       directories come from the installation's configuration, as reported by
+#       lrun-paths.
 #
 #   LLDP_RUNNER_OUTPUTS_DIR
 #       Explicit source outputs directory. This overrides
-#       <bundle-root>/outputs.
+#       <bundle-root>/outputs and the configured outputs directory.
 #
 #   LLDP_RUNNER_RUNS_DIR
-#       Explicit source runtime-state directory. The default is
-#       <bundle-root>/runs.
+#       Explicit source runtime-state directory. This overrides
+#       <bundle-root>/runs and the configured runs directory.
+#
+#   LLDP_RUNNER_PATHS_BIN
+#       lrun-paths executable. The default is scripts/lrun-paths beside this
+#       file, with PATH lookup as a fallback.
 #
 #   LLDP_RUNNER_BUNDLE_ARCHIVE_DIR
 #       Directory in which to create the final tar file. The default is the
@@ -148,16 +153,6 @@ fi
 script_path="$(readlink -f -- "$script_reference")"
 [[ -f "$script_path" ]] || die "unable to resolve script location."
 script_dir="$(dirname -- "$script_path")"
-project_dir="$(canonical_directory "${script_dir}/..")" || die "unable to resolve project directory."
-
-bundle_root="${LLDP_RUNNER_BUNDLE_ROOT:-$project_dir}"
-bundle_root="$(canonical_directory "$bundle_root")" || die "bundle root is missing or inaccessible: ${bundle_root}"
-
-outputs_candidate="${LLDP_RUNNER_OUTPUTS_DIR:-${bundle_root}/outputs}"
-outputs_dir="$(canonical_directory "$outputs_candidate")" || die "outputs directory is missing or inaccessible: ${outputs_candidate}"
-
-runs_candidate="${LLDP_RUNNER_RUNS_DIR:-${bundle_root}/runs}"
-runs_dir="$(canonical_directory "$runs_candidate")" || die "runs directory is missing or inaccessible: ${runs_candidate}"
 
 archive_candidate="${LLDP_RUNNER_BUNDLE_ARCHIVE_DIR:-$PWD}"
 archive_dir="$(canonical_directory "$archive_candidate")" || die "archive directory is missing or inaccessible: ${archive_candidate}"
@@ -174,6 +169,48 @@ else
     diff_candidate="lrun-diff"
 fi
 diff_bin="$(resolve_executable "$diff_candidate")" || die "lrun-diff was not found or is not executable: ${diff_candidate}"
+
+# Source directories: explicit overrides first, then <bundle-root>/outputs and
+# <bundle-root>/runs, then the installation's configured locations. The last
+# case asks lrun-paths, so the bundle reads the same runs that lrun-diff does.
+default_outputs=""
+default_runs=""
+if [[ -n "${LLDP_RUNNER_BUNDLE_ROOT:-}" ]]; then
+    bundle_root="$(canonical_directory "$LLDP_RUNNER_BUNDLE_ROOT")" || die "bundle root is missing or inaccessible: ${LLDP_RUNNER_BUNDLE_ROOT}"
+    default_outputs="${bundle_root}/outputs"
+    default_runs="${bundle_root}/runs"
+elif [[ -z "${LLDP_RUNNER_OUTPUTS_DIR:-}" || -z "${LLDP_RUNNER_RUNS_DIR:-}" ]]; then
+    if [[ -n "${LLDP_RUNNER_PATHS_BIN:-}" ]]; then
+        paths_candidate="$LLDP_RUNNER_PATHS_BIN"
+    elif [[ -x "${script_dir}/lrun-paths" ]]; then
+        paths_candidate="${script_dir}/lrun-paths"
+    else
+        paths_candidate="lrun-paths"
+    fi
+    paths_bin="$(resolve_executable "$paths_candidate")" || die "lrun-paths was not found or is not executable: ${paths_candidate}"
+    paths_json="$("$paths_bin" --json)" || die "unable to read the installation paths from ${paths_bin}"
+    install_paths=()
+    while IFS= read -r -d '' item; do
+        install_paths+=("$item")
+    done < <(
+        "$python_bin" -c '
+import json
+import sys
+
+report = json.load(sys.stdin)
+sys.stdout.write(report["outputs_dir"] + "\0" + report["runs_dir"] + "\0")
+' <<<"$paths_json"
+    )
+    (( ${#install_paths[@]} == 2 )) || die "unexpected output from ${paths_bin} --json"
+    default_outputs="${install_paths[0]}"
+    default_runs="${install_paths[1]}"
+fi
+
+outputs_candidate="${LLDP_RUNNER_OUTPUTS_DIR:-$default_outputs}"
+outputs_dir="$(canonical_directory "$outputs_candidate")" || die "outputs directory is missing or inaccessible: ${outputs_candidate}"
+
+runs_candidate="${LLDP_RUNNER_RUNS_DIR:-$default_runs}"
+runs_dir="$(canonical_directory "$runs_candidate")" || die "runs directory is missing or inaccessible: ${runs_candidate}"
 
 tmp_base="${TMPDIR:-/tmp}"
 tmp_base="$(canonical_directory "$tmp_base")" || die "temporary directory root is missing or inaccessible: ${tmp_base}"

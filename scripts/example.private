@@ -27,13 +27,23 @@ else
     UV_RUN_ARGS=(--no-sync)
 fi
 
-# A primary configuration file is optional. Set LLDP_RUNNER_CONFIG only when
-# you want an explicit file rather than the normal configuration search order.
-# For a shared installation, an explicit shared path is usually preferable.
-# export LLDP_RUNNER_CONFIG=/opt/lldp-runner/config.toml
+# uv needs a writable cache even for --no-sync runs. Service accounts usually
+# have no writable home (for example /nonexistent), so fall back to a temporary
+# per-invocation cache when ~/.cache/uv cannot be created. The systemd units
+# installed by svc-setup.sh set UV_CACHE_DIR instead.
+if [[ -z "${UV_CACHE_DIR:-}" ]] \
+    && ! mkdir -p "${XDG_CACHE_HOME:-${HOME:-/nonexistent}/.cache}/uv" 2>/dev/null; then
+    export UV_NO_CACHE=1
+fi
 
-# Optional runtime path/config overrides.
-# export LLDP_RUNNER_ROOT=/opt/lldp-runner
+# The launchers select <project>/config.toml automatically, and LLDP-Runner
+# keeps runtime data with that file (/opt/lldp-runner/var for a shared
+# installation). Set LLDP_RUNNER_CONFIG only to use a different file.
+# export LLDP_RUNNER_CONFIG=/etc/lldp-runner/config.toml
+
+# Optional runtime path overrides. These win over config.toml; scripts/lrun-paths
+# shows the effective locations.
+# export LLDP_RUNNER_ROOT=/opt/lldp-runner/var
 # export LLDP_RUNNER_SCRATCH_ROOT=/dev/shm/lldp-runner
 # export LLDP_RUNNER_WORKERS=auto
 # export LLDP_RUNNER_BATCH_SIZE=9

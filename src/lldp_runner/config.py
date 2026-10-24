@@ -24,10 +24,9 @@ from lldp_runner.defaults import (
     CREDENTIAL_PRIV_PROTOCOL_DEFAULT,
     DEFAULT_SNMP_ENV,
     DEFAULTS,
-    PERSISTENT_ROOT_AUTO_CANDIDATES,
-    SCRATCH_ROOT_AUTO_BASES,
     TERMINAL_COLOR_NAMES,
 )
+from lldp_runner.layout import InstallLayout, select_layout
 from lldp_runner.runid import validate_run_id_format
 from lldp_runner.timeutil import configure_timezone, normalize_timezone_name
 
@@ -1264,25 +1263,55 @@ def _probe_writable_directory(path: Path, *, create: bool, label: str) -> Path:
     return path.resolve()
 
 
-def _resolve_persistent_root(value: Path | str) -> Path:
-    """Resolve explicit/automatic persistent storage according to site-safe rules."""
+def install_layout(config: AppConfig) -> InstallLayout:
+    """Return the automatic install layout implied by ``config``'s primary file."""
+
+    return select_layout(
+        config.config_path,
+        runs_dirname=config.paths.runs_dirname,
+        output_dirname=config.paths.output_dirname,
+    )
+
+
+def _resolve_persistent_root(value: Path | str, *, layout: InstallLayout) -> Path:
+    """Resolve explicit/automatic persistent storage according to site-safe rules.
+
+    An automatic shared or system root is never created here: its group ownership
+    and permissions belong to the administrator's setup step, and a root created
+    by whichever operator ran first would lock the others out.
+    """
 
     if str(value).lower() != "auto":
         return _probe_writable_directory(
             Path(value).expanduser(), create=True, label="persistent_root"
         )
 
-    for candidate in PERSISTENT_ROOT_AUTO_CANDIDATES:
-        path = Path(candidate).expanduser()
-        if path.exists():
-            # Deliberately fail on the first existing-but-unwritable candidate;
-            # silently moving persistent state would hide a permissions problem.
-            return _probe_writable_directory(path, create=False, label="persistent_root")
+    try:
+        return _probe_writable_directory(
+            layout.persistent_root,
+            create=layout.create_persistent,
+            label="persistent_root",
+        )
+    except ConfigError as exc:
+        if layout.create_persistent:
+            raise
+        hint = (
+            "run scripts/shared-setup.sh to create it"
+            if layout.name == "shared"
+            else "create it with the package's setup"
+        )
+        raise ConfigError(
+            f"{exc}\nThe {layout.name} install layout keeps runtime data in "
+            f"{layout.persistent_root}; {hint}, or set paths.persistent_root."
+        ) from exc
 
-    return _probe_writable_directory(Path.cwd(), create=False, label="persistent_root")
 
-
-def _resolve_scratch_root(value: Path | str, *, persistent_root: Path) -> Path:
+def _resolve_scratch_root(
+    value: Path | str,
+    *,
+    persistent_root: Path,
+    layout: InstallLayout,
+) -> Path:
     """Resolve scratch storage, falling through temporary candidates when needed."""
 
     if str(value).lower() != "auto":
@@ -1290,52 +1319,44 @@ def _resolve_scratch_root(value: Path | str, *, persistent_root: Path) -> Path:
             Path(value).expanduser(), create=True, label="scratch_root"
         )
 
-    for base_text in SCRATCH_ROOT_AUTO_BASES:
-        base = Path(base_text)
-        if not base.is_dir():
+    for candidate in layout.scratch_candidates:
+        if not candidate.parent.is_dir():
             continue
         try:
-            return _probe_writable_directory(
-                base / "lldp-runner", create=True, label="scratch_root"
-            )
+            return _probe_writable_directory(candidate, create=True, label="scratch_root")
         except ConfigError:
             # Scratch is relocatable by design, so unlike persistent state it is
             # safe to try the next temporary filesystem candidate.
             continue
 
-    return _probe_writable_directory(persistent_root / "tmp", create=True, label="scratch_root")
+    return _probe_writable_directory(
+        layout.scratch_fallback(persistent_root), create=True, label="scratch_root"
+    )
 
 
-def resolve_existing_persistent_root(value: Path | str) -> Path:
+def resolve_existing_persistent_root(value: Path | str, *, layout: InstallLayout) -> Path:
     """Resolve persistent storage without creating or write-probing it.
 
     Read-only and cleanup commands need the same authoritative persistent-root
     selection as discovery while avoiding side effects before their own operation
-    begins. Explicit paths are normalized directly. For ``auto``, the first
-    existing standard candidate wins; when none exists, the current directory is
-    returned if it is a directory.
+    begins. Explicit paths are normalized directly; ``auto`` uses the install
+    layout's root whether or not it exists yet.
     """
 
     if str(value).lower() != "auto":
         return Path(value).expanduser().resolve()
 
-    for candidate_text in PERSISTENT_ROOT_AUTO_CANDIDATES:
-        candidate = Path(candidate_text).expanduser().resolve()
-        if candidate.exists():
-            if not candidate.is_dir():
-                raise ConfigError(f"persistent_root auto candidate is not a directory: {candidate}")
-            return candidate
-
-    current = Path.cwd().resolve()
-    if current.is_dir():
-        return current
-    raise ConfigError("unable to resolve persistent_root")
+    root = layout.persistent_root.resolve()
+    if root.exists() and not root.is_dir():
+        raise ConfigError(f"persistent_root is not a directory: {root}")
+    return root
 
 
 def resolve_readonly_scratch_root(
     value: Path | str,
     *,
     persistent_root: Path | str,
+    layout: InstallLayout,
 ) -> Path:
     """Resolve the scratch scoreboard location without creating or write-probing it.
 
@@ -1348,24 +1369,12 @@ def resolve_readonly_scratch_root(
     if str(value).lower() != "auto":
         return Path(value).expanduser().resolve()
 
-    candidates: list[Path] = []
-    for base_text in SCRATCH_ROOT_AUTO_BASES:
-        base = Path(base_text)
-        if base.is_dir():
-            candidates.append(base / "lldp-runner")
-
+    candidates = [item for item in layout.scratch_candidates if item.parent.is_dir()]
     if str(persistent_root).lower() == "auto":
-        persistent: Path | None = None
-        for candidate_text in PERSISTENT_ROOT_AUTO_CANDIDATES:
-            candidate = Path(candidate_text).expanduser()
-            if candidate.exists():
-                persistent = candidate
-                break
-        if persistent is None:
-            persistent = Path.cwd()
+        persistent = layout.persistent_root
     else:
         persistent = Path(persistent_root).expanduser()
-    candidates.append(persistent / "tmp")
+    candidates.append(layout.scratch_fallback(persistent))
 
     for candidate in candidates:
         if (candidate / "current").exists():
@@ -1375,9 +1384,7 @@ def resolve_readonly_scratch_root(
             return candidate.resolve()
     # Preserve deterministic auto selection for the eventual operator error even
     # when no scoreboard directory exists yet; do not create the candidate.
-    if candidates:
-        return candidates[0].resolve()
-    return (persistent / "tmp").resolve()
+    return candidates[0].resolve()
 
 
 def _resolve_runtime_values(config: AppConfig, *, resolve_paths: bool = True) -> None:
@@ -1414,8 +1421,9 @@ def _resolve_runtime_values(config: AppConfig, *, resolve_paths: bool = True) ->
         # Full run/status/pause paths keep normal writable path resolution.
         return
 
+    layout = install_layout(config)
     try:
-        persistent = _resolve_persistent_root(config.paths.persistent_root)
+        persistent = _resolve_persistent_root(config.paths.persistent_root, layout=layout)
     except ConfigError as exc:
         if config.config_path is None:
             raise ConfigError(
@@ -1426,7 +1434,7 @@ def _resolve_runtime_values(config: AppConfig, *, resolve_paths: bool = True) ->
         raise
     config.paths.persistent_root = persistent
     config.paths.scratch_root = _resolve_scratch_root(
-        config.paths.scratch_root, persistent_root=persistent
+        config.paths.scratch_root, persistent_root=persistent, layout=layout
     )
 
 

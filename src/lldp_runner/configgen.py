@@ -38,17 +38,20 @@ GENERATED_LINE_WIDTH = 80
 COMMENTS: dict[str, tuple[str, ...]] = {
     "paths": (
         "Persistent state/output and temporary runtime storage.",
-        "Using 'auto' keeps small/simple deployments portable while allowing sites to pin paths.",
+        "'auto' places data with the installation this file belongs to, so",
+        "keep it unless the site needs a different location.",
     ),
     "paths.persistent_root": (
-        "When set to auto: first existing ~/lldp-runner, /opt/lldp-runner, "
-        "/var/lib/lldp-runner; otherwise cwd.",
-        "An existing but unwritable persistent candidate is an error and is "
-        "never silently bypassed.",
+        "When set to auto, follow this file's directory: <dir>/var for",
+        "<dir>/config.toml (for example /opt/lldp-runner/var or ~/lldp-runner/var),",
+        "or /var/lib/lldp-runner for /etc/lldp-runner/config.toml.",
+        "A shared or system root must already exist; a per-user one is created.",
     ),
     "paths.scratch_root": (
-        "When set to auto: try /dev/shm/lldp-runner, /tmp/lldp-runner, "
-        "/var/tmp/lldp-runner, then <persistent_root>/tmp.",
+        "When set to auto: /dev/shm/lldp-runner for a shared install,",
+        "/run/lldp-runner then /dev/shm/lldp-runner for /etc/lldp-runner, or",
+        "$XDG_RUNTIME_DIR/lldp-runner below the home directory; otherwise",
+        "<persistent_root>/tmp.",
     ),
     "paths.runs_dirname": (
         "Durable SQLite/checkpoint state is stored below "

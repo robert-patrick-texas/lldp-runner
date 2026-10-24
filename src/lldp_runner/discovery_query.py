@@ -16,7 +16,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
-from lldp_runner.config import AppConfig, ConfigError, resolve_existing_persistent_root
+from lldp_runner.config import (
+    AppConfig,
+    ConfigError,
+    install_layout,
+    resolve_existing_persistent_root,
+)
 from lldp_runner.outputs import DISCOVERY_JSON_SCHEMA_VERSION
 from lldp_runner.runid import validate_run_id_component
 
@@ -99,7 +104,9 @@ def _readonly_persistent_root(config: AppConfig) -> Path:
     """Resolve the persistent root without creating or write-probing storage."""
 
     try:
-        return resolve_existing_persistent_root(config.paths.persistent_root)
+        return resolve_existing_persistent_root(
+            config.paths.persistent_root, layout=install_layout(config)
+        )
     except ConfigError as exc:
         raise DiscoveryQueryError(str(exc)) from exc
 

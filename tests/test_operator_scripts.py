@@ -19,6 +19,7 @@ SCRIPT_NAMES = (
     "lrun-diff",
     "lrun-explain",
     "lrun-get",
+    "lrun-paths",
     "lrun-run",
     "lrun-purge",
     "lrun-bundle-diff",
@@ -144,21 +145,31 @@ def test_gufo_readme_uses_canonical_names_and_valid_ipv6_examples() -> None:
 
 
 def test_clean_launcher_uses_clean_without_single_instance_guard() -> None:
-    """Cleanup may run concurrently and should target the deployed config."""
+    """Cleanup may run concurrently; the launcher selects the deployed config."""
 
     text = (PROJECT_ROOT / "scripts" / "lrun-clean").read_text(encoding="utf-8")
-    assert '--config "/opt/lldp-runner/config.toml"' in text
-    assert "  clean\n" in text
+    app_args = text.split("APP_ARGS=(", 1)[1].split(")", 1)[0]
+    assert app_args.strip() == "clean"
     assert "SINGLE_INSTANCE=false" in text
 
 
 def test_purge_launcher_uses_purge_without_single_instance_guard() -> None:
-    """Purge may run concurrently and should target the deployed config."""
+    """Purge may run concurrently; the launcher selects the deployed config."""
 
     text = (PROJECT_ROOT / "scripts" / "lrun-purge").read_text(encoding="utf-8")
-    assert '--config "/opt/lldp-runner/config.toml"' in text
-    assert "  purge\n" in text
+    app_args = text.split("APP_ARGS=(", 1)[1].split(")", 1)[0]
+    assert app_args.strip() == "purge"
     assert "SINGLE_INSTANCE=false" in text
+
+
+def test_launchers_embed_no_installation_path() -> None:
+    """A launcher must work for /opt, /etc, and home-directory installations alike."""
+
+    for name in SCRIPT_NAMES:
+        text = (PROJECT_ROOT / "scripts" / name).read_text(encoding="utf-8")
+        assert "/opt/lldp-runner" not in text, name
+        if name != "lrun-bundle-diff":
+            assert "KEEP_WORKING_DIRECTORY=" in text, name
 
 
 def test_shared_setup_helper_is_shipped_and_documents_group_inheritance() -> None:
@@ -169,19 +180,23 @@ def test_shared_setup_helper_is_shipped_and_documents_group_inheritance() -> Non
     assert os.access(path, os.X_OK)
     text = path.read_text(encoding="utf-8")
     assert text.startswith("#!/usr/bin/env bash\n")
-    assert "chmod -R g+rwX" in text
+    assert "chmod -R g+rwX,o-rwx" in text
     assert 'find "$root" -type d -exec chmod g+s' in text
     assert "setfacl" in text
     assert "umask 0002" in text
-    assert '# GROUP_NAME="${LLDP_RUNNER_GROUP:-lldp-runner}"' in text
-    assert '# PERSISTENT_ROOT="${LLDP_RUNNER_PERSISTENT_ROOT:-/var/lib/lldp-runner}"' in text
-    assert '# SCRATCH_ROOT="${LLDP_RUNNER_SCRATCH_ROOT:-/var/tmp/lldp-runner}"' in text
+    assert 'LAYOUT="${LLDP_RUNNER_LAYOUT:-shared}"' in text
     assert 'GROUP_NAME="${LLDP_RUNNER_GROUP:-netops}"' in text
-    assert 'PERSISTENT_ROOT="${LLDP_RUNNER_PERSISTENT_ROOT:-/opt/lldp-runner}"' in text
-    assert 'SCRATCH_ROOT="${LLDP_RUNNER_SCRATCH_ROOT:-/dev/shm/lldp-runner}"' in text
+    assert 'PROJECT_ROOT="${LLDP_RUNNER_PROJECT_ROOT:-/opt/lldp-runner}"' in text
+    assert ': "${PERSISTENT_ROOT:=${PROJECT_ROOT}/var}"' in text
+    assert ': "${SCRATCH_ROOT:=/dev/shm/lldp-runner}"' in text
+    assert ': "${PERSISTENT_ROOT:=/var/lib/lldp-runner}"' in text
     assert 'PYTHON_DIR="${UV_PYTHON_INSTALL_DIR:-/opt/shared/python}"' in text
-    assert '"$PERSISTENT_ROOT/runs" "$PERSISTENT_ROOT/outputs"' in text
-    assert '"$PERSISTENT_ROOT/output"' not in text
+    assert '"$PERSISTENT_ROOT/runs" "$PERSISTENT_ROOT/outputs" "$PERSISTENT_ROOT/tmp"' in text
+    assert "-m 2770" in text and "2775" not in text
+    assert "must not be the project root or one of its parents" in text
+    assert "/etc/tmpfiles.d/lldp-runner-scratch.conf" in text
+    # An existing interpreter directory keeps its owner; only a missing one is created.
+    assert 'if [[ ! -e "$PYTHON_DIR" ]]; then\n    install -d -o root -g root -m 0755' in text
 
 
 def test_version_launcher_runs_version_without_configuration() -> None:
@@ -199,9 +214,9 @@ def test_diff_launcher_runs_diff_and_preserves_operator_working_directory() -> N
 
     text = (PROJECT_ROOT / "scripts" / "lrun-diff").read_text(encoding="utf-8")
     app_args = text.split("APP_ARGS=(", 1)[1].split(")", 1)[0]
-    assert "--config /opt/lldp-runner/config.toml diff" in app_args
+    assert app_args.strip() == "diff"
+    assert "KEEP_WORKING_DIRECTORY=true" in text
     assert 'exec "$UV_BIN" run --project "$project_directory"' in text
-    assert '\ncd -- "$project_directory"\n' not in text
     assert "SINGLE_INSTANCE=false" in text
 
 
@@ -231,8 +246,11 @@ def test_systemd_service_helpers_are_shipped_and_safe() -> None:
     assert 'RANDOM_DELAY_MINUTES="${LLDP_RUNNER_RANDOM_DELAY_MINUTES:-10}"' in text
     assert "RandomizedDelaySec=${RANDOM_DELAY_MINUTES}min" in text
     assert "FixedRandomDelay=true" in text
-    assert "systemd-tmpfiles --create" in text
-    assert "2775 $SERVICE_USER $GROUP_NAME" in text
+    assert ': "${PERSISTENT_ROOT:=${PROJECT_ROOT}/var}"' in text
+    assert "run scripts/shared-setup.sh first" in text
+    assert "Environment=UV_CACHE_DIR=/var/cache/$CACHE_DIRECTORY_NAME/uv" in text
+    assert "CacheDirectory=$CACHE_DIRECTORY_NAME" in text
+    assert "2775" not in text
     assert "is not a member of group" in text
     assert "run scripts/svc-remove.sh first" in text
     assert "lrun-clean && $PROJECT_ROOT/scripts/lrun-purge --keep $PURGE_KEEP" in text
@@ -255,7 +273,170 @@ def test_shared_private_example_is_shipped_for_central_uv_use() -> None:
     assert "umask 0002" in text
     assert 'LLDP_RUNNER_DEVELOPER_ACCOUNT="lldp-maintainer"' in text
     assert "UV_RUN_ARGS=(--no-sync)" in text
+    assert "export UV_NO_CACHE=1" in text
     assert not (scripts / "lldp-runner.env.example").exists()
+
+
+def _launcher_project(tmp_path: Path, *, source: bool) -> Path:
+    """Copy one launcher set into a scratch project directory."""
+
+    project = tmp_path / "install"
+    scripts = project / "scripts"
+    scripts.mkdir(parents=True)
+    for name in ("lrun-run", "lrun-show", "lrun-diff"):
+        target = scripts / name
+        target.write_text(
+            (PROJECT_ROOT / "scripts" / name).read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        target.chmod(0o755)
+    if source:
+        (project / "pyproject.toml").write_text("[project]\nname = 'x'\n", encoding="utf-8")
+    return project
+
+
+def _write_recorder(path: Path) -> None:
+    """Write a uv/lldp-runner stand-in that records how it was started."""
+
+    path.write_text(
+        "#!/usr/bin/env bash\n"
+        'printf "cwd=%s\\n" "$PWD"\n'
+        'printf "config=%s\\n" "${LLDP_RUNNER_CONFIG:-}"\n'
+        'printf "arg=%s\\n" "$@"\n',
+        encoding="utf-8",
+    )
+    path.chmod(0o755)
+
+
+def _run_launcher(
+    launcher: Path, bin_dir: Path, *args: str, cwd: Path, env: dict[str, str] | None = None
+) -> list[str]:
+    environment = {"PATH": f"{bin_dir}:{os.environ['PATH']}", "HOME": str(cwd)}
+    environment.update(env or {})
+    result = subprocess.run(
+        [str(launcher), *args],
+        check=True,
+        text=True,
+        capture_output=True,
+        cwd=cwd,
+        env=environment,
+    )
+    return result.stdout.splitlines()
+
+
+def test_launcher_selects_project_config_and_resolves_seed_file_beside_it(
+    tmp_path: Path,
+) -> None:
+    project = _launcher_project(tmp_path, source=True)
+    (project / "config.toml").write_text("", encoding="utf-8")
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    _write_recorder(bin_dir / "uv")
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+
+    lines = _run_launcher(project / "scripts" / "lrun-run", bin_dir, "--dry-run", cwd=elsewhere)
+
+    resolved = project.resolve()
+    assert f"cwd={resolved}" in lines
+    assert f"config={resolved}/config.toml" in lines
+    args = [line.removeprefix("arg=") for line in lines if line.startswith("arg=")]
+    assert args == [
+        "run",
+        "--project",
+        str(resolved),
+        "lldp-runner",
+        "run",
+        "--seed-file",
+        "seed.list",
+        "--dry-run",
+    ]
+
+
+def test_launcher_honors_relative_config_override_and_its_directory(tmp_path: Path) -> None:
+    project = _launcher_project(tmp_path, source=True)
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    _write_recorder(bin_dir / "uv")
+    site = tmp_path / "site"
+    site.mkdir()
+    (site / "lab.toml").write_text("", encoding="utf-8")
+
+    lines = _run_launcher(
+        project / "scripts" / "lrun-show",
+        bin_dir,
+        "core1",
+        cwd=tmp_path,
+        env={"LLDP_RUNNER_CONFIG": "site/lab.toml"},
+    )
+
+    assert f"cwd={tmp_path}/site" in lines
+    assert f"config={tmp_path}/site/lab.toml" in lines
+
+
+def test_diff_launcher_keeps_operator_directory(tmp_path: Path) -> None:
+    project = _launcher_project(tmp_path, source=True)
+    (project / "config.toml").write_text("", encoding="utf-8")
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    _write_recorder(bin_dir / "uv")
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+
+    lines = _run_launcher(project / "scripts" / "lrun-diff", bin_dir, cwd=elsewhere)
+
+    assert f"cwd={elsewhere}" in lines
+    assert f"config={project.resolve()}/config.toml" in lines
+
+
+def test_packaged_launcher_runs_installed_command_without_uv(tmp_path: Path) -> None:
+    project = _launcher_project(tmp_path, source=False)
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    _write_recorder(bin_dir / "lldp-runner")
+
+    lines = _run_launcher(project / "scripts" / "lrun-show", bin_dir, "core1", cwd=tmp_path)
+
+    args = [line.removeprefix("arg=") for line in lines if line.startswith("arg=")]
+    assert args == ["show-neighbors", "core1"]
+
+
+def test_bundle_diff_reads_installation_paths_from_lrun_paths(tmp_path: Path) -> None:
+    """Without overrides, the bundle uses the configured outputs and runs."""
+
+    import json
+
+    data = tmp_path / "opt" / "lldp-runner" / "var"
+    archive_dir = tmp_path / "bundles"
+    archive_dir.mkdir()
+    _write_review_run(data, "run-1", "2026-08-29T08:00:00-04:00")
+    _write_review_run(data, "run-2", "2026-08-29T09:00:00-04:00")
+    fake_diff = tmp_path / "lrun-diff"
+    _write_fake_diff(fake_diff, data / "outputs")
+    fake_paths = tmp_path / "lrun-paths"
+    report = {"outputs_dir": str(data / "outputs"), "runs_dir": str(data / "runs")}
+    fake_paths.write_text(f"#!/bin/sh\ncat <<'EOF'\n{json.dumps(report)}\nEOF\n", encoding="utf-8")
+    fake_paths.chmod(0o755)
+    env = os.environ.copy()
+    for name in ("LLDP_RUNNER_BUNDLE_ROOT", "LLDP_RUNNER_OUTPUTS_DIR", "LLDP_RUNNER_RUNS_DIR"):
+        env.pop(name, None)
+    env.update(
+        {
+            "LLDP_RUNNER_PATHS_BIN": str(fake_paths),
+            "LLDP_RUNNER_BUNDLE_ARCHIVE_DIR": str(archive_dir),
+            "LLDP_RUNNER_DIFF_BIN": str(fake_diff),
+        }
+    )
+
+    result = subprocess.run(
+        [str(PROJECT_ROOT / "scripts" / "lrun-bundle-diff")],
+        check=False,
+        text=True,
+        capture_output=True,
+        env=env,
+    )
+
+    assert "Run A:          run-2" in result.stdout, result.stderr
+    assert (archive_dir / "lldp-runner-bundle-run-2-run-1.tar").is_file()
 
 
 def _write_fake_pandoc(directory: Path) -> Path:
@@ -394,8 +575,14 @@ def _write_review_run(root: Path, run_id: str, completed: str) -> None:
     (runtime / "discovery-state.sqlite-shm").write_bytes(b"")
 
 
-def _write_fake_diff(path: Path) -> None:
-    """Write a deterministic lrun-diff stand-in with the real source contract."""
+def _write_fake_diff(path: Path, outputs_dir: Path | None = None) -> None:
+    """Write a deterministic lrun-diff stand-in with the real source contract.
+
+    The reported source paths are below ``LLDP_RUNNER_OUTPUTS_DIR``, or below
+    ``outputs_dir`` when that variable is unset.
+    """
+
+    default = "" if outputs_dir is None else str(outputs_dir)
 
     path.write_text(
         """#!/usr/bin/env bash
@@ -417,10 +604,10 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 printf '{"sources":{"a":{"run_id":"%s","path":"%s/%s/discovery.json"},"b":{"run_id":"%s","path":"%s/%s/discovery.json"}},"result":{"exit_code":1}}\\n' \\
-    "$run_a" "$LLDP_RUNNER_OUTPUTS_DIR" "$run_a" \\
-    "$run_b" "$LLDP_RUNNER_OUTPUTS_DIR" "$run_b"
+    "$run_a" "${LLDP_RUNNER_OUTPUTS_DIR:-__DEFAULT__}" "$run_a" \\
+    "$run_b" "${LLDP_RUNNER_OUTPUTS_DIR:-__DEFAULT__}" "$run_b"
 exit 1
-""",
+""".replace("__DEFAULT__", default),
         encoding="utf-8",
     )
     path.chmod(0o755)
