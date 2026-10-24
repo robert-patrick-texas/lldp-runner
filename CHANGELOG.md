@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Add `tools/flat_graph_compare.py`, a read-only developer tool that derives a
+  flat host list from a `discovery.json` topology graph and compares it with
+  `hosts[]`. It reports systems the graph merges or splits, host-field and
+  neighbor-edge differences, duplicate flat neighbor rows, and the host data
+  that only the flat view carries, as text or `--json`, to measure how far the
+  graph is from replacing the flat view.
+
 ## 0.39.0 - 2026-10-24
 
 - Automatic runtime paths now follow the selected configuration file's

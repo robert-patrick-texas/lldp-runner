@@ -131,6 +131,10 @@ that includes implementation, tests, documentation, and production validation.
     current output contracts where intended.
   - **Operational benefit:** One interpretation would drive discovery.json, CSV,
     and graph views, reducing cross-view disagreement and duplicate bug fixes.
+  - **Measurement:** `tools/flat_graph_compare.py` derives flat hosts from the
+    graph and reports where they differ from `hosts[]`, and which host data
+    the graph does not carry yet. Run it on production outputs to size the
+    remaining work.
   - **Estimated effort:** Very large - high-risk architectural convergence
     requiring extensive production replay and deliberate compatibility
     decisions.

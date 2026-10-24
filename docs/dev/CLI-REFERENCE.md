@@ -27,6 +27,11 @@ update.
 - `bootstrap.sh`, `shared-setup.sh`, `svc-setup.sh`, `svc-remove.sh`: deployment
   helpers.
 - `check.sh`: local project checks.
+- `tools/flat_graph_compare.py`: derives a flat host list from a
+  `discovery.json` topology graph and compares it with `hosts[]`. It reports
+  systems the graph merges or splits, host-field and neighbor differences, and
+  host data that only the flat view carries. It reads files only and needs only
+  the Python standard library; exit status 0 means the views agree.
 - `md-to-html.sh`: documentation conversion helper.
 
 ## Change checklist
