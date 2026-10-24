@@ -330,6 +330,7 @@
 <ul>
 <li><strong>Remaining work:</strong> Replace the legacy compatibility resolver as a parallel authority with a deterministic graph-to-host projection that preserves current output contracts where intended.</li>
 <li><strong>Operational benefit:</strong> One interpretation would drive discovery.json, CSV, and graph views, reducing cross-view disagreement and duplicate bug fixes.</li>
+<li><strong>Measurement:</strong> <code>tools/flat_graph_compare.py</code> derives flat hosts from the graph and reports where they differ from <code>hosts[]</code>, and which host data the graph does not carry yet. Run it on production outputs to size the remaining work.</li>
 <li><strong>Estimated effort:</strong> Very large - high-risk architectural convergence requiring extensive production replay and deliberate compatibility decisions.</li>
 </ul></li>
 <li><label><input type="checkbox" />Add operator-supplied topology assertions and exceptions as typed, auditable claims rather than destructive overrides.</label>

@@ -271,6 +271,7 @@
 <li><code>lrun-bundle-diff</code>: selects two runs, creates a JSON diff, makes coherent SQLite backups, excludes WAL/SHM sidecars, and builds one review tar archive.</li>
 <li><code>bootstrap.sh</code>, <code>shared-setup.sh</code>, <code>svc-setup.sh</code>, <code>svc-remove.sh</code>: deployment helpers.</li>
 <li><code>check.sh</code>: local project checks.</li>
+<li><code>tools/flat_graph_compare.py</code>: derives a flat host list from a <code>discovery.json</code> topology graph and compares it with <code>hosts[]</code>. It reports systems the graph merges or splits, host-field and neighbor differences, and host data that only the flat view carries. It reads files only and needs only the Python standard library; exit status 0 means the views agree.</li>
 <li><code>md-to-html.sh</code>: documentation conversion helper.</li>
 </ul>
 <h2 id="change-checklist">Change checklist</h2>

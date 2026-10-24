@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lldp-runner: RELEASE-STATUS-0.39.1.md</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    html {
+      background: #ffffff;
+      color: #24292f;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+      line-height: 1.6;
+    }
+    nav.doc-nav {
+      margin: 0 0 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+      font-size: 0.95rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.25;
+      margin-top: 1.5em;
+    }
+    h1, h2 {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #d8dee4;
+    }
+    a {
+      color: #0969da;
+    }
+    code, pre, kbd, samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none;
+    }
+    :not(pre) > code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid #d8dee4;
+      border-radius: 6px;
+      background: #f6f8fa;
+      line-height: 1.45;
+      tab-size: 4;
+      white-space: pre;
+    }
+    pre code {
+      white-space: pre;
+    }
+    table {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0d7de;
+      vertical-align: top;
+    }
+    th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    blockquote {
+      margin-left: 0;
+      padding-left: 1rem;
+      border-left: 0.25rem solid #d0d7de;
+      color: #57606a;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+<nav class="doc-nav"><a href="index.html">Documentation index</a></nav>
+<h1 id="lldp-runner-0391-release-status">LLDP-Runner 0.39.1 Release Status</h1>
+<p><strong>Release date:</strong> 2026-10-24</p>
+<p><strong>Release state:</strong> Developer-tool release complete. <code>tools/flat_graph_compare.py</code> measures how far the topology graph is from replacing the flat <code>hosts[]</code> view. Discovery, installation, and output behavior are unchanged from 0.39.0. <code>./scripts/check.sh</code> passes end to end.</p>
+<h2 id="source-provenance">Source provenance</h2>
+<ul>
+<li>Base release tag: <code>v0.39.0</code></li>
+<li>Base commit: <code>73fe37a51bd83a0b317c718f801bd8de0247aa2a</code></li>
+<li>Comparison tool: <code>e81f27114b6043417d117d9875920f882e3f3501</code></li>
+<li>Final release tag: <code>v0.39.1</code></li>
+<li>Repository: <a href="https://github.com/robert-patrick-texas/lldp-runner">https://github.com/robert-patrick-texas/lldp-runner</a></li>
+</ul>
+<h2 id="0391-acceptance-contract">0.39.1 acceptance contract</h2>
+<h3 id="1-flat-versus-graph-comparison-tool--complete">1. Flat-versus-graph comparison tool — complete</h3>
+<p><code>tools/flat_graph_compare.py</code> reads one or more <code>discovery.json</code> files, or output directories that contain them, and derives a flat host list from <code>topology_graph</code> alone.</p>
+<ul>
+<li>Logical systems pair with flat hosts through <code>host_refs</code>; observed systems pair by overlapping names, usable addresses, or MAC addresses. A graph system that merges several flat hosts, or a flat host that the graph splits, is reported once.</li>
+<li>It compares names, addresses, query targets, display names, classifications, and states, and pairs flat neighbor rows with graph relationships by local and remote interface and protocol. Rows that only repeat another flat host's edge are counted as duplicates.</li>
+<li>It counts host data that only the flat view carries: system details, ICMP results, the SNMP credential route, collection metrics, tags, classification reasons, first and last seen times, the seed flag, and the classification of systems that were never queried. These are gaps, not disagreements.</li>
+<li>It prints text, <code>--details</code>, or <code>--json</code>, exits 0 when the views agree, 1 when they disagree, and 2 on unreadable or unsupported input. It reads files only and uses only the Python standard library.</li>
+</ul>
+<p>On simulated discoveries run through the coordinator's ingestion path, a clean network agreed completely. A switch reached through two management addresses stayed two flat hosts, the second named only by its IP, while the graph merged them into one system and the flat view repeated every neighbor row. No production <code>discovery.json</code> has been compared yet.</p>
+<h3 id="2-behavior-unchanged">2. Behavior unchanged</h3>
+<p>No source module under <code>src/lldp_runner/</code> changed apart from the version. Collection, scheduling, install layouts, setup scripts, outputs, diff, and schemas are the same as in 0.39.0.</p>
+<h3 id="3-release-metadata--complete">3. Release metadata — complete</h3>
+<p>The application version is <code>0.39.1</code>. The constraints manifest moved to <code>constraints/release-0.39.1.txt</code> with identical pins, and the release test now rejects a leftover <code>release-0.39.0.txt</code>.</p>
+<h2 id="machine-readable-schema-versions">Machine-readable schema versions</h2>
+<p>Unchanged from 0.39.0:</p>
+<ul>
+<li>discovery JSON: 8</li>
+<li>topology graph: 2</li>
+<li>diff JSON: 12</li>
+<li>run JSON: 3</li>
+<li>scoreboard JSON: 1</li>
+</ul>
+<p>The comparison tool's <code>--json</code> output carries its own <code>report_version</code> (1) and is not a release contract.</p>
+<h2 id="dependency-and-release-metadata">Dependency and release metadata</h2>
+<pre class="text"><code>cryptography&gt;=50.0     exact pin 50.0.1
+gufo-snmp&gt;=0.12.0      exact pin 0.12.0
+pysnmp&gt;=7.1.29         exact pin 7.1.29</code></pre>
+<p>The exact manifest is <code>constraints/release-0.39.1.txt</code>.</p>
+<h2 id="validation-results">Validation results</h2>
+<p>All checks ran on the release tree in a networked Linux environment, after <code>uv lock</code> and <code>uv sync --all-groups --locked</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th style="text-align: right;">Exit</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>./scripts/check.sh</code></td>
+<td style="text-align: right;">0</td>
+<td>Ruff, format, Ty, and pytest all pass</td>
+</tr>
+<tr>
+<td><code>ruff check .</code></td>
+<td style="text-align: right;">0</td>
+<td>all checks passed</td>
+</tr>
+<tr>
+<td><code>ruff format --check .</code></td>
+<td style="text-align: right;">0</td>
+<td>154 files already formatted</td>
+</tr>
+<tr>
+<td><code>ty check</code></td>
+<td style="text-align: right;">0</td>
+<td>all checks passed (0 diagnostics)</td>
+</tr>
+<tr>
+<td>Full pytest (<code>-ra</code>)</td>
+<td style="text-align: right;">0</td>
+<td>1024 passed, 0 skipped, 0 failed</td>
+</tr>
+<tr>
+<td>Python compilation (<code>src tests scripts tools</code>)</td>
+<td style="text-align: right;">0</td>
+<td>completed</td>
+</tr>
+<tr>
+<td>Shell syntax (<code>scripts/*.sh</code>, <code>scripts/lrun-*</code>)</td>
+<td style="text-align: right;">0</td>
+<td>completed</td>
+</tr>
+<tr>
+<td><code>git diff --check</code></td>
+<td style="text-align: right;">0</td>
+<td>completed</td>
+</tr>
+<tr>
+<td>CLI <code>--version</code> and help for all entry points</td>
+<td style="text-align: right;">0</td>
+<td><code>lldp-runner 0.39.1</code></td>
+</tr>
+<tr>
+<td><code>tools/flat_graph_compare.py --help</code></td>
+<td style="text-align: right;">0</td>
+<td>completed</td>
+</tr>
+<tr>
+<td><code>uv build</code></td>
+<td style="text-align: right;">0</td>
+<td><code>lldp_runner-0.39.1.tar.gz</code> and <code>-py3-none-any.whl</code></td>
+</tr>
+</tbody>
+</table>
+<p>The Ubuntu 26.04 installation scenarios recorded for 0.39.0 were not repeated: no installation, launcher, setup-script, or application code changed. No live network discovery was performed for this release.</p>
+<h2 id="tool-environment">Tool environment</h2>
+<pre class="text"><code>Ubuntu 26.04.1 LTS (Linux 7.0.0-38-generic)
+Python 3.13.15
+uv 0.13.5
+git 2.53.0
+pytest 9.0.2
+cryptography 50.0.1
+pysnmp 7.1.29
+gufo-snmp 0.12.0
+ruff 0.16.0
+ty 0.0.63</code></pre>
+<h2 id="changed-files">Changed files</h2>
+<p>The comparison-tool commit adds <code>tools/flat_graph_compare.py</code> and <code>tests/test_flat_graph_compare.py</code>, and updates <code>CHANGELOG.md</code>, <code>docs/ROADMAP.md</code>, and <code>docs/dev/CLI-REFERENCE.md</code>. The release commit changes:</p>
+<pre class="text"><code>CHANGELOG.md
+README.md
+RELEASE-STATUS-0.39.0.md -&gt; RELEASE-STATUS-0.39.1.md
+constraints/release-0.39.0.txt -&gt; constraints/release-0.39.1.txt
+docs/CLI.md
+docs/INSTALL.md
+docs/RUN.md
+docs/dev/SCHEMA.md
+docs/dev/TESTING.md
+pyproject.toml
+src/lldp_runner/__init__.py
+tests/test_defaults_cli.py
+tests/test_release_constraints.py
+tests/test_run_manifest.py
+tests/test_snmp_pysnmp.py</code></pre>
+<h2 id="operator-side-qualification">Operator-side qualification</h2>
+<p>No action is needed beyond the usual <code>uv lock</code> and <code>uv sync --all-groups --locked</code> with <code>constraints/release-0.39.1.txt</code>. To measure the two views on a real run, execute <code>python3 tools/flat_graph_compare.py /opt/lldp-runner/var/outputs/latest --details</code>.</p>
+</body>
+</html>
