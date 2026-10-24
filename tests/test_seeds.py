@@ -305,6 +305,29 @@ def test_skip_addressed_seed_dns_reuses_confirmed_inventory_without_resolver(
     state.close()
 
 
+def test_unusable_seed_is_recorded_without_aborting_initialization(tmp_path: Path, config) -> None:
+    """A seed that cannot be parsed becomes a seed error and counts as skipped."""
+
+    from lldp_runner.classify import Classifier
+    from lldp_runner.coordinator import Coordinator
+
+    state = StateStore(tmp_path / "state.sqlite")
+    coordinator = Coordinator.__new__(Coordinator)
+    coordinator.config = config
+    coordinator.classifier = Classifier(config)
+    coordinator.state = state
+    coordinator._schedule_if_queryable = lambda host_id: None
+
+    action = coordinator._add_seed(SeedInput(seed="127.0.0.1"))
+
+    assert action == "skipped"
+    assert state.all_hosts() == []
+    errors = state.all_errors()
+    assert [(row["operation"], row["category"]) for row in errors] == [("seed", "invalid_seed")]
+    assert "loopback" in errors[0]["message"]
+    state.close()
+
+
 def test_skip_addressed_seed_dns_falls_back_for_failed_prior_state(
     tmp_path: Path, config, monkeypatch
 ) -> None:

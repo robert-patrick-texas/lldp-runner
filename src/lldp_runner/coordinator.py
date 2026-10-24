@@ -946,7 +946,9 @@ class Coordinator:
                 f"{seed.seed}: {exc}",
                 recoverable=False,
             )
-            return dns_action
+            # The seed never produced a resolver result, so count it as skipped
+            # rather than resolved in the initialization progress summary.
+            return "skipped"
 
         candidate = Candidate(
             names=resolved.names,

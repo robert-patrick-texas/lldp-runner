@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix discovery aborting with `UnboundLocalError` when a seed cannot be parsed,
+  for example a loopback address. The seed is recorded as an `invalid_seed`
+  error and initialization continues.
 - Link the source repository from the `index.html` that
   `scripts/md-to-html.sh` generates. The URL comes from the new
   `[project.urls]` `Repository` entry in `pyproject.toml`, which also adds a
