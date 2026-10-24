@@ -308,8 +308,15 @@ configuration file (`lldp_runner.layout`):
 /etc/lldp-runner/config.toml         -> /var/lib/lldp-runner     (system)
 <dir>/config.toml outside home       -> <dir>/var                (shared)
 <dir>/config.toml below home         -> <dir>/var                (user)
-~/lldp-runner-config.toml or no file -> ~/lldp-runner/var        (user)
+a file directly in ~, or no file     -> ~/lldp-runner/var        (user)
 ```
+
+The rule uses the configuration path as it was named (`config_location`),
+made absolute but with symbolic links kept; `config_path` is the resolved file
+that is read. A link such as `/opt/lldp-runner/config.toml -> /srv/cfg/x.toml`
+therefore stays a shared `/opt/lldp-runner` installation. Without a
+configuration and without a usable home directory (`HOME=/`), `auto` has no
+location and the command fails until `paths.persistent_root` is set.
 
 The data directory is a subdirectory rather than `<dir>` itself because
 discovery write-tests the persistent root. A group-writable installation root
@@ -324,8 +331,11 @@ rather than silently moving durable state elsewhere.
 When `<dir>/var` does not exist but `<dir>/runs` or `<dir>/outputs` does, the
 installation predates the layout and `<dir>` stays the persistent root. The
 `paths`, `validate-config`, and `run` commands then warn that the directories
-should move into `var/`. Symlinks such as `<dir>/runs -> var/runs` do not count,
-because `var/` exists.
+should move into `var/`. Once `var/` exists, real `runs/` or `outputs/`
+directories beside it are reported as unused history, as is
+`~/lldp-runner/{runs,outputs}` (the old automatic location) for a user
+configuration elsewhere. Symlinks such as `<dir>/runs -> var/runs` are never
+history.
 
 The read-only resolvers used by `status`, `watch`, `clean`, `purge`, `paths`,
 `show-neighbors`, and `diff` apply the same layout without creating or
@@ -337,10 +347,15 @@ write-testing anything.
 `<persistent_root>/tmp`:
 
 ```text
-shared  /dev/shm/lldp-runner
-system  /run/lldp-runner, /dev/shm/lldp-runner
-user    $XDG_RUNTIME_DIR/lldp-runner (when set)
+shared  /dev/shm/lldp-runner          (/opt/lldp-runner)
+        /dev/shm/lldp-runner-srv-lab  (/srv/lab, and so on)
+system  /run/lldp-runner
+user    $XDG_RUNTIME_DIR/lldp-runner  (~/lldp-runner; others add their path)
 ```
+
+The per-installation names keep two installations on one host from sharing a
+`current` run or scoreboard. `scripts/shared-setup.sh` and
+`scripts/svc-setup.sh` compute the same names; `--print-paths` shows them.
 
 Scratch locations may fall through because scratch data is intentionally
 relocatable. Read-only commands prefer the candidate that holds a `current`

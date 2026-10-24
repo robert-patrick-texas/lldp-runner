@@ -15,12 +15,23 @@ conventional locations from the same rule:
     ``/etc/lldp-runner/config.toml``. Data lives in ``/var/lib/lldp-runner``.
 ``user``
     A configuration below the home directory, or no configuration at all. Data
-    lives in ``<dir>/var`` (``~/lldp-runner/var`` without a config) and scratch
-    uses the per-user ``$XDG_RUNTIME_DIR``.
+    lives in ``<dir>/var``, where a file directly in the home directory (or no
+    file) uses ``~/lldp-runner``, and scratch uses the per-user
+    ``$XDG_RUNTIME_DIR``.
+
+The layout follows the configuration path as the operator or launcher named it.
+Symbolic links are not resolved, so a ``config.toml`` that links to a file kept
+elsewhere still belongs to the installation directory that holds the link.
+
+Every installation other than the default one for its layout gets its own
+scratch name, such as ``/dev/shm/lldp-runner-srv-lab`` for
+``/srv/lab/config.toml``, so two installations on one host never share a
+``current`` run or scoreboard.
 
 A shared or user installation created before this layout existed kept
 ``runs/`` and ``outputs/`` directly in the installation directory. That legacy
-layout is still honored while ``<dir>/var`` does not exist.
+layout is still honored while ``<dir>/var`` does not exist. History that the
+selected layout does not use is reported so operators can move it.
 """
 
 from __future__ import annotations
@@ -33,12 +44,16 @@ from pathlib import Path
 from lldp_runner.defaults import (
     INSTANCE_DATA_DIRNAME,
     SCRATCH_FALLBACK_DIRNAME,
-    SHARED_SCRATCH_ROOTS,
+    SHARED_DEFAULT_INSTANCE_DIR,
+    SHARED_SCRATCH_BASES,
     SYSTEM_CONFIG_DIR,
     SYSTEM_PERSISTENT_ROOT,
     SYSTEM_SCRATCH_ROOTS,
-    USER_HOME_CONFIG_NAME,
     USER_INSTANCE_DIR,
+)
+
+_SCRATCH_NAME_BYTES = frozenset(
+    b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-"
 )
 
 
@@ -48,7 +63,8 @@ class InstallLayout:
 
     Args:
         name: ``shared``, ``system``, or ``user``.
-        persistent_root: Root holding ``runs/`` and ``outputs/``.
+        persistent_root: Root holding ``runs/`` and ``outputs/``, or ``None``
+            when no automatic location exists (see ``unavailable``).
         scratch_candidates: Preferred scratch roots, tried in order before the
             ``<persistent_root>/tmp`` fallback.
         create_persistent: Whether automatic resolution may create a missing
@@ -56,14 +72,19 @@ class InstallLayout:
             system roots need ownership and group permissions set by an
             administrator.
         legacy: ``True`` when ``runs/`` or ``outputs/`` still sit directly in the
-            installation directory.
+            installation directory and are used as the persistent root.
+        unused_history: Older ``runs/``/``outputs/`` directories that this layout
+            does not use.
+        unavailable: Why no automatic persistent root exists, when it does not.
     """
 
     name: str
-    persistent_root: Path
+    persistent_root: Path | None
     scratch_candidates: tuple[Path, ...]
     create_persistent: bool
     legacy: bool = False
+    unused_history: tuple[Path, ...] = ()
+    unavailable: str = ""
 
     def scratch_fallback(self, persistent_root: Path) -> Path:
         """Return the last-resort scratch root below ``persistent_root``."""
@@ -71,33 +92,58 @@ class InstallLayout:
         return persistent_root / SCRATCH_FALLBACK_DIRNAME
 
 
-def _home_directory() -> Path | None:
-    """Return the invoking user's home, or ``None`` when it cannot contain an install.
+def scratch_name(base: Path, *, default: Path, relative_to: Path) -> str:
+    """Return the scratch directory name for the installation in ``base``.
 
-    A service account whose home is ``/`` would otherwise make every config path a
+    The ``default`` installation for a layout keeps the plain ``lldp-runner``
+    name. Any other installation appends its path below ``relative_to`` (the
+    filesystem root for shared installations, the home directory for per-user
+    ones), with ``/`` replaced by ``-`` and every other byte outside
+    ``[A-Za-z0-9._-]`` replaced by ``_``: ``/srv/lab`` becomes
+    ``lldp-runner-srv-lab``. ``scripts/shared-setup.sh`` and
+    ``scripts/svc-setup.sh`` implement the same rule in Bash.
+    """
+
+    if base == default:
+        return "lldp-runner"
+    raw = os.fsencode("-".join(base.relative_to(relative_to).parts))
+    return "lldp-runner-" + "".join(
+        chr(byte) if byte in _SCRATCH_NAME_BYTES else "_" for byte in raw
+    )
+
+
+def _home_directories() -> tuple[Path, ...]:
+    """Return the invoking user's home as written and resolved.
+
+    Nothing is returned when the home directory cannot hold an installation. A
+    service account whose home is ``/`` would otherwise make every config path a
     "user" installation.
     """
 
     try:
         home = Path("~").expanduser()
     except RuntimeError:
-        return None
+        return ()
     if not home.is_absolute() or home == Path(home.anchor):
-        return None
-    # Config paths are resolved, so compare against the resolved home as well.
-    return home.resolve()
+        return ()
+    home = Path(os.path.normpath(home))
+    resolved = home.resolve()
+    return (home,) if resolved == home else (home, resolved)
 
 
-def _is_legacy_instance(base: Path, data_names: tuple[str, ...]) -> bool:
-    """Return whether ``base`` predates the ``var/`` data directory."""
+def _real_directories(base: Path, names: tuple[str, ...]) -> tuple[Path, ...]:
+    """Return ``base/<name>`` entries that are real directories, not symlinks."""
 
-    if (base / INSTANCE_DATA_DIRNAME).exists():
-        return False
-    return any((base / name).is_dir() for name in data_names)
+    found: list[Path] = []
+    for name in names:
+        path = base / name
+        if path.is_dir() and not path.is_symlink():
+            found.append(path)
+    return tuple(found)
 
 
 def select_layout(
-    config_path: Path | None,
+    config_location: Path | None,
     *,
     runs_dirname: str = "runs",
     output_dirname: str = "outputs",
@@ -106,10 +152,11 @@ def select_layout(
     """Choose automatic runtime locations from the primary configuration path.
 
     Args:
-        config_path: Resolved primary configuration file, or ``None`` when
+        config_location: Absolute path of the primary configuration file as it
+            was named, without resolving symbolic links, or ``None`` when
             LLDP-Runner runs from built-in defaults.
-        runs_dirname: Configured run-state directory name, used to recognize a
-            legacy installation.
+        runs_dirname: Configured run-state directory name, used to recognize
+            legacy history.
         output_dirname: Configured output directory name, used the same way.
         env: Environment used for ``XDG_RUNTIME_DIR``; defaults to ``os.environ``.
 
@@ -118,9 +165,10 @@ def select_layout(
     """
 
     env = os.environ if env is None else env
-    home = _home_directory()
+    data_names = (runs_dirname, output_dirname)
+    location = None if config_location is None else Path(os.path.normpath(config_location))
 
-    if config_path is not None and config_path.parent == Path(SYSTEM_CONFIG_DIR).resolve():
+    if location is not None and location.parent == Path(SYSTEM_CONFIG_DIR):
         return InstallLayout(
             name="system",
             persistent_root=Path(SYSTEM_PERSISTENT_ROOT),
@@ -128,30 +176,54 @@ def select_layout(
             create_persistent=False,
         )
 
-    if config_path is None or (
-        home is not None
-        and config_path.parent == home
-        and config_path.name == USER_HOME_CONFIG_NAME
-    ):
-        # Without a usable home directory, keep the historical last resort of
-        # the current working directory.
-        base = Path(USER_INSTANCE_DIR).expanduser() if home is not None else Path.cwd()
+    homes = _home_directories()
+    in_home = location is not None and any(location.is_relative_to(home) for home in homes)
+    user_base = Path(os.path.normpath(Path(USER_INSTANCE_DIR).expanduser())) if homes else None
+
+    if location is None or (in_home and location.parent in homes):
+        # No file, or a file directly in the home directory: never use $HOME
+        # itself as the installation directory.
+        if user_base is None:
+            return InstallLayout(
+                name="user",
+                persistent_root=None,
+                scratch_candidates=(),
+                create_persistent=False,
+                unavailable=(
+                    "no configuration file was found and the home directory cannot "
+                    "hold LLDP-Runner data; use --config or set paths.persistent_root"
+                ),
+            )
+        base = user_base
         name = "user"
     else:
-        base = config_path.parent
-        name = "user" if home is not None and base.is_relative_to(home) else "shared"
+        base = location.parent
+        name = "user" if in_home else "shared"
 
     if name == "user":
+        assert user_base is not None
         runtime_dir = env.get("XDG_RUNTIME_DIR", "")
-        scratch = (Path(runtime_dir) / "lldp-runner",) if os.path.isabs(runtime_dir) else ()
+        name_in_runtime = scratch_name(base, default=user_base, relative_to=user_base.parent)
+        scratch = (Path(runtime_dir) / name_in_runtime,) if os.path.isabs(runtime_dir) else ()
     else:
-        scratch = tuple(Path(item) for item in SHARED_SCRATCH_ROOTS)
+        shared_name = scratch_name(
+            base, default=Path(SHARED_DEFAULT_INSTANCE_DIR), relative_to=Path(base.anchor)
+        )
+        scratch = tuple(Path(item) / shared_name for item in SHARED_SCRATCH_BASES)
 
-    legacy = _is_legacy_instance(base, (runs_dirname, output_dirname))
+    data_dir = base / INSTANCE_DATA_DIRNAME
+    history = _real_directories(base, data_names)
+    legacy = bool(history) and not data_dir.exists()
+    unused = () if legacy else history
+    if name == "user" and user_base is not None and base != user_base:
+        # The previous automatic rule always preferred ~/lldp-runner.
+        unused += _real_directories(user_base, data_names)
+
     return InstallLayout(
         name=name,
-        persistent_root=base if legacy else base / INSTANCE_DATA_DIRNAME,
+        persistent_root=base if legacy else data_dir,
         scratch_candidates=scratch,
         create_persistent=name == "user",
         legacy=legacy,
+        unused_history=unused,
     )

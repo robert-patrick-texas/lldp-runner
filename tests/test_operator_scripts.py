@@ -181,22 +181,49 @@ def test_shared_setup_helper_is_shipped_and_documents_group_inheritance() -> Non
     text = path.read_text(encoding="utf-8")
     assert text.startswith("#!/usr/bin/env bash\n")
     assert "chmod -R g+rwX,o-rwx" in text
-    assert 'find "$root" -type d -exec chmod g+s' in text
     assert "setfacl" in text
     assert "umask 0002" in text
     assert 'LAYOUT="${LLDP_RUNNER_LAYOUT:-shared}"' in text
     assert 'GROUP_NAME="${LLDP_RUNNER_GROUP:-netops}"' in text
     assert 'PROJECT_ROOT="${LLDP_RUNNER_PROJECT_ROOT:-/opt/lldp-runner}"' in text
     assert ': "${PERSISTENT_ROOT:=${PROJECT_ROOT}/var}"' in text
-    assert ': "${SCRATCH_ROOT:=/dev/shm/lldp-runner}"' in text
     assert ': "${PERSISTENT_ROOT:=/var/lib/lldp-runner}"' in text
     assert 'PYTHON_DIR="${UV_PYTHON_INSTALL_DIR:-/opt/shared/python}"' in text
-    assert '"$PERSISTENT_ROOT/runs" "$PERSISTENT_ROOT/outputs" "$PERSISTENT_ROOT/tmp"' in text
-    assert "-m 2770" in text and "2775" not in text
+    assert "for name in runs outputs tmp; do" in text
+    assert "2775" not in text
     assert "must not be the project root or one of its parents" in text
     assert "/etc/tmpfiles.d/lldp-runner-scratch.conf" in text
     # An existing interpreter directory keeps its owner; only a missing one is created.
     assert 'if [[ ! -e "$PYTHON_DIR" ]]; then\n    install -d -o root -g root -m 0755' in text
+    # Root never follows a symlink that an operator could plant in var/.
+    assert "is a symbolic link" in text
+    assert 'chmod 0700 -- "$root"' in text
+    assert "rerun with --migrate" in text
+
+
+@pytest.mark.parametrize(
+    "project_root",
+    ["/opt/lldp-runner", "/opt/lldp-runner/", "/srv/lab", "/data/net_ops/x.y", "/srv/caf\u00e9"],
+)
+def test_setup_scripts_use_the_application_layout_paths(project_root: str) -> None:
+    """shared-setup.sh, svc-setup.sh, and lldp_runner.layout must agree."""
+
+    from lldp_runner.layout import select_layout
+
+    layout = select_layout(Path(project_root) / "config.toml")
+    expected = {
+        "persistent_root": str(layout.persistent_root),
+        "scratch_root": str(layout.scratch_candidates[0]),
+    }
+    for name in ("shared-setup.sh", "svc-setup.sh"):
+        result = subprocess.run(
+            [str(PROJECT_ROOT / "scripts" / name), "--project-root", project_root, "--print-paths"],
+            check=True,
+            text=True,
+            capture_output=True,
+        )
+        printed = dict(line.split("=", 1) for line in result.stdout.splitlines())
+        assert printed == expected, name
 
 
 def test_version_launcher_runs_version_without_configuration() -> None:
@@ -371,6 +398,56 @@ def test_launcher_honors_relative_config_override_and_its_directory(tmp_path: Pa
 
     assert f"cwd={tmp_path}/site" in lines
     assert f"config={tmp_path}/site/lab.toml" in lines
+
+
+def test_installation_config_wins_over_inherited_environment(tmp_path: Path) -> None:
+    """An operator's personal LLDP_RUNNER_CONFIG must not redirect a shared launcher."""
+
+    project = _launcher_project(tmp_path, source=True)
+    (project / "config.toml").write_text("", encoding="utf-8")
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    _write_recorder(bin_dir / "uv")
+    personal = tmp_path / "personal.toml"
+    personal.write_text("", encoding="utf-8")
+
+    lines = _run_launcher(
+        project / "scripts" / "lrun-show",
+        bin_dir,
+        "core1",
+        cwd=tmp_path,
+        env={"LLDP_RUNNER_CONFIG": str(personal)},
+    )
+    assert f"config={project.resolve()}/config.toml" in lines
+
+    # .private may still choose a different file deliberately.
+    (project / "scripts" / ".private").write_text(
+        f'export LLDP_RUNNER_CONFIG="{personal}"\n', encoding="utf-8"
+    )
+    lines = _run_launcher(project / "scripts" / "lrun-show", bin_dir, "core1", cwd=tmp_path, env={})
+    assert f"config={personal}" in lines
+    assert f"cwd={tmp_path}" in lines
+
+
+def test_launcher_expands_tilde_in_config_path(tmp_path: Path) -> None:
+    project = _launcher_project(tmp_path, source=True)
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    _write_recorder(bin_dir / "uv")
+    home = tmp_path / "home"
+    (home / "lab").mkdir(parents=True)
+    (home / "lab" / "config.toml").write_text("", encoding="utf-8")
+
+    lines = _run_launcher(
+        project / "scripts" / "lrun-show",
+        bin_dir,
+        "core1",
+        cwd=tmp_path,
+        env={"HOME": str(home), "LLDP_RUNNER_CONFIG": "~/lab/config.toml"},
+    )
+
+    assert f"config={home}/lab/config.toml" in lines
+    assert f"cwd={home}/lab" in lines
 
 
 def test_diff_launcher_keeps_operator_directory(tmp_path: Path) -> None:

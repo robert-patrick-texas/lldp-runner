@@ -30,10 +30,10 @@
 # or /var/lib/lldp-runner for /etc/lldp-runner/config.toml.
 # A shared or system root must already exist; a per-user one is created.
 persistent_root = "auto"
-# When set to auto: /dev/shm/lldp-runner for a shared install,
-# /run/lldp-runner then /dev/shm/lldp-runner for /etc/lldp-runner, or
-# $XDG_RUNTIME_DIR/lldp-runner below the home directory; otherwise
-# <persistent_root>/tmp.
+# When set to auto: /dev/shm/lldp-runner for /opt/lldp-runner (other
+# shared installs add their path, such as lldp-runner-srv-lab),
+# /run/lldp-runner for /etc/lldp-runner, or $XDG_RUNTIME_DIR/lldp-runner
+# below the home directory; otherwise <persistent_root>/tmp.
 scratch_root = "auto"
 runs_dirname = "runs"
 # Finalized runs are published below <persistent_root>/outputs/<runid>/.

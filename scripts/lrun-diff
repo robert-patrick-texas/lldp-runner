@@ -160,6 +160,11 @@ script_dir="$(dirname -- "$script_path")"
 # define PROJECT_DIR when an explicit project-directory override is required.
 # ----------------------------------------------------------------------------
 
+# A configuration inherited from the caller's environment applies only when
+# neither an include file nor the installation selects one (see below).
+inherited_config="${LLDP_RUNNER_CONFIG-}"
+unset LLDP_RUNNER_CONFIG
+
 for include_name in "${INCLUDE_FILES[@]}"; do
     include_file="${script_dir}/${include_name}"
 
@@ -245,13 +250,16 @@ fi
 #
 # Precedence:
 #
-#   1. LLDP_RUNNER_CONFIG, for example exported by .private.
+#   1. LLDP_RUNNER_CONFIG exported by an include file such as .private.
 #   2. <project_directory>/config.toml.
 #   3. /etc/lldp-runner/config.toml.
-#   4. The application's normal configuration search.
+#   4. LLDP_RUNNER_CONFIG inherited from the caller's environment.
+#   5. The application's normal configuration search.
 #
 # LLDP-Runner keeps runtime data with the selected configuration file, so every
-# operator who uses this launcher works on the same installation's data.
+# operator who uses this launcher works on the same installation's data. A
+# personal LLDP_RUNNER_CONFIG in an operator's shell therefore does not move
+# them onto another installation.
 # ----------------------------------------------------------------------------
 
 if [[ -z "${LLDP_RUNNER_CONFIG:-}" ]]; then
@@ -266,11 +274,25 @@ if [[ -z "${LLDP_RUNNER_CONFIG:-}" ]]; then
     done
 fi
 
+if [[ -z "${LLDP_RUNNER_CONFIG:-}" && -n "$inherited_config" ]]; then
+    LLDP_RUNNER_CONFIG="$inherited_config"
+fi
+
 if [[ -n "${LLDP_RUNNER_CONFIG:-}" ]]; then
+    case "$LLDP_RUNNER_CONFIG" in
+        "~")
+            LLDP_RUNNER_CONFIG="${HOME:?HOME is not set}"
+            ;;
+        "~/"*)
+            LLDP_RUNNER_CONFIG="${HOME:?HOME is not set}/${LLDP_RUNNER_CONFIG#"~/"}"
+            ;;
+    esac
+
     if [[ "$LLDP_RUNNER_CONFIG" != /* ]]; then
-        export LLDP_RUNNER_CONFIG="${PWD}/${LLDP_RUNNER_CONFIG}"
+        LLDP_RUNNER_CONFIG="${PWD}/${LLDP_RUNNER_CONFIG}"
     fi
 
+    export LLDP_RUNNER_CONFIG
     instance_directory="$(dirname -- "$LLDP_RUNNER_CONFIG")"
 else
     instance_directory="$project_directory"

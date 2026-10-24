@@ -32,9 +32,7 @@ def _isolate_auto_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path
     (tmp_path / "var").mkdir()
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("XDG_RUNTIME_DIR", str(runtime))
-    monkeypatch.setattr(
-        layout_module, "SHARED_SCRATCH_ROOTS", (str(tmp_path / "shm" / "lldp-runner"),)
-    )
+    monkeypatch.setattr(layout_module, "SHARED_SCRATCH_BASES", (str(tmp_path / "shm"),))
     monkeypatch.chdir(tmp_path)
     return runtime
 

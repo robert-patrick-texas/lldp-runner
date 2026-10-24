@@ -81,15 +81,24 @@ one installation reads and writes the same data:
   `<dir>/config.toml` outside the invoking user's home directory. Persistent
   root `<dir>/var`; scratch root `/dev/shm/lldp-runner`.
 - **system** (distribution packages): `/etc/lldp-runner/config.toml`.
-  Persistent root `/var/lib/lldp-runner`; scratch root `/run/lldp-runner`, then
-  `/dev/shm/lldp-runner`.
+  Persistent root `/var/lib/lldp-runner`; scratch root `/run/lldp-runner`.
 - **user** (one account): `~/lldp-runner/config.toml` or another configuration
-  below the home directory, `~/lldp-runner-config.toml`, or no configuration
-  file at all. Persistent root `<dir>/var`, or `~/lldp-runner/var` without a
-  file; scratch root `$XDG_RUNTIME_DIR/lldp-runner`.
+  below the home directory, or no configuration file at all. Persistent root
+  `<dir>/var`; a file directly in the home directory, or no file, uses
+  `~/lldp-runner/var`. Scratch root `$XDG_RUNTIME_DIR/lldp-runner`.
 
 Every layout falls back to `<persistent_root>/tmp` when its preferred scratch
-root is unavailable. The persistent root holds `runs/` (run state, activity
+root is unavailable. An installation other than `/opt/lldp-runner` (or
+`~/lldp-runner`) gets its own scratch name, so two installations on one host
+never share a running scoreboard: `/srv/lab/config.toml` uses
+`/dev/shm/lldp-runner-srv-lab`.
+
+The layout follows the configuration path as it was named. A `config.toml`
+that is a symbolic link to a file kept elsewhere, such as in a configuration
+repository, still belongs to the directory that holds the link. Without a
+configuration file and without a usable home directory (for example
+`HOME=/`), there is no automatic location; set `paths.persistent_root` or use
+`--config`. The persistent root holds `runs/` (run state, activity
 logs) and `outputs/` (finalized `discovery.json`, CSV files, and `latest`
 links).
 
@@ -122,7 +131,11 @@ sudo ln -s var/outputs /opt/lldp-runner/outputs
 
 An installation that still keeps real `runs/` and `outputs/` directories
 directly in `<dir>`, with no `<dir>/var`, keeps using them and prints a warning.
-See [Moving data into var/](#moving-data-into-var) to convert it.
+When `<dir>/var` exists, such directories are not used, and `paths`,
+`validate-config`, and `run` warn about them instead. The same warning appears
+for older history in `~/lldp-runner/runs` or `~/lldp-runner/outputs` when a
+single-user configuration elsewhere is in use. See
+[Moving data into var/](#moving-data-into-var) to convert an installation.
 
 Explicit values always win over the layout. Set `[paths]` in the primary
 `config.toml` (it overrides `conf.d` fragments), or use `LLDP_RUNNER_ROOT` and
@@ -241,9 +254,8 @@ apply to every uv user on the server.
 Create a trusted operator group and add all accounts that are allowed to use
 LLDP-Runner. Group membership normally takes effect after a new login/session.
 
-The shipped helper creates the runtime directories, repairs group ownership on
-existing content, applies setgid directories, removes access for other users,
-and adds default POSIX ACLs when `setfacl` is available:
+The shipped helper creates the runtime directories with setgid, group write,
+no access for other users, and default POSIX ACLs when `setfacl` is available:
 
 ```bash
 sudo /opt/lldp-runner/scripts/shared-setup.sh --group netops
@@ -264,8 +276,20 @@ prepares:
 `/dev/shm` is cleared at every reboot. The tmpfiles entry recreates the scratch
 root with the same ownership, mode, and ACLs at boot, so the first operator to
 run after a reboot cannot create it with private permissions. `--layout system`
-prepares `/var/lib/lldp-runner` and `/run/lldp-runner` instead. The helper
-refuses a runtime root that equals or contains the project root.
+prepares `/var/lib/lldp-runner` and `/run/lldp-runner` instead, and
+`--project-root DIR` prepares another shared installation with its own scratch
+name. `--print-paths` shows the directories without changing anything.
+
+Operators can write to these directories, so the helper never follows a
+symbolic link there as root. It locks each runtime root to root-only access
+while it works below it, requires existing entries to be real directories, and
+refuses a runtime root that equals or contains the project root, sits in a
+group- or world-writable parent, or is owned by another account. Re-running it
+is safe. By default it does not walk existing content; `--repair` also fixes
+group ownership, permissions, and ACLs of existing files, and should run only
+while no LLDP-Runner process or operator session uses the directories. It
+refuses to create `var/` while older `runs/` or `outputs/` sit in the project
+root; see [Moving data into var/](#moving-data-into-var).
 
 It creates `/opt/shared/python` root-owned when it is missing and otherwise
 leaves its ownership alone. It warns when that directory or the project root is
@@ -332,7 +356,9 @@ instead.
 The launchers select `/opt/lldp-runner/config.toml` automatically (see
 [CLI.md](CLI.md) and the launcher headers), so the shared configuration and its
 `var/` data apply to every operator. Set `LLDP_RUNNER_CONFIG` in `.private`
-only to use a different file.
+only to use a different file. An `LLDP_RUNNER_CONFIG` exported in an operator's
+own shell applies only when the installation has no `config.toml`, so it cannot
+move the shared launchers onto a personal configuration.
 
 The published dependency declarations retain supported minimum versions. For
 maintainer-managed release environments, `[tool.uv]` applies exact runtime,
@@ -381,12 +407,16 @@ writable only by the maintainer. The operator group needs read/execute access
 to code and Python; other users need none:
 
 ```bash
-sudo chown -R lldp-maintainer:netops /opt/lldp-runner
-sudo chmod -R u+rwX,g+rX,g-w,o-rwx /opt/lldp-runner
+sudo find /opt/lldp-runner -path /opt/lldp-runner/var -prune -o \
+    -exec chown -h lldp-maintainer:netops {} +
+sudo find /opt/lldp-runner -path /opt/lldp-runner/var -prune -o \
+    ! -type l -exec chmod u+rwX,g+rX,g-w,o-rwx {} +
 ```
 
-Run `shared-setup.sh` after such recursive changes; it restores the group
-write access of `var/`.
+These commands skip `var/`, whose ownership and group write access belong to
+`shared-setup.sh`. The maintainer account is trusted with the code that every
+operator and the service account run; operators are not, which is why only
+`var/` and the scratch root are writable by the group.
 
 Credential-bearing files deserve stricter treatment than runtime output. A
 seed-credential file can be `root:netops` mode `0640` only when every member of
@@ -412,8 +442,10 @@ sudo /opt/lldp-runner/scripts/svc-setup.sh \
 The service account must already exist and be a member of the configured group.
 `svc-setup.sh` refuses to create accounts/change memberships. If generated units
 already exist, setup stops and instructs the administrator to remove them first.
-It also stops when the scratch root (default `/dev/shm/lldp-runner`) or the
-persistent root (default `<project-root>/var`) does not exist yet.
+It also stops when the scratch root (default `/dev/shm/lldp-runner` for
+`/opt/lldp-runner`, the same per-installation name as `shared-setup.sh`
+otherwise) or the persistent root (default `<project-root>/var`) does not exist
+yet.
 
 The default schedule starts discovery at 00:00, 04:00, 08:00, 12:00, 16:00,
 and 20:00, plus daily maintenance at 02:30. Both timers use a stable randomized
@@ -602,7 +634,7 @@ sudo -u "$DEVELOPER" env \
         --locked
 
 # The environment must point at the shared Python, never a home directory.
-grep '^home = /opt/shared/python/' /opt/lldp-runner/.venv/pyvenv.cfg
+sudo grep '^home = /opt/shared/python/' /opt/lldp-runner/.venv/pyvenv.cfg
 
 # ---------------------------------------------------------------------------
 # 8. Install the launcher environment. Change its maintainer account if
@@ -624,8 +656,8 @@ sudo install -o "$DEVELOPER" -g netops -m 0640 \
 sudo install -o "$DEVELOPER" -g netops -m 0640 \
     "$SEED_SOURCE" /opt/lldp-runner/seed.list
 
-grep -E '^(persistent_root|scratch_root) *=' /opt/lldp-runner/config.toml || \
-    echo 'No [paths] roots set: the automatic paths apply.'
+sudo grep -E '^(persistent_root|scratch_root) *=' \
+    /opt/lldp-runner/config.toml
 
 # ---------------------------------------------------------------------------
 # 10. Prepare the group-writable runtime directories and the boot-time
@@ -673,8 +705,8 @@ sudo /opt/lldp-runner/scripts/svc-setup.sh \
 # ---------------------------------------------------------------------------
 systemctl list-timers 'lldp-runner-*'
 systemctl status lldp-runner-run.timer lldp-runner-maintenance.timer
-journalctl -u lldp-runner-run.service -n 50 --no-pager
-journalctl -u lldp-runner-maintenance.service -n 50 --no-pager
+sudo journalctl -u lldp-runner-run.service -n 50 --no-pager
+sudo journalctl -u lldp-runner-maintenance.service -n 50 --no-pager
 ```
 
 New group membership is normally visible only after users start a new login
@@ -690,16 +722,23 @@ packages. A typical post-upgrade synchronization is:
 ```bash
 export UV_PYTHON_INSTALL_DIR=/opt/shared/python
 export UV_LINK_MODE=copy
-umask 0002
+umask 0022
 
 cd /opt/lldp-runner
 uv sync --all-groups
 uv run pytest
 ```
 
-When extracting a new release over `/opt/lldp-runner`, repeat the ownership
-commands from step 6 and then run `shared-setup.sh` again, so `var/` keeps its
-group write access.
+Keep `umask 0022` for the maintainer: `.venv` must not become group-writable.
+
+To install a new release, extract it over `/opt/lldp-runner` and repeat the
+ownership commands from
+[Project and credential-file ownership](#project-and-credential-file-ownership),
+which leave `var/` alone, before synchronizing:
+
+```bash
+sudo tar -xzf lldp-runner-NEW.tar.gz -C /opt/lldp-runner --strip-components=1
+```
 
 Python patch releases are installed by root as in step 7 with the new version.
 The minor-version link moves to the new patch, and the project environment uses
@@ -725,20 +764,34 @@ LLDP-Runner keeps using that location, with a warning, until
 `/opt/lldp-runner/var` exists. To convert:
 
 ```bash
+# Stop the schedule and wait for a discovery or maintenance run to finish.
 sudo systemctl stop lldp-runner-run.timer lldp-runner-maintenance.timer
-sudo install -d -o root -g netops -m 2770 /opt/lldp-runner/var
-sudo mv /opt/lldp-runner/runs /opt/lldp-runner/outputs /opt/lldp-runner/var/
-sudo chmod -R g-w /opt/lldp-runner
-sudo /opt/lldp-runner/scripts/shared-setup.sh --group netops
-/opt/lldp-runner/scripts/lrun-paths
+while systemctl is-active --quiet \
+        lldp-runner-run.service lldp-runner-maintenance.service; do
+    sleep 10
+done
+
+# The installation root must not be writable by the operator group.
+sudo chmod g-w,o-w /opt/lldp-runner
+
+# Move runs/, outputs/, and tmp/ into var/ and repair their permissions.
+sudo /opt/lldp-runner/scripts/shared-setup.sh --group netops --migrate
+sudo -u lldp-runner /opt/lldp-runner/scripts/lrun-paths
+
 sudo systemctl start lldp-runner-run.timer lldp-runner-maintenance.timer
 ```
 
-Keep the timers stopped and start no runs until the move is complete: once
-`var/` exists, LLDP-Runner uses it, and runs left in the old location are no
-longer resumed, diffed, or purged. Sites that set explicit paths, such as
-`/var/lib/lldp-runner`, are not affected; either keep the explicit `[paths]` or
-move the data and return to `auto`.
+`--migrate` refuses to run while an LLDP-Runner run, clean, or purge is in
+progress. Ask operators not to start runs until the move is complete. Once
+`var/` exists, LLDP-Runner uses it, and directories left in the old location
+are reported but no longer resumed, diffed, or purged. Then apply the
+ownership commands from
+[Project and credential-file ownership](#project-and-credential-file-ownership)
+to the rest of the installation.
+
+Sites that set explicit paths, such as `/var/lib/lldp-runner`, are not
+affected; either keep the explicit `[paths]` or move the data and return to
+`auto`.
 
 If the old scheduling was installed by an earlier `svc-setup.sh`, also run
 `svc-remove.sh` and then `svc-setup.sh`. The earlier helper owned

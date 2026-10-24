@@ -11,20 +11,23 @@ export UV_PYTHON_INSTALL_DIR="/opt/shared/python"
 # into a user-specific uv cache. This also matches pyproject.toml [tool.uv].
 export UV_LINK_MODE="copy"
 
-# Files created by LLDP-Runner should remain writable by the trusted operator
-# group. Use setgid/default ACLs on runtime directories as documented
-# separately.
-umask 0002
-
 # The designated maintainer may let `uv run` verify/synchronize the centrally
 # managed project environment. Other operators and service accounts use the
 # already-synchronized .venv and must not trigger package changes.
+#
+# Files created by LLDP-Runner should remain writable by the trusted operator
+# group, so operators and services use umask 0002 (setgid/default ACLs on the
+# runtime directories do the same where available). The maintainer keeps
+# umask 0022 because a synchronizing `uv run` writes into .venv, which must not
+# become group-writable.
 LLDP_RUNNER_DEVELOPER_ACCOUNT="lldp-maintainer"
 
 if [[ "$(id -un)" == "$LLDP_RUNNER_DEVELOPER_ACCOUNT" ]]; then
     UV_RUN_ARGS=()
+    umask 0022
 else
     UV_RUN_ARGS=(--no-sync)
+    umask 0002
 fi
 
 # uv needs a writable cache even for --no-sync runs. Service accounts usually
@@ -38,7 +41,9 @@ fi
 
 # The launchers select <project>/config.toml automatically, and LLDP-Runner
 # keeps runtime data with that file (/opt/lldp-runner/var for a shared
-# installation). Set LLDP_RUNNER_CONFIG only to use a different file.
+# installation). Set LLDP_RUNNER_CONFIG here only to use a different file; a
+# value inherited from an operator's own shell applies only when the
+# installation has no config.toml.
 # export LLDP_RUNNER_CONFIG=/etc/lldp-runner/config.toml
 
 # Optional runtime path overrides. These win over config.toml; scripts/lrun-paths

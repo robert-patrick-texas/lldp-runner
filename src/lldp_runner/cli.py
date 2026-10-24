@@ -995,7 +995,8 @@ def _paths_report(config: AppConfig) -> dict[str, Any]:
 
     Returns:
         JSON-serializable mapping of the selected config file, install layout,
-        persistent/run/output directories, and scratch root.
+        persistent/run/output directories, scratch root, and any older run
+        history that the layout does not use.
     """
 
     layout = install_layout(config)
@@ -1005,16 +1006,23 @@ def _paths_report(config: AppConfig) -> dict[str, Any]:
     scratch = resolve_readonly_scratch_root(
         config.paths.scratch_root, persistent_root=persistent, layout=layout
     )
+    legacy = (
+        layout.legacy
+        and layout.persistent_root is not None
+        and persistent == layout.persistent_root.resolve()
+    )
+    unused = [str(path) for path in layout.unused_history if path.resolve() != persistent]
     return {
         "config_path": str(config.config_path) if config.config_path is not None else None,
         "layout": layout.name,
-        "legacy_layout": layout.legacy and persistent == layout.persistent_root.resolve(),
+        "legacy_layout": legacy,
         "persistent_root": str(persistent),
         "persistent_root_auto": persistent_auto,
         "runs_dir": str(persistent / config.paths.runs_dirname),
         "outputs_dir": str(persistent / config.paths.output_dirname),
         "scratch_root": str(scratch),
         "scratch_root_auto": scratch_auto,
+        "unused_history": unused if persistent_auto else [],
     }
 
 
@@ -1034,19 +1042,26 @@ def _print_paths_report(report: Mapping[str, Any]) -> None:
     print(f"Scratch root:    {report['scratch_root']} ({source(report['scratch_root_auto'])})")
 
 
-def _warn_legacy_layout(config: AppConfig, report: Mapping[str, Any]) -> None:
-    """Tell operators that runtime data still sits directly in the install directory."""
+def _warn_layout_history(config: AppConfig, report: Mapping[str, Any]) -> None:
+    """Warn about run history that sits outside the current install layout."""
 
-    if not report["legacy_layout"]:
-        return
     root = Path(report["persistent_root"])
-    print(
-        f"Warning: {root} still holds {config.paths.runs_dirname}/ and "
-        f"{config.paths.output_dirname}/ directly (older layout). Move them into "
-        f"{root / INSTANCE_DATA_DIRNAME}/ to use the current layout, or set "
-        "paths.persistent_root to keep this location.",
-        file=sys.stderr,
-    )
+    if report["legacy_layout"]:
+        print(
+            f"Warning: {root} still holds {config.paths.runs_dirname}/ and "
+            f"{config.paths.output_dirname}/ directly (older layout). Move them into "
+            f"{root / INSTANCE_DATA_DIRNAME}/ to use the current layout, or set "
+            "paths.persistent_root to keep this location.",
+            file=sys.stderr,
+        )
+    if report["unused_history"]:
+        print(
+            "Warning: run history in "
+            + ", ".join(report["unused_history"])
+            + f" is not used; this configuration keeps run data in {root}. Move its "
+            "contents there (see docs/INSTALL.md) or set paths.persistent_root.",
+            file=sys.stderr,
+        )
 
 
 def _load_app(
@@ -1683,7 +1698,7 @@ def main(argv: list[str] | None = None) -> None:
         except (ConfigError, OSError, ValueError) as exc:
             parser.error(str(exc))
             return
-        _warn_legacy_layout(config, report)
+        _warn_layout_history(config, report)
         if args.json:
             print(json.dumps(report, indent=2))
         else:
@@ -1694,7 +1709,7 @@ def main(argv: list[str] | None = None) -> None:
         source = str(config.config_path) if config.config_path is not None else "built-in defaults"
         print(f"Configuration valid: {source}")
         report = _paths_report(config)
-        _warn_legacy_layout(config, report)
+        _warn_layout_history(config, report)
         print(f"Install layout:  {report['layout']}")
         print(f"Persistent root: {report['persistent_root']}")
         print(f"Scratch root:    {report['scratch_root']}")
@@ -1705,7 +1720,7 @@ def main(argv: list[str] | None = None) -> None:
         return
 
     if args.command == "run":
-        _warn_legacy_layout(config, _paths_report(config))
+        _warn_layout_history(config, _paths_report(config))
         stdin_seeds: list[str] = []
         raw_seed_counts: list[int] = []
         try:

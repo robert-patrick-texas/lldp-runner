@@ -49,24 +49,28 @@ CONFIG_SEARCH_PATHS: tuple[str, ...] = (
 
 # Install layouts used when ``paths.persistent_root`` or ``paths.scratch_root``
 # is ``auto``. The layout follows the directory of the selected primary config
-# file, so runtime data always belongs to the installation that defined it
-# (see lldp_runner.layout):
+# file as it was named (symlinks are not resolved), so runtime data always
+# belongs to the installation that defined it (see lldp_runner.layout):
 #
 #   shared  <dir>/config.toml outside the home directory, such as
 #           /opt/lldp-runner: persistent <dir>/var, scratch /dev/shm/lldp-runner
 #   system  /etc/lldp-runner/config.toml: persistent /var/lib/lldp-runner,
-#           scratch /run/lldp-runner, then /dev/shm/lldp-runner
+#           scratch /run/lldp-runner
 #   user    a config below the home directory, or no config at all:
-#           persistent ~/lldp-runner/var, scratch $XDG_RUNTIME_DIR/lldp-runner
+#           persistent <dir>/var (~/lldp-runner/var for a file directly in the
+#           home directory or no file), scratch $XDG_RUNTIME_DIR/lldp-runner
 #
-# Every layout falls back to <persistent_root>/tmp for scratch. Distribution
-# packagers can change these constants instead of patching resolver code.
+# A shared installation other than /opt/lldp-runner, or a user installation
+# other than ~/lldp-runner, gets its own scratch name such as
+# /dev/shm/lldp-runner-srv-lab. Every layout falls back to <persistent_root>/tmp
+# for scratch. Distribution packagers can change these constants instead of
+# patching resolver code.
 SYSTEM_CONFIG_DIR: Final[str] = "/etc/lldp-runner"
 SYSTEM_PERSISTENT_ROOT: Final[str] = "/var/lib/lldp-runner"
-SYSTEM_SCRATCH_ROOTS: tuple[str, ...] = ("/run/lldp-runner", "/dev/shm/lldp-runner")
-SHARED_SCRATCH_ROOTS: tuple[str, ...] = ("/dev/shm/lldp-runner",)
+SYSTEM_SCRATCH_ROOTS: tuple[str, ...] = ("/run/lldp-runner",)
+SHARED_DEFAULT_INSTANCE_DIR: Final[str] = "/opt/lldp-runner"
+SHARED_SCRATCH_BASES: tuple[str, ...] = ("/dev/shm",)
 USER_INSTANCE_DIR: Final[str] = "~/lldp-runner"
-USER_HOME_CONFIG_NAME: Final[str] = "lldp-runner-config.toml"
 INSTANCE_DATA_DIRNAME: Final[str] = "var"
 SCRATCH_FALLBACK_DIRNAME: Final[str] = "tmp"
 

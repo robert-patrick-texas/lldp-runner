@@ -462,13 +462,17 @@ with the installation that the file belongs to:
   `/opt/lldp-runner/config.toml`: persistent root `<dir>/var`, scratch root
   `/dev/shm/lldp-runner`.
 - System layout, `/etc/lldp-runner/config.toml`: persistent root
-  `/var/lib/lldp-runner`, scratch root `/run/lldp-runner`, then
-  `/dev/shm/lldp-runner`.
+  `/var/lib/lldp-runner`, scratch root `/run/lldp-runner`.
 - User layout, a configuration below the home directory or no configuration at
-  all: persistent root `<dir>/var` (`~/lldp-runner/var` without a
-  configuration), scratch root `$XDG_RUNTIME_DIR/lldp-runner`.
+  all: persistent root `<dir>/var` (`~/lldp-runner/var` for a file directly in
+  the home directory or no configuration), scratch root
+  `$XDG_RUNTIME_DIR/lldp-runner`.
 
-Every layout falls back to `<persistent_root>/tmp` for scratch. A shared or
+The layout follows the configuration path as named, without resolving
+symbolic links. Installations other than `/opt/lldp-runner` and
+`~/lldp-runner` get their own scratch name, such as
+`/dev/shm/lldp-runner-srv-lab`. Every layout falls back to
+`<persistent_root>/tmp` for scratch. A shared or
 system persistent root must already exist with group permissions, normally
 created by `scripts/shared-setup.sh`; a user persistent root is created on
 demand. An existing but unwritable persistent root is an error; LLDP-Runner
@@ -477,8 +481,9 @@ through when unavailable.
 
 An installation whose `runs/` and `outputs/` still sit directly in `<dir>`
 keeps using them until `<dir>/var` exists, with a warning that suggests moving
-them. `lldp-runner paths` shows the effective locations without creating
-anything. See [INSTALL.md](docs/INSTALL.md) for each layout's setup.
+them; once `var/` exists, leftover directories are reported as unused.
+`lldp-runner paths` shows the effective locations without creating anything.
+See [INSTALL.md](docs/INSTALL.md) for each layout's setup.
 
 A successful terminal run publishes two relative convenience links:
 
@@ -1199,10 +1204,12 @@ sources `scripts/.private`, selects the installation's configuration, forwards
 additional command-line arguments, and can use `flock` when
 `SINGLE_INSTANCE=true`.
 
-The configuration is `LLDP_RUNNER_CONFIG` when set, otherwise
-`<project>/config.toml`, otherwise `/etc/lldp-runner/config.toml`. The command
-starts in that file's directory, so `seed.list` in the fixed arguments means the
-seed list beside the configuration. A source installation (with
+The configuration is `LLDP_RUNNER_CONFIG` from `scripts/.private`, otherwise
+`<project>/config.toml`, otherwise `/etc/lldp-runner/config.toml`, otherwise an
+`LLDP_RUNNER_CONFIG` inherited from the caller's environment, so an operator's
+personal setting cannot move a shared launcher onto another installation. The
+command starts in that file's directory, so `seed.list` in the fixed arguments
+means the seed list beside the configuration. A source installation (with
 `pyproject.toml`) runs through `uv run --project`; a packaged installation runs
 the installed `lldp-runner` command from `PATH`. See
 [`docs/INSTALL.md`](docs/INSTALL.md) and `scripts/example.private` for the

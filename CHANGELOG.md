@@ -10,12 +10,19 @@
   `/dev/shm/lldp-runner`, falling back to `/opt/lldp-runner/var/tmp`. The
   system layout (`/etc/lldp-runner/config.toml`) uses `/var/lib/lldp-runner`
   and `/run/lldp-runner`. A configuration below the home directory, or none,
-  uses `<dir>/var` (`~/lldp-runner/var`) and `$XDG_RUNTIME_DIR/lldp-runner`.
-  `/tmp/lldp-runner` and `/var/tmp/lldp-runner` are no longer scratch
-  candidates. Shared and system roots are no longer created on demand.
+  uses `<dir>/var` and `$XDG_RUNTIME_DIR/lldp-runner`; a file directly in the
+  home directory, or none, uses `~/lldp-runner/var`. The layout follows the
+  configuration path as named, without resolving symbolic links. Other
+  installations get their own scratch name, such as
+  `/dev/shm/lldp-runner-srv-lab`. `/tmp/lldp-runner` and `/var/tmp/lldp-runner`
+  are no longer scratch candidates, shared and system roots are no longer
+  created on demand, and without a configuration or usable home directory
+  `auto` is an error instead of the working directory.
 - Installations that still keep `runs/` and `outputs/` directly in the
   installation directory keep using them until `<dir>/var` exists. `paths`,
-  `validate-config`, and `run` warn about it. INSTALL.md describes the move.
+  `validate-config`, and `run` warn about it, and about such directories left
+  beside an existing `var/` or in `~/lldp-runner` for another user
+  configuration. `shared-setup.sh --migrate` moves them into `var/`.
 - Add `lldp-runner paths [--json]` and `scripts/lrun-paths`, which show the
   install layout, persistent, runs, outputs, and scratch locations without
   creating anything. `validate-config` also prints the resolved roots.
@@ -24,24 +31,32 @@
   `/etc/lldp-runner/config.toml`, start in that file's directory so
   `seed.list` resolves beside it, and run through `uv run --project`. Without a
   `pyproject.toml` beside them they run the installed `lldp-runner` from
-  `PATH`. `lrun-explain` now uses the deployed configuration as well.
+  `PATH`. `lrun-explain` now uses the deployed configuration as well. An
+  `LLDP_RUNNER_CONFIG` inherited from the caller's environment applies only
+  when the installation has no configuration, and `~` in it is expanded.
 - `lrun-bundle-diff` reads the outputs and runs directories from `lrun-paths`
   unless `LLDP_RUNNER_BUNDLE_ROOT`, `LLDP_RUNNER_OUTPUTS_DIR`, or
   `LLDP_RUNNER_RUNS_DIR` is set.
-- `shared-setup.sh` gains `--layout shared|system` and `--project-root`. It
-  creates `var/{runs,outputs,tmp}` and the scratch root as `root:GROUP` mode
-  `2770` without access for other users, installs
-  `/etc/tmpfiles.d/lldp-runner-scratch.conf` so the scratch root is recreated
-  at boot, refuses a runtime root that equals or contains the project root, and
-  no longer changes the owner of an existing Python directory. Previously it
-  re-owned `/opt/shared/python` to root, which broke the maintainer's later
+- `shared-setup.sh` gains `--layout shared|system`, `--project-root`,
+  `--migrate`, `--repair`, and `--print-paths`. It creates `var/{runs,outputs,
+  tmp}` and the scratch root as `root:GROUP` mode `2770` without access for
+  other users, and installs `/etc/tmpfiles.d/lldp-runner-scratch.conf` so the
+  scratch root is recreated at boot. As root it no longer follows symlinks in
+  the group-writable directories: each runtime root is locked while its
+  entries are handled, symlinks and unsafe parents are refused, and existing
+  content is only walked with `--repair`. It refuses to create `var/` beside
+  older `runs/` or `outputs/` unless `--migrate` moves them. It no longer
+  changes the owner of an existing Python directory; previously it re-owned
+  `/opt/shared/python` to root, which broke the maintainer's later
   `uv python install`.
 - `svc-setup.sh` defaults to the shared layout, requires the runtime roots from
   `shared-setup.sh`, no longer writes its own tmpfiles entry, and gives the
   units a uv cache in `/var/cache/lldp-runner/uv`. Without one, uv failed with
   "Failed to initialize cache" for a service account whose home is
   `/nonexistent`. `scripts/example.private` sets `UV_NO_CACHE=1` for the same
-  case outside systemd.
+  case outside systemd, and applies `umask 0002` only to accounts other than
+  the maintainer, so a synchronizing maintainer run cannot leave `.venv`
+  group-writable.
 - INSTALL.md covers the three layouts, installs the shared Python as root,
   adds `/etc/uv/uv.toml` and `/etc/profile.d` guard rails that keep uv-managed
   Python out of home directories, removes world access from the installation,

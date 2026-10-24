@@ -605,6 +605,9 @@ class AppConfig:
     terminal: TerminalConfig
     config_path: Path | None = None
     config_files: tuple[Path, ...] = ()
+    # The primary file as the operator or launcher named it, made absolute but
+    # with symbolic links kept. The install layout follows this location.
+    config_location: Path | None = None
 
 
 def _section(data: dict[str, Any], name: str) -> dict[str, Any]:
@@ -890,6 +893,9 @@ def discover_config_path(
     than a reason to silently search another location. When neither is supplied,
     the ordered paths in :mod:`lldp_runner.defaults` are searched and ``None``
     means LLDP-Runner should operate from built-in defaults.
+
+    The returned path is absolute but keeps symbolic links: the install layout
+    follows the path as named, and :func:`load_config` resolves it for reading.
     """
 
     env = os.environ if env is None else env
@@ -898,12 +904,12 @@ def discover_config_path(
         path = Path(selected).expanduser()
         if not path.is_file():
             raise ConfigError(f"configuration file not found: {path}")
-        return path.resolve()
+        return Path(os.path.abspath(path))
 
     for candidate in CONFIG_SEARCH_PATHS:
         path = Path(candidate).expanduser()
         if path.is_file():
-            return path.resolve()
+            return Path(os.path.abspath(path))
     return None
 
 
@@ -1267,7 +1273,7 @@ def install_layout(config: AppConfig) -> InstallLayout:
     """Return the automatic install layout implied by ``config``'s primary file."""
 
     return select_layout(
-        config.config_path,
+        config.config_location or config.config_path,
         runs_dirname=config.paths.runs_dirname,
         output_dirname=config.paths.output_dirname,
     )
@@ -1286,6 +1292,8 @@ def _resolve_persistent_root(value: Path | str, *, layout: InstallLayout) -> Pat
             Path(value).expanduser(), create=True, label="persistent_root"
         )
 
+    if layout.persistent_root is None:
+        raise ConfigError(f"persistent_root cannot be chosen automatically: {layout.unavailable}")
     try:
         return _probe_writable_directory(
             layout.persistent_root,
@@ -1346,6 +1354,8 @@ def resolve_existing_persistent_root(value: Path | str, *, layout: InstallLayout
     if str(value).lower() != "auto":
         return Path(value).expanduser().resolve()
 
+    if layout.persistent_root is None:
+        raise ConfigError(f"persistent_root cannot be chosen automatically: {layout.unavailable}")
     root = layout.persistent_root.resolve()
     if root.exists() and not root.is_dir():
         raise ConfigError(f"persistent_root is not a directory: {root}")
@@ -1371,6 +1381,10 @@ def resolve_readonly_scratch_root(
 
     candidates = [item for item in layout.scratch_candidates if item.parent.is_dir()]
     if str(persistent_root).lower() == "auto":
+        if layout.persistent_root is None:
+            raise ConfigError(
+                f"persistent_root cannot be chosen automatically: {layout.unavailable}"
+            )
         persistent = layout.persistent_root
     else:
         persistent = Path(persistent_root).expanduser()
@@ -1605,6 +1619,8 @@ def load_config(
         raise ConfigError(
             f"configuration contains an invalid setting or value type: {exc}"
         ) from exc
+    if path is not None:
+        app.config_location = Path(os.path.abspath(Path(path).expanduser()))
     _resolve_runtime_values(app, resolve_paths=resolve_paths)
     if credential_mode is not CredentialMode.DISABLED:
         _synthesize_runtime_credentials(

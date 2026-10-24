@@ -12,7 +12,7 @@ SERVICE_USER="${LLDP_RUNNER_SERVICE_USER:-lldp-runner}"
 GROUP_NAME="${LLDP_RUNNER_GROUP:-netops}"
 PROJECT_ROOT="${LLDP_RUNNER_PROJECT_ROOT:-/opt/lldp-runner}"
 PERSISTENT_ROOT="${LLDP_RUNNER_PERSISTENT_ROOT:-}"
-SCRATCH_ROOT="${LLDP_RUNNER_SCRATCH_ROOT:-/dev/shm/lldp-runner}"
+SCRATCH_ROOT="${LLDP_RUNNER_SCRATCH_ROOT:-}"
 PYTHON_DIR="${UV_PYTHON_INSTALL_DIR:-/opt/shared/python}"
 RANDOM_DELAY_MINUTES="${LLDP_RUNNER_RANDOM_DELAY_MINUTES:-10}"
 RUN_CALENDAR="${LLDP_RUNNER_RUN_CALENDAR:-*-*-* 00,04,08,12,16,20:00:00}"
@@ -43,18 +43,33 @@ Options:
   --project-root PATH       LLDP-Runner project root.
   --persistent-root PATH    Configured persistent_root (default: PROJECT/var).
   --scratch-root PATH       Configured scratch_root; holds the schedule lock
-                            (default: /dev/shm/lldp-runner).
+                            (default: /dev/shm/lldp-runner for /opt/lldp-runner,
+                            /dev/shm/lldp-runner-<path> for other projects).
   --python-dir PATH         Shared uv-managed Python directory.
   --random-delay MINUTES    Timer random delay, 0 or greater (default: 10).
   --run-calendar SPEC       systemd OnCalendar for discovery.
   --maintenance-calendar SPEC
                             systemd OnCalendar for clean/purge.
   --purge-keep NUMBER       Additional outputs beyond latest (default: 11).
+  --print-paths             Print the runtime roots the units would use and exit.
   -h, --help                Show this help.
 USAGE
 }
 
 die() { printf 'Error: %s\n' "$*" >&2; exit 1; }
+
+# Scratch directory name for a shared installation; must match
+# shared-setup.sh and lldp_runner.layout.scratch_name().
+scratch_name() {
+    local root="$1" text
+    if [[ "$root" == /opt/lldp-runner ]]; then printf 'lldp-runner'; return; fi
+    text="${root#/}"
+    text="${text//\//-}"
+    text="$(printf '%s' "$text" | LC_ALL=C sed 's/[^A-Za-z0-9._-]/_/g')"
+    printf 'lldp-runner-%s' "$text"
+}
+
+PRINT_PATHS=false
 
 while (($#)); do
     case "$1" in
@@ -68,12 +83,22 @@ while (($#)); do
         --run-calendar) (($# >= 2)) || die "--run-calendar requires a value"; RUN_CALENDAR="$2"; shift 2 ;;
         --maintenance-calendar) (($# >= 2)) || die "--maintenance-calendar requires a value"; MAINT_CALENDAR="$2"; shift 2 ;;
         --purge-keep) (($# >= 2)) || die "--purge-keep requires a value"; PURGE_KEEP="$2"; shift 2 ;;
+        --print-paths) PRINT_PATHS=true; shift ;;
         -h|--help) usage; exit 0 ;;
         *) die "unknown option: $1" ;;
     esac
 done
 
+while [[ "$PROJECT_ROOT" == */ && "$PROJECT_ROOT" != / ]]; do
+    PROJECT_ROOT="${PROJECT_ROOT%/}"
+done
 : "${PERSISTENT_ROOT:=${PROJECT_ROOT}/var}"
+: "${SCRATCH_ROOT:=/dev/shm/$(scratch_name "$PROJECT_ROOT")}"
+
+if [[ "$PRINT_PATHS" == true ]]; then
+    printf 'persistent_root=%s\nscratch_root=%s\n' "$PERSISTENT_ROOT" "$SCRATCH_ROOT"
+    exit 0
+fi
 
 [[ ${EUID} -eq 0 ]] || die "run this script with sudo or as root"
 command -v systemctl >/dev/null 2>&1 || die "systemctl is required"

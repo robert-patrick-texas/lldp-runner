@@ -48,10 +48,10 @@ COMMENTS: dict[str, tuple[str, ...]] = {
         "A shared or system root must already exist; a per-user one is created.",
     ),
     "paths.scratch_root": (
-        "When set to auto: /dev/shm/lldp-runner for a shared install,",
-        "/run/lldp-runner then /dev/shm/lldp-runner for /etc/lldp-runner, or",
-        "$XDG_RUNTIME_DIR/lldp-runner below the home directory; otherwise",
-        "<persistent_root>/tmp.",
+        "When set to auto: /dev/shm/lldp-runner for /opt/lldp-runner (other",
+        "shared installs add their path, such as lldp-runner-srv-lab),",
+        "/run/lldp-runner for /etc/lldp-runner, or $XDG_RUNTIME_DIR/lldp-runner",
+        "below the home directory; otherwise <persistent_root>/tmp.",
     ),
     "paths.runs_dirname": (
         "Durable SQLite/checkpoint state is stored below "
